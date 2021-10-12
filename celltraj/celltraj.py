@@ -13,6 +13,7 @@ import pyemma.coordinates.clustering as clustering
 import pyemma
 from skimage import transform as tf
 from scipy.optimize import minimize
+from scipy import ndimage
 import scipy
 import csaps
 import mahotas
@@ -39,6 +40,10 @@ class cellTraj():
         self.nF=nF
         self.visual=True
         self.imgdim=2
+        self.imgchannel=None #None for single-channel images, or chosen channel for multi-channel images
+        self.mskchannel=None #None for single-channel masks, or chosen channel for multi-channel masks
+        self.maximum_cell_size=250 #biggest linear edge of square holding a single cell image
+        self.ntrans=30; self.maxtrans=60.0 #sqrt number of points and max value for brute force registration
         try:
             self.get_image_data(1)
             self.imagesExist=True
@@ -78,14 +83,22 @@ class cellTraj():
         msks=np.array(msks)
         imgs=imgs[indimages]
         msks=msks[indimages]
-        if imgs.ndim!=3:
+        if imgs.ndim<3:
             imgs=imgs[0]
             imgs=np.expand_dims(imgs,axis=0)
             msks=msks[0]
             msks=np.expand_dims(msks,axis=0)
-        if imgs.ndim==4: #throwing out extra channels for now
-            imgs=imgs[0,:,:,0]
-            imgs=np.expand_dims(imgs,axis=0)
+#        if imgs.ndim==>3: #throwing out extra channels for now
+#            imgs=imgs[0,:,:,0]
+#            imgs=np.expand_dims(imgs,axis=0)
+        if self.imgchannel is None:
+            pass
+        else:
+            imgs=imgs[:,:,:,self.imgchannel]
+        if self.mskchannel is None:
+            pass
+        else:
+            msks=msks[:,:,:,self.mskchannel]
         self.imgs=imgs
         self.msks=msks
         self.timeList=timeList
@@ -144,7 +157,7 @@ class cellTraj():
         self.numImages=numImages
         self.maxFrame=numImages.size-1
 
-    def get_cell_blocks(self,msk,minsize=10):
+    def get_cell_blocks(self,msk,minsize=1):
         ncells=int(np.max(msk))
         cellblocks=np.zeros((ncells,self.imgdim,2))
         indgood=np.array([])
@@ -154,9 +167,9 @@ class cellTraj():
                 indgood=np.append(indgood,ic-1)
                 for idim in range(self.imgdim):
                     cellblocks[ic-1,idim,0]=np.min(indc[idim])
-                    cellblocks[ic-1,idim,1]=np.max(indc[idim])
+                    cellblocks[ic-1,idim,1]=np.max(indc[idim])+1
             else:
-                sys.stdout.write('cell: '+str(ic)+' has no assigned pixels!\n')
+                sys.stdout.write('cell: '+str(ic)+' smaller than minsize of '+str(minsize)+'\n')
         indgood=indgood.astype(int)
         cellblocks=cellblocks[indgood,:,:]
         return cellblocks.astype(int)
@@ -212,7 +225,7 @@ class cellTraj():
             self.get_fmask_data(iS)
             self.fmskSet=np.append(self.fmskSet,self.fmsks,axis=0)
 
-    def get_imageSet_trans(self):
+    def get_imageSet_trans_turboreg(self):
         nimg=self.imgfileSet.size
         tSet=np.zeros((nimg,3))
         stack_inds=np.unique(self.imgfileSet).astype(int)
@@ -232,7 +245,19 @@ class cellTraj():
                 tSet[inds[iframe],2]=tmatrix[1,2]
                 sys.stdout.write('    stack '+str(istack)+' frame '+str(iframe)+' transx: '+str(tSet[inds[iframe],1])+' transy: '+str(tSet[inds[iframe],2])+'\n')
         self.imgSet_t=tSet
-                            
+
+    def get_imageSet_trans(self):
+        nimg=self.imgfileSet.size
+        tSet=np.zeros((nimg,3))
+        stack_inds=np.unique(self.imgfileSet).astype(int)
+        for istack in stack_inds:
+            sys.stdout.write('registering '+self.fileList[istack]+'\n')
+            inds=np.where(self.imgfileSet==istack)
+            inds=inds[0]
+            mskSet=self.mskSet[inds,:,:]
+            tSet_stack=self.get_stack_trans(mskSet)
+            tSet[inds,:]=tSet_stack
+        self.imgSet_t=tSet                            
 
     def get_cell_data(self):
         if not hasattr(self,'imgSet'):
@@ -316,7 +341,29 @@ class cellTraj():
         self.cells_positionSet=cells_positionSet
         self.x=cells_x
 
+    def get_cell_positions(self):
+        if not hasattr(self,'imgSet_t'):
+            sys.stdout.write('stack has not been trans registered: calling get_imageSet_trans()\n')
+            self.get_imageSet_trans()
+        ncells=self.cells_indSet.size
+        cells_positionSet=np.zeros((ncells,2))
+        cells_x=np.zeros((ncells,2))
+        for im in range(self.imgSet.shape[0]):
+            sys.stdout.write('loading cells from frame '+str(self.frameSet[im])+' imagestack '+str(self.imgfileSet[im])+'\n')
+            indc_img=np.where(self.cells_indimgSet==im)
+            msk=self.mskSet[im]
+            msk=self.get_clean_mask(msk)
+            centers=np.array(ndimage.measurements.center_of_mass(np.ones_like(msk),labels=msk,index=np.arange(1,np.max(msk)+1).astype(int)))
+            cells_positionSet[indc_img,:]=centers
+            centers[:,0]=centers[:,0]-self.imgSet_t[im,2]
+            centers[:,1]=centers[:,1]-self.imgSet_t[im,1]
+            cells_x[indc_img,:]=centers
+        self.cells_positionSet=cells_positionSet
+        self.x=cells_x
+
     def get_cellborder_images(self,indcells=None,bordersize=10):
+        if not hasattr(self,'fmskSet'):
+            self.get_fmaskSet(self.start_frame,self.end_frame)
         nx=self.imgSet.shape[1]; ny=self.imgSet.shape[2];
         if indcells is None:
             indcells=np.arange(self.cells_indSet.size).astype(int)
@@ -428,7 +475,7 @@ class cellTraj():
                         pass
                     else:
                         imgfile="%04d.png" % im
-                        plt.savefig(self.modelName+'_trackmd_stack'+str(istack)+'_'+imgfile)
+                        plt.savefig(pathto+self.modelName+'_trackmd_stack'+str(istack)+'_'+imgfile)
         self.linSet=linSet
 
     def get_lineage_bunch_overlap(self,distcut=45.0,distcutb=300.0,overlapcut=10.0,cellcut=10.0,bunchcut=100.*100.,pathto=None,clustervisual=False):
@@ -437,8 +484,11 @@ class cellTraj():
             nx=self.imgSet.shape[1]; ny=self.imgSet.shape[2]
             maxdx=np.max(nx-self.imgSet_t[:,1]); mindx=np.min(0-self.imgSet_t[:,1]);
             maxdy=np.max(ny-self.imgSet_t[:,2]); mindy=np.min(0-self.imgSet_t[:,2]);
-            command='mkdir '+pathto
-            os.system(command)
+            if pathto is None:
+                pass
+            else:
+                command='mkdir '+pathto
+                os.system(command)
         if not hasattr(self,'fmskSet'):
             self.get_fmaskSet(self.start_frame,self.end_frame)
         sr = StackReg(StackReg.RIGID_BODY)
@@ -633,9 +683,161 @@ class cellTraj():
                         pass
                     else:
                         imgfile="%04d.png" % im
-                        plt.savefig(self.modelName+'_trackbo_stack'+str(istack)+'_'+imgfile)
+                        plt.savefig(pathto+self.modelName+'_trackbo_stack'+str(istack)+'_'+imgfile)
                 linSet[inds[im+1]]=lin1.copy()
             self.linSet=linSet
+
+    def get_cell_boundary_size(self,indcell,msk=None,cpix=5):
+        ic=self.cells_indSet[indcell]
+        if msk is None:
+            msk=self.mskSet_cyto[self.cells_indimgSet[indcell],:,:]
+        mskc=msk==ic+1
+        boundarysize=np.sum(mahotas.borders(mskc,Bc=np.ones((cpix,cpix))))
+        return boundarysize
+
+    def get_cell_neighborhood(self,indcell,bmsk=None,bunch_clusters=None,rcut=200.,visual=False,cpix=5): #returns indices of interacting partners and shared boundary lengths
+        im=self.cells_indimgSet[indcell]
+        indt=np.where(self.cells_indimgSet==im)[0]
+        clabels=np.arange(indt.size).astype(int)+1
+        x1=self.x[indcell,:]
+        x_img=self.x[indt,:]
+        dist1=np.linalg.norm(x1-x_img,axis=1)
+        ind1=np.where(dist1==0.)[0]
+        inds_not1=np.setdiff1d(np.arange(indt.size).astype(int),ind1)
+        dist1=dist1[inds_not1]
+        indsr=np.where(dist1<rcut)[0]
+        x_img=x_img[inds_not1[indsr],:]
+        indt=indt[inds_not1[indsr]]
+        clabels=clabels[inds_not1[indsr]]
+        if bmsk is None:
+            fmsk=self.fmskSet[im,:,:]
+            bmsk=self.get_cell_bunches(fmsk,bunchcut=1.0)
+        if bunch_clusters is None:
+            bunch_clusters=self.get_bunch_clusters(bmsk,t=self.imgSet_t[im,:])
+        indsb=bunch_clusters.assign(x_img)
+        indb1=bunch_clusters.assign(x1[np.newaxis,:])[0]
+        inds_b1=np.where(indsb==indb1)[0]
+        x_img=x_img[inds_b1,:]-x1
+        x_img=np.insert(x_img,0,0.,axis=0)
+        indt=indt[inds_b1]
+        clabels=clabels[inds_b1]
+        msk=self.mskSet_cyto[im,:,:].astype(int)
+        intersurfaces=np.zeros(clabels.size)
+        for ic in range(clabels.size):
+            intersurfaces[ic]=np.sum(mahotas.border(msk,ind1[0]+1,clabels[ic],Bc=np.ones((cpix,cpix))))
+        inds_contact=np.where(intersurfaces>0.)[0]
+        intersurfaces=intersurfaces[inds_contact]
+        intersurfaces=intersurfaces/np.sum(intersurfaces)
+        indcells=indt[inds_contact]
+        if visual:
+            self.get_cellborder_images(np.insert(indcells,0,indcell),bordersize=120)
+            plt.figure(figsize=(12,12))
+            nrows=int(np.ceil(np.sqrt(indcells.size+1)))
+            xset=self.x[np.insert(indcells,0,indcell)] #-self.imgSet_t[self.cells_indimgSet[indcell]][1:]
+            for ic in range(indcells.size+1):
+                plt.subplot(nrows,nrows,ic+1)
+                plt.imshow(np.ma.masked_where(self.cellborder_msks[ic].T==1, self.cellborder_imgs[ic].T),cmap=plt.cm.gray,clim=[-5,5])
+                plt.imshow(np.ma.masked_where(self.cellborder_msks[ic].T == 0, self.cellborder_imgs[ic].T),cmap=plt.cm.seismic,clim=(-5,5))
+                imcenter=np.zeros(2)
+                imcenter[0]=self.cellborder_imgs[ic].shape[0]/2.
+                imcenter[1]=self.cellborder_imgs[ic].shape[1]/2.
+                T_im=xset[ic,:]-imcenter
+                xset1_im=xset-T_im
+                xset0_im=np.zeros_like(xset1_im)
+                for ic2 in range(indcells.size+1):
+                    i1=np.insert(indcells,0,indcell)[ic2]
+                    ip1=self.get_cell_trajectory(i1)[-2]
+                    xset0_im[ic2,:]=self.x[ip1,:]-T_im
+                ax=plt.gca()
+                plt.scatter(xset1_im[0,0],xset1_im[0,1],s=100,marker='x',color='red')
+                for ic2 in range(indcells.size+1):
+                    ax.arrow(xset1_im[ic2,0],xset1_im[ic2,1],xset1_im[ic2,0]-xset0_im[ic2,0],xset1_im[ic2,1]-xset0_im[ic2,1],head_width=10,linewidth=1.5,color='black',alpha=1.0)
+                plt.plot(np.array([xset1_im[0,0],xset1_im[ic,0]]),np.array([xset1_im[0,1],xset1_im[ic,1]]),'r--')
+                plt.axis('off')
+                if ic==0:
+                    comdx=self.feat_comdx(indcell)
+                    plt.title('labeled: dx: {:2.2} alpha: {:2.2} beta: {:2.2}'.format(comdx[0],comdx[1],comdx[2]))
+                else:
+                    alpha=self.get_alpha(indcell,indcells[ic-1])
+                    beta=self.get_beta(indcell,indcells[ic-1])
+                    plt.title('contact {:2.2}, alpha {:2.2}, beta {:2.2} '.format(intersurfaces[ic-1]/np.sum(intersurfaces),alpha,beta))
+                plt.pause(.1)
+        return indcells,intersurfaces
+
+    def get_alpha(self,i1,i2):
+        try:
+            ip1=self.get_cell_trajectory(i1,n_hist=1)[-2]
+            ip2=self.get_cell_trajectory(i2,n_hist=1)[-2]
+            dx1=self.x[i1,:]-self.x[ip1,:]
+            dx1=dx1/np.linalg.norm(dx1)
+            dx2=self.x[i2,:]-self.x[ip2,:]
+            dx2=dx2/np.linalg.norm(dx2)
+            pij=dx1-dx2
+            rij=(self.x[i1,:]-self.x[i2,:])
+            nij=rij/np.sqrt(np.sum(np.power(rij,2)))
+            alpha=np.sum(np.multiply(pij,nij))
+        except:
+            alpha=np.nan
+        return alpha
+
+    def get_beta(self,i1,i2):
+        try:
+            ip1=self.get_cell_trajectory(i1,n_hist=1)[-2]
+            ip2=self.get_cell_trajectory(i2,n_hist=1)[-2]
+            dx1=self.x[i1,:]-self.x[ip1,:]
+            dx1=dx1/np.linalg.norm(dx1)
+            dx2=self.x[i2,:]-self.x[ip2,:]
+            dx2=dx2/np.linalg.norm(dx2)
+            beta=np.sum(np.multiply(dx1,dx2))
+        except:
+            beta=np.nan
+        return beta
+
+    def get_dx(self,i1):
+        try:
+            ip1=self.get_cell_trajectory(i1,n_hist=1)[-2]
+            dx1=self.x[i1,:]-self.x[ip1,:]
+        except:
+            dx1=np.ones(2)*np.nan
+        return dx1
+
+    def feat_comdx(self,indcell,bmsk=None,bunch_clusters=None):
+        if self.get_cell_trajectory(indcell,n_hist=1).size>1:
+            indcells,intersurfaces=self.get_cell_neighborhood(indcell,bmsk=bmsk,bunch_clusters=bunch_clusters)
+            alphaSet=np.zeros(indcells.size)
+            betaSet=np.zeros(indcells.size)
+            for ic in range(indcells.size):
+                alphaSet[ic]=self.get_alpha(indcell,indcells[ic])
+                betaSet[ic]=self.get_beta(indcell,indcells[ic])
+            intersurfaces=intersurfaces/np.nansum(intersurfaces)
+            comdx=np.zeros(3)
+            comdx[0]=np.linalg.norm(self.get_dx(indcell))
+            comdx[1]=np.nansum(np.multiply(intersurfaces,alphaSet))
+            comdx[2]=np.nansum(np.multiply(intersurfaces,betaSet))
+        else:
+            comdx=np.ones(3)*np.nan
+        return comdx
+
+    def get_comdx_features(self,cell_inds=None):
+        nfeat_com=3
+        if cell_inds is None:
+            cell_inds=np.arange(self.x.shape[0]).astype(int)
+        Xf_com=np.ones((self.x.shape[0],nfeat_com))*np.nan
+        traj_pairSet=self.get_traj_segments(2)
+        indimgs=np.unique(self.cells_indimgSet[cell_inds])
+        for im in indimgs:
+            fmsk=self.fmskSet[im,:,:]
+            bmsk=self.get_cell_bunches(fmsk,bunchcut=1.0)
+            bunch_clusters=self.get_bunch_clusters(bmsk,t=self.imgSet_t[im,:])
+            sys.stdout.write('extracting motility features from image '+str(im)+' of '+str(indimgs.size)+'\n')
+            cell_inds_img=np.where(self.cells_indimgSet[cell_inds]==im)[0]
+            indcells,indcomm_cindimg,indcomm_ctraj=np.intersect1d(cell_inds[cell_inds_img],traj_pairSet[:,1],return_indices=True)
+            xSet=self.x[traj_pairSet[indcomm_ctraj,1],:]
+            for ic in indcomm_ctraj:
+                indcell=traj_pairSet[ic,1]
+                comdx=self.feat_comdx(indcell,bmsk=bmsk,bunch_clusters=bunch_clusters)
+                Xf_com[indcell,:]=comdx
+        self.Xf_com=Xf_com
 
     def get_cell_trajectory(self,cell_ind,n_hist=-1): #cell trajectory stepping backwards
         ind_imgfile=int(self.imgfileSet[self.cells_imgfileSet[cell_ind]])
@@ -666,7 +868,7 @@ class cellTraj():
                     indt0=np.where(self.cells_indimgSet==indimg0)[0]
                     indtrack=self.linSet[indimg1][i1]
                     if indtrack<0:
-                        sys.stdout.write('            cell '+str(indCurrentCell)+' ended '+str(iH)+' frames ago\n')
+                        #sys.stdout.write('            cell '+str(indCurrentCell)+' ended '+str(iH)+' frames ago\n')
                         cell_ind_history[iH]=np.nan
                         ended=True
                     else:
@@ -681,6 +883,7 @@ class cellTraj():
         else:
             cell_inds_all=cell_inds.copy()
         n_untracked=cell_inds_all.size
+        nc0=n_untracked
         trajectories=[]
         while n_untracked >0:
             indc=cell_inds_all[-1]
@@ -691,7 +894,8 @@ class cellTraj():
             inds_untracked=np.where(cell_inds_all>=0)
             cell_inds_all=cell_inds_all[inds_untracked]
             n_untracked=cell_inds_all.size
-            sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
+            if n_untracked%100==0:
+                sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
         self.trajectories=trajectories
 
     def get_unique_trajectories(self,cell_inds=None,verbose=False,extra_depth=None):
@@ -713,7 +917,7 @@ class cellTraj():
             indctracked,indcomm_tracked,indcomm_traj=np.intersect1d(inds_tracked,cell_traj,return_indices=True)
             if indctracked.size>0:
                 indcomm_last=np.max(indcomm_traj)
-                sys.stdout.write('cell '+str(indc)+' tracks to '+str(cell_traj[indcomm_last])+', already tracked\n')
+                #sys.stdout.write('cell '+str(indc)+' tracks to '+str(cell_traj[indcomm_last])+', already tracked\n')
                 if indcomm_last+1-extra_depth>=0:
                     indlast=indcomm_last+1-extra_depth
                 else:
@@ -729,7 +933,7 @@ class cellTraj():
             if verbose:
                 sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
             else:
-                if n_untracked%20 == 0:
+                if n_untracked%100 == 0:
                     sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
         self.trajectories=trajectories
 
@@ -1003,7 +1207,7 @@ class cellTraj():
                     traj_segSet=np.append(traj_segSet,traj_seg[np.newaxis,:],axis=0)
         return traj_segSet
 
-    def show_cells(self,X=None):
+    def show_cells_queue(self,X=None):
         if self.visual and self.imgdim==2:
             if X is None:
                 if not hasattr(self,'cells_imgs'):
@@ -1042,6 +1246,8 @@ class cellTraj():
         for ic in range(ncells):
             cellSizes[ic,:]=np.shape(self.cells_msks[ic])
         maxedge=np.ceil((2**.5)*np.max(cellSizes)).astype(int)
+        if maxedge>self.maximum_cell_size:
+            maxedge=self.maximum_cell_size
         X=np.zeros((ncells,maxedge*maxedge))
         Xm=np.zeros((ncells,maxedge*maxedge))
         for ic in range(ncells):
@@ -1083,28 +1289,44 @@ class cellTraj():
         self.maxedge=maxedge
         self.ncells=ncells
 
-    def prepare_cell_features(self):
+    def prepare_cell_features(self,apply_znorm=True):
         Xf=[None]*self.ncells
+        ic=0
+        x1=self.X[ic,:]
+        m1=self.Xm[ic,:]
+        x1fg=self.featZernike(x1)
+        x1fh=self.featHaralick(x1)
+        x1fh=self.znorm(x1fh) #apply for some relative normalization
+        x1fb=self.featBoundary(m1)
+        msk=self.cellborder_msks[ic]
+        fmsk=self.cellborder_fmsks[ic]
+        x1fcb=self.featBoundaryCB(msk,fmsk)
+        ng=x1fg.size
+        nh=x1fh.size
+        nb=x1fb.size
+        ncb=x1fcb.size
+        indfg=np.arange(0,ng).astype(int)
+        indfh=np.arange(ng,ng+nh).astype(int)
+        indfb=np.arange(ng+nh,ng+nh+nb).astype(int)
+        indfcb=np.arange(ng+nh+nb,ng+nh+nb+ncb).astype(int)
+        self.indfg=indfg
+        self.indfh=indfh
+        self.indfb=indfb
+        self.indfcb=indfcb
         for ic in range(self.ncells):
             x1=self.X[ic,:]
             m1=self.Xm[ic,:]
             x1fg=self.featZernike(x1)
             x1fh=self.featHaralick(x1)
             x1fb=self.featBoundary(m1)
-            if ic==0:
-                ng=x1fg.size
-                nh=x1fh.size
-                nb=x1fb.size
-                indfg=np.arange(0,ng).astype(int)
-                indfh=np.arange(ng,ng+nh).astype(int)
-                indfb=np.arange(ng+nh,ng+nh+nb).astype(int)
-                self.indfg=indfg
-                self.indfh=indfh
-                self.indfb=indfb
-            x1f=np.zeros(ng+nh+nb)
+            msk=self.cellborder_msks[ic]
+            fmsk=self.cellborder_fmsks[ic]
+            x1fcb=self.featBoundaryCB(msk,fmsk)
+            x1f=np.zeros(ng+nh+nb+ncb)
             x1f[indfg]=x1fg
             x1f[indfh]=x1fh
             x1f[indfb]=x1fb
+            x1f[indfcb]=x1fcb
             Xf[ic]=x1f.copy()
             if ic%100==0:
                 sys.stdout.write('preparing RT invariant global, texture, boundary features for cell '+str(ic)+' of '+str(self.ncells)+'\n')
@@ -1366,7 +1588,7 @@ class cellTraj():
         xt=np.zeros((0,neigen))
         inds_traj=np.array([])
         for itraj in range(ntraj-self.trajl):
-            test=cell_traj[itraj:itraj+trajl]
+            test=cell_traj[itraj:itraj+self.trajl]
             res = (traj[:, None] == test[np.newaxis,:]).all(-1).any(-1)
             if np.sum(res)==1:
                 indt=np.where(res)[0][0]
@@ -1441,7 +1663,7 @@ class cellTraj():
                 Mt[iR,iR]=1.0
         self.Mt=Mt
 
-    def get_transition_matrix_CG(x0,x1,clusters,states):
+    def get_transition_matrix_CG(self,x0,x1,clusters,states):
         n_clusters=clusters.clustercenters.shape[0]
         n_states=np.max(states)+1
         indc0=states[clusters.assign(x0)]
@@ -1748,7 +1970,8 @@ class cellTraj():
                 pts = np.asarray(plt.ginput(npts, timeout=-1))
             else:
                 npts=pts.shape[0]
-            xc=np.array([x[traj[:,0],dm1],x[traj[:,0],dm2]]).T
+            #xc=np.array([x[traj[:,0],dm1],x[traj[:,0],dm2]]).T
+            xc=np.array([x[:,dm1],x[:,dm2]]).T
             dmat=self.get_dmat(xc,pts)
             dmat[np.where(np.logical_or(np.isnan(dmat),np.isinf(dmat)))]=np.inf
             ind_nn=np.zeros(npts)
@@ -1839,7 +2062,11 @@ class cellTraj():
     @staticmethod
     def pad_image(img,maxedge):
         npad_lx=int(np.ceil((maxedge-img.shape[0])/2))
+        if npad_lx<0:
+            npad_lx=0
         npad_ly=int(np.ceil((maxedge-img.shape[1])/2))
+        if npad_ly<0:
+            npad_ly=0
         img=np.pad(img,((npad_lx,npad_lx),(npad_ly,npad_ly)),'constant',constant_values=(0,0))
         img=img[0:maxedge,0:maxedge]
         return img
@@ -1956,11 +2183,15 @@ class cellTraj():
             nx=int(np.sqrt(img.size))
             img=img.reshape(nx,nx)
         if levels is None:
-            levels=np.linspace(-10,10,21)
+            nlevels=21
+            levels=np.linspace(-10,10,nlevels)
             levels=np.append(levels,np.inf)
             levels=np.insert(levels,0,-np.inf)
+        nlevels=levels.size-2
         imgn=np.digitize(img,levels)
-        return np.mean(mahotas.features.haralick(imgn),axis=0)
+        feath=np.mean(mahotas.features.haralick(imgn),axis=0)
+        feath[5]=feath[5]/nlevels #feature 5 is sum average which is way over scale with average of nlevels
+        return feath
 
     @staticmethod
     def featBoundary(msk,ncomp=15,center=None,nth=256):
@@ -2040,6 +2271,27 @@ class cellTraj():
         rtha=rtha/(1.*nth) #we do want the scale for boundary fraction
         return rtha
 
+    def get_neg_overlap(self,t,*args):
+        m0,m1=args[0],args[1]
+        m1=self.transform_image(m1,t)
+        neg_overlap=-np.sum(np.logical_and(m0>0,m1>0))
+        return neg_overlap
+
+    def get_minT(self,m1,m2,nt=20,dt=30.0):
+        if nt%2==0:
+            nt=nt+1 #should be zero in the set!
+        ttSet=np.linspace(-dt,dt,nt)
+        xxt,yyt=np.meshgrid(ttSet,ttSet)
+        overlapSet=np.zeros(nt*nt)
+        xxt=xxt.flatten(); yyt=yyt.flatten()
+        for i in range(nt*nt):
+            t=np.array([0.,xxt[i],yyt[i]])
+            overlapSet[i]=self.get_neg_overlap(t,m1,m2)
+        overlapSet[np.where(np.isnan(overlapSet))]=np.inf
+        imin=np.argmin(overlapSet)
+        tmin=np.array([0.,xxt[imin],yyt[imin]])
+        return tmin
+
     def get_pair_distRT(self,t,*args):
         x1,x2,m1,m2=args[0],args[1],args[2],args[3]
         if x1.ndim==1:
@@ -2086,8 +2338,49 @@ class cellTraj():
         #dist=self.get_pair_distRT(t,x1,x2,m1,m2)
         return t
 
+    def get_stack_trans(self,mskSet):
+        nframes=mskSet.shape[0]
+        tSet=np.zeros((nframes,3))
+        for iS in range(1,nframes):
+            msk0=mskSet[iS-1,:,:]
+            centers0=np.array(ndimage.measurements.center_of_mass(np.ones_like(msk0),labels=msk0,index=np.arange(1,np.max(msk0)+1).astype(int)))
+            msk1=mskSet[iS,:,:]
+            centers1=np.array(ndimage.measurements.center_of_mass(np.ones_like(msk1),labels=msk1,index=np.arange(1,np.max(msk1)+1).astype(int)))
+            #translate centers1 com to centers0 com
+            dcom=np.mean(centers0,axis=0)-np.mean(centers1,axis=0)
+            centers1=centers1-dcom
+            clusters0=coor.clustering.AssignCenters(centers0, metric='euclidean')
+            ind0to1=clusters0.assign(centers1)
+            centers0_com=centers0[ind0to1,:]
+            dglobal=np.mean(centers0_com-centers1,axis=0)
+            centers1=centers1+dglobal
+            ind0to1g=clusters0.assign(centers1)
+            centers0_global=centers0[ind0to1g,:]
+            #tform = tf.estimate_transform('similarity', centers1, centers0_global)
+            t_global=np.zeros(3)
+            t_global[1:]=-dcom+dglobal
+            msk1=self.transform_image(msk1,t_global)
+            t_local=self.get_minT(msk0,msk1,nt=self.ntrans,dt=self.maxtrans)
+            tSet[iS,:]=t_global+t_local
+            sys.stdout.write('transx: '+str(tSet[iS,1])+' transy: '+str(tSet[iS,2])+'\n')
+            if self.visual:
+                plt.clf()
+                msk1=mskSet[iS,:,:]
+                msk1t=self.transform_image(msk1,tSet[iS])
+                msk0=mskSet[iS-1,:,:]
+                plt.subplot(1,2,1)
+                plt.contour(msk1t,colors='red')
+                plt.contour(msk0,colors='blue')
+                plt.subplot(1,2,2)
+                plt.contour(msk1,colors='red')
+                plt.contour(msk0,colors='blue')
+                plt.pause(.1)
+        tSet[:,1]=np.cumsum(tSet[:,1])
+        tSet[:,2]=np.cumsum(tSet[:,2])
+        return tSet
+
     @staticmethod
-    def get_stack_trans(imgs):
+    def get_stack_trans_turboreg(imgs):
         sr = StackReg(StackReg.TRANSLATION)
         tmats = sr.register_stack(img1, reference='previous')
         nframes=tmats.shape[0]
@@ -2098,6 +2391,23 @@ class cellTraj():
             tSet[iframe,1]=tmatrix[0,2]
             tSet[iframe,2]=tmatrix[1,2]
             sys.stdout.write('transx: '+str(tSet[iframe,1])+' transy: '+str(tSet[iframe,2])+'\n')
+        return tSet
+
+    @staticmethod
+    def get_stack_trans_frompoints(mskSet):
+        nframes=mskSet.shape[0]
+        tSet=np.zeros((nframes,3))
+        for iS in range(1,nframes):
+            msk0=mskSet[iS-1,:,:]
+            centers0=np.array(ndimage.measurements.center_of_mass(np.ones_like(msk0),labels=msk0,index=np.arange(1,np.max(msk0)+1).astype(int)))
+            msk1=mskSet[iS,:,:]
+            centers1=np.array(ndimage.measurements.center_of_mass(np.ones_like(msk1),labels=msk1,index=np.arange(1,np.max(msk1)+1).astype(int)))
+            clusters0=pyemma.coordinates.clustering.AssignCenters(centers0, metric='euclidean')
+            ind0to1=clusters0.assign(centers1)
+            centers0=centers0[ind0to1,:]
+            tform = tf.estimate_transform('similarity', centers1, centers0)
+            tSet[iS,1:]=tform.translation
+            sys.stdout.write('transx: '+str(tSet[iS,1])+' transy: '+str(tSet[iS,2])+'\n')
         return tSet
 
     @staticmethod
@@ -2193,7 +2503,7 @@ class cellTraj():
         return bmsk
 
     @staticmethod
-    def get_clean_mask(msk,minsize=10.0):
+    def get_clean_mask(msk,minsize=1.0):
         cmsk=np.zeros_like(msk)
         indc=np.unique(msk[np.where(msk>0)])
         iic=1
