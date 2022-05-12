@@ -1542,7 +1542,7 @@ class cellTraj():
             neigen=int(round(self.scaled_dim))
         self.Xtraj=self.Xd[:,0:neigen]
 
-    def get_trajectory_steps(self,inds=None,traj=None,Xtraj=None,get_trajectories=True): #traj and Xtraj should be indexed same
+    def get_trajectory_steps(self,inds=None,traj=None,Xtraj=None,get_trajectories=True,nlag=1): #traj and Xtraj should be indexed same
         if inds is None:
             inds=np.arange(self.cells_indSet.size).astype(int)
         if get_trajectories:
@@ -1553,7 +1553,9 @@ class cellTraj():
             x=self.Xtraj
         else:
             x=Xtraj
-        trajp1=self.get_traj_segments(self.trajl+1)
+        trajp1=self.get_traj_segments(self.trajl+nlag)
+        inds_nlag=np.flipud(np.arange(self.trajl+nlag-1,-1,-nlag)).astype(int) #keep indices every nlag
+        trajp1=trajp1[:,inds_nlag]
         ntraj=trajp1.shape[0]
         neigen=x.shape[1]
         x0=np.zeros((0,neigen))
@@ -1736,15 +1738,54 @@ class cellTraj():
             ll=np.nan
         return ll
 
-    def get_traj_ll_gmean(self,xt,clusters=None,Mt=None,exclude_stays=False):
+    def get_kscore(self,Mt,eps=1.e-3): #,nw=10):
+        indeye=np.where(np.eye(Mt.shape[0]))
+        diag=Mt[indeye]
+        indgood=np.where(diag<1.)[0]
+        Mt=Mt[indgood,:]
+        Mt=Mt[:,indgood]
+        w,v=np.linalg.eig(np.transpose(Mt))
+        w=np.real(w)
+        if np.sum(np.abs(w-1.)<eps)>0:
+            indw=np.where(np.logical_and(np.logical_and(np.abs(w-1.)>eps,w>0.),w<1.))
+            tw=w[indw]
+            tw=np.sort(tw)
+            #tw=tw[-nw:]
+            tw=1./(1.-tw)
+            kscore=np.sum(tw)
+        else:
+            kscore=np.nan
+        return kscore
+
+    def get_entropy_production(self,clusters=None,Mt=None,trajectories=None,states=None):
+        if trajectories is None:
+            trajectories=self.trajectories
+        entp_production=0.
+        ntraj_total=0
+        ntraj=len(trajectories)
+        for itraj in range(ntraj):
+            cell_traj=self.trajectories[itraj]
+            xt,inds_traj=self.get_Xtraj_celltrajectory(cell_traj,Xtraj=None,traj=None)
+            ll_f=self.get_traj_ll_gmean(xt,clusters=clusters,Mt=Mt,states=states)
+            ll_r=self.get_traj_ll_gmean(np.flip(xt,axis=0),clusters=clusters,Mt=Mt,states=states)
+            if ll_f>0. and ll_r>0.:
+                entp_p=np.log(ll_f/ll_r)
+                ntraj_total=ntraj_total+1  
+                entp_production=entp_production+entp_p
+        entp_production=entp_production/ntraj_total
+        return entp_production
+
+    def get_traj_ll_gmean(self,xt,clusters=None,Mt=None,exclude_stays=False,states=None):
         if clusters is None:
             clusters=self.clusterst
         if Mt is None:
             Mt=self.Mt
+        if states is None:
+            states=np.arange(Mt.shape[0]).astype(int)
         x0=xt[0:-1]
         x1=xt[1:]
-        indc0=clusters.assign(x0)
-        indc1=clusters.assign(x1)
+        indc0=states[clusters.assign(x0)]
+        indc1=states[clusters.assign(x1)]
         llSet=np.array([])
         itt=0
         ntraj=indc0.size
@@ -2195,81 +2236,89 @@ class cellTraj():
 
     @staticmethod
     def featBoundary(msk,ncomp=15,center=None,nth=256):
-        if msk.ndim==1:
-            nx=int(np.sqrt(msk.size))
-            msk=msk.reshape(nx,nx)
-        border=mahotas.borders(msk)
-        if center is None:
-            center=nx/2
-        bordercoords=np.array(np.where(border)).astype('float')-center
-        rcoords=np.sqrt(np.power(bordercoords[0,:],2)+np.power(bordercoords[1,:],2))
-        thetacoords=np.arctan2(bordercoords[1,:],bordercoords[0,:])
-        indth=np.argsort(thetacoords)
-        thetacoords=thetacoords[indth]
-        rcoords=rcoords[indth]
-        thetacoords,inds=np.unique(thetacoords,return_index=True)
-        rcoords=rcoords[inds]
-        thetacoords=np.append(thetacoords,np.pi)
-        thetacoords=np.insert(thetacoords,0,-np.pi)
-        rcoords=np.append(rcoords,rcoords[-1])
-        rcoords=np.insert(rcoords,0,rcoords[0])
-        spl=scipy.interpolate.interp1d(thetacoords,rcoords)
-        thetaset=np.linspace(-np.pi,np.pi,nth+2)
-        thetaset=thetaset[1:-1]
-        rth=spl(thetaset)
-        rtha=np.abs(np.fft.fft(rth))
-        freq=np.fft.fftfreq(rth.size,thetaset[1]-thetaset[0])
-        indf=freq>=0
-        freq=freq[indf]
-        rtha=rtha[indf]
-        indsort=np.argsort(freq)
-        freq=freq[indsort]
-        rtha=rtha[indsort]
-        rtha=rtha[0:ncomp]
-        rtha=rtha/np.sum(rtha)
-        return rtha
+        try:
+            if msk.ndim==1:
+                nx=int(np.sqrt(msk.size))
+                msk=msk.reshape(nx,nx)
+            border=mahotas.borders(msk)
+            if center is None:
+                center=nx/2
+            bordercoords=np.array(np.where(border)).astype('float')-center
+            rcoords=np.sqrt(np.power(bordercoords[0,:],2)+np.power(bordercoords[1,:],2))
+            thetacoords=np.arctan2(bordercoords[1,:],bordercoords[0,:])
+            indth=np.argsort(thetacoords)
+            thetacoords=thetacoords[indth]
+            rcoords=rcoords[indth]
+            thetacoords,inds=np.unique(thetacoords,return_index=True)
+            rcoords=rcoords[inds]
+            thetacoords=np.append(thetacoords,np.pi)
+            thetacoords=np.insert(thetacoords,0,-np.pi)
+            rcoords=np.append(rcoords,rcoords[-1])
+            rcoords=np.insert(rcoords,0,rcoords[0])
+            spl=scipy.interpolate.interp1d(thetacoords,rcoords)
+            thetaset=np.linspace(-np.pi,np.pi,nth+2)
+            thetaset=thetaset[1:-1]
+            rth=spl(thetaset)
+            rtha=np.abs(np.fft.fft(rth))
+            freq=np.fft.fftfreq(rth.size,thetaset[1]-thetaset[0])
+            indf=freq>=0
+            freq=freq[indf]
+            rtha=rtha[indf]
+            indsort=np.argsort(freq)
+            freq=freq[indsort]
+            rtha=rtha[indsort]
+            rtha=rtha[0:ncomp]
+            rtha=rtha/np.sum(rtha)
+            return rtha
+        except:
+            rtha=np.ones(ncomp)*np.nan
+            return rtha
 
     def featBoundaryCB(self,msk,fmsk,ncomp=15,center=None,nth=256):
-        if msk.ndim==1:
-            nx=int(np.sqrt(msk.size))
-            msk=msk.reshape(nx,nx)
-            fmsk=fmsk.reshape(nx,nx)
-        ccborder,csborder=self.get_cc_cs_border(msk,fmsk)
-        if center is None:
-            nx=msk.shape[0]; ny=msk.shape[1];
-            center=np.array([nx/2.,ny/2.])
-        bordercoords_cc=np.array(np.where(ccborder)).astype('float')-np.array([center]).T
-        thetacoords_cc=np.arctan2(bordercoords_cc[1,:],bordercoords_cc[0,:])
-        cbcoords_cc=np.ones_like(thetacoords_cc)
-        bordercoords_cs=np.array(np.where(csborder)).astype('float')-np.array([center]).T
-        thetacoords_cs=np.arctan2(bordercoords_cs[1,:],bordercoords_cs[0,:])
-        cbcoords_cs=np.zeros_like(thetacoords_cs)
-        thetacoords=np.append(thetacoords_cc,thetacoords_cs)
-        cbcoords=np.append(cbcoords_cc,cbcoords_cs)
-        indth=np.argsort(thetacoords)
-        thetacoords=thetacoords[indth]
-        cbcoords=cbcoords[indth]
-        thetacoords,inds=np.unique(thetacoords,return_index=True)
-        cbcoords=cbcoords[inds]
-        thetacoords=np.append(thetacoords,np.pi)
-        thetacoords=np.insert(thetacoords,0,-np.pi)
-        cbcoords=np.append(cbcoords,cbcoords[-1])
-        cbcoords=np.insert(cbcoords,0,cbcoords[0])
-        spl=scipy.interpolate.interp1d(thetacoords,cbcoords)
-        thetaset=np.linspace(-np.pi,np.pi,nth+2)
-        thetaset=thetaset[1:-1]
-        rth=spl(thetaset)
-        rtha=np.abs(np.fft.fft(rth))
-        freq=np.fft.fftfreq(rth.size,thetaset[1]-thetaset[0])
-        indf=freq>=0
-        freq=freq[indf]
-        rtha=rtha[indf]
-        indsort=np.argsort(freq)
-        freq=freq[indsort]
-        rtha=rtha[indsort]
-        rtha=rtha[0:ncomp]
-        rtha=rtha/(1.*nth) #we do want the scale for boundary fraction
-        return rtha
+        try:
+            if msk.ndim==1:
+                nx=int(np.sqrt(msk.size))
+                msk=msk.reshape(nx,nx)
+                fmsk=fmsk.reshape(nx,nx)
+            ccborder,csborder=self.get_cc_cs_border(msk,fmsk)
+            if center is None:
+                nx=msk.shape[0]; ny=msk.shape[1];
+                center=np.array([nx/2.,ny/2.])
+            bordercoords_cc=np.array(np.where(ccborder)).astype('float')-np.array([center]).T
+            thetacoords_cc=np.arctan2(bordercoords_cc[1,:],bordercoords_cc[0,:])
+            cbcoords_cc=np.ones_like(thetacoords_cc)
+            bordercoords_cs=np.array(np.where(csborder)).astype('float')-np.array([center]).T
+            thetacoords_cs=np.arctan2(bordercoords_cs[1,:],bordercoords_cs[0,:])
+            cbcoords_cs=np.zeros_like(thetacoords_cs)
+            thetacoords=np.append(thetacoords_cc,thetacoords_cs)
+            cbcoords=np.append(cbcoords_cc,cbcoords_cs)
+            indth=np.argsort(thetacoords)
+            thetacoords=thetacoords[indth]
+            cbcoords=cbcoords[indth]
+            thetacoords,inds=np.unique(thetacoords,return_index=True)
+            cbcoords=cbcoords[inds]
+            thetacoords=np.append(thetacoords,np.pi)
+            thetacoords=np.insert(thetacoords,0,-np.pi)
+            cbcoords=np.append(cbcoords,cbcoords[-1])
+            cbcoords=np.insert(cbcoords,0,cbcoords[0])
+            spl=scipy.interpolate.interp1d(thetacoords,cbcoords)
+            thetaset=np.linspace(-np.pi,np.pi,nth+2)
+            thetaset=thetaset[1:-1]
+            rth=spl(thetaset)
+            rtha=np.abs(np.fft.fft(rth))
+            freq=np.fft.fftfreq(rth.size,thetaset[1]-thetaset[0])
+            indf=freq>=0
+            freq=freq[indf]
+            rtha=rtha[indf]
+            indsort=np.argsort(freq)
+            freq=freq[indsort]
+            rtha=rtha[indsort]
+            rtha=rtha[0:ncomp]
+            rtha=rtha/(1.*nth) #we do want the scale for boundary fraction
+            return rtha
+        except:
+            rtha=np.ones(ncomp)*np.nan
+            return(rtha)
 
     def get_neg_overlap(self,t,*args):
         m0,m1=args[0],args[1]
