@@ -1,0 +1,26 @@
+name: celltraj_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+ - numpy
+ - h5py
+ - matplotlib
+ - pyemma
+ - sphinx_rtd_theme
+ - Sphinx
+ - pytest
+ - sphinx_rtd_theme
+ - scipy
+ - pip
+ - skimage
+ - scipy
+ - mahotas
+ - umap-learn
+ - pygpcca
+ - pytorch
+ - pip:
+   - csaps
+   - pystackreg
+   - cellpose
+   - sklearn
