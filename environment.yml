@@ -13,7 +13,7 @@ dependencies:
  - sphinx_rtd_theme
  - scipy
  - pip
- - skimage
+ - scikit-image
  - scipy
  - mahotas
  - umap-learn
