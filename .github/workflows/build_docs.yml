@@ -38,7 +38,7 @@ jobs:
           path: ~/conda_pkgs_dir
           key:
             ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
-            hashFiles('environment.yml') }}
+            hashFiles('docs_environment.yml') }}
 
 # Dependencies may need to be installed via conda instead, since pyemma at least doesn't like pip
 #     - uses: goanpeca/setup-miniconda@v1
@@ -46,7 +46,7 @@ jobs:
       with:
           miniconda-version: "latest"
           activate-environment: test_env
-          environment-file: environment.yml
+          environment-file: docs_environment.yml
           python-version: 3.7
           channel-priority: strict
           auto-activate-base: false
