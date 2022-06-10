@@ -9,6 +9,7 @@ Welcome to syncell's documentation!
    installation
    usage
    modules
+   api
    contributing
    authors
    history
