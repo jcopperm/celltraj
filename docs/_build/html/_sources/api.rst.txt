@@ -7,8 +7,8 @@ API Reference
    :nosignatures:
    :toctree: stubs
 
-   syncell.syncell.cellTraj()
+   src.celltraj.cellTraj
 
 
-.. automodule:: syncell.syncell
+.. automodule:: src.celltraj.cellTraj
    :members:
