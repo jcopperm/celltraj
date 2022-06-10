@@ -3,8 +3,8 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-sys.path.append('/home/groups/ZuckermanLab/copperma/cell/celltraj')
-import celltraj
+sys.path.append('/home/groups/ZuckermanLab/copperma/cell/syncell')
+import syncell
 import h5py
 import pickle
 import os
@@ -26,7 +26,7 @@ for i in range(nmodels):
     modelSet[i]=pickle.load(objFileHandler)
     objFileHandler.close()
 
-wctm=celltraj.cellTraj()
+wctm=syncell.cellTraj()
 fileSpecifier='/home/groups/ZuckermanLab/copperma/cell/live_cell/mcf10a/batch_17nov20/*_17nov20.h5'
 print('initializing...')
 wctm.initialize(fileSpecifier,modelName)
@@ -398,7 +398,7 @@ for imf in [4]: #range(nmodels-1,-1,-1):
         cell_traj=modelSet[imf].trajectories[indtrajs[itrajr]]
         if cell_traj[-1]==ctrajSet[imf]:
             plt.figure(figsize=(8,6))
-            xt,inds_traj=get_Xtraj_celltrajectory(modelSet[imf],cell_traj,Xtraj=None,traj=None)
+            xt,inds_traj=get_Xtraj_syncellectory(modelSet[imf],cell_traj,Xtraj=None,traj=None)
             prob,xedges2,yedges2=np.histogram2d(x[indstwm,0],x[indstwm,1],bins=[xedges1,yedges1],density=True)
             cs=plt.contourf(xx,yy,prob.T,levels=levels,cmap=plt.cm.Greys,extend='both')
             #plt.clim(0,0.03)
@@ -419,11 +419,11 @@ for imf in [4]: #range(nmodels-1,-1,-1):
             plt.savefig(tmSet[imf]+'_probflows_tl8_c'+str(cell_traj[-1])+'_4mar21.png')
             plt.close()
             show_cells(modelSet[imf],cell_traj)
-            plt.savefig(tmSet[imf]+'_celltraj_tl8_c'+str(cell_traj[-1])+'_4mar21.png')
+            plt.savefig(tmSet[imf]+'_syncell_tl8_c'+str(cell_traj[-1])+'_4mar21.png')
             plt.close()
 
 
-def get_Xtraj_celltrajectory(self,cell_traj,Xtraj=None,traj=None): #traj and 
+def get_Xtraj_syncellectory(self,cell_traj,Xtraj=None,traj=None): #traj and 
     if traj is None:
         traj=self.traj
     if Xtraj is None:
@@ -616,7 +616,7 @@ for i in range(nmodels):
     pathto='24feb21/'+tmSet[i]
     cmd='mkdir '+pathto
     os.system(cmd)
-    explore_2D_celltraj_nn(modelSet[i],modelSet[i].Xtraj,modelSet[i].traj,pathto=pathto,coordlabel='UMAP',show_segs=False,pts=pts)
+    explore_2D_syncell_nn(modelSet[i],modelSet[i].Xtraj,modelSet[i].traj,pathto=pathto,coordlabel='UMAP',show_segs=False,pts=pts)
 
 xset=np.zeros(1)
 yset=np.zeros(1)
@@ -646,9 +646,9 @@ for i in range(nmodels):
     pathto='24feb21/'+tmSet[i]+'_match_'
     #cmd='mkdir '+pathto
     #os.system(cmd)
-    explore_2D_celltraj_nn(modelSet[i],modelSet[i].Xtraj,modelSet[i].traj,pathto=pathto,coordlabel='UMAP',show_segs=False,pts=pts)
+    explore_2D_syncell_nn(modelSet[i],modelSet[i].Xtraj,modelSet[i].traj,pathto=pathto,coordlabel='UMAP',show_segs=False,pts=pts)
 
-def explore_2D_celltraj_nn(self,x,traj,pts=None,npts=20,dm1=None,dm2=None,pathto='./',coordlabel='coord',show_segs=True):
+def explore_2D_syncell_nn(self,x,traj,pts=None,npts=20,dm1=None,dm2=None,pathto='./',coordlabel='coord',show_segs=True):
     if self.visual:
         plt.figure(figsize=(10,4))
         ipath=0

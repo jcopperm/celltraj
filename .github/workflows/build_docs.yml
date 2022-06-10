@@ -67,7 +67,7 @@ jobs:
     # ===============================
     - name: Commit documentation changes
       run: |
-        git clone https://github.com/jcopperm/celltraj.git --branch gh-pages --single-branch gh-pages
+        git clone https://github.com/jcopperm/syncell.git --branch gh-pages --single-branch gh-pages
         cp -r docs/build/* gh-pages/
         mkdir -p gh-pages/build
         ls docs

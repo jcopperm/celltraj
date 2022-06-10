@@ -1,4 +1,4 @@
-"""Top-level package for CellTraj."""
+"""Top-level package for syncell."""
 
 __author__ = """Jeremy Copperman"""
 __email__ = 'copperma@ohsu.edu'

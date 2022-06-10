@@ -1536,7 +1536,7 @@ class cellTraj():
         else:
             sys.stdout.write('Not in visual mode\n')
 
-    def explore_2D_celltraj(self,x,traj,cell_traj,dm1=None,dm2=None,pathto='./',coordlabel='coord',show_segs=True):
+    def explore_2D_syncell(self,x,traj,cell_traj,dm1=None,dm2=None,pathto='./',coordlabel='coord',show_segs=True):
         if self.visual:
             plt.figure(figsize=(10,4))
             ipath=0
@@ -1598,7 +1598,7 @@ class cellTraj():
         else:
             sys.stdout.write('Not in visual mode\n')
 
-    def explore_2D_celltraj_nn(self,x,traj,pts=None,npts=20,dm1=None,dm2=None,pathto='./',coordlabel='coord',show_segs=True):
+    def explore_2D_syncell_nn(self,x,traj,pts=None,npts=20,dm1=None,dm2=None,pathto='./',coordlabel='coord',show_segs=True):
         if self.visual:
             plt.figure(figsize=(10,4))
             ipath=0

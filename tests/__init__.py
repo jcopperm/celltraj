@@ -1,1 +1,1 @@
-"""Unit test package for celltraj."""
+"""Unit test package for syncell."""

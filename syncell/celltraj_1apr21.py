@@ -2053,7 +2053,7 @@ class cellTraj:
         else:
             sys.stdout.write("Not in visual mode\n")
 
-    def explore_2D_celltraj(
+    def explore_2D_syncell(
         self,
         x,
         traj,
@@ -2174,7 +2174,7 @@ class cellTraj:
         else:
             sys.stdout.write("Not in visual mode\n")
 
-    def explore_2D_celltraj_nn(
+    def explore_2D_syncell_nn(
         self,
         x,
         traj,

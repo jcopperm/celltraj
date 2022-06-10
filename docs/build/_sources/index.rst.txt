@@ -1,4 +1,4 @@
-Welcome to CellTraj's documentation!
+Welcome to syncell's documentation!
 ======================================
 
 .. toctree::

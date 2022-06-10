@@ -1028,7 +1028,7 @@ class cellTraj():
             traj_len = cell_traj.size
             nmax = np.floor(traj_len / 2).astype(int)
             if traj_len > self.trajl:
-                xtraj,indstraj = get_Xtraj_celltrajectory(self,cell_traj)
+                xtraj,indstraj = get_Xtraj_syncellectory(self,cell_traj)
                 nmax = np.floor(xtraj.shape[0] / 2).astype(int)
                 for it1 in range(nmax):
                     for it2 in range(it1, it1 + nmax):
@@ -1627,7 +1627,7 @@ class cellTraj():
         self.Xtraj1=x1
         self.inds_trajp1=inds_trajp1
 
-    def get_Xtraj_celltrajectory(self,cell_traj,Xtraj=None,traj=None): #traj and
+    def get_Xtraj_syncellectory(self,cell_traj,Xtraj=None,traj=None): #traj and
         if traj is None:
             traj=self.traj
         if Xtraj is None:
@@ -1814,7 +1814,7 @@ class cellTraj():
         ntraj=len(trajectories)
         for itraj in range(ntraj):
             cell_traj=self.trajectories[itraj]
-            xt,inds_traj=self.get_Xtraj_celltrajectory(cell_traj,Xtraj=None,traj=None)
+            xt,inds_traj=self.get_Xtraj_syncellectory(cell_traj,Xtraj=None,traj=None)
             ll_f=self.get_traj_ll_gmean(xt,clusters=clusters,Mt=Mt,states=states)
             ll_r=self.get_traj_ll_gmean(np.flip(xt,axis=0),clusters=clusters,Mt=Mt,states=states)
             if ll_f>0. and ll_r>0.:
@@ -1981,7 +1981,7 @@ class cellTraj():
         else:
             sys.stdout.write('Not in visual mode\n')
 
-    def explore_2D_celltraj(self,x,traj,cell_traj,dm1=None,dm2=None,pathto='./',coordlabel='coord',show_segs=True):
+    def explore_2D_syncell(self,x,traj,cell_traj,dm1=None,dm2=None,pathto='./',coordlabel='coord',show_segs=True):
         if self.visual:
             plt.figure(figsize=(10,4))
             ipath=0
@@ -2043,7 +2043,7 @@ class cellTraj():
         else:
             sys.stdout.write('Not in visual mode\n')
 
-    def explore_2D_celltraj_nn(self,x,traj,pts=None,npts=20,dm1=None,dm2=None,pathto='./',coordlabel='coord',show_segs=True):
+    def explore_2D_syncell_nn(self,x,traj,pts=None,npts=20,dm1=None,dm2=None,pathto='./',coordlabel='coord',show_segs=True):
         if self.visual:
             plt.figure(figsize=(10,4))
             ipath=0

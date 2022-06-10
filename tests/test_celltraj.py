@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-"""Tests for `celltraj` package."""
+"""Tests for `syncell` package."""
 
 import pytest
 
 from click.testing import CliRunner
 
-from celltraj import celltraj
-from celltraj import cli
+from syncell import syncell
+from syncell import cli
 
 
 @pytest.fixture
@@ -31,7 +31,7 @@ def test_command_line_interface():
     runner = CliRunner()
     result = runner.invoke(cli.main)
     assert result.exit_code == 0
-    assert 'celltraj.cli.main' in result.output
+    assert 'syncell.cli.main' in result.output
     help_result = runner.invoke(cli.main, ['--help'])
     assert help_result.exit_code == 0
     assert '--help  Show this message and exit.' in help_result.output
