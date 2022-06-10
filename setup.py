@@ -31,7 +31,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="Cell morphodynamic trajectory embed",
+    description="Toolset for single-cell trajectory modeling.",
     entry_points={
         'console_scripts': [
             'syncell=syncell.cli:main',
