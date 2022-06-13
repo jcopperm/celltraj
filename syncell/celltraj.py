@@ -83,24 +83,24 @@ class cellTraj():
             self.imagesExist=False
 
     def get_image_data(self,n_frame):
-    """Example function with PEP 484 type annotations.
+        """Example function with PEP 484 type annotations.
 
-    The return type must be duplicated in the docstring to comply
-    with the NumPy docstring style.
+        The return type must be duplicated in the docstring to comply
+        with the NumPy docstring style.
 
-    Parameters
-    ----------
-    param1
-        The first parameter.
-    param2
-        The second parameter.
+        Parameters
+        ----------
+        param1
+            The first parameter.
+        param2
+            The second parameter.
 
-    Returns
-    -------
-    bool
-        True if successful, False otherwise.
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
 
-    """
+        """
         self.n_frame=n_frame
         nF=self.nF
         timeList=np.array([])
