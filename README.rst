@@ -16,11 +16,11 @@ syncell
 
 
 
-Cell morphodynamic trajectory embed
+A toolset for single-cell trajectory modeling.
 
 
 * Free software: MIT license
-* Documentation: https://syncell.readthedocs.io.
+* Documentation: https://jcopperm.github.io/syncell.
 
 
 Features
