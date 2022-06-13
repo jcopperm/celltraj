@@ -9,6 +9,7 @@ Stable release
 --------------
 For a conda environment with necessary packages:
 .. code-block:: console
+
     $ conda env create -f environment.yml
 
 ..

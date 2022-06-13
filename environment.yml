@@ -10,7 +10,6 @@ dependencies:
  - sphinx_rtd_theme
  - Sphinx
  - pytest
- - sphinx_rtd_theme
  - scipy
  - pip
  - scikit-image

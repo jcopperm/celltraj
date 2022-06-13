@@ -59,6 +59,19 @@ class cellTraj():
         """
         
     def initialize(self,fileSpecifier,modelName):
+        """Returns a list of :class:`bluepy.blte.Service` objects representing
+        the services offered by the device. This will perform Bluetooth service
+        discovery if this has not already been done; otherwise it will return a
+        cached list of services immediately..
+
+        :param uuids: A list of string service UUIDs to be discovered,
+            defaults to None
+        :type uuids: list, optional
+        :return: A list of the discovered :class:`bluepy.blte.Service` objects,
+            which match the provided ``uuids``
+        :rtype: list On Python 3.x, this returns a dictionary view object,
+            not a list
+        """
         self.modelName=modelName
         pCommand='ls '+fileSpecifier
         p = subprocess.Popen(pCommand, stdout=subprocess.PIPE, shell=True)
@@ -83,23 +96,20 @@ class cellTraj():
             self.imagesExist=False
 
     def get_image_data(self,n_frame):
-        """Example function with PEP 484 type annotations.
-
+        """
+        Example function with PEP 484 type annotations.
         The return type must be duplicated in the docstring to comply
         with the NumPy docstring style.
-
         Parameters
         ----------
         param1
             The first parameter.
         param2
             The second parameter.
-
         Returns
         -------
         bool
             True if successful, False otherwise.
-
         """
         self.n_frame=n_frame
         nF=self.nF
@@ -154,6 +164,19 @@ class cellTraj():
         self.imgfileList=imgfileList
 
     def get_fmask_data(self,n_frame): #get foreground masks
+        """Returns a list of :class:`bluepy.blte.Service` objects representing
+        the services offered by the device. This will perform Bluetooth service
+        discovery if this has not already been done; otherwise it will return a
+        cached list of services immediately..
+
+        :param uuids: A list of string service UUIDs to be discovered,
+            defaults to None
+        :type uuids: list, optional
+        :return: A list of the discovered :class:`bluepy.blte.Service` objects,
+            which match the provided ``uuids``
+        :rtype: list On Python 3.x, this returns a dictionary view object,
+            not a list
+        """
         self.n_frame=n_frame
         nF=self.nF
         fmsks=[None]*nF

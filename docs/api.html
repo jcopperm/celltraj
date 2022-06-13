@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Reference &mdash; syncell 0.1.0 documentation</title>
+  <title>API Reference &mdash; syncell 0.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -14,10 +14,13 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -28,7 +31,7 @@
             <a href="index.html" class="icon icon-home"> syncell
           </a>
               <div class="version">
-                0.1.0
+                0.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -39,10 +42,11 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="readme.html">syncell</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
@@ -72,14 +76,95 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="api-reference">
-<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+  <section id="module-syncell.celltraj">
+<span id="api-reference"></span><h1>API Reference<a class="headerlink" href="#module-syncell.celltraj" title="Permalink to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="syncell.celltraj.cellTraj">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">syncell.celltraj.</span></span><span class="sig-name descname"><span class="pre">cellTraj</span></span><a class="reference internal" href="_modules/syncell/celltraj.html#cellTraj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syncell.celltraj.cellTraj" title="Permalink to this definition">¶</a></dt>
+<dd><p>A toolset for single-cell trajectory modeling. See:</p>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>This code, currently, should be considered as an untested pre-release version</p>
+</div>
+<p class="rubric">References</p>
+<p>Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
+Morphodynamical cell-state description via live-cell imaging trajectory embedding.
+Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="syncell.celltraj.cellTraj.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fileSpecifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/syncell/celltraj.html#cellTraj.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syncell.celltraj.cellTraj.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">bluepy.blte.Service</span></code> objects representing
+the services offered by the device. This will perform Bluetooth service
+discovery if this has not already been done; otherwise it will return a
+cached list of services immediately..</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuids</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of string service UUIDs to be discovered,
+defaults to None</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of the discovered <code class="xref py py-class docutils literal notranslate"><span class="pre">bluepy.blte.Service</span></code> objects,
+which match the provided <code class="docutils literal notranslate"><span class="pre">uuids</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list On Python 3.x, this returns a dictionary view object,
+not a list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="syncell.celltraj.cellTraj.get_image_data">
+<span class="sig-name descname"><span class="pre">get_image_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/syncell/celltraj.html#cellTraj.get_image_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syncell.celltraj.cellTraj.get_image_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Example function with PEP 484 type annotations.
+The return type must be duplicated in the docstring to comply
+with the NumPy docstring style.
+:param param1: The first parameter.
+:param param2: The second parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if successful, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="syncell.celltraj.cellTraj.get_fmask_data">
+<span class="sig-name descname"><span class="pre">get_fmask_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/syncell/celltraj.html#cellTraj.get_fmask_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syncell.celltraj.cellTraj.get_fmask_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">bluepy.blte.Service</span></code> objects representing
+the services offered by the device. This will perform Bluetooth service
+discovery if this has not already been done; otherwise it will return a
+cached list of services immediately..</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuids</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of string service UUIDs to be discovered,
+defaults to None</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of the discovered <code class="xref py py-class docutils literal notranslate"><span class="pre">bluepy.blte.Service</span></code> objects,
+which match the provided <code class="docutils literal notranslate"><span class="pre">uuids</span></code></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list On Python 3.x, this returns a dictionary view object,
+not a list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

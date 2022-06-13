@@ -8,7 +8,6 @@ Welcome to syncell's documentation!
    readme
    installation
    usage
-   modules
    api
    contributing
    authors
