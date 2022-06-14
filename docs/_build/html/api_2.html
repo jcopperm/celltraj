@@ -66,7 +66,7 @@
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
       <li>API Reference</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/api_old.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/api_2.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -74,20 +74,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="api-reference">
-<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this heading">¶</a></h1>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/syncell.trajectory.Trajectory.html#syncell.trajectory.Trajectory" title="syncell.trajectory.Trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">syncell.trajectory.Trajectory</span></code></a></p></td>
-<td><p>A toolset for single-cell trajectory modeling.</p></td>
-</tr>
-</tbody>
-</table>
-<span class="target" id="module-syncell.trajectory.Trajectory"></span><p>A toolset for single-cell trajectory modeling. See:</p>
+  <section id="module-syncell.trajectory.Trajectory">
+<span id="api-reference"></span><h1>API Reference<a class="headerlink" href="#module-syncell.trajectory.Trajectory" title="Permalink to this heading">¶</a></h1>
+<p>A toolset for single-cell trajectory modeling. See:</p>
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
 <p>This code, currently, should be considered as an untested pre-release version</p>
@@ -96,6 +85,40 @@
 <p>Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
 Morphodynamical cell-state description via live-cell imaging trajectory embedding.
 Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
+<span class="target" id="module-syncell.imageprep"></span><dl class="py function">
+<dt class="sig sig-object py" id="syncell.imageprep.znorm">
+<span class="sig-prename descclassname"><span class="pre">syncell.imageprep.</span></span><span class="sig-name descname"><span class="pre">znorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/syncell/imageprep.html#znorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syncell.imageprep.znorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variance normalization (z-norm) of an array or image)..</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>img</strong> – array or image</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>z-normed array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>real array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="syncell.imageprep.histogram_stretch">
+<span class="sig-prename descclassname"><span class="pre">syncell.imageprep.</span></span><span class="sig-name descname"><span class="pre">histogram_stretch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">99</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/syncell/imageprep.html#histogram_stretch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syncell.imageprep.histogram_stretch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Histogram stretch of an array or image for normalization..</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>img</strong> – array or image</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>histogram stretched array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>real array</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
