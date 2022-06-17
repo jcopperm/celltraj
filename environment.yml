@@ -16,10 +16,10 @@ dependencies:
  - scipy
  - mahotas
  - umap-learn
- - pygpcca
  - pytorch
  - pip:
    - csaps
    - pystackreg
+   - pygpcca
    - cellpose
    - sklearn

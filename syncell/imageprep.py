@@ -18,6 +18,22 @@ import matplotlib.pyplot as plt
 from scipy import ndimage
 from skimage.filters import threshold_local
 
+def list_images(imagespecifier):
+    """list images in a directory matching a pattern..
+
+    :param imagepath: directory :param filespecifier pattern to match for image files
+    :type imagepath: string filespecifier string
+    :return: list of matching imagefiles
+    :rtype: list of strings
+    """
+    pCommand='ls '+imagespecifier
+    p = subprocess.Popen(pCommand, stdout=subprocess.PIPE, shell=True)
+    (output, err) = p.communicate()
+    output=output.decode()
+    fileList=output.split('\n')
+    fileList=fileList[0:-1]
+    return fileList
+
 def znorm(img):
     """Variance normalization (z-norm) of an array or image)..
 
