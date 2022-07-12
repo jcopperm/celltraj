@@ -46,9 +46,15 @@ def organize_filelist_fov(filelist, fov_pos=None, fov_len=2):
         print('please input the position of the field of view specifier')
         return
     nF=len(filelist)
-    fovlist=np.zeros(nF)
+    fovlist=np.zeros(nF).astype(int)
     for i in range(nF):
-        fovlist[i]=filelist[i][fov_pos:fov_pos+fov_len]
+        fovstr=filelist[i][fov_pos:fov_pos+fov_len]
+        try:
+            ifov=int(fovstr)
+        except:
+            numeric_filter = filter(str.isdigit, fovstr)
+            fovstr = "".join(numeric_filter)
+        fovlist[i]=int(fovstr)
     indfovs=np.argsort(fovlist)
     fovlist=fovlist[indfovs]
     filelist_sorted=[]
@@ -249,10 +255,10 @@ def clean_labeled_mask(masks_nuc,edge_buffer=5,mincelldim=5,maxcelldim=30,verbos
         indc=np.where(mskc)
         npixc=np.sum(mskc)
         if verbose:
-	    if npixc<minsize:
-		print('cell '+str(ic)+' too small: '+str(npixc))
-	    if npixc>maxsize:
-		print('cell '+str(ic)+' too big: '+str(npixc))
+            if npixc<minsize:
+                print('cell '+str(ic)+' too small: '+str(npixc))
+            if npixc>maxsize:
+                print('cell '+str(ic)+' too big: '+str(npixc))
         if npixc>minsize and npixc<maxsize:
             masks_nuc_clean[indc]=nc
             nc=nc+1
@@ -285,3 +291,50 @@ def get_voronoi_masks(labels,imgM=None):
         npixc=np.sum(labelsc == closestCC)
         masks_cyto[indc]=ic
     return masks_cyto
+
+def get_registrations(imgs):
+    """Apply pystackreg to get registrations along image stack
+    :param imgs: images (Z,X,Y), registration along Z
+    :type imgs: ndarray
+    :return: set of transformations to register image stack, with the triplet (radial angle, x-translation, y-translation) for each image
+    :rtype: ndarray (NZ,3), NZ number of images along Z
+    """
+    nimg=imgs.shape[0]
+    tSet=np.zeros((nimg,3))
+    sr = StackReg(StackReg.TRANSLATION)
+    tmats = sr.register_stack(imgs, reference='previous')
+    nframes=tmats.shape[0]
+    for iframe in range(nframes):
+        tmatrix=tmats[iframe,:,:]
+        #tSet[iframe,0]=np.arctan2(-tmatrix[0,1],tmatrix[0,0])
+        tSet[iframe,1]=tmatrix[0,2]
+        tSet[iframe,2]=tmatrix[1,2]
+        sys.stdout.write('frame '+str(iframe)+' transx: '+str(tSet[iframe,1])+' transy: '+str(tSet[iframe,2])+'\n')
+    return tSet #stack translations
+
+def transform_image(x1,t):
+    if x1.ndim==1:
+        nx=int(np.sqrt(x1.size))
+        x1=x1.reshape(nx,nx)
+    nx=x1.shape[0]
+    ny=x1.shape[1]
+    centerx=nx/2
+    centery=ny/2
+    s=1.0
+    th=t[0]
+    trans=t[1:]
+    tmatrix=np.zeros([3,3])
+    tmatrix[0,0]=s*np.cos(th)
+    tmatrix[0,1]=-s*np.sin(th)
+    tmatrix[0,2]=-centerx*s*np.cos(th)+centery*s*np.sin(th)+centerx+trans[0]
+    tmatrix[1,0]=s*np.sin(th)
+    tmatrix[1,1]=s*np.cos(th)
+    tmatrix[1,2]=-centerx*s*np.sin(th)-centery*s*np.cos(th)+centery+trans[1]
+    tmatrix[2,2]=1.0
+    tform = tf.SimilarityTransform(matrix=tmatrix)
+    x1rt=tf.warp(x1, tform)
+    return x1rt
+
+
+
+
