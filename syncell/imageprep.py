@@ -335,6 +335,41 @@ def transform_image(x1,t):
     x1rt=tf.warp(x1, tform)
     return x1rt
 
+def pad_image(img,maxedgex,maxedgey):
+    npad_lx=int(np.ceil((maxedgex-img.shape[0])/2))
+    npad_ly=int(np.ceil((maxedgey-img.shape[1])/2))
+    img=np.pad(img,((npad_lx,npad_lx),(npad_ly,npad_ly)),'constant',constant_values=(0,0))
+    img=img[0:maxedgex,0:maxedgey]
+    return img
 
+def expand_registered_images(imgs,tSet):
+    """Apply transformations to a stack of images and expand images so they align
+    :param imgs: images (Z,X,Y), registration along Z tSet: transformations for each image (angle, x-trans, y-trans)
+    :type imgs: ndarray or list of images (each image same size) tSet: ndarray (NZ, 3)
+    :return: expanded and registered image stack
+    :rtype: ndarray (NZ, X, Y)
+    """
+    if type(imgs) is list:
+        imgs=np.array(imgs)
+    nimg=imgs.shape[0]
+    if tSet.shape[0] != nimg:
+        print('transformations and image stack do not match')
+        return
+    tSet=tSet-np.min(tSet,axis=0)
+    maxdx=np.max(tSet[:,1])
+    maxdy=np.max(tSet[:,2])
+    nx=np.shape(imgsP[0,:,:])[0]
+    ny=np.shape(imgsP[0,:,:])[1]
+    maxd=np.max(np.array([nx+maxdx,ny+maxdy]))
+    imgst=np.zeros((nimg,int(maxdx/2+nx),int(maxdy/2+ny)))
+    center=np.array([(nx+maxdx)/2.,(ny+maxdy)/2.])
+    tSet[:,1]=tSet[:,1]-maxdx/2.
+    tSet[:,2]=tSet[:,2]-maxdy/2.
+    for iS in range(nimg):
+	img=imgs[iS,:,:]
+	img=pad_image(img,int(nx+maxdx/2),int(ny+maxdy/2))
+	img=transform_image(img,tSet[iS])
+	imgst[iS,:,:]=img
+    return imgst
 
 
