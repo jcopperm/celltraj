@@ -366,10 +366,10 @@ def expand_registered_images(imgs,tSet):
     tSet[:,1]=tSet[:,1]-maxdx/2.
     tSet[:,2]=tSet[:,2]-maxdy/2.
     for iS in range(nimg):
-	img=imgs[iS,:,:]
-	img=pad_image(img,int(nx+maxdx/2),int(ny+maxdy/2))
-	img=transform_image(img,tSet[iS])
-	imgst[iS,:,:]=img
+        img=imgs[iS,:,:]
+        img=pad_image(img,int(nx+maxdx/2),int(ny+maxdy/2))
+        img=transform_image(img,tSet[iS])
+        imgst[iS,:,:]=img
     return imgst
 
 
