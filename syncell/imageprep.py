@@ -17,6 +17,7 @@ from skimage.feature import peak_local_max
 import matplotlib.pyplot as plt
 from scipy import ndimage
 from skimage.filters import threshold_local
+import pyemma.coordinates.clustering
 
 def list_images(imagespecifier):
     """list images in a directory matching a pattern..
@@ -272,6 +273,7 @@ def get_voronoi_masks(labels,imgM=None):
     nuc_centers=ndimage.center_of_mass(imgM,labels=labels,index=np.arange(1,np.max(labels)+1).astype(int))
     nuc_centers=np.array(nuc_centers)
     nuc_clusters=pyemma.coordinates.clustering.AssignCenters(nuc_centers, metric='euclidean')
+    nx=labels.shape[0]; ny=labels.shape[1]
     xx,yy=np.meshgrid(np.arange(nx),np.arange(ny),indexing='ij')
     voronoi_masks=nuc_clusters.assign(np.array([xx.flatten(),yy.flatten()]).T).reshape(nx,ny)+1
     voronoi_masks[indBackground]=0
@@ -291,6 +293,43 @@ def get_voronoi_masks(labels,imgM=None):
         npixc=np.sum(labelsc == closestCC)
         masks_cyto[indc]=ic
     return masks_cyto
+
+def get_cyto_minus_nuc_labels(labels_cyto,labels_nuc):
+    labels_cyto_new=np.zeros_like(labels_cyto)
+    for ic in range(1,np.max(labels_nuc)+1):
+        mskc_cyto=labels_cyto==ic
+        mskc_nuc=labels_nuc==ic
+        mskc_cyto=np.logical_or(mskc_cyto,mskc_nuc) #make sure cyto masks include nuc masks
+        mskc_cyto=skimage.morphology.binary_dilation(mskc_cyto)
+        mskc_nuc=skimage.morphology.binary_erosion(mskc_nuc)
+        mskc_cyto=np.logical_or(mskc_cyto,mskc_nuc) #make sure cyto masks include nuc masks
+        indc=np.where(mskc_cyto)
+        labels_cyto_new[indc]=ic
+    ind_nuc=np.where(labels_nuc>0)
+    labels_cyto_new[ind_nuc]=0
+    return labels_cyto_new
+
+def get_cell_intensities(img,labels,averaging=False):
+    ncells=np.max(labels)
+    cell_intensities=np.zeros(ncells)
+    if img.ndim>2:
+        cell_intensities=np.zeros((ncells,img.shape[2]))
+        for i in range(1,ncells+1):
+            indcell = np.where(labels==i) #picks out image pixels where each single-cell is labeled
+            for ichannel in range(img.shape[2]):
+                if averaging:
+                    cell_intensities[i-1,ichannel] = np.mean(img[indcell[0],indcell[1],ichannel])
+                else:
+                    cell_intensities[i-1,ichannel] = np.sum(img[indcell[0],indcell[1],ichannel])
+    if img.ndim==2:
+        cell_intensities=np.zeros(ncells)
+        for i in range(1,ncells+1):
+            indcell = np.where(labels==i) #picks out image pixels where each single-cell is labeled
+            if averaging:
+                cell_intensities[i-1] = np.mean(img[indcell])
+            else:
+                cell_intensities[i-1] = np.sum(img[indcell])
+    return cell_intensities
 
 def get_registrations(imgs):
     """Apply pystackreg to get registrations along image stack
