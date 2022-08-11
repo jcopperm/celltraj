@@ -201,20 +201,20 @@ def get_masks(masklist,fore_channel=0,holefill_area=0):
         masks[iF]=msk
     return masks
 
-def local_threshold(imgr,imgM=None,pcut=None,histnorm=False,fnuc=0.3,block_size=51):
+def local_threshold(imgr,imgM=None,pcut=None,histnorm=False,fnuc=0.3,block_size=51,z_std=1.):
     nx=np.shape(imgr)[0]
     ny=np.shape(imgr)[1]
     if histnorm:
         imgr=histogram_stretch(imgr)
-    if pcut is None:
-        if imgM is None:
-            pcut=0.8
-            print('Using a cutoff of {}. Provide a cutoff value (pcut) or a foreground mask for threshold estimation'.format(pcut))
-        else:
-            pcut=1.-fnuc*np.sum(imgM)/(nx*ny) #fraction of foreground pixels in nuc sites
     prob_nuc,bins_nuc=np.histogram(imgr.flatten()-np.mean(imgr),100)
     prob_nuc=np.cumsum(prob_nuc/np.sum(prob_nuc))
-    nuc_thresh=bins_nuc[np.argmin(np.abs(prob_nuc-pcut))]
+    if pcut is None:
+        if imgM is None:
+            nuc_thresh=z_std*np.std(imgr)
+            print('Using a cutoff of {} from variance stabilization. Provide a cutoff value (pcut) or a foreground mask for threshold estimation'.format(nuc_thresh))
+        else:
+            pcut=1.-fnuc*np.sum(imgM)/(nx*ny) #fraction of foreground pixels in nuc sites
+            nuc_thresh=bins_nuc[np.argmin(np.abs(prob_nuc-pcut))]
     local_thresh = threshold_local(imgr, block_size, offset=-nuc_thresh)
     b_imgr = imgr > local_thresh
     return b_imgr
