@@ -18,6 +18,9 @@ import matplotlib.pyplot as plt
 from scipy import ndimage
 from skimage.filters import threshold_local
 import pyemma.coordinates.clustering
+import re
+from pystackreg import StackReg
+from skimage import transform as tf
 
 def list_images(imagespecifier):
     """list images in a directory matching a pattern..
@@ -63,21 +66,24 @@ def organize_filelist_fov(filelist, fov_pos=None, fov_len=2):
         filelist_sorted.append(filelist[indfovs[i]])
     return filelist_sorted
 
-def organize_filelist_time(filelist, time_pos=None, time_len=2):
+def organize_filelist_time(filelist, time_pos=None):
     """Organize imagefiles in a list to timestamp ??d??h??m.
 
-    :param filelist: list of image files :param time_pos: string position of time specifier :param time_len: length of time speficier
+    :param filelist: list of image files
     :type filelist: list of strings fov_pos: int fov_len: int
     :return: list of imagefiles organized by fov (increasing)
     :rtype: list of strings
     """
-    if time_pos is None:
-        print('please input the position of the timestamp specifier')
-        return
     nF=len(filelist)
-    timelist=np.zeros(nF)
+    timelist=np.zeros(nF) #times in seconds
     for i in range(nF):
-        timelist[i]=timelist[i][time_pos:time_pos+time_len]
+        tpos = re.search('\d\dd\d\dh\d\dm',filelist[i])
+        timestamp=filelist[i][tpos.start():tpos.end()]
+        day=int(timestamp[0:2])
+        hour=int(timestamp[3:5])
+        minute=int(timestamp[6:8])
+        seconds=day*86400+hour*3600+minute*60
+        timelist[i]=seconds
     indtimes=np.argsort(timelist)
     timelist=timelist[indtimes]
     filelist_sorted=[]
@@ -397,8 +403,8 @@ def expand_registered_images(imgs,tSet):
     tSet=tSet-np.min(tSet,axis=0)
     maxdx=np.max(tSet[:,1])
     maxdy=np.max(tSet[:,2])
-    nx=np.shape(imgsP[0,:,:])[0]
-    ny=np.shape(imgsP[0,:,:])[1]
+    nx=np.shape(imgs[0,:,:])[0]
+    ny=np.shape(imgs[0,:,:])[1]
     maxd=np.max(np.array([nx+maxdx,ny+maxdy]))
     imgst=np.zeros((nimg,int(maxdx/2+nx),int(maxdy/2+ny)))
     center=np.array([(nx+maxdx)/2.,(ny+maxdy)/2.])
