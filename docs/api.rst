@@ -7,12 +7,12 @@ API Reference
    :nosignatures:
    :toctree: stubs
 
-   syncell.trajectory.Trajectory
-   syncell.imageprep
+   celltraj.trajectory.Trajectory
+   celltraj.imageprep
 
 
-.. automodule:: syncell.trajectory.Trajectory
+.. automodule:: celltraj.trajectory.Trajectory
    :members:
 
-.. automodule:: syncell.imageprep
+.. automodule:: celltraj.imageprep
    :members:

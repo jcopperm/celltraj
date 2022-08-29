@@ -1,7 +1,7 @@
-﻿syncell.trajectory.Trajectory
+﻿celltraj.trajectory.Trajectory
 =============================
 
-.. currentmodule:: syncell.trajectory
+.. currentmodule:: celltraj.trajectory
 
 .. autoclass:: Trajectory
 

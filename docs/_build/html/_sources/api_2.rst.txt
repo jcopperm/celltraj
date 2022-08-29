@@ -3,8 +3,8 @@ API Reference
 =============
 
 
-.. automodule:: syncell.trajectory.Trajectory
+.. automodule:: celltraj.trajectory.Trajectory
     :members:
 
-.. automodule:: syncell.imageprep
+.. automodule:: celltraj.imageprep
     :members:

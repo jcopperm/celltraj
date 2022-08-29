@@ -3,8 +3,8 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-sys.path.append('/home/groups/ZuckermanLab/copperma/cell/syncell')
-import syncell
+sys.path.append('/home/groups/ZuckermanLab/copperma/cell/celltraj')
+import celltraj
 import h5py
 import pickle
 import os
@@ -13,7 +13,7 @@ import subprocess
 fileSpecifier=sys.argv[1]
 modelName=sys.argv[2]
 
-wctm=syncell.cellTraj()
+wctm=celltraj.cellTraj()
 print('initializing...')
 wctm.initialize(fileSpecifier,modelName)
 wctm.get_frames()

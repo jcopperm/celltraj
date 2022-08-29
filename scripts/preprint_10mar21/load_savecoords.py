@@ -3,8 +3,8 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-sys.path.append('/home/groups/ZuckermanLab/copperma/cell/syncell')
-import syncell
+sys.path.append('/home/groups/ZuckermanLab/copperma/cell/celltraj')
+import celltraj
 import h5py
 import pickle
 import os

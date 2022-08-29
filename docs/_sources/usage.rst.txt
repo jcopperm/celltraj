@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use syncell in a project::
+To use celltraj in a project::
 
-    import syncell
+    import celltraj

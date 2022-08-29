@@ -1,16 +1,16 @@
 ========
-syncell
+celltraj
 ========
 
 
-.. image:: https://img.shields.io/pypi/v/syncell.svg
-        :target: https://pypi.python.org/pypi/syncell
+.. image:: https://img.shields.io/pypi/v/celltraj.svg
+        :target: https://pypi.python.org/pypi/celltraj
 
-.. image:: https://img.shields.io/travis/jcopperm/syncell.svg
-        :target: https://travis-ci.com/jcopperm/syncell
+.. image:: https://img.shields.io/travis/jcopperm/celltraj.svg
+        :target: https://travis-ci.com/jcopperm/celltraj
 
-.. image:: https://readthedocs.org/projects/syncell/badge/?version=latest
-        :target: https://syncell.readthedocs.io/en/latest/?version=latest
+.. image:: https://readthedocs.org/projects/celltraj/badge/?version=latest
+        :target: https://celltraj.readthedocs.io/en/latest/?version=latest
         :alt: Documentation Status
 
 
@@ -20,7 +20,7 @@ A toolset for single-cell trajectory modeling.
 
 
 * Free software: MIT license
-* Documentation: https://jcopperm.github.io/syncell.
+* Documentation: https://jcopperm.github.io/celltraj.
 
 
 Features

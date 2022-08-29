@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Reference &mdash; syncell 0.0 documentation</title>
+  <title>API Reference &mdash; celltraj 0.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="next" title="celltraj.trajectory.Trajectory" href="stubs/celltraj.trajectory.Trajectory.html" />
     <link rel="prev" title="Usage" href="usage.html" /> 
 </head>
 
@@ -28,7 +28,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> syncell
+            <a href="index.html" class="icon icon-home"> celltraj
           </a>
               <div class="version">
                 0.0
@@ -43,10 +43,14 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="readme.html">syncell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">celltraj</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.trajectory.Trajectory.html">celltraj.trajectory.Trajectory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.imageprep.html">celltraj.imageprep</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
 <li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
@@ -58,7 +62,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">syncell</a>
+          <a href="index.html">celltraj</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -76,12 +80,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-syncell.celltraj">
-<span id="api-reference"></span><h1>API Reference<a class="headerlink" href="#module-syncell.celltraj" title="Permalink to this heading">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="syncell.celltraj.cellTraj">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">syncell.celltraj.</span></span><span class="sig-name descname"><span class="pre">cellTraj</span></span><a class="reference internal" href="_modules/syncell/celltraj.html#cellTraj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syncell.celltraj.cellTraj" title="Permalink to this definition">¶</a></dt>
-<dd><p>A toolset for single-cell trajectory modeling. See:</p>
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this heading">¶</a></h1>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/syncell.trajectory.Trajectory.html#celltraj.trajectory.Trajectory" title="celltraj.trajectory.Trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.trajectory.Trajectory</span></code></a></p></td>
+<td><p>A toolset for single-cell trajectory modeling.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/syncell.imageprep.html#module-celltraj.imageprep" title="celltraj.imageprep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.imageprep</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-celltraj.trajectory.Trajectory"></span><p>A toolset for single-cell trajectory modeling. See:</p>
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
 <p>This code, currently, should be considered as an untested pre-release version</p>
@@ -90,70 +105,159 @@
 <p>Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
 Morphodynamical cell-state description via live-cell imaging trajectory embedding.
 Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="syncell.celltraj.cellTraj.initialize">
-<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fileSpecifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelName</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/syncell/celltraj.html#cellTraj.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syncell.celltraj.cellTraj.initialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">bluepy.blte.Service</span></code> objects representing
-the services offered by the device. This will perform Bluetooth service
-discovery if this has not already been done; otherwise it will return a
-cached list of services immediately..</p>
+<span class="target" id="module-celltraj.imageprep"></span><dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.list_images">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">list_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imagespecifier</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#list_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.list_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>list images in a directory matching a pattern..</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>uuids</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of string service UUIDs to be discovered,
-defaults to None</p>
+<dd class="field-odd"><p><strong>imagepath</strong> (<em>string filespecifier string</em>) – directory :param filespecifier pattern to match for image files</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of the discovered <code class="xref py py-class docutils literal notranslate"><span class="pre">bluepy.blte.Service</span></code> objects,
-which match the provided <code class="docutils literal notranslate"><span class="pre">uuids</span></code></p>
+<dd class="field-even"><p>list of matching imagefiles</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list On Python 3.x, this returns a dictionary view object,
-not a list</p>
+<dd class="field-odd"><p>list of strings</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="syncell.celltraj.cellTraj.get_image_data">
-<span class="sig-name descname"><span class="pre">get_image_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/syncell/celltraj.html#cellTraj.get_image_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syncell.celltraj.cellTraj.get_image_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Example function with PEP 484 type annotations.
-The return type must be duplicated in the docstring to comply
-with the NumPy docstring style.
-:param param1: The first parameter.
-:param param2: The second parameter.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>True if successful, False otherwise.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="syncell.celltraj.cellTraj.get_fmask_data">
-<span class="sig-name descname"><span class="pre">get_fmask_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/syncell/celltraj.html#cellTraj.get_fmask_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#syncell.celltraj.cellTraj.get_fmask_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">bluepy.blte.Service</span></code> objects representing
-the services offered by the device. This will perform Bluetooth service
-discovery if this has not already been done; otherwise it will return a
-cached list of services immediately..</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.organize_filelist_fov">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">organize_filelist_fov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#organize_filelist_fov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.organize_filelist_fov" title="Permalink to this definition">¶</a></dt>
+<dd><p>Organize imagefiles in a list to field of view.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>uuids</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of string service UUIDs to be discovered,
-defaults to None</p>
+<dd class="field-odd"><p><strong>filelist</strong> (<em>list of strings fov_pos: int fov_len: int</em>) – list of image files :param fov_pos: string position of fov specifier :param fov_len: length of fov speficier</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of the discovered <code class="xref py py-class docutils literal notranslate"><span class="pre">bluepy.blte.Service</span></code> objects,
-which match the provided <code class="docutils literal notranslate"><span class="pre">uuids</span></code></p>
+<dd class="field-even"><p>list of imagefiles organized by fov (increasing)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list On Python 3.x, this returns a dictionary view object,
-not a list</p>
+<dd class="field-odd"><p>list of strings</p>
 </dd>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.organize_filelist_time">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">organize_filelist_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#organize_filelist_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.organize_filelist_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Organize imagefiles in a list to timestamp ??d??h??m.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filelist</strong> (<em>list of strings fov_pos: int fov_len: int</em>) – list of image files</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of imagefiles organized by fov (increasing)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.znorm">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">znorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#znorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.znorm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variance normalization (z-norm) of an array or image)..</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>img</strong> – array or image</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>z-normed array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>real array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.histogram_stretch">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">histogram_stretch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">99</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#histogram_stretch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.histogram_stretch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Histogram stretch of an array or image for normalization..</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>img</strong> – array or image</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>histogram stretched array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>real array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.get_images">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">get_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#get_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.get_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get images from list of files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filelist</strong> (<em>list of strings</em>) – list of image files</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of images</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of arrays</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.get_tile_order">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">get_tile_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nrows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snake</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#get_tile_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.get_tile_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct ordering for to put together image tiles compatible with incell microscope.
+:param nrows: number of rows ncols: number of columns
+snake: snake across whole image (left to right, right to left, left to right…)
+:type nrows: int ncols: int ncols: int snake: bool
+:return: constructed 2D array of image indices
+:rtype: 2D array (int)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.get_slide_image">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">get_slide_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">foverlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">histnorm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#get_slide_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.get_slide_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct slide image from a set of tiles (fields of view).
+Ordering from (get_tile_order).
+:param imgs: list of images nrows: number of rows, default assumes a square tiling (36 images = 8 rows x 8 cols)
+ncols: number of columns foverlap: fraction of overlap between images
+:type imgs: list of 2D images (2D arrays) nrows: int ncols: int foverlap: float
+:return: constructed slide image from image tiles
+:rtype: 2D array</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.load_ilastik">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">load_ilastik</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_ilastik</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#load_ilastik"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.load_ilastik" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load ilastik prediction (pixel classification) from h5 file format.
+:param file_ilastik: filename
+:type file_ilastik: string
+:return: ndarray of ilastik output
+:rtype: 2Dxn array (2D image by n ilastik labels)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.get_registrations">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">get_registrations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#get_registrations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.get_registrations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply pystackreg to get registrations along image stack
+:param imgs: images (Z,X,Y), registration along Z
+:type imgs: ndarray
+:return: set of transformations to register image stack, with the triplet (radial angle, x-translation, y-translation) for each image
+:rtype: ndarray (NZ,3), NZ number of images along Z</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.expand_registered_images">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">expand_registered_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tSet</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#expand_registered_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.expand_registered_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply transformations to a stack of images and expand images so they align
+:param imgs: images (Z,X,Y), registration along Z tSet: transformations for each image (angle, x-trans, y-trans)
+:type imgs: ndarray or list of images (each image same size) tSet: ndarray (NZ, 3)
+:return: expanded and registered image stack
+:rtype: ndarray (NZ, X, Y)</p>
 </dd></dl>
 
 </section>
@@ -163,7 +267,7 @@ not a list</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="stubs/celltraj.trajectory.Trajectory.html" class="btn btn-neutral float-right" title="celltraj.trajectory.Trajectory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

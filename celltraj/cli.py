@@ -1,13 +1,13 @@
-"""Console script for syncell."""
+"""Console script for celltraj."""
 import sys
 import click
 
 
 @click.command()
 def main(args=None):
-    """Console script for syncell."""
+    """Console script for celltraj."""
     click.echo("Replace this message by putting your code into "
-               "syncell.cli.main")
+               "celltraj.cli.main")
     click.echo("See click documentation at https://click.palletsprojects.com/")
     return 0
 

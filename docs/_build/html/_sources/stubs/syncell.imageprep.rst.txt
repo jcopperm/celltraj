@@ -1,7 +1,7 @@
-﻿syncell.imageprep
+﻿celltraj.imageprep
 =================
 
-.. automodule:: syncell.imageprep
+.. automodule:: celltraj.imageprep
 
    
    

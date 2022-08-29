@@ -134,7 +134,7 @@
 <span class="sd">        - Reorganize these attributes into some meaningful structure</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
         
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fileSpecifier</span><span class="p">,</span><span class="n">modelName</span><span class="p">):</span>
+<div class="viewcode-block" id="cellTraj.initialize"><a class="viewcode-back" href="../../api_old.html#syncell.celltraj.cellTraj.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">fileSpecifier</span><span class="p">,</span><span class="n">modelName</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of :class:`bluepy.blte.Service` objects representing</span>
 <span class="sd">        the services offered by the device. This will perform Bluetooth service</span>
 <span class="sd">        discovery if this has not already been done; otherwise it will return a</span>
@@ -169,9 +169,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">imagesExist</span><span class="o">=</span><span class="kc">True</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;problem getting images </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">imagesExist</span><span class="o">=</span><span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">imagesExist</span><span class="o">=</span><span class="kc">False</span></div>
 
-    <span class="k">def</span> <span class="nf">get_image_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">):</span>
+<div class="viewcode-block" id="cellTraj.get_image_data"><a class="viewcode-back" href="../../api_old.html#syncell.celltraj.cellTraj.get_image_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_image_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Example function with PEP 484 type annotations.</span>
 <span class="sd">        The return type must be duplicated in the docstring to comply</span>
@@ -237,9 +237,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">imgs</span><span class="o">=</span><span class="n">imgs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">msks</span><span class="o">=</span><span class="n">msks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timeList</span><span class="o">=</span><span class="n">timeList</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">imgfileList</span><span class="o">=</span><span class="n">imgfileList</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imgfileList</span><span class="o">=</span><span class="n">imgfileList</span></div>
 
-    <span class="k">def</span> <span class="nf">get_fmask_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">):</span> <span class="c1">#get foreground masks</span>
+<div class="viewcode-block" id="cellTraj.get_fmask_data"><a class="viewcode-back" href="../../api_old.html#syncell.celltraj.cellTraj.get_fmask_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_fmask_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">):</span> <span class="c1">#get foreground masks</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of :class:`bluepy.blte.Service` objects representing</span>
 <span class="sd">        the services offered by the device. This will perform Bluetooth service</span>
 <span class="sd">        discovery if this has not already been done; otherwise it will return a</span>
@@ -277,7 +277,7 @@
         <span class="k">if</span> <span class="n">fmsks</span><span class="o">.</span><span class="n">ndim</span><span class="o">!=</span><span class="mi">3</span><span class="p">:</span>
             <span class="n">fmsks</span><span class="o">=</span><span class="n">fmsks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">fmsks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">fmsks</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fmsks</span><span class="o">=</span><span class="n">fmsks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fmsks</span><span class="o">=</span><span class="n">fmsks</span></div>
 
     <span class="k">def</span> <span class="nf">get_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">numFiles</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>

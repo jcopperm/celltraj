@@ -1,7 +1,7 @@
-﻿syncell.celltraj.cellTraj
+﻿celltraj.celltraj.cellTraj
 =========================
 
-.. currentmodule:: syncell.celltraj
+.. currentmodule:: celltraj.celltraj
 
 .. autoclass:: cellTraj
 
