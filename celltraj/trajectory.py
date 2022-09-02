@@ -1370,7 +1370,7 @@ class Trajectory():
         x1fh=self.featHaralick(x1)
         x1fh=self.znorm(x1fh) #apply for some relative normalization
         x1fb=self.featBoundary(m1)
-        if hasattr(sctm,"cellborder_fmsks"):
+        if hasattr(self,"cellborder_fmsks"):
             cbfeat=True
             msk=self.cellborder_msks[ic]
             fmsk=self.cellborder_fmsks[ic]
