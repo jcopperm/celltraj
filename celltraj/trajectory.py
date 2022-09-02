@@ -1370,35 +1370,43 @@ class Trajectory():
         x1fh=self.featHaralick(x1)
         x1fh=self.znorm(x1fh) #apply for some relative normalization
         x1fb=self.featBoundary(m1)
-        msk=self.cellborder_msks[ic]
-        fmsk=self.cellborder_fmsks[ic]
-        x1fcb=self.featBoundaryCB(msk,fmsk)
+        if self.cellborder_fmsks is None:
+            print('no cell foreground masks, skipping cell border featurization')
+        else:
+            cbfeat=True
+            msk=self.cellborder_msks[ic]
+            fmsk=self.cellborder_fmsks[ic]
+            x1fcb=self.featBoundaryCB(msk,fmsk)
+            ncb=x1fcb.size
         ng=x1fg.size
         nh=x1fh.size
         nb=x1fb.size
-        ncb=x1fcb.size
         indfg=np.arange(0,ng).astype(int)
         indfh=np.arange(ng,ng+nh).astype(int)
         indfb=np.arange(ng+nh,ng+nh+nb).astype(int)
-        indfcb=np.arange(ng+nh+nb,ng+nh+nb+ncb).astype(int)
+        if cbfeat:
+            indfcb=np.arange(ng+nh+nb,ng+nh+nb+ncb).astype(int)
+            self.indfcb=indfcb
         self.indfg=indfg
         self.indfh=indfh
         self.indfb=indfb
-        self.indfcb=indfcb
         for ic in range(self.ncells):
             x1=self.X[ic,:]
             m1=self.Xm[ic,:]
             x1fg=self.featZernike(x1)
             x1fh=self.featHaralick(x1)
             x1fb=self.featBoundary(m1)
-            msk=self.cellborder_msks[ic]
-            fmsk=self.cellborder_fmsks[ic]
-            x1fcb=self.featBoundaryCB(msk,fmsk)
-            x1f=np.zeros(ng+nh+nb+ncb)
+            if cbfeat:
+                msk=self.cellborder_msks[ic]
+                fmsk=self.cellborder_fmsks[ic]
+                x1fcb=self.featBoundaryCB(msk,fmsk)
+                x1f=np.zeros(ng+nh+nb+ncb)
+                x1f[indfcb]=x1fcb
+            else:
+                x1f=np.zeros(ng+nh+nb)
             x1f[indfg]=x1fg
             x1f[indfh]=x1fh
             x1f[indfb]=x1fb
-            x1f[indfcb]=x1fcb
             Xf[ic]=x1f.copy()
             if ic%100==0:
                 sys.stdout.write('preparing RT invariant global, texture, boundary features for cell '+str(ic)+' of '+str(self.ncells)+'\n')
