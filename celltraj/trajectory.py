@@ -82,7 +82,7 @@ class Trajectory():
         self.fileList=fileList
         nF=len(fileList)
         self.nF=nF
-        self.visual=True
+        self.visual=False
         self.imgdim=2
         self.imgchannel=None #None for single-channel images, or chosen channel for multi-channel images
         self.mskchannel=None #None for single-channel masks, or chosen channel for multi-channel masks
