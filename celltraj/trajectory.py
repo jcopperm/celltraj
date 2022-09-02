@@ -654,7 +654,7 @@ class Trajectory():
                             imgb1[np.where(np.logical_not(mskb1))]=0.0
                             tmatrix=sr.register(np.abs(imgb0)>0, np.abs(imgb1)>0) #from second to first
                             imgb1_reg=tf.warp(imgb1,tmatrix)
-                            mskb1_reg=tf.warp(mskb1,tmatrix,0) #0 for nn interp
+                            mskb1_reg=tf.warp(mskb1.astype('float'),tmatrix,0) #0 for nn interp
                             mskb1_reg=mskb1_reg.astype(int)
                             mskc1_reg=tf.warp(mskc1.astype('float'),tmatrix,0) #0 for nn interp
                             mskc1_reg=mskc1_reg.astype(int)
@@ -1370,14 +1370,14 @@ class Trajectory():
         x1fh=self.featHaralick(x1)
         x1fh=self.znorm(x1fh) #apply for some relative normalization
         x1fb=self.featBoundary(m1)
-        if self.cellborder_fmsks is None:
-            print('no cell foreground masks, skipping cell border featurization')
-        else:
+        if hasattr(sctm,"cellborder_fmsks"):
             cbfeat=True
             msk=self.cellborder_msks[ic]
             fmsk=self.cellborder_fmsks[ic]
             x1fcb=self.featBoundaryCB(msk,fmsk)
             ncb=x1fcb.size
+        else:
+            print('no cell foreground masks, skipping cell border featurization')
         ng=x1fg.size
         nh=x1fh.size
         nb=x1fb.size
