@@ -22,6 +22,8 @@ import pickle
 from pystackreg import StackReg
 import pyemma.coordinates as coor
 import numpy.matlib
+import btrack
+from btrack.constants import BayesianUpdates
 
 
 class Trajectory():
@@ -59,19 +61,6 @@ class Trajectory():
         """
         
     def initialize(self,fileSpecifier,modelName):
-        """Returns a list of :class:`bluepy.blte.Service` objects representing
-        the services offered by the device. This will perform Bluetooth service
-        discovery if this has not already been done; otherwise it will return a
-        cached list of services immediately..
-
-        :param uuids: A list of string service UUIDs to be discovered,
-            defaults to None
-        :type uuids: list, optional
-        :return: A list of the discovered :class:`bluepy.blte.Service` objects,
-            which match the provided ``uuids``
-        :rtype: list On Python 3.x, this returns a dictionary view object,
-            not a list
-        """
         self.modelName=modelName
         pCommand='ls '+fileSpecifier
         p = subprocess.Popen(pCommand, stdout=subprocess.PIPE, shell=True)
@@ -758,6 +747,92 @@ class Trajectory():
                         plt.savefig(pathto+self.modelName+'_trackbo_stack'+str(istack)+'_'+imgfile)
                 linSet[inds[im+1]]=lin1.copy()
             self.linSet=linSet
+
+    def get_lineage_btrack(self,distcut=5.,framewindow=6,visual_1cell=False,max_search_radius=100):
+        nimg=self.mskSet.shape[0]
+        segmentation=np.zeros((nimg,self.mskSet.shape[1],self.mskSet.shape[2])).astype(int)
+        mskP=self.mskSet[0,:,:].copy()
+        for im in range(nimg):
+            msk=self.mskSet[im,:,:]
+            mskT=self.transform_image(msk,self.imgSet_t[im,:])
+            nc=int(np.max(mskT))
+            mskT_clean=np.zeros_like(mskT)
+            for ic in range(1,nc+1):
+                indc=np.where(mskT==float(ic))
+                mskT_clean[indc]=ic
+            segmentation[im,:,:]=mskT_clean.astype(int)
+            print('translating and cleaning mask '+str(im))
+        linSet=[None]*nimg
+        indt0=np.where(self.cells_indimgSet==0)[0]
+        linSet[0]=np.ones(indt0.size).astype(int)*-1
+        for iS in range(1,nimg):
+            fl=np.maximum(0,iS-framewindow)
+            fu=np.minimum(iS+framewindow,nimg)
+            frameset=np.arange(fl,fu).astype(int)
+            frameind=np.where(frameset==iS)[0][0]
+            masks=segmentation[frameset,:,:]
+            msk=masks[frameind,:,:]
+            msk1=msk
+            msk0=masks[frameind-1,:,:]
+            indt1=np.where(self.cells_indimgSet==iS)[0]
+            xt1=self.x[indt1,:]
+            indt0=np.where(self.cells_indimgSet==iS-1)[0]
+            xt0=self.x[indt0,:]
+            ncells=xt1.shape[0] #np.max(masks[frameind,:,:])
+            lin1=np.ones(ncells).astype(int)*-1
+            objects = btrack.utils.segmentation_to_objects(masks, properties=('area', )) # initialise a tracker session using a context manager
+            tracker=btrack.BayesianTracker() # configure the tracker using a config file
+            tracker.configure_from_file('cell_config.json')
+            tracker.update_method = BayesianUpdates.APPROXIMATE
+            tracker.max_search_radius = 100
+            tracker.append(objects) # append the objects to be tracked
+            tracker.volume=((0, self.mskSet.shape[2]), (0, self.mskSet.shape[1]), (-1e5, 1e5)) # set the volume (Z axis volume is set very large for 2D data)
+            tracker.track_interactive(step_size=100) # track them (in interactive mode)
+            tracker.optimize() # generate hypotheses and run the global optimizer
+            ntracked=0
+            for itrack in range(tracker.n_tracks):
+                if np.isin(frameind,tracker.tracks[itrack]['t']):
+                    it=np.where(np.array(tracker.tracks[itrack]['t'])==frameind)[0][0]
+                    tp=np.array(tracker.tracks[itrack]['t'])[it-1]
+                    if tp==frameind-1 and tracker.tracks[itrack]['dummy'][it]==False and tracker.tracks[itrack]['dummy'][it-1]==False:
+                        x1=np.array([tracker.tracks[itrack]['y'][it],tracker.tracks[itrack]['x'][it]]) #.astype(int)
+                        #centers1=np.array(scipy.ndimage.measurements.center_of_mass(np.ones_like(msk1),labels=msk1,index=np.arange(1,np.max(msk1)+1)))
+                        x0=np.array([tracker.tracks[itrack]['y'][it-1],tracker.tracks[itrack]['x'][it-1]]) #.astype(int)
+                        #centers0=np.array(scipy.ndimage.measurements.center_of_mass(np.ones_like(msk),labels=msk,index=np.arange(1,np.max(msk)+1).astype(int)))
+                        #ic1=msk1[x1[0],x1[1]]-1
+                        #ic0=msk0[x0[0],x0[1]]-1
+                        dists_x1=self.get_dmat([x1],xt1)[0]
+                        ind_nnx=np.argsort(dists_x1)
+                        ic1=ind_nnx[0]
+                        dists_x0=self.get_dmat([x0],xt0)[0]
+                        ind_nnx=np.argsort(dists_x0)
+                        ic0=ind_nnx[0]
+                        if dists_x1[ic1]<distcut and dists_x0[ic0]<distcut:
+                            lin1[ic1]=ic0
+                            print(f'a real track cell {ic0} to cell {ic1}')
+                            ntracked=ntracked+1
+                        if visual_1cell:
+                            plt.clf()
+                            plt.scatter(x1[0],x1[1],s=100,marker='x',color='red',alpha=0.5)
+                            plt.scatter(x0[0],x0[1],s=100,marker='x',color='green',alpha=0.5)
+                            plt.scatter(xt1[:,0],xt1[:,1],s=20,marker='x',color='darkred',alpha=0.5)
+                            plt.scatter(xt0[:,0],xt0[:,1],s=20,marker='x',color='lightgreen',alpha=0.5)
+                            plt.scatter(xt1[ic1,0],xt1[ic1,1],s=200,marker='x',color='darkred',alpha=0.5)
+                            plt.scatter(xt0[ic0,0],xt0[ic0,1],s=200,marker='x',color='lightgreen',alpha=0.5)
+                            plt.contour(msk1.T>0,levels=[1],colors='red',alpha=.3)
+                            plt.contour(msk0.T>0,levels=[1],colors='green',alpha=.3)
+                            plt.pause(.1)
+            if visual:
+                plt.clf()
+                plt.scatter(xt1[:,0],xt1[:,1],s=20,marker='x',color='darkred',alpha=0.5)
+                plt.scatter(xt0[:,0],xt0[:,1],s=20,marker='x',color='lightgreen',alpha=0.5)
+                plt.contour(msk1.T>0,levels=[1],colors='red',alpha=.3)
+                plt.contour(msk0.T>0,levels=[1],colors='green',alpha=.3)
+                plt.scatter(xt1[lin1>-1,0],xt1[lin1>-1,1],s=300,marker='o',alpha=.1,color='purple')
+                plt.pause(.1)
+            print('frame '+str(iS)+' tracked '+str(ntracked)+' of '+str(ncells)+' cells')
+            linSet[iS]=lin1
+        self.linSet=linSet
 
     def get_cell_boundary_size(self,indcell,msk=None,cpix=5):
         ic=self.cells_indSet[indcell]
@@ -2656,3 +2731,4 @@ class Trajectory():
             cbSet[ib,1]=np.sum(np.multiply(yy,msk))/np.sum(msk)-t[1]
         bunch_clusters=coor.clustering.AssignCenters(cbSet, metric='euclidean', stride=1, n_jobs=None, skip=0)
         return bunch_clusters
+
