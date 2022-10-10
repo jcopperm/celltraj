@@ -822,7 +822,7 @@ class Trajectory():
                             plt.contour(msk1.T>0,levels=[1],colors='red',alpha=.3)
                             plt.contour(msk0.T>0,levels=[1],colors='green',alpha=.3)
                             plt.pause(.1)
-            if visual:
+            if self.visual:
                 plt.clf()
                 plt.scatter(xt1[:,0],xt1[:,1],s=20,marker='x',color='darkred',alpha=0.5)
                 plt.scatter(xt0[:,0],xt0[:,1],s=20,marker='x',color='lightgreen',alpha=0.5)
@@ -1167,13 +1167,14 @@ class Trajectory():
 
     def get_pair_rdf(self,cell_indsA=None,cell_indsB=None,rbins=None,nr=50,rmax=500):
         if cell_indsA is None:
-            cell_indsA=np.arange(self.X.shape[0]).astype(int)
+            cell_indsA=np.arange(self.cells_indSet.shape[0]).astype(int)
         if cell_indsB is None:
             cell_indsB=cell_indsA.copy()
         if rbins is None:
             rbins=np.linspace(1.e-6,rmax,nr)
         if rbins[0]==0:
             rbins[0]=rbins[0]+1.e-8
+        nr=rbins.shape[0]
         paircorrx=np.zeros(nr+1)
         indimgsA=np.unique(self.cells_indimgSet[cell_indsA])
         indimgsB=np.unique(self.cells_indimgSet[cell_indsB])
@@ -2397,8 +2398,8 @@ class Trajectory():
                 msk=msk.reshape(nx,nx)
             border=mahotas.borders(msk)
             if center is None:
-                center=nx/2
-            bordercoords=np.array(np.where(border)).astype('float')-center
+                center=np.array([np.shape(msk)[0],np.shape(msk)[1]])/2
+            bordercoords=np.array(np.where(border)).astype('float')-center[:,np.newaxis]
             rcoords=np.sqrt(np.power(bordercoords[0,:],2)+np.power(bordercoords[1,:],2))
             thetacoords=np.arctan2(bordercoords[1,:],bordercoords[0,:])
             indth=np.argsort(thetacoords)

@@ -189,22 +189,27 @@ def load_ilastik(file_ilastik):
     f.close()
     return pmask
 
-def get_mask_2channel_ilastik(file_ilastik,fore_channel=0,holefill_area=0,pcut=0.8):
+def get_mask_2channel_ilastik(file_ilastik,fore_channel=0,holefill_area=0,growthcycles=0,pcut=0.8):
     pmask=load_ilastik(file_ilastik)
     msk_fore=pmask[:,:,fore_channel]
     if holefill_area>0:
         msk_fore=skimage.morphology.area_opening(msk_fore, area_threshold=holefill_area)
         msk_fore=skimage.morphology.area_closing(msk_fore, area_threshold=holefill_area)
     msk_fore=msk_fore>pcut
+    if growthcycles>0:
+       for ir in range(growthcycles):
+           msk_fore=skimage.morphology.binary_dilation(msk_fore)
+       for ir in range(growthcycles):
+           msk_fore=skimage.morphology.binary_erosion(msk_fore)
     return msk_fore
 
-def get_masks(masklist,fore_channel=0,holefill_area=0,pcut=0.8):
+def get_masks(masklist,fore_channel=0,holefill_area=0,growthcycles=0,pcut=0.8):
     nF=len(masklist)
     masks=[None]*nF
     for iF in range(nF):
         file_ilastik=masklist[iF]
         print('loading '+file_ilastik)
-        msk=get_mask_2channel_ilastik(file_ilastik,fore_channel=fore_channel,holefill_area=holefill_area,pcut=pcut)
+        msk=get_mask_2channel_ilastik(file_ilastik,fore_channel=fore_channel,holefill_area=holefill_area,growthcycles=growthcycles,pcut=pcut)
         masks[iF]=msk
     return masks
 
