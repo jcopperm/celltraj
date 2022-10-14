@@ -22,6 +22,7 @@ import pickle
 from pystackreg import StackReg
 import pyemma.coordinates as coor
 import numpy.matlib
+import umap
 import btrack
 from btrack.constants import BayesianUpdates
 
@@ -1453,6 +1454,7 @@ class Trajectory():
             x1fcb=self.featBoundaryCB(msk,fmsk)
             ncb=x1fcb.size
         else:
+            cbfeat=False
             print('no cell foreground masks, skipping cell border featurization')
         ng=x1fg.size
         nh=x1fh.size
@@ -1677,7 +1679,28 @@ class Trajectory():
                 plt.scatter(self.Xd[:,0],self.Xd[:,1])
                 plt.pause(.1)
 
-    def get_trajectory_embedding(self,trajl,inds=None,get_trajectories=True,neigen=None,rcut=5.0):
+#    def get_trajectory_embedding(self,trajl,inds=None,get_trajectories=True,neigen=None,rcut=5.0):
+#        if inds is None:
+#            inds=np.arange(self.cells_indSet.size).astype(int)
+#        if get_trajectories:
+#            self.get_unique_trajectories(cell_inds=inds)
+#        traj=self.get_traj_segments(trajl)
+#        self.traj=traj.copy()
+#        self.trajl=trajl
+#        data=self.Xpca[traj,:]
+#        data=data.reshape(traj.shape[0],self.Xpca.shape[1]*trajl)
+#        self.dmat=self.get_dmat(data)
+#        inds=np.arange(data.shape[0]).astype(int)
+#        self.get_scaled_sigma()
+#        self.get_embedding(inds=inds)
+#        self.prune_embedding(inds=inds,rcut=rcut)
+#        indst=np.where(self.Xd[:,0]<np.inf)[0]
+#        self.indst=indst
+#        if neigen is None:
+#            neigen=int(round(self.scaled_dim))
+#        self.Xtraj=self.Xd[:,0:neigen]
+
+    def get_trajectory_embedding(self,trajl,inds=None,get_trajectories=True,neigen=2,rcut=5.0,embedding_type='UMAP',n_neighbors=200,min_dist=0.1):
         if inds is None:
             inds=np.arange(self.cells_indSet.size).astype(int)
         if get_trajectories:
@@ -1689,9 +1712,15 @@ class Trajectory():
         data=data.reshape(traj.shape[0],self.Xpca.shape[1]*trajl)
         self.dmat=self.get_dmat(data)
         inds=np.arange(data.shape[0]).astype(int)
-        self.get_scaled_sigma()
-        self.get_embedding(inds=inds)
-        self.prune_embedding(inds=inds,rcut=rcut)
+        if embedding_type=='DMAP':
+            self.get_scaled_sigma()
+            self.get_embedding(inds=inds)
+            self.prune_embedding(inds=inds,rcut=rcut)
+        if embedding_type=='UMAP':
+            reducer=umap.UMAP(n_neighbors=n_neighbors,min_dist=min_dist, n_components=neigen, metric='euclidean')
+            trans = reducer.fit(data)
+            self.Xd=trans.embedding_
+            self.umap_reducer=reducer
         indst=np.where(self.Xd[:,0]<np.inf)[0]
         self.indst=indst
         if neigen is None:
