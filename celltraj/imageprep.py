@@ -141,10 +141,10 @@ def get_tile_order(nrows,ncols,snake=False):
                 image_inds[rowv,:]=np.flip(image_inds[rowv,:])
     return image_inds
 
-def get_slide_image(imgs,nrows=None,ncols=None,foverlap=0.,histnorm=True):
+def get_slide_image(imgs,nrows=None,ncols=None,image_inds=None,foverlap=0.,histnorm=True):
     """Construct slide image from a set of tiles (fields of view). 
     Ordering from (get_tile_order).
-    :param imgs: list of images nrows: number of rows, default assumes a square tiling (36 images = 8 rows x 8 cols) 
+    :param imgs: list of images nrows: number of rows, default assumes a square tiling (64 images = 8 rows x 8 cols) 
     ncols: number of columns foverlap: fraction of overlap between images
     :type imgs: list of 2D images (2D arrays) nrows: int ncols: int foverlap: float
     :return: constructed slide image from image tiles
@@ -160,7 +160,8 @@ def get_slide_image(imgs,nrows=None,ncols=None,foverlap=0.,histnorm=True):
     nfv=int(round(foverlap*nv_single))
     npixh=ncols*nh_single-int((ncols-1)*nfh)
     npixv=nrows*nv_single-int((nrows-1)*nfv)
-    image_inds=get_tile_order(nrows,ncols)
+    if image_inds is None:
+        image_inds=get_tile_order(nrows,ncols)
     ws_img=np.zeros((npixv,npixh)).astype(imgs[0].dtype)
     for im in range(nimg):
         img=imgs[im]
