@@ -21,6 +21,7 @@ A toolset for single-cell trajectory modeling.
 
 * Free software: MIT license
 * Documentation: https://jcopperm.github.io/celltraj.
+* Morphodynamical Trajectory Embedding tutorial: https://github.com/jcopperm/celltraj/blob/main/tutorials/trajectory_embedding.ipynb
 
 
 Features
