@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import subprocess
 from skimage import color, morphology
 import skimage.transform
-from skimage.registration import phase_cross_correlation
 from scipy.ndimage import fourier_shift
 import h5py
 from skimage import transform as tf
