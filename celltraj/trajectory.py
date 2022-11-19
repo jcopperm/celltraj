@@ -1710,9 +1710,9 @@ class Trajectory():
         self.trajl=trajl
         data=self.Xpca[traj,:]
         data=data.reshape(traj.shape[0],self.Xpca.shape[1]*trajl)
-        self.dmat=self.get_dmat(data)
         inds=np.arange(data.shape[0]).astype(int)
         if embedding_type=='DMAP':
+            self.dmat=self.get_dmat(data)
             self.get_scaled_sigma()
             self.get_embedding(inds=inds)
             self.prune_embedding(inds=inds,rcut=rcut)
