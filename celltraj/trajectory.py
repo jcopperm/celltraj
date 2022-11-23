@@ -25,6 +25,8 @@ import numpy.matlib
 import umap
 import btrack
 from btrack.constants import BayesianUpdates
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 
 
 class Trajectory():
@@ -2243,14 +2245,20 @@ class Trajectory():
             sys.stdout.write('Not in visual mode\n')
 
     def get_pca(self,dim=-1,var_cutoff=0.95):
-        pca=coor.pca(self.Xf, dim=-1, var_cutoff=var_cutoff, mean=None, stride=1, skip=0)
-        x=pca.get_output()[0]
-        self.pca=pca
-        self.Xpca=x
+        #pca=coor.pca(self.Xf, dim=-1, var_cutoff=var_cutoff, mean=None, stride=1, skip=0)
+        #x=pca.get_output()[0]
+        pca_scipy = PCA(n_components=var_cutoff) #n_components specifies the number of principal components to extract from the covariance matrix
+        pca_scipy.fit(self.Xf) #builds the covariance matrix and "fits" the principal components
+        Xpca_scipy = pca.transform(self.Xf) #transforms the data into the pca representation
+        self.pca=pca_scipy
+        self.Xpca=Xpca_scipy
 
     def get_pca_fromdata(self,data,dim=-1,var_cutoff=0.95):
-        pca=coor.pca(data, dim=-1, var_cutoff=var_cutoff, mean=None, stride=1, skip=0)
-        x=pca.get_output()[0]
+        #pca=coor.pca(data, dim=-1, var_cutoff=var_cutoff, mean=None, stride=1, skip=0)
+        #x=pca.get_output()[0]
+        pca_scipy = PCA(n_components=var_cutoff) #n_components specifies the number of principal components to extract from the covariance matrix
+        pca_scipy.fit(data) #builds the covariance matrix and "fits" the principal components
+        Xpca_scipy = pca.transform(self.Xf) #transforms the data into the pca representation
         return x,pca
 
     def cluster_cells(self,n_clusters,x=None):
@@ -2762,3 +2770,127 @@ class Trajectory():
         bunch_clusters=coor.clustering.AssignCenters(cbSet, metric='euclidean', stride=1, n_jobs=None, skip=0)
         return bunch_clusters
 
+    @staticmethod
+    def get_cdist2d(prob1):
+        nx=prob1.shape[0];ny=prob1.shape[1]
+        prob1=prob1/np.sum(prob1)
+        prob1=prob1.flatten()
+        indprob1=np.argsort(prob1)
+        probc1=np.zeros_like(prob1)
+        probc1[indprob1]=np.cumsum(prob1[indprob1])
+        probc1=1.-probc1
+        probc1=probc1.reshape((nx,ny))
+        return probc1
+
+    def get_kineticstates_gpcca(self,nstates_final,P=None,clusters_minima=None,pcut_final=.01):
+        nstates_good=0
+        nstates=nstates_final-1
+        while nstates_good<nstates_final: #18 for tl1
+            if P is None:
+                P=self.Mt
+            if clusters_minima is None:
+                clusters_minima=self.clusterst
+            gpcca = gp.GPCCA(P, eta=None,z='LM', method='brandts')
+            try:
+                gpcca.optimize({'m_min':nstates, 'm_max':nstates+1})
+            except:
+                nstates=nstates+1
+                gpcca.optimize({'m_min':nstates, 'm_max':nstates+1})
+            nstates=gpcca.n_m
+            stateCenters=clusters_minima.clustercenters
+            stateSet_kinetic=gpcca.macrostate_assignment.copy()
+            cell_states=coor.clustering.AssignCenters(stateCenters, metric='euclidean', stride=1, n_jobs=None, skip=0)
+            n_kineticstates=gpcca.n_m
+            state_center_minima=np.zeros((n_kineticstates,neigen))
+            for i in range(n_kineticstates):
+                indstate=np.where(stateSet_kinetic==i)[0]
+                state_center_minima[i,:]=np.mean(cell_states.clustercenters[indstate,:],axis=0)
+            stateSet=gpcca.macrostate_assignment
+            state_probs=np.zeros((nf,nstates))
+            for i in range(nf):
+                indstm=inds_conditions[i]
+                x0=x[indstm,:]
+                indc0=stateSet[cell_states.assign(x0)]
+                statesc,counts=np.unique(indc0,return_counts=True)
+                state_probs[i,statesc]=counts/np.sum(counts)
+            state_tprobs=np.sum(state_probs,axis=0)/nf
+            print(np.sort(state_tprobs))
+            nstates_good=np.sum(state_tprobs>pcut_final)
+            print('{} states initial, {} states final'.format(nstates,nstates_good))
+            nstates=nstates+1
+        pcut=np.sort(state_tprobs)[-(nstates_final)] #nstates]
+        states_plow=np.where(state_tprobs<pcut)[0]
+        for i in states_plow:
+            indstate=np.where(stateSet==i)[0]
+            for imin in indstate:
+                dists=self.get_dmat(np.array([stateCenters[imin,:]]),stateCenters)[0]
+                dists[indstate]=np.inf
+                ireplace=np.argmin(dists)
+                stateSet[imin]=stateSet[ireplace]
+        slabels,counts=np.unique(stateSet,return_counts=True)
+        s=0
+        stateSet_clean=np.zeros_like(stateSet)
+        for slabel in slabels:
+            indstate=np.where(stateSet==slabel)[0]
+            stateSet_clean[indstate]=s
+            s=s+1
+        stateSet=stateSet_clean
+        return stateSet
+
+    def get_kineticstates(self,nstates_final,P=None,clusters_minima=None,pcut_final=.01,random_state=0,ncomp=20):
+        if P is None:
+            print('input transition matrix')
+            return
+        if clusters_minima is None:
+            clusters_minima=self.clusterst
+        stateCenters=clusters_minima.clustercenters
+        nstates_good=0
+        nstates=nstates_final
+        while nstates_good<nstates_final and nstates<2*nstates_final: #18 for tl1
+            H=.5*(P+np.transpose(P))+.5j*(P-np.transpose(P))
+            w,v=np.linalg.eig(H)
+            w=np.real(w)
+            indsort=np.argsort(w)
+            w=w[indsort]
+            v=v[:,indsort]
+            #ncomp=np.sum(w>1.)
+            vr=np.multiply(w[-ncomp:],np.real(v[:,-ncomp:]))
+            vi=np.multiply(w[-ncomp:],np.imag(v[:,-ncomp:]))
+            vkin=np.append(vr,vi,axis=1)
+            clusters_v = KMeans(n_clusters=nstates,init='k-means++',n_init=20000,max_iter=1000)
+            clusters_v.fit(vkin)
+            stateSet=clusters_v.labels_
+            state_center_minima=np.zeros((nstates,neigen))
+            for i in range(nstates):
+                indstate=np.where(stateSet==i)[0]
+                state_center_minima[i,:]=np.mean(clusters_minima.clustercenters[indstate,:],axis=0)
+            state_probs=np.zeros((nf,nstates))
+            for i in range(nf):
+                indstm=inds_conditions[i]
+                x0=x[indstm,:]
+                indc0=stateSet[clusters_minima.assign(x0)]
+                statesc,counts=np.unique(indc0,return_counts=True)
+                state_probs[i,statesc]=counts/np.sum(counts)
+            state_tprobs=np.sum(state_probs,axis=0)/nf
+            print(np.sort(state_tprobs))
+            nstates_good=np.sum(state_tprobs>pcut_final)
+            print('{} states initial, {} states final'.format(nstates,nstates_good))
+            nstates=nstates+1
+        pcut=np.sort(state_tprobs)[-(nstates_final)] #nstates]
+        states_plow=np.where(state_tprobs<pcut)[0]
+        for i in states_plow:
+            indstate=np.where(stateSet==i)[0]
+            for imin in indstate:
+                dists=self.get_dmat(np.array([stateCenters[imin,:]]),stateCenters)[0]
+                dists[indstate]=np.inf
+                ireplace=np.argmin(dists)
+                stateSet[imin]=stateSet[ireplace]
+        slabels,counts=np.unique(stateSet,return_counts=True)
+        s=0
+        stateSet_clean=np.zeros_like(stateSet)
+        for slabel in slabels:
+            indstate=np.where(stateSet==slabel)[0]
+            stateSet_clean[indstate]=s
+            s=s+1
+        stateSet=stateSet_clean
+        return stateSet
