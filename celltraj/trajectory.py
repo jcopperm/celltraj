@@ -2249,7 +2249,7 @@ class Trajectory():
         #x=pca.get_output()[0]
         pca_scipy = PCA(n_components=var_cutoff) #n_components specifies the number of principal components to extract from the covariance matrix
         pca_scipy.fit(self.Xf) #builds the covariance matrix and "fits" the principal components
-        Xpca_scipy = pca.transform(self.Xf) #transforms the data into the pca representation
+        Xpca_scipy = pca_scipy.transform(self.Xf) #transforms the data into the pca representation
         self.pca=pca_scipy
         self.Xpca=Xpca_scipy
 
@@ -2258,7 +2258,7 @@ class Trajectory():
         #x=pca.get_output()[0]
         pca_scipy = PCA(n_components=var_cutoff) #n_components specifies the number of principal components to extract from the covariance matrix
         pca_scipy.fit(data) #builds the covariance matrix and "fits" the principal components
-        Xpca_scipy = pca.transform(self.Xf) #transforms the data into the pca representation
+        Xpca_scipy = pca_scipy.transform(self.Xf) #transforms the data into the pca representation
         return x,pca
 
     def cluster_cells(self,n_clusters,x=None):
