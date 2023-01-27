@@ -2894,3 +2894,91 @@ class Trajectory():
             s=s+1
         stateSet=stateSet_clean
         return stateSet
+    
+# Add subclass to Trajectory() class: trajectory analysis from "cellpose" package   
+class cellPoseTraj(Trajectory):
+    
+    def __init__(self):
+        super().__init__() # Call to the initialization of "parent" class
+        
+    def initialize(self, fileSpecifier, modelName, imgDim=None):
+        
+        super().initialize() # Inherit initilize() function from the parent "Trajectory" class
+        
+        if imgDim is not None:
+            self.imgDim = imgDim
+            
+        self.mskchannel = 1 # None for single-channel images, or chosen channel for multi-channel images
+        self.fmskchannel = None # None for single-channel masks, or chosen channel for multi-channel masks
+        
+    def get_image_data(self, n_frame):
+        
+        self.n_frame = n_frame
+        nF = self.nF
+        timeList = np.array([])
+        imgfileList = np.array([])
+        msks = [None]*nF
+        fmsks = [None]*nF
+        e_msks = np.zeros(nF)
+        e_fmsks = np.zeros(nF)
+        # Read Outlines and Masks of multiple frames from a HDF5 file
+        for iF in range(self.nF):
+            fileName = self.fileList[iF]
+            try:
+                with h5py.File(fileName, 'r') as dataIn:
+                dsetName = "/images/img_%d/mask" % int(n_frame)
+                e = dsetName in dataIn
+                if e:
+                    e_msks[iF] = 1
+                    dset = dataIn[dsetName]
+                    msks[iF] = dset[:]
+                    time = dset.attrs['time']
+                    dsetName = "/images/img_%d/mask" % int(n_frame)
+                    dset = dataIn[dsetName]
+                    msks[iF] = dset[:]
+                    timeList = np.append(timeList, time)
+                    imgfileList = np.append(imgfileList, iF)
+                dsetName = "/images/img_%d/fmsk" % int(n_frame)
+                ef = dsetName in dataIn
+                if ef:
+                    e_fmsks[iF] = 1
+                    dset = dataIn[dsetName]
+                    fmsks[iF] = dset[:]
+                    time = dset.attrs['time']
+                    dsetName = "/images/img_%d/fmsk" % int(n_frame)
+                    dset = dataIn[dsetName]
+                    fmsks[iF] = dset[:]
+                    timeList = np.append(timeList, time)
+                    imgfileList = np.append(imgfileList, iF)  
+            except:
+                sys.stdout.write('error in '+fileName+str(sys.exc_info()[0])+'\n')
+        indmsks = np.where(e_msks > 0)
+        indfmsks = np.where(e_fmsks > 0)
+        msks = np.array(msks)
+        fmsks = np.array(fmsks)
+        msks = msks[indmsks]
+        fmsks = fmsks[indfmsks]
+        
+        if msks.ndim < 3:
+            msks = msks[0]
+            msks = np.expand_dims(msks, axis=0)
+            fmsks = fmsks[0]
+            fmsks = np.expand_dims(fmsks, axis=0)
+        if msks.ndim >= 3: # throwing out extra channels for now
+            msks = msks[0,:,:,0]
+            msks = np.expand_dims(msks, axis=0)
+        
+        if self.mskchannel is None:
+            pass
+        else:
+            msks = msks[:,:,:,self.mskchannel]
+        if self.fmskchannel is None:
+            pass
+        else:
+            fmsks = msks[:,:,:,self.fmskchannel]
+        
+        self.msks = msks
+        self.fmsks = fmsks
+        self.timeList = timeList
+        self.imgfileList = imgfileList
+        
