@@ -2926,30 +2926,30 @@ class cellPoseTraj(Trajectory):
             fileName = self.fileList[iF]
             try:
                 with h5py.File(fileName, 'r') as dataIn:
-                dsetName = "/images/img_%d/mask" % int(n_frame)
-                e = dsetName in dataIn
-                if e:
-                    e_msks[iF] = 1
-                    dset = dataIn[dsetName]
-                    msks[iF] = dset[:]
-                    time = dset.attrs['time']
-                    dsetName = "/images/img_%d/mask" % int(n_frame)
-                    dset = dataIn[dsetName]
-                    msks[iF] = dset[:]
-                    timeList = np.append(timeList, time)
-                    imgfileList = np.append(imgfileList, iF)
-                dsetName = "/images/img_%d/fmsk" % int(n_frame)
-                ef = dsetName in dataIn
-                if ef:
-                    e_fmsks[iF] = 1
-                    dset = dataIn[dsetName]
-                    fmsks[iF] = dset[:]
-                    time = dset.attrs['time']
-                    dsetName = "/images/img_%d/fmsk" % int(n_frame)
-                    dset = dataIn[dsetName]
-                    fmsks[iF] = dset[:]
-                    timeList = np.append(timeList, time)
-                    imgfileList = np.append(imgfileList, iF)  
+                     dsetName = "/images/img_%d/mask" % int(n_frame)
+                     e = dsetName in dataIn
+                     if e:
+                        e_msks[iF] = 1
+                        dset = dataIn[dsetName]
+                        msks[iF] = dset[:]
+                        time = dset.attrs['time']
+                        dsetName = "/images/img_%d/mask" % int(n_frame)
+                        dset = dataIn[dsetName]
+                        msks[iF] = dset[:]
+                        timeList = np.append(timeList, time)
+                        imgfileList = np.append(imgfileList, iF)
+                     dsetName = "/images/img_%d/fmsk" % int(n_frame)
+                     ef = dsetName in dataIn
+                     if ef:
+                        e_fmsks[iF] = 1
+                        dset = dataIn[dsetName]
+                        fmsks[iF] = dset[:]
+                        time = dset.attrs['time']
+                        dsetName = "/images/img_%d/fmsk" % int(n_frame)
+                        dset = dataIn[dsetName]
+                        fmsks[iF] = dset[:]
+                        timeList = np.append(timeList, time)
+                        imgfileList = np.append(imgfileList, iF)  
             except:
                 sys.stdout.write('error in '+fileName+str(sys.exc_info()[0])+'\n')
         indmsks = np.where(e_msks > 0)
