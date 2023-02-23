@@ -72,7 +72,7 @@ class cellPoseTraj():
         imgfileList = np.array([])
         cmsks = [None]*nF # Cell masks
         e_cmsks = np.zeros(nF)
-        # Read Outlines and Masks of multiple frames from a HDF5 file
+        # Reading Masks of multiple frames from a HDF5 file
         for iF in range(self.nF):
             fileName = self.fileList[iF]
             try:
@@ -138,7 +138,6 @@ class cellPoseTraj():
        
         ncells = int(np.max(msks))
         imgDim = 2
-				# Reduce dimension of masks' image: "imgdim" is for RGB image consisting red outlines
         cellblocks = np.zeros((ncells, imgDim, 2)) 
         idGood = np.array([])
         for ic in range(ncells):
@@ -157,7 +156,7 @@ class cellPoseTraj():
     def get_imageSet(self, start_frame, end_frame):
         
         sys.stdout.write('getting masks from frame: '+str(start_frame)+'...\n')
-        # Get masks of cells for each frame
+        # Get cell masks of each frame
         self.get_image_data(start_frame) 
         self.cmskSet = self.cmsks.copy()
         self.imgfileSet = self.imgfileList.copy()
