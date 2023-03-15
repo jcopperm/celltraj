@@ -27,7 +27,7 @@ from btrack.constants import BayesianUpdates
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
   
-# Add a class for trajectory analysis of images obtained from "cellpose" package   
+# Morphodynamical trajectory analysis of (live-cell microscopy) image segmentations obtained from "cellpose" package   
 class cellPoseTraj():
      
     def __init__(self):
