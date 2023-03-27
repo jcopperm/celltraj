@@ -1,9 +1,6 @@
 from __future__ import division, print_function; __metaclass__ = type
 import numpy as np
-import os
-import sys
-import subprocess
-import h5py
+import os, sys, subprocess, gc, h5py
 from scipy.sparse import coo_matrix
 import matplotlib
 import matplotlib.pyplot as plt
@@ -13,21 +10,30 @@ import pyemma
 from skimage import transform as tf
 from scipy.optimize import minimize
 from scipy import ndimage
-import scipy
-import csaps
-import mahotas
-import mahotas.labeled
-import pickle
+import scipy, csaps, mahotas
+import mahotas.labeled, pickle
 from pystackreg import StackReg
 import pyemma.coordinates as coor
 import numpy.matlib
 import umap
-import btrack
-from btrack.constants import BayesianUpdates
+#import btrack
+#from btrack.constants import BayesianUpdates
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-  
-# Morphodynamical trajectory analysis of (live-cell microscopy) image segmentations obtained from "cellpose" package   
+# Import Parallel libraries 
+import joblib
+from joblib import Parallel, delayed, cpu_count, parallel_backend
+   
+#from ray.util.joblib import register_ray
+#register_ray() 
+
+# Get the number of CPUs requested by the Slurm script
+num_cpus = int(os.environ.get('SLURM_CPUS_PER_TASK', default=1))
+     
+# Set the number of worker processes in the Parallel class of "joblib"
+n_jobs = cpu_count() if num_cpus == -1 else num_cpus
+                
+# Add a class for trajectory analysis of images obtained from "cellpose" package   
 class cellPoseTraj():
      
     def __init__(self):
@@ -50,7 +56,7 @@ class cellPoseTraj():
         fileList = fileList[0:-1]
         self.fileList = fileList
         nF = len(fileList) # Number of files
-        #print("Number of files = ", nF)
+        # print("Number of files = ", nF)
         self.nF = nF
         self.visual = False
         self.maximum_cell_size = 250 #biggest linear edge of square holding a single cell image
@@ -72,7 +78,7 @@ class cellPoseTraj():
         imgfileList = np.array([])
         cmsks = [None]*nF # Cell masks
         e_cmsks = np.zeros(nF)
-        # Reading Masks of multiple frames from a HDF5 file
+        # Read Outlines and Masks of multiple frames from a HDF5 file
         for iF in range(self.nF):
             fileName = self.fileList[iF]
             try:
@@ -85,8 +91,6 @@ class cellPoseTraj():
                         cmsks[iF] = dset[:]
                         time = dset.attrs['time']
                         dsetName = "/images/img_%d/cmsk" % int(n_frame)
-                        #dset = dataIn[dsetName]
-                        #cmsks[iF] = dset[:]
                         timeList = np.append(timeList, time)
                         imgfileList = np.append(imgfileList, iF)  
             except:
@@ -109,7 +113,7 @@ class cellPoseTraj():
         self.imgfileList = imgfileList
                   
     def get_frames(self):
-        
+        # Count number of frames in an image 
         numFiles = np.array([])
         numImages = np.array([])
         frameList = np.array([])
@@ -133,7 +137,29 @@ class cellPoseTraj():
             n_frame = n_frame + 1    
         self.numImages = numImages
         self.maxFrame = numImages.size - 1
-
+                          
+    def get_imageSet(self, start_frame, end_frame):
+        
+        sys.stdout.write('getting masks from frame: '+str(start_frame)+'...\n')
+        # Get cell masks of each frame in an image stack
+        self.get_image_data(start_frame) 
+        self.cmskSet = self.cmsks.copy()
+        self.imgfileSet = self.imgfileList.copy()
+        self.frameSet = start_frame*np.ones_like(self.imgfileSet)
+        self.timeSet = self.timeList.copy()
+        self.start_frame = start_frame
+        self.end_frame = end_frame
+        for iS in range(start_frame + 1, end_frame + 1):
+            sys.stdout.write('getting masks from frame: '+str(iS)+'...\n')
+            self.get_image_data(iS)
+            self.cmskSet = np.append(self.cmskSet, self.cmsks, axis=0)
+            self.imgfileSet = np.append(self.imgfileSet, self.imgfileList)
+            self.frameSet = np.append(self.frameSet, iS*np.ones_like(self.imgfileList))
+            self.timeSet = np.append(self.timeSet, self.timeList)
+        self.imgfileSet = self.imgfileSet.astype(int)
+        self.frameSet = self.frameSet.astype(int)
+        #print("Masks set shape = ", self.cmskSet.shape)
+      
     def get_cell_blocks(self, msks, minsize = 1):
        
         ncells = int(np.max(msks))
@@ -152,29 +178,7 @@ class cellPoseTraj():
         idGood = idGood.astype(int)
         cellblocks = cellblocks[idGood, :, :]
         return cellblocks.astype(int)
-
-    def get_imageSet(self, start_frame, end_frame):
-        
-        sys.stdout.write('getting masks from frame: '+str(start_frame)+'...\n')
-        # Get cell masks of each frame
-        self.get_image_data(start_frame) 
-        self.cmskSet = self.cmsks.copy()
-        self.imgfileSet = self.imgfileList.copy()
-        self.frameSet = start_frame*np.ones_like(self.imgfileSet)
-        self.timeSet = self.timeList.copy()
-        self.start_frame = start_frame
-        self.end_frame = end_frame
-        for iS in range(start_frame + 1, end_frame + 1):
-            sys.stdout.write('getting masks from frame: '+str(iS)+'...\n')
-            self.get_image_data(iS)
-            self.cmskSet = np.append(self.cmskSet, self.cmsks, axis=0)
-            self.imgfileSet = np.append(self.imgfileSet, self.imgfileList)
-            self.frameSet = np.append(self.frameSet, iS*np.ones_like(self.imgfileList))
-            self.timeSet = np.append(self.timeSet, self.timeList)
-        self.imgfileSet = self.imgfileSet.astype(int)
-        self.frameSet = self.frameSet.astype(int)
-        #print("Masks set shape = ", self.cmskSet.shape)
-
+                             
     def get_cell_data(self):
         if not hasattr(self, 'cmskSet'):
             sys.stdout.write('no image set: first call get_imageSet(start_frame,end_frame)\n')
@@ -185,10 +189,10 @@ class cellPoseTraj():
         cells_indSet = np.array([])
         cells_timeSet = np.array([])
         cells_indcmskSet = np.array([])
+        msk = [self.cmskSet[im] for im in range(nImg)]
+        cellblocks = Parallel(n_jobs = n_jobs, backend = "multiprocessing")(delayed(self.get_cell_blocks)(msk[i]) for i in range(nImg))
         for im in range(nImg):
-            msk = self.cmskSet[im]
-            cellblocks = self.get_cell_blocks(msk)
-            ncells = np.shape(cellblocks)[0]
+            ncells = np.shape(cellblocks[im])[0]
             totalcells = totalcells + ncells
             cells_frameSet = np.append(cells_frameSet, self.frameSet[im]*np.ones(ncells))
             cells_imgfileSet = np.append(cells_imgfileSet, self.imgfileSet[im]*np.ones(ncells))
@@ -223,23 +227,26 @@ class cellPoseTraj():
         self.cmskSet_t = tSet
            
     def get_imageSet_trans(self):
-        nimg = self.imgfileSet.size
-        tSet = np.zeros((nimg, 3))
+        # Number of images/frames in an image stack, e.g., taking snaps each 15 mins till 48 hrs = 192 images/frames 
+        nimg = self.imgfileSet.size 
+        ttSet = np.zeros((nimg, 3)) # Image transformation, e.g., Translation here
         stack_inds = np.unique(self.imgfileSet).astype(int)
+        # print("stack indices = ", stack_inds)
+        
         for istack in stack_inds:
             sys.stdout.write('registering '+self.fileList[istack]+'\n')
             inds = np.where(self.imgfileSet == istack)
             inds = inds[0]
             cmskSet = self.cmskSet[inds, :, :]
-            tSet_stack = self.get_stack_trans(cmskSet)
-            tSet[inds, :] = tSet_stack
-        self.cmskSet_t = tSet
+            tranSet = self.get_stack_trans(cmskSet)
+            ttSet[inds, :] = tranSet
+        self.cmskSet_t = ttSet
 
     def get_cell_images(self, indcells=None):
         if indcells is None:
             indcells = np.arange(self.cells_indSet.size).astype(int)
         if not hasattr(self,'cmskSet_t'):
-            sys.stdout.write('stack has not been trans registered: calling get_imageSet_trans()\n')
+            sys.stdout.write('stack has not been trans registered: calling get_imageSet_trans() to register translations\n')
             self.get_imageSet_trans()
         ncells = indcells.size
         cells_msks = [None]*ncells
@@ -253,7 +260,8 @@ class cellPoseTraj():
                 sys.stdout.write('loading cells from frame '+str(self.cells_frameSet[ic])+' image '+str(self.cells_imgfileSet[ic])+'\n')
                 msk = self.cmskSet[self.cells_indcmskSet[ic]]
                 cellblocks = self.get_cell_blocks(msk)
-            #print("cells_indSet = ", self.cells_indSet[ic], ", cellblocks[][0][0] = ", cellblocks[self.cells_indSet[ic], 0, 0], ", cellblocks[][0][1]", cellblocks[self.cells_indSet[ic], 0, 1])
+            #print("cells_indSet = ", self.cells_indSet[ic], ", cellblocks[][0][0] = ", 
+            #       cellblocks[self.cells_indSet[ic], 0, 0], ", cellblocks[][0][1]", cellblocks[self.cells_indSet[ic], 0, 1])
             mskcell = msk[cellblocks[self.cells_indSet[ic], 0, 0]:cellblocks[self.cells_indSet[ic], 0, 1], :]
             mskcell = mskcell[:, cellblocks[self.cells_indSet[ic], 1, 0]:cellblocks[self.cells_indSet[ic], 1, 1]]
             (values, counts) = np.unique(mskcell[np.where(mskcell > 0)], return_counts = True)
@@ -373,7 +381,8 @@ class cellPoseTraj():
                 linSet[inds[im+1]] = lin1.copy()
                 idGood = np.where(lin1 >= 0)
                 ulin1,lin1_counts = np.unique(lin1[idGood], return_counts=True)
-                sys.stdout.write('    stack '+str(istack)+' frame '+str(im+1)+' ntracked: '+str(lin1[idGood].shape)+ ' of '+str(indt1.size)+' twins: '+str(np.sum(lin1_counts==2))+' triplets: '+str(np.sum(lin1_counts==3))+'\n')
+                sys.stdout.write('    stack '+str(istack)+' frame '+str(im+1)+' ntracked: '+str(lin1[idGood].shape)+
+                                 ' of '+str(indt1.size)+' twins: '+str(np.sum(lin1_counts==2))+' triplets: '+str(np.sum(lin1_counts==3))+'\n')
                 if self.visual:
                     plt.clf()
                     fmsk0 = self.cmskSet[inds[im], :, :]
@@ -387,7 +396,8 @@ class cellPoseTraj():
                     scatter0_pts = plt.scatter(xt0[lin1[idGood], 0], xt0[lin1[idGood], 1], s=30, c='green', marker='o')
                     ax = plt.gca()
                     for ic in idGood:
-                        ax.arrow(xt0[lin1[ic], 0], xt0[lin1[ic], 1], xt1[ic, 0] - xt0[lin1[ic], 0], xt1[ic, 1] - xt0[lin1[ic], 1],head_width=10, linewidth=1.5, color='black', alpha=1.0)
+                        ax.arrow(xt0[lin1[ic], 0], xt0[lin1[ic], 1], xt1[ic, 0] - xt0[lin1[ic], 0], xt1[ic, 1] - xt0[lin1[ic], 1],
+                                 head_width=10, linewidth=1.5, color='black', alpha=1.0)
                     plt.xlim(mindx, maxdx)
                     plt.ylim(mindy, maxdy)
                     plt.axis('off')
@@ -398,8 +408,217 @@ class cellPoseTraj():
                         imgfile="%04d.png" % im
                         plt.savefig(pathto+self.modelName+'_trackmd_stack'+str(istack)+'_'+imgfile)
         self.linSet=linSet
-
-    def get_lineage_bunch_overlap(self, distcut=45.0, distcutb=300.0, overlapcut=10.0, cellcut=10.0, bunchcut=100.*100., pathto=None, clustervisual=False):
+                                    
+    def lineage_bunch_overlap_jlp(self, im, istack, bunchcut, distcut, distcutb, overlapcut, cellcut,
+                                  pathto, clustervisual, sr, cmskSet, inds, indt0, lin0, linSet):
+        nx = cmskSet.shape[1]
+        ny = cmskSet.shape[2]
+        xx,yy = np.meshgrid(np.arange(nx), np.arange(ny), indexing='ij')
+        indt0 = np.where(self.cells_indcmskSet == inds[im])[0]
+        fmsk0 = cmskSet[im, :, :]
+        bmsk0 = self.get_cell_bunches(fmsk0, bunchcut=bunchcut)
+        msk0 = self.get_clean_mask(cmskSet[im, :, :], minsize=cellcut)
+        xt0 = self.x[indt0, :]
+        fmsk1 = cmskSet[im+1, :, :]
+        bmsk1 = self.get_cell_bunches(fmsk1, bunchcut=bunchcut)
+        indt1 = np.where(self.cells_indcmskSet == inds[im+1])[0]
+        msk1 = self.get_clean_mask(cmskSet[im+1, :, :], minsize=cellcut)
+        xt1 = self.x[indt1, :]
+        dmatx = self.get_dmat(xt1, xt0)
+        lin1 = np.ones(indt1.size).astype(int)*-1
+        if np.sum(bmsk1) < 1 or np.sum(bmsk0) < 1:
+          ind_na = np.arange(indt1.size)
+        else:
+          bunch_clusters0 = self.get_bunch_clusters(bmsk0, t = self.cmskSet_t[inds[im], :])
+          xb0 = bunch_clusters0.clustercenters
+          indb0 = bunch_clusters0.assign(xt0)
+          bunch_clusters1 = self.get_bunch_clusters(bmsk1, t = self.cmskSet_t[inds[im + 1], :])
+          indb1 = bunch_clusters1.assign(xt1)
+          xb1 = bunch_clusters1.clustercenters
+          dmatxb = self.get_dmat(xb1, xb0)
+          lin1b = np.zeros(xb1.shape[0]).astype(int)
+          for ib in range(xb1.shape[0]): #nn tracking
+              ind_nnxb = np.argsort(dmatxb[ib, :])
+              bdist = self.dist(xb0[ind_nnxb[0], :], xb1[ib, :])
+              if bdist < distcutb:
+                 lin1b[ib] = ind_nnxb[0]
+              else:
+                 lin1b[ib] = -1
+          idGood = np.where(lin1b >= 0)[0]
+          if clustervisual:
+              plt.clf()
+              plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1], bmsk0,
+                          levels=np.arange(np.max(bmsk0)), cmap=plt.cm.Greens)
+              plt.contour(xx - self.cmskSet_t[inds[im+1], 2], yy - self.cmskSet_t[inds[im+1], 1], bmsk1,
+                          levels=np.arange(np.max(bmsk1)), cmap=plt.cm.Reds)
+              contour0_img = plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1],
+                                         msk0, levels=np.arange(np.max(msk0)), colors='red', alpha=0.5)
+              contour1_img = plt.contour(xx - self.cmskSet_t[inds[im+1], 2], yy - self.cmskSet_t[inds[im+1], 1],
+                                         msk1, levels=np.arange(np.max(msk1)), colors='green', alpha=0.5)
+              scatter1_pts = plt.scatter(xb1[idGood, 0], xb1[idGood, 1], s=30000, c='red', marker='x') #when you scatter in pts, need (y,x)
+              scatter0_pts = plt.scatter(xb0[lin1b[idGood], 0], xb0[lin1b[idGood], 1], s=30000, c='green', marker='x')
+              for ib in idGood:
+                  plt.plot(np.array([xb0[lin1b[ib], 0], xb1[ib, 0]]), np.array([xb0[lin1b[ib], 1], xb1[ib, 1]]),
+                           '--', linewidth=1.5, color='black', alpha=0.5)
+                  plt.pause(1)
+          cellblocks0 = self.get_cell_blocks(bmsk0)
+          cellblocks0 = cellblocks0[lin1b[idGood], :, :]
+          cellblocks1 = self.get_cell_blocks(bmsk1)
+          cellblocks1 = cellblocks1[idGood, :, :]
+          cell_clusters0 = coor.clustering.AssignCenters(self.cells_positionSet[indt0, :],
+                                                         metric='euclidean', stride=1, n_jobs=None, skip=0)
+          cell_clusters1 = coor.clustering.AssignCenters(self.cells_positionSet[indt1, :],
+                                                         metric='euclidean', stride=1, n_jobs=None, skip=0)
+          inds_c1b = np.array([])
+          for ib in range(cellblocks1.shape[0]):
+              minx = np.min(np.array([cellblocks0[ib, 0, 0], cellblocks1[ib, 0, 0]]))
+              miny = np.min(np.array([cellblocks0[ib, 1, 0], cellblocks1[ib, 1, 0]]))
+              maxx = np.max(np.array([cellblocks0[ib, 0, 1], cellblocks1[ib, 0, 1]]))
+              maxy = np.max(np.array([cellblocks0[ib, 1, 1], cellblocks1[ib, 1, 1]]))
+              mskb0 = bmsk0[minx:maxx, :]; mskb0 = mskb0[:, miny:maxy]
+              mskb1 = bmsk1[minx:maxx, :]; mskb1 = mskb1[:, miny:maxy]
+              mskc0 = msk0[minx:maxx, :]; mskc0 = mskc0[:, miny:maxy]
+              mskc1 = msk1[minx:maxx, :]; mskc1 = mskc1[:, miny:maxy]
+              if np.sum(mskc0) == 0 or np.sum(mskc1) == 0:
+                  sys.stdout.write('Bunch '+str(ib)+' is empty...\n')
+              else:
+                  (values,counts) = np.unique(mskb0[np.where(mskb0 > 0)], return_counts=True)
+                  ibunch0 = values[np.argmax(counts)].astype(int)
+                  mskb0 = mskb0 == ibunch0
+                  (values,counts) = np.unique(mskb1[np.where(mskb1 > 0)], return_counts=True)
+                  ibunch1 = values[np.argmax(counts)].astype(int)
+                  mskb1 = mskb1 == ibunch1
+                  tmatrix = sr.register(np.abs(mskb0) > 0, np.abs(mskb1) > 0) #from second to first
+                  mskb1_reg = tf.warp(mskb1.astype('float'), tmatrix, 0) #0 for nn interp
+                  mskb1_reg = mskb1_reg.astype(int)
+                  mskc1_reg = tf.warp(mskc1.astype('float'), tmatrix, 0) #0 for nn interp
+                  mskc1_reg = mskc1_reg.astype(int)
+                  indc0 = np.unique(mskc0[np.where(mskc0 > 0)]).astype(int); indc1 = np.unique(mskc1[np.where(mskc1 > 0)]).astype(int)
+                  nx = np.shape(mskc0)[0]; ny = np.shape(mskc1)[1]
+                  xxc,yyc = np.meshgrid(np.arange(nx), np.arange(ny), indexing='ij')
+                  overlap_matrix = np.zeros((indc0.size, indc1.size))
+                  inds_c0 = np.zeros(indc0.size).astype(int)
+                  x0 = np.zeros((indc0.size, 2))
+                  for ic0 in range(indc0.size):
+                       mskic0 = mskc0 == indc0[ic0]
+                       mskic0_sum = np.sum(mskic0)
+                       if mskic0_sum != 0:                       
+                              cmskx = np.sum(np.multiply(xxc, mskic0)) / mskic0_sum
+                              cmsky = np.sum(np.multiply(yyc, mskic0)) / mskic0_sum
+                       else:
+                              cmskx = 0.0 # or any other value that makes sense (discuss with JC)
+                              cmsky = 0.0 # or any other value that makes sense (discuss with JC)
+                       cmskx = np.nan_to_num(cmskx)
+                       cmsky = np.nan_to_num(cmsky)
+                       xc0 = cmskx + cellblocks0[ib, 0, 0]
+                       yc0 = cmsky + cellblocks0[ib, 1, 0]
+                       x0[ic0, :] = np.array([xc0-cellblocks0[ib, 0, 0], yc0 - cellblocks0[ib, 1, 0]])
+                       inds_c0[ic0] = cell_clusters0.assign(np.array([[xc0, yc0]]))[0]
+                  inds_c1 = np.zeros(indc1.size).astype(int)
+                  x1 = np.zeros((indc1.size, 2))
+                  for ic1 in range(indc1.size):
+                      mskic1 = mskc1_reg == indc1[ic1]
+                      mskic1_sum = np.sum(mskic1)
+                      if mskic1_sum != 0:                       
+                          cmskx = np.sum(np.multiply(xxc, mskic1)) / mskic1_sum
+                          cmsky = np.sum(np.multiply(yyc, mskic1)) / mskic1_sum
+                      else:
+                          cmskx = 0.0 # or any other value that makes sense (discuss with JC)
+                          cmsky = 0.0 # or any other value that makes sense (discuss with JC)
+                      cmskx = np.nan_to_num(cmskx)
+                      cmsky = np.nan_to_num(cmsky)
+                      xc1 = cmskx + cellblocks1[ib, 0, 0]
+                      yc1 = cmsky + cellblocks1[ib, 1, 0]
+                      x1[ic1,:] = np.array([xc1-cellblocks1[ib, 0, 0], yc1 - cellblocks1[ib, 1, 0]])
+                      inds_c1[ic1] = cell_clusters1.assign(np.array([[xc1, yc1]]))[0]
+                  inds_c1b = np.append(inds_c1b, inds_c1)
+                  for ic0 in range(indc0.size): #get overlap matrix
+                      mskic0 = mskc0 == indc0[ic0]
+                      for ic1 in range(indc1.size):
+                          mskic1 = mskc1_reg == indc1[ic1]
+                          overlap_matrix[ic0, ic1] = np.sum(np.logical_and(mskic0, mskic1))
+                  linb = np.ones(indc1.size).astype(int)*-1
+                  for ic in range(indc1.size): #pick max overlap
+                      ind_nn = np.argsort(overlap_matrix[:, ic])
+                      cpix = overlap_matrix[ind_nn[-1], ic]
+                      if cpix > overlapcut:
+                         ind_nnx = np.argsort(dmatx[inds_c1[ic], :])
+                         cdist = dmatx[inds_c1[ic], ind_nnx[0]]
+                         if cdist < distcut:
+                             lin1[inds_c1[ic]] = inds_c0[ind_nn[-1]]
+                             linb[ic] = ind_nn[-1]
+                  if clustervisual:
+                      plt.clf()
+                      plt.contour(xxc, yyc, mskb0, colors='lightgreen', levels=0, alpha=0.5)
+                      plt.contour(xxc, yyc, mskb1_reg, colors='salmon', levels=0, alpha=0.5)
+                      plt.contour(xxc, yyc, mskc0, colors='green', levels=np.unique(mskc0))
+                      plt.contour(xxc, yyc, mskc1_reg, colors='red', levels=np.unique(mskc1))
+                      plt.title('Cluster '+str(ib))
+                      idGood = np.where(linb>-1)[0]; ax=plt.gca()
+                      for ic in idGood:
+                          ax.arrow(x0[linb[ic], 0], x0[linb[ic], 1], x1[ic, 0] - x0[linb[ic], 0],
+                                   x1[ic, 1] - x0[linb[ic], 1], head_width=2, linewidth=1.5, color='black', alpha=1.0)
+                      plt.pause(.3)
+          for ic1 in range(indt1.size): #trim too long tracks in global basis
+               ic0 = lin1[ic1]
+               if ic0 >= 0:
+                   distc = dmatx[ic1, ic0]
+                   if distc > distcut:
+                       lin1[ic1] = -1
+          ind_na = np.arange(indt1.size)
+          comm,indcomm1,indcomm2 = np.intersect1d(ind_na, inds_c1b, return_indices=True)
+          ind_na[indcomm1] = -1
+          ind_na = ind_na[np.where(ind_na >= 0)]
+        for ic in ind_na: #nn tracking for cells not in bunches
+            if xt0.size > 0:
+                ind_nnx = np.argsort(dmatx[ic, :])
+                cdist = self.dist(xt0[ind_nnx[0], :], xt1[ic, :])
+                if cdist<distcut:
+                    lin1[ic] = ind_nnx[0]
+                else:
+                    lin1[ic] = -1
+        if lin1.size > 0:
+            indtracked = np.where(lin1 >= 0)
+            ulin1,lin1_counts = np.unique(lin1[indtracked],return_counts=True)
+            sys.stdout.write('    stack '+str(istack)+' frame '+str(im+1)+' ntracked: '+str(np.sum(lin1>=0))+\
+                             ' of '+str(indt1.size)+' twins: '+str(np.sum(lin1_counts==2))+' triplets before cleaning: '+str(np.sum(lin1_counts==3))+'\n')
+        else:
+            sys.stdout.write('    stack '+str(istack)+' frame '+str(im+1)+' ntracked: 0 of 0\n')
+        ind_oa = np.where(lin1_counts > 2)[0] #clean triplets and up
+        for ioa in ind_oa:
+            ic0 = ulin1[ioa]
+            indc1 = np.where(lin1 == ic0)[0]
+            distc1 = dmatx[indc1, ic0]
+            ind_nnx = np.argsort(distc1)
+            ind_out = indc1[ind_nnx[2:]]
+            lin1[ind_out] = -1
+        if self.visual:
+            plt.clf()
+            plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1], cmsk0, levels=[1], colors='darkgreen', alpha=0.5)
+            plt.contour(xx - self.cmskSet_t[inds[im+1], 2], yy - self.cmskSet_t[inds[im+1], 1], cmsk1, levels=[1], colors='darkred', alpha=0.5)
+            plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1], msk0 > 0, colors='green', levels=[1.0], alpha=0.5)
+            plt.contour(xx - self.cmskSet_t[inds[im+1], 2], yy - self.cmskSet_t[inds[im+1], 1], msk1 > 0, colors='red', levels=[1.0], alpha=0.5)
+            idGood = np.where(lin1 >= 0)[0]
+            scatter1_pts = plt.scatter(xt1[idGood, 0], xt1[idGood, 1], s=30, c='red', marker='o') #when you scatter in pts, need (y,x)
+            scatter0_pts = plt.scatter(xt0[lin1[idGood], 0], xt0[lin1[idGood], 1], s=30, c='green', marker='o')
+            ax = plt.gca()
+            for ic in idGood:
+                ax.arrow(xt0[lin1[ic], 0], xt0[lin1[ic], 1], xt1[ic, 0] - xt0[lin1[ic], 0],
+                         xt1[ic, 1] - xt0[lin1[ic], 1], head_width=10, linewidth=1.5, color='black', alpha=1.0)
+            plt.xlim(mindx, maxdx)
+            plt.ylim(mindy, maxdy)
+            plt.axis('off')
+            plt.pause(.1)
+            if pathto is None:
+                pass
+            else:
+                imgfile = "%04d.png" % im
+                plt.savefig(pathto+self.modelName+'_trackbo_stack'+str(istack)+'_'+imgfile)
+        linSet[inds[im+1]] = lin1.copy()
+        return linSet
+    
+    def get_lineage_bunch_overlap(self, distcut=45.0, distcutb=300.0, overlapcut=10.0, cellcut=10.0,
+                                  bunchcut=100.*100., pathto=None, clustervisual=False):
         if self.visual:
             plt.figure(figsize = (10, 8))
             nx = self.cmskSet.shape[1]; ny = self.cmskSet.shape[2]
@@ -416,6 +635,7 @@ class cellPoseTraj():
         sr = StackReg(StackReg.RIGID_BODY)
         nimg = self.imgfileSet.size
         linSet = [None]*nimg
+        linSet1 = [None]*nimg
         stack_inds = np.unique(self.imgfileSet).astype(int)
         for istack in stack_inds:
             sys.stdout.write('tracking '+self.fileList[istack]+'\n')
@@ -425,181 +645,20 @@ class cellPoseTraj():
             nframes = cmskSet.shape[0]
             indt0 = np.where(self.cells_indcmskSet == inds[0])[0]
             lin0 = np.arange(indt0.size).astype(int)
-            linSet[inds[0]] = lin0.copy()
-            for im in range(0, nframes-1):
-                nx = cmskSet.shape[1]; ny = cmskSet.shape[2]
-                xx,yy = np.meshgrid(np.arange(nx), np.arange(ny), indexing='ij')
-                indt0 = np.where(self.cells_indcmskSet == inds[im])[0]
-                fmsk0 = cmskSet[im, :, :]
-                bmsk0 = self.get_cell_bunches(fmsk0, bunchcut=bunchcut)
-                msk0 = self.get_clean_mask(cmskSet[im, :, :], minsize=cellcut)
-                xt0 = self.x[indt0, :]
-                fmsk1 = cmskSet[im+1, :, :]
-                bmsk1 = self.get_cell_bunches(fmsk1, bunchcut=bunchcut)
-                indt1 = np.where(self.cells_indcmskSet == inds[im+1])[0]
-                msk1 = self.get_clean_mask(cmskSet[im+1, :, :], minsize=cellcut)
-                xt1 = self.x[indt1, :]
-                dmatx = self.get_dmat(xt1, xt0)
-                lin1 = np.ones(indt1.size).astype(int)*-1
-                if np.sum(bmsk1) < 1 or np.sum(bmsk0) < 1:
-                    ind_na = np.arange(indt1.size)
-                else:
-                    bunch_clusters0 = self.get_bunch_clusters(bmsk0, t = self.cmskSet_t[inds[im], :])
-                    xb0 = bunch_clusters0.clustercenters
-                    indb0 = bunch_clusters0.assign(xt0)
-                    bunch_clusters1 = self.get_bunch_clusters(bmsk1, t = self.cmskSet_t[inds[im + 1], :])
-                    indb1 = bunch_clusters1.assign(xt1)
-                    xb1 = bunch_clusters1.clustercenters
-                    dmatxb = self.get_dmat(xb1, xb0)
-                    lin1b = np.zeros(xb1.shape[0]).astype(int)
-                    for ib in range(xb1.shape[0]): #nn tracking
-                        ind_nnxb = np.argsort(dmatxb[ib, :])
-                        bdist = self.dist(xb0[ind_nnxb[0], :], xb1[ib, :])
-                        if bdist < distcutb:
-                            lin1b[ib] = ind_nnxb[0]
-                        else:
-                            lin1b[ib] = -1
-                    idGood = np.where(lin1b >= 0)[0]
-                    if clustervisual:
-                        plt.clf()
-                        plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1], bmsk0, levels=np.arange(np.max(bmsk0)),cmap=plt.cm.Greens)
-                        plt.contour(xx - self.cmskSet_t[inds[im+1], 2], yy - self.cmskSet_t[inds[im+1], 1], bmsk1, levels=np.arange(np.max(bmsk1)), cmap=plt.cm.Reds)
-                        contour0_img = plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1], msk0, levels=np.arange(np.max(msk0)), colors='red', alpha=0.5)
-                        contour1_img = plt.contour(xx - self.cmskSet_t[inds[im+1], 2], yy - self.cmskSet_t[inds[im+1], 1], msk1, levels=np.arange(np.max(msk1)), colors='green', alpha=0.5)
-                        scatter1_pts = plt.scatter(xb1[idGood, 0], xb1[idGood, 1], s=30000, c='red', marker='x') #when you scatter in pts, need (y,x)
-                        scatter0_pts = plt.scatter(xb0[lin1b[idGood], 0], xb0[lin1b[idGood], 1], s=30000, c='green', marker='x')
-                        for ib in idGood:
-                            plt.plot(np.array([xb0[lin1b[ib], 0], xb1[ib, 0]]), np.array([xb0[lin1b[ib], 1], xb1[ib, 1]]), '--', linewidth=1.5, color='black', alpha=0.5)
-                        plt.pause(1)
-                    cellblocks0 = self.get_cell_blocks(bmsk0)
-                    cellblocks0 = cellblocks0[lin1b[idGood], :, :]
-                    cellblocks1 = self.get_cell_blocks(bmsk1)
-                    cellblocks1 = cellblocks1[idGood, :, :]
-                    cell_clusters0 = coor.clustering.AssignCenters(self.cells_positionSet[indt0, :], metric='euclidean', stride=1, n_jobs=None, skip=0)
-                    cell_clusters1 = coor.clustering.AssignCenters(self.cells_positionSet[indt1, :], metric='euclidean', stride=1, n_jobs=None, skip=0)
-                    inds_c1b = np.array([])
-                    for ib in range(cellblocks1.shape[0]):
-                        minx = np.min(np.array([cellblocks0[ib, 0, 0], cellblocks1[ib, 0, 0]])); miny = np.min(np.array([cellblocks0[ib, 1, 0], cellblocks1[ib, 1, 0]]))
-                        maxx = np.max(np.array([cellblocks0[ib, 0, 1], cellblocks1[ib, 0, 1]])); maxy = np.max(np.array([cellblocks0[ib, 1, 1], cellblocks1[ib, 1, 1]]))
-                        mskb0 = bmsk0[minx:maxx, :]; mskb0 = mskb0[:, miny:maxy]
-                        mskb1 = bmsk1[minx:maxx, :]; mskb1 = mskb1[:, miny:maxy]
-                        mskc0 = msk0[minx:maxx, :]; mskc0 = mskc0[:, miny:maxy]
-                        mskc1 = msk1[minx:maxx, :]; mskc1 = mskc1[:, miny:maxy]
-                        if np.sum(mskc0) == 0 or np.sum(mskc1) == 0:
-                            sys.stdout.write('Bunch '+str(ib)+' is empty...\n')
-                        else:
-                            (values,counts) = np.unique(mskb0[np.where(mskb0 > 0)], return_counts=True)
-                            ibunch0 = values[np.argmax(counts)].astype(int)
-                            mskb0 = mskb0 == ibunch0
-                            (values,counts) = np.unique(mskb1[np.where(mskb1 > 0)], return_counts=True)
-                            ibunch1 = values[np.argmax(counts)].astype(int)
-                            mskb1 = mskb1 == ibunch1
-                            tmatrix = sr.register(np.abs(mskb0) > 0, np.abs(mskb1) > 0) #from second to first
-                            mskb1_reg = tf.warp(mskb1.astype('float'), tmatrix, 0) #0 for nn interp
-                            mskb1_reg = mskb1_reg.astype(int)
-                            mskc1_reg = tf.warp(mskc1.astype('float'), tmatrix, 0) #0 for nn interp
-                            mskc1_reg = mskc1_reg.astype(int)
-                            indc0 = np.unique(mskc0[np.where(mskc0 > 0)]).astype(int); indc1 = np.unique(mskc1[np.where(mskc1 > 0)]).astype(int)
-                            nx = np.shape(mskc0)[0]; ny = np.shape(mskc1)[1]
-                            xxc,yyc = np.meshgrid(np.arange(nx), np.arange(ny), indexing='ij')
-                            overlap_matrix = np.zeros((indc0.size, indc1.size))
-                            inds_c0 = np.zeros(indc0.size).astype(int)
-                            x0 = np.zeros((indc0.size, 2))
-                            for ic0 in range(indc0.size):
-                                mskic0 = mskc0 == indc0[ic0]
-                                cmskx = np.sum(np.multiply(xxc, mskic0))/np.sum(mskic0)
-                                cmsky = np.sum(np.multiply(yyc, mskic0))/np.sum(mskic0)
-                                xc0 = cmskx + cellblocks0[ib, 0, 0]; yc0 = cmsky + cellblocks0[ib, 1, 0]; x0[ic0, :] = np.array([xc0-cellblocks0[ib, 0, 0], yc0 - cellblocks0[ib, 1, 0]])
-                                inds_c0[ic0] = cell_clusters0.assign(np.array([[xc0, yc0]]))[0]
-                            inds_c1 = np.zeros(indc1.size).astype(int)
-                            x1 = np.zeros((indc1.size, 2))
-                            for ic1 in range(indc1.size):
-                                mskic1 = mskc1_reg == indc1[ic1]
-                                cmskx = np.sum(np.multiply(xxc, mskic1))/np.sum(mskic1)
-                                cmsky = np.sum(np.multiply(yyc, mskic1))/np.sum(mskic1)
-                                xc1 = cmskx + cellblocks1[ib, 0, 0]; yc1 = cmsky + cellblocks1[ib, 1, 0]; x1[ic1,:] = np.array([xc1-cellblocks1[ib, 0, 0], yc1 - cellblocks1[ib, 1, 0]])
-                                inds_c1[ic1] = cell_clusters1.assign(np.array([[xc1, yc1]]))[0]
-                            inds_c1b = np.append(inds_c1b, inds_c1)
-                            for ic0 in range(indc0.size): #get overlap matrix
-                                mskic0 = mskc0 == indc0[ic0]
-                                for ic1 in range(indc1.size):
-                                    mskic1 = mskc1_reg == indc1[ic1]
-                                    overlap_matrix[ic0, ic1] = np.sum(np.logical_and(mskic0, mskic1))
-                            linb = np.ones(indc1.size).astype(int)*-1
-                            for ic in range(indc1.size): #pick max overlap
-                                ind_nn = np.argsort(overlap_matrix[:, ic])
-                                cpix = overlap_matrix[ind_nn[-1], ic]
-                                if cpix > overlapcut:
-                                    ind_nnx = np.argsort(dmatx[inds_c1[ic], :])
-                                    cdist = dmatx[inds_c1[ic], ind_nnx[0]]
-                                    if cdist < distcut:
-                                        lin1[inds_c1[ic]] = inds_c0[ind_nn[-1]]
-                                        linb[ic] = ind_nn[-1]
-                            if clustervisual:
-                                plt.clf()
-                                plt.contour(xxc, yyc, mskb0, colors='lightgreen', levels=0, alpha=0.5); plt.contour(xxc, yyc, mskb1_reg, colors='salmon', levels=0, alpha=0.5)
-                                plt.contour(xxc, yyc, mskc0, colors='green', levels=np.unique(mskc0)); plt.contour(xxc, yyc, mskc1_reg, colors='red', levels=np.unique(mskc1))
-                                plt.title('Cluster '+str(ib))
-                                idGood = np.where(linb>-1)[0]; ax=plt.gca()
-                                for ic in idGood:
-                                    ax.arrow(x0[linb[ic], 0], x0[linb[ic], 1], x1[ic, 0] - x0[linb[ic], 0], x1[ic, 1] - x0[linb[ic], 1],head_width=2, linewidth=1.5, color='black', alpha=1.0)
-                                plt.pause(.3)
-                    for ic1 in range(indt1.size): #trim too long tracks in global basis
-                        ic0 = lin1[ic1]
-                        if ic0 >= 0:
-                            distc = dmatx[ic1, ic0]
-                            if distc > distcut:
-                                lin1[ic1] = -1
-                    ind_na = np.arange(indt1.size)
-                    comm,indcomm1,indcomm2 = np.intersect1d(ind_na, inds_c1b, return_indices=True)
-                    ind_na[indcomm1] = -1
-                    ind_na = ind_na[np.where(ind_na >= 0)]
-                for ic in ind_na: #nn tracking for cells not in bunches
-                    if xt0.size > 0:
-                        ind_nnx = np.argsort(dmatx[ic, :])
-                        cdist = self.dist(xt0[ind_nnx[0], :], xt1[ic, :])
-                        if cdist<distcut:
-                            lin1[ic] = ind_nnx[0]
-                        else:
-                            lin1[ic] = -1
-                if lin1.size > 0:
-                    indtracked = np.where(lin1 >= 0)
-                    ulin1,lin1_counts = np.unique(lin1[indtracked],return_counts=True)
-                    sys.stdout.write('    stack '+str(istack)+' frame '+str(im+1)+' ntracked: '+str(np.sum(lin1>=0))+ ' of '+str(indt1.size)+' twins: '+str(np.sum(lin1_counts==2))+' triplets before cleaning: '+str(np.sum(lin1_counts==3))+'\n')
-                else:
-                    sys.stdout.write('    stack '+str(istack)+' frame '+str(im+1)+' ntracked: 0 of 0\n')
-                ind_oa = np.where(lin1_counts > 2)[0] #clean triplets and up
-                for ioa in ind_oa:
-                    ic0 = ulin1[ioa]
-                    indc1 = np.where(lin1 == ic0)[0]
-                    distc1 = dmatx[indc1, ic0]
-                    ind_nnx = np.argsort(distc1)
-                    ind_out = indc1[ind_nnx[2:]]
-                    lin1[ind_out] = -1
-                if self.visual:
-                    plt.clf()
-                    plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1], cmsk0, levels=[1], colors='darkgreen', alpha=0.5)
-                    plt.contour(xx - self.cmskSet_t[inds[im+1], 2], yy - self.cmskSet_t[inds[im+1], 1], cmsk1, levels=[1], colors='darkred', alpha=0.5)
-                    plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1], msk0>0, colors='green', levels=[1.0], alpha=0.5)
-                    plt.contour(xx - self.cmskSet_t[inds[im+1], 2], yy - self.cmskSet_t[inds[im+1], 1], msk1>0, colors='red', levels=[1.0], alpha=0.5)
-                    idGood = np.where(lin1 >= 0)[0]
-                    scatter1_pts = plt.scatter(xt1[idGood, 0], xt1[idGood, 1], s=30, c='red', marker='o') #when you scatter in pts, need (y,x)
-                    scatter0_pts = plt.scatter(xt0[lin1[idGood], 0], xt0[lin1[idGood], 1], s=30, c='green', marker='o')
-                    ax = plt.gca()
-                    for ic in idGood:
-                        ax.arrow(xt0[lin1[ic], 0], xt0[lin1[ic], 1], xt1[ic, 0] - xt0[lin1[ic], 0], xt1[ic, 1] - xt0[lin1[ic], 1],head_width=10, linewidth=1.5, color='black', alpha=1.0)
-                    plt.xlim(mindx, maxdx)
-                    plt.ylim(mindy, maxdy)
-                    plt.axis('off')
-                    plt.pause(.1)
-                    if pathto is None:
-                        pass
-                    else:
-                        imgfile = "%04d.png" % im
-                        plt.savefig(pathto+self.modelName+'_trackbo_stack'+str(istack)+'_'+imgfile)
-                linSet[inds[im+1]] = lin1.copy()
+            linSet1[inds[0]] = lin0.copy()
+            for im in range(nframes - 1):  
+                linSet = self.lineage_bunch_overlap_jlp(im, istack, bunchcut, distcut, distcutb, overlapcut, cellcut, 
+                                                        pathto, clustervisual, sr, cmskSet, inds, indt0, lin0, linSet1)
+            # FOR LOOP Parallelization using "joblib"
+            #linSet = Parallel(n_jobs = n_jobs, backend = "loky", verbose = 10)(delayed(self.lineage_bunch_overlap_jlp)(im, istack, bunchcut, distcut, 
+            #                                                                   distcutb, overlapcut, cellcut, pathto, clustervisual, sr, cmskSet,
+            #                                                                   inds, indt0, lin0, linSet1) for im in range(nframes - 1))
+            linSet = linSet[:]
             self.linSet = linSet
-
+            print("Lineage Set =", self.linSet)
+        del linSet1
+        gc.collect()
+                                
     def get_lineage_btrack(self, distcut = 5., framewindow = 6, visual_1cell = False, max_search_radius = 100):
         nimg = self.cmskSet.shape[0]
         segmentation = np.zeros((nimg, self.cmskSet.shape[1], self.cmskSet.shape[2])).astype(int)
@@ -1276,22 +1335,39 @@ class cellPoseTraj():
         self.Xm = Xm
         self.maxedge = maxedge
         self.ncells = ncells
+                                   
+    def get_cellFeat(self, icell, Xf1, cbfeat=None): 
 
+        m1 = self.Xm[icell, :]
+        x1fg = self.featZernike(m1)
+        x1fh = self.featHaralick(m1)
+        x1fb = self.featBoundary(m1)
+        if cbfeat:
+            cmsk = self.cellborder_cmsks[icell]
+            x1fcb = self.featBoundaryCB(cmsk)
+            x1f = np.zeros(self.ng + self.nh + self.nb + self.ncb)
+            x1f[self.indfcb] = x1fcb
+        else:
+            x1f = np.zeros(self.ng + self.nh + self.nb)
+        x1f[self.indfg] = x1fg
+        x1f[self.indfh] = x1fh
+        x1f[self.indfb] = x1fb
+        Xf1 = x1f.copy()
+        if icell%100 == 0:
+            sys.stdout.write('preparing RT invariant global, texture, boundary features for cell '+str(icell)+' of '+str(self.ncells)+'\n')
+        return Xf1
+                  
     def prepare_cell_features(self, apply_znorm=True):
+        Xf1 = [None]*self.ncells
         Xf = [None]*self.ncells
         ic = 0
-        #x1 = self.X[ic, :]
         m1 = self.Xm[ic, :]
-        #x1fg = self.featZernike(x1)
-        #x1fh = self.featHaralick(x1)
-        #x1fh = self.znorm(x1fh) # apply for some relative normalization
         x1fg = self.featZernike(m1)
         x1fh = self.featHaralick(m1)
         x1fh = self.znorm(x1fh) # apply for some relative normalization
         x1fb = self.featBoundary(m1)
         if hasattr(self,"cellborder_cmsks"):
             cbfeat = True
-            #omsk = self.cellborder_omsks[ic]
             cmsk = self.cellborder_cmsks[ic]
             x1fcb = self.featBoundaryCB(cmsk)
             ncb = x1fcb.size
@@ -1310,28 +1386,17 @@ class cellPoseTraj():
         self.indfg = indfg
         self.indfh = indfh
         self.indfb = indfb
-        for ic in range(self.ncells):
-            #x1 = self.X[ic, :]
-            m1 = self.Xm[ic, :]
-            x1fg = self.featZernike(m1)
-            x1fh = self.featHaralick(m1)
-            x1fb = self.featBoundary(m1)
-            if cbfeat:
-                #omsk = self.cellborder_omsks[ic]
-                cmsk = self.cellborder_cmsks[ic]
-                x1fcb = self.featBoundaryCB(cmsk)
-                x1f = np.zeros(ng + nh + nb + ncb)
-                x1f[indfcb] = x1fcb
-            else:
-                x1f = np.zeros(ng + nh + nb)
-            x1f[indfg] = x1fg
-            x1f[indfh] = x1fh
-            x1f[indfb] = x1fb
-            Xf[ic] = x1f.copy()
-            if ic%100 == 0:
-                sys.stdout.write('preparing RT invariant global, texture, boundary features for cell '+str(ic)+' of '+str(self.ncells)+'\n')
-        self.Xf = np.array(Xf)
-
+        self.ng = ng
+        self.nh = nh
+        self.nb = nb
+        self.ncb = ncb
+                               
+        Xf = Parallel(n_jobs = n_jobs, backend = 'loky', verbose = 10)(delayed(self.get_cellFeat)(ic, Xf1[ic], cbfeat) for ic in range(self.ncells))
+                          
+        self.Xf = Xf[:]
+        del Xf1
+        gc.collect()
+  
     def show_image_pair(self,img1,img2,msk1=None,msk2=None):
         if img1.ndim==1:
             nx=int(np.sqrt(img1.size))
@@ -2093,40 +2158,40 @@ class cellPoseTraj():
         Xpca_scipy = pca_scipy.transform(data) #transforms the data into the pca representation
         return Xpca_scipy,pca_scipy
 
-    def cluster_cells(self,n_clusters,x=None):
-        self.n_clusters=n_clusters
+    def cluster_cells(self, n_clusters, x=None):
+        self.n_clusters = n_clusters
         if x is None:
-            x=self.Xpca
-        nC=x.shape[0]
-        self.clusters=coor.cluster_kmeans([x],k=n_clusters,metric='euclidean') #,max_iter=100)
-        self.clusterFile=self.modelName+'_nc'+str(self.n_clusters)+'.h5'
+            x = self.Xpca
+        nC = x.shape[0]
+        self.clusters = coor.cluster_kmeans([x], k=n_clusters, metric='euclidean') #,max_iter=100)
+        self.clusterFile = self.modelName+'_nc'+str(self.n_clusters)+'.h5'
         self.clusters.save(self.clusterFile, save_streaming_chain=True, overwrite=True)
 
-    def plot_pca(self,nd=12,colors=None):
+    def plot_pca(self, nd=12, colors=None):
         if self.visual:
             if colors is None:
                 colors='black'
-            plt.figure(figsize=(10,8))
-            nd=12
-            nplots=1+self.pca.ndim
-            nrows=int(np.ceil(np.sqrt(nplots)))
+            plt.figure(figsize = (10,8))
+            nd = 12
+            nplots = 1 + self.pca.ndim
+            nrows = int(np.ceil(np.sqrt(nplots)))
             plt.subplot(nrows,nrows,1)
-            plt.plot(np.arange(1,nd+1),self.pca.eigenvalues[0:nd],'ko--')
+            plt.plot(np.arange(1, nd+1), self.pca.eigenvalues[0:nd], 'ko--')
             plt.xlabel('eigenvalue index')
             plt.ylabel('PCA eigenvalue')
             plt.pause(.1)
-            ip=0
-            id=2
+            ip = 0
+            id = 2
             for ip in range(1,self.pca.ndim):
                 plt.subplot(nrows,nrows,id)
-                plt.scatter(self.Xpca[:,0],self.Xpca[:,ip],s=5,c=colors,cmap=plt.cm.jet)
+                plt.scatter(self.Xpca[:,0], self.Xpca[:,ip], s=5, c=colors, cmap=plt.cm.jet)
                 plt.ylabel('PCA '+str(ip+1))
                 plt.xlabel('PCA 1')
                 plt.pause(.1)
-                id=id+1
+                id = id + 1
                                                                             
     @staticmethod
-    def pad_image(img,maxedge):
+    def pad_image(img, maxedge):
         npad_lx = int(np.ceil((maxedge - img.shape[0])/2))
         if npad_lx < 0:
             npad_lx = 0
@@ -2144,13 +2209,33 @@ class cellPoseTraj():
         nx = np.shape(msk)[0]
         ny = np.shape(msk)[1]
         xx,yy = np.meshgrid(np.arange(nx), np.arange(ny), indexing='ij')
-        cmskx = np.sum(np.multiply(xx, msk))/np.sum(msk)
-        cmsky = np.sum(np.multiply(yy, msk))/np.sum(msk)
+        msk_sum = np.sum(msk)
+        if msk_sum != 0:                       
+              cmskx = np.sum(np.multiply(xx, msk)) / msk_sum
+              cmsky = np.sum(np.multiply(yy, msk)) / msk_sum
+        else:
+              cmskx = 0.0 # or any other value that makes sense (discuss with JC)
+              cmsky = 0.0 # or any other value that makes sense (discuss with JC)
+        cmskx = np.nan_to_num(cmskx)
+        cmsky = np.nan_to_num(cmsky)
+        #cmskx = np.sum(np.multiply(xx, msk))/np.sum(msk)
+        #cmsky = np.sum(np.multiply(yy, msk))/np.sum(msk)
         I = np.zeros((2, 2))
-        I[0,0] = (np.sum(np.multiply(msk, np.power(xx-cmskx,2))) + np.sum(np.multiply(msk, np.power(xx-cmskx,2))) - np.sum(np.multiply(msk, np.multiply(xx-cmskx,xx-cmskx))))/np.sum(msk)
-        I[0,1] = (-np.sum(np.multiply(msk, np.multiply(xx-cmskx, yy-cmsky))))/np.sum(msk)
-        I[1,0] = I[0,1]
-        I[1,1] = (np.sum(np.multiply(msk, np.power(xx-cmskx,2))) + np.sum(np.multiply(msk,np.power(xx-cmskx,2))) - np.sum(np.multiply(msk,np.multiply(yy-cmsky,yy-cmsky))))/np.sum(msk)
+        I00 = (np.sum(np.multiply(msk, np.power(xx-cmskx,2))) + np.sum(np.multiply(msk, np.power(xx-cmskx,2))) - 
+               np.sum(np.multiply(msk, np.multiply(xx-cmskx,xx-cmskx))))
+        I01 = (-np.sum(np.multiply(msk, np.multiply(xx-cmskx, yy-cmsky))))
+        I11 = (np.sum(np.multiply(msk, np.power(xx-cmskx,2))) + np.sum(np.multiply(msk,np.power(xx-cmskx,2))) - 
+               np.sum(np.multiply(msk,np.multiply(yy-cmsky,yy-cmsky))))
+        if msk_sum != 0:  
+             I[0, 0] = I00/msk_sum
+             I[0, 1] = I01/msk_sum
+             I[1, 1] = I11/msk_sum
+        else:
+             I[0, 0] = 0.0
+             I[0, 1] = 0.0
+             I[1, 1] = 0.0
+                            
+        I[1, 0] = I[0, 1]
         w,v = np.linalg.eig(I)
         tmatrix = np.zeros((3, 3))
         tmatrix[0:2, 0:2] = v
@@ -2340,25 +2425,25 @@ class cellPoseTraj():
             rtha = np.ones(ncomp)*np.nan
             return(rtha)
 
-    def get_neg_overlap(self,t,*args):
-        m0,m1=args[0],args[1]
-        m1=self.transform_image(m1,t)
-        neg_overlap=-np.sum(np.logical_and(m0>0,m1>0))
+    def get_neg_overlap(self, t, *args):
+        m0,m1 = args[0],args[1]
+        m1 = self.transform_image(m1, t)
+        neg_overlap = -np.sum(np.logical_and(m0 > 0, m1 > 0))
         return neg_overlap
 
-    def get_minT(self,m1,m2,nt=20,dt=30.0):
-        if nt%2==0:
-            nt=nt+1 #should be zero in the set!
-        ttSet=np.linspace(-dt,dt,nt)
-        xxt,yyt=np.meshgrid(ttSet,ttSet)
-        overlapSet=np.zeros(nt*nt)
-        xxt=xxt.flatten(); yyt=yyt.flatten()
+    def get_minT(self, m1, m2, nt=20, dt=30.0):
+        if nt%2 == 0:
+            nt = nt + 1 #should be zero in the set!
+        ttSet = np.linspace(-dt, dt, nt)
+        xxt,yyt = np.meshgrid(ttSet, ttSet)
+        overlapSet = np.zeros(nt*nt)
+        xxt = xxt.flatten(); yyt = yyt.flatten()
         for i in range(nt*nt):
-            t=np.array([0.,xxt[i],yyt[i]])
-            overlapSet[i]=self.get_neg_overlap(t,m1,m2)
+            t = np.array([0., xxt[i], yyt[i]])
+            overlapSet[i] = self.get_neg_overlap(t, m1, m2)
         overlapSet[np.where(np.isnan(overlapSet))]=np.inf
-        imin=np.argmin(overlapSet)
-        tmin=np.array([0.,xxt[imin],yyt[imin]])
+        imin = np.argmin(overlapSet)
+        tmin = np.array([0., xxt[imin], yyt[imin]])
         return tmin
 
     def get_pair_distRT(self,t,*args):
@@ -2406,46 +2491,60 @@ class cellPoseTraj():
         #t=tmin.x
         #dist=self.get_pair_distRT(t,x1,x2,m1,m2)
         return t
-
-    def get_stack_trans(self,cmskSet):
-        nframes=cmskSet.shape[0]
-        tSet=np.zeros((nframes,3))
-        for iS in range(1,nframes):
-            msk0=cmskSet[iS-1,:,:]
-            centers0=np.array(ndimage.measurements.center_of_mass(np.ones_like(msk0),labels=msk0,index=np.arange(1,np.max(msk0)+1).astype(int)))
-            msk1=cmskSet[iS,:,:]
-            centers1=np.array(ndimage.measurements.center_of_mass(np.ones_like(msk1),labels=msk1,index=np.arange(1,np.max(msk1)+1).astype(int)))
-            #translate centers1 com to centers0 com
-            dcom=np.mean(centers0,axis=0)-np.mean(centers1,axis=0)
-            centers1=centers1-dcom
-            clusters0=coor.clustering.AssignCenters(centers0, metric='euclidean')
-            ind0to1=clusters0.assign(centers1)
-            centers0_com=centers0[ind0to1,:]
-            dglobal=np.mean(centers0_com-centers1,axis=0)
-            centers1=centers1+dglobal
-            ind0to1g=clusters0.assign(centers1)
-            centers0_global=centers0[ind0to1g,:]
-            #tform = tf.estimate_transform('similarity', centers1, centers0_global)
-            t_global=np.zeros(3)
-            t_global[1:]=-dcom+dglobal
-            msk1=self.transform_image(msk1,t_global)
-            t_local=self.get_minT(msk0,msk1,nt=self.ntrans,dt=self.maxtrans)
-            tSet[iS,:]=t_global+t_local
-            sys.stdout.write('transx: '+str(tSet[iS,1])+' transy: '+str(tSet[iS,2])+'\n')
-            if self.visual:
-                plt.clf()
-                msk1=cmskSet[iS,:,:]
-                msk1t=self.transform_image(msk1,tSet[iS])
-                msk0=cmskSet[iS-1,:,:]
-                plt.subplot(1,2,1)
-                plt.contour(msk1t,colors='red')
-                plt.contour(msk0,colors='blue')
-                plt.subplot(1,2,2)
-                plt.contour(msk1,colors='red')
-                plt.contour(msk0,colors='blue')
-                plt.pause(.1)
-        tSet[:,1]=np.cumsum(tSet[:,1])
-        tSet[:,2]=np.cumsum(tSet[:,2])
+                   
+    def get_stack_trans_module(self, cmskSetF1, cmskSetF2, iS):
+        msk0 = cmskSetF1
+        centers0 = np.array(ndimage.measurements.center_of_mass(np.ones_like(msk0), labels=msk0, 
+                            index=np.arange(1, np.max(msk0)+1).astype(int)))
+        msk1 = cmskSetF2
+        centers1 = np.array(ndimage.measurements.center_of_mass(np.ones_like(msk1), labels=msk1, 
+                            index=np.arange(1, np.max(msk1)+1).astype(int)))
+        #translate centers1 com to centers0 com
+        dcom = np.mean(centers0, axis = 0) - np.mean(centers1, axis = 0)
+        centers1 = centers1 - dcom
+        clusters0 = coor.clustering.AssignCenters(centers0, metric = 'euclidean')
+        ind0to1 = clusters0.assign(centers1)
+        centers0_com = centers0[ind0to1, :]
+        dglobal = np.mean(centers0_com - centers1, axis = 0)
+        centers1 = centers1 + dglobal
+        ind0to1g = clusters0.assign(centers1)
+        centers0_global = centers0[ind0to1g, :]
+        #tform = tf.estimate_transform('similarity', centers1, centers0_global)
+        t_global = np.zeros(3)
+        tSet_loc = np.zeros(3)
+        t_global[1:] = -dcom + dglobal
+        msk1 = self.transform_image(msk1, t_global)
+        t_local = self.get_minT(msk0, msk1, nt = self.ntrans, dt = self.maxtrans)
+        tSet_loc[:] = t_global + t_local
+        sys.stdout.write('transx: '+str(tSet_loc[1])+' transy: '+str(tSet_loc[2])+'\n')
+        if self.visual:
+            plt.clf()
+            msk1 = cmskSetF2
+            msk1t = self.transform_image(msk1, tSet_loc[iS])
+            msk0 = cmskSetF1
+            plt.subplot(1, 2, 1)
+            plt.contour(msk1t, colors = 'red')
+            plt.contour(msk0, colors = 'blue')
+            plt.subplot(1, 2, 2)
+            plt.contour(msk1, colors = 'red')
+            plt.contour(msk0, colors = 'blue')
+            plt.pause(.1)
+        return tSet_loc
+           
+    def get_stack_trans(self, cmskSet):
+        nframes = cmskSet.shape[0]
+        tSet = np.zeros((nframes, 3))
+        # Stack Translation Parallelization using JOBLIB             
+        # tSet = Parallel(n_jobs = n_jobs, backend = "loky", verbose = 20)(delayed(self.get_stack_trans_module)(cmskSet[i-1, :, :],
+        #                                  cmskSet[i, :, :], i) for i in range(1, nframes))
+        #with joblib.parallel_backend('ray', n_jobs = n_jobs):
+        #    tSet = Parallel(verbose = 50)(delayed(self.get_stack_trans_module)(cmskSet[i-1, :, :],
+        #                                  cmskSet[i, :, :], i) for i in range(1, nframes))
+        for i in range(1, nframes):
+            tSet[i] = self.get_stack_trans_module(cmskSet[i-1, :, :], cmskSet[i, :, :], i)
+       
+        tSet[:, 1] = np.cumsum(tSet[:, 1])
+        tSet[:, 2] = np.cumsum(tSet[:, 2])
         return tSet
 
     @staticmethod
@@ -2722,3 +2821,26 @@ class cellPoseTraj():
         stateSet = stateSet_clean
         return stateSet
     
+"""
+    A toolset for single-cell trajectory modeling. See:
+    
+    Danger
+    -------
+    This code, currently, should be considered as an untested pre-release version
+    
+    Todo
+    ----
+    Refactor
+        In general, this class's methods generally handle data by holding state in the object.
+        The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.
+        The state being updated along the way is usually "helper" quantities.
+        I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --
+        one example of this might be setting them as properties, and then updating the value in state as part of that
+        accessor if necessary.
+    References
+    --------
+    Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman. 
+    Morphodynamical cell-state description via live-cell imaging trajectory embedding. 
+    Biorxiv 10.1101/2021.10.07.463498, 2021.
+"""
+
