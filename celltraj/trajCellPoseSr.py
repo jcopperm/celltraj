@@ -24,8 +24,8 @@ import pyemma.coordinates as coor
 import numpy.matlib
 import btrack
 from btrack.constants import BayesianUpdates
-
-
+#from skimage.filters.rank import map_array
+  
 class cellPoseTraj():
     
     def __init__(self):
@@ -495,7 +495,7 @@ class cellPoseTraj():
                         mskb1 = bmsk1[minx:maxx, :]; mskb1 = mskb1[:, miny:maxy]
                         mskc0 = msk0[minx:maxx, :]; mskc0 = mskc0[:, miny:maxy]
                         mskc1 = msk1[minx:maxx, :]; mskc1 = mskc1[:, miny:maxy]
-                        if np.sum(mskc0) = =0 or np.sum(mskc1) == 0:
+                        if np.sum(mskc0) == 0 or np.sum(mskc1) == 0:
                             sys.stdout.write('Bunch '+str(ib)+' is empty...\n')
                         else:
                             (values,counts) = np.unique(mskb0[np.where(mskb0 > 0)], return_counts = True)
@@ -554,7 +554,6 @@ class cellPoseTraj():
                                         lin1[inds_c1[ic]] = inds_c0[ind_nn[-1]]
                                         linb[ic] = ind_nn[-1]
                             if clustervisual:
-     
                                  plt.clf()   
                                  plt.contour(xxc, yyc, mskb0, colors = 'lightgreen', levels = 0, alpha = 0.5)
                                  plt.contour(xxc, yyc, mskb1_reg, colors = 'salmon', levels = 0, alpha = 0.5)
@@ -565,7 +564,7 @@ class cellPoseTraj():
                                  for ic in idGood:
                                     ax.arrow(x0[linb[ic], 0], x0[linb[ic], 1], x1[ic, 0] - x0[linb[ic], 0], x1[ic, 1] 
                                              - x0[linb[ic], 1], head_width=2, linewidth=1.5, color='black', alpha=1.0)
-                                plt.pause(.3)
+                                 plt.pause(.3)
                     for ic1 in range(indt1.size): #trim too long tracks in global basis
                         ic0 = lin1[ic1]
                         if ic0 >= 0:
@@ -1317,10 +1316,10 @@ class cellPoseTraj():
     def prepare_cell_features(self, apply_znorm=True):
         Xf = [None]*self.ncells
         ic = 0
-        x1 = self.X[ic,:]
+        #x1 = self.X[ic,:]
         m1 = self.Xm[ic,:]
-        x1fg = self.featZernike(x1)
-        x1fh = self.featHaralick(x1)
+        x1fg = self.featZernike(m1)
+        x1fh = self.featHaralick(m1)
         x1fh = self.znorm(x1fh) #apply for some relative normalization
         x1fb = self.featBoundary(m1)
         if hasattr(self,"cellborder_cmsks"):
@@ -1343,10 +1342,10 @@ class cellPoseTraj():
         self.indfh = indfh
         self.indfb = indfb
         for ic in range(self.ncells):
-            x1 = self.X[ic, :]
+            #x1 = self.X[ic, :]
             m1 = self.Xm[ic, :]
-            x1fg = self.featZernike(x1)
-            x1fh = self.featHaralick(x1)
+            x1fg = self.featZernike(m1)
+            x1fh = self.featHaralick(m1)
             x1fb = self.featBoundary(m1)
             if cbfeat:
                 cmsk = self.cellborder_cmsks[ic]
