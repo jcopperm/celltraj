@@ -521,8 +521,13 @@ class cellPoseTraj():
                             x0 = np.zeros((indc0.size, 2))
                             for ic0 in range(indc0.size):
                                 mskic0 = mskc0 == indc0[ic0]
-                                cmskx = np.sum(np.multiply(xxc, mskic0))/np.sum(mskic0)
-                                cmsky = np.sum(np.multiply(yyc, mskic0))/np.sum(mskic0)
+                                mskic0_sum = np.sum(mskic0)
+                                if mskic0_sum != 0:
+                                  cmskx = np.sum(np.multiply(xxc, mskic0))/mskic0_sum
+                                  cmsky = np.sum(np.multiply(yyc, mskic0))/mskic0_sum
+                                else:
+                                  cmskx = 0.
+                                  cmsky = 0.
                                 xc0 = cmskx + cellblocks0[ib, 0, 0]
                                 yc0 = cmsky + cellblocks0[ib, 1, 0]
                                 x0[ic0, :] = np.array([xc0-cellblocks0[ib, 0, 0], yc0 - cellblocks0[ib, 1, 0]])
@@ -531,9 +536,14 @@ class cellPoseTraj():
                             x1 = np.zeros((indc1.size, 2))
                             for ic1 in range(indc1.size):
                                 mskic1 = mskc1_reg == indc1[ic1]
-                                cmskx = np.sum(np.multiply(xxc, mskic1))/np.sum(mskic1)
-                                cmsky = np.sum(np.multiply(yyc, mskic1))/np.sum(mskic1)
-                                xc1 = cmskx + cellblocks1[ib, 0, 0];
+                                mskic1_sum = np.sum(mskic1)
+                                if mskic1_sum != 0:
+                                  cmskx = np.sum(np.multiply(xxc, mskic1))/mskic1_sum
+                                  cmsky = np.sum(np.multiply(yyc, mskic1))/mskic1_sum
+                                else: 
+                                  cmskx = 0.
+                                  cmsky = 0.
+                                xc1 = cmskx + cellblocks1[ib, 0, 0]
                                 yc1 = cmsky + cellblocks1[ib, 1, 0]
                                 x1[ic1, :] = np.array([xc1 - cellblocks1[ib, 0, 0], yc1 - cellblocks1[ib, 1, 0]])
                                 inds_c1[ic1] = cell_clusters1.assign(np.array([[xc1, yc1]]))[0]
