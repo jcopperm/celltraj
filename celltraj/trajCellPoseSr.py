@@ -240,7 +240,7 @@ class cellPoseTraj():
             sys.stdout.write('stack has not been trans registered: calling get_imageSet_trans() to register translations\n')
             self.get_imageSet_trans()
         ncells = indcells.size
-        cells_msks = [None]*ncells
+        cells_cmsks = [None]*ncells
         cells_positionSet = np.zeros((0, 2)) 
         # ip_frame and ip_file ??
         ip_frame = 100000 
@@ -264,7 +264,7 @@ class cellPoseTraj():
             x = cmskx + cellblocks[self.cells_indSet[ic], 0, 0]
             y = cmsky + cellblocks[self.cells_indSet[ic], 1, 0]
             cells_positionSet = np.append(cells_positionSet, np.array([[x, y]]), axis=0)
-            cells_msks[ii] = mskcell.copy()
+            cells_cmsks[ii] = mskcell.copy()
             ip_file = self.cells_imgfileSet[ic]
             ip_frame = self.cells_frameSet[ic]
             ii = ii + 1
@@ -274,7 +274,7 @@ class cellPoseTraj():
             cells_x[ii, 0] = cells_positionSet[ii, 0]
             cells_x[ii, 1] = cells_positionSet[ii, 1]
             ii = ii + 1
-        self.cells_msks = cells_msks
+        self.cells_cmsks = cells_cmsks
         self.cells_positionSet = cells_positionSet
         self.x = cells_x
 
@@ -1267,7 +1267,7 @@ class cellPoseTraj():
                 for ic in range(0, ncells):
                     plt.subplot(nb, nb, ic+1)
                     plt.imshow(self.cells_imgs[ic], cmap = plt.cm.seismic)
-                    plt.imshow(self.cells_msks[ic] > 0, alpha=0.2)
+                    plt.imshow(self.cells_cmsks[ic] > 0, alpha=0.2)
                     plt.axis('off')
                     #plt.pause(.1)
                 plt.tight_layout()
@@ -1290,17 +1290,17 @@ class cellPoseTraj():
             sys.stdout.write('not in visual mode...\n')
 
     def prepare_cell_images(self, znormalize=True):
-        ncells = len(self.cells_msks)
+        ncells = len(self.cells_cmsks)
         cellSizes = np.zeros((ncells, 2))
         for ic in range(ncells):
-            cellSizes[ic,:] = np.shape(self.cells_msks[ic])
+            cellSizes[ic,:] = np.shape(self.cells_cmsks[ic])
         
         maxedge = np.ceil((2**.5)*np.max(cellSizes)).astype(int)
         if maxedge > self.maximum_cell_size:
             maxedge = self.maximum_cell_size
         Xm = np.zeros((ncells,maxedge*maxedge))
         for ic in range(ncells):
-            msk = self.cells_msks[ic]
+            msk = self.cells_cmsks[ic]
             mskp = self.pad_image(msk, maxedge)
             ind = np.where(mskp == 0)
             ind = np.where(np.isnan(mskp))
