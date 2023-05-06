@@ -10,6 +10,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pyemma.coordinates as coor
 import pyemma.coordinates.clustering as clustering
+#from deeptime.clustering import KMeans
+from sklearn.cluster import KMeans
 import pyemma
 from skimage import transform as tf
 from scipy.optimize import minimize
@@ -20,18 +22,20 @@ import mahotas
 import mahotas.labeled
 import pickle
 from pystackreg import StackReg
-import pyemma.coordinates as coor
 import numpy.matlib
 import btrack
 from btrack.constants import BayesianUpdates
-#from skimage.filters.rank import map_array
-  
+from joblib import dump, load
+
+protocolPik = pickle.HIGHEST_PROTOCOL
+
 class cellPoseTraj():
     
     def __init__(self):
         """
         TO DO 
         """
+        pass
         
     def initialize(self, fileSpecifier, modelName):
         
@@ -429,7 +433,7 @@ class cellPoseTraj():
             for im in range(0, nframes - 1):
                 nx = cmskSet.shape[1]; ny = cmskSet.shape[2]
                 xx,yy = np.meshgrid(np.arange(nx), np.arange(ny), indexing = 'ij')
-                indt0 = np.where(self.cells_indcmskSet==inds[im])[0]
+                indt0 = np.where(self.cells_indcmskSet == inds[im])[0]
                 msk0 = self.get_clean_mask(cmskSet[im, :, :], minsize = cellcut)
                 cmsk0 = cmskSet[im, :, :]
                 bmsk0 = self.get_cell_bunches(cmsk0, bunchcut = bunchcut)
@@ -728,7 +732,7 @@ class cellPoseTraj():
     def get_cell_boundary_size(self, indcell, msk=None, cpix=5):
         ic = self.cells_indSet[indcell]
         if msk is None:
-            msk = self.cmskSet_cyto[self.cells_indcmskSet[indcell], :, :]
+            msk = self.cmskSet[self.cells_indcmskSet[indcell], :, :]
         mskc = msk == ic + 1
         boundarysize = np.sum(mahotas.borders(mskc, Bc = np.ones((cpix, cpix))))
         return boundarysize
@@ -760,7 +764,7 @@ class cellPoseTraj():
         x_img = np.insert(x_img, 0, 0., axis=0)
         indt = indt[inds_b1]
         clabels = clabels[inds_b1]
-        msk = self.cmskSet_cyto[im, :, :].astype(int)
+        msk = self.cmskSet[im, :, :].astype(int)
         intersurfaces = np.zeros(clabels.size)
         for ic in range(clabels.size):
             intersurfaces[ic] = np.sum(mahotas.border(msk, ind1[0] + 1, clabels[ic], Bc=np.ones((cpix, cpix))))
@@ -898,6 +902,7 @@ class cellPoseTraj():
                 pass
             else:
                 indCurrentCell = int(indCurrentCell)
+                #print("Index of current cell = ",indCurrentCell)
                 iframe1 = self.cells_frameSet[indCurrentCell]
                 iframe0 = iframe1 - 1
                 indimg1 = np.where(np.logical_and(self.imgfileSet == ind_imgfile, self.frameSet == iframe1))[0][0]
@@ -920,27 +925,6 @@ class cellPoseTraj():
         indtracked = np.where(np.logical_not(np.isnan(cell_ind_history)))
         cell_traj = np.flip(cell_ind_history[indtracked].astype(int))
         return cell_traj
-
-    def get_all_trajectories(self, cell_inds=None):
-        if cell_inds is None:
-            cell_inds_all = np.arange(self.cells_indSet.size).astype(int)
-        else:
-            cell_inds_all = cell_inds.copy()
-        n_untracked = cell_inds_all.size
-        nc0 = n_untracked
-        trajectories = []
-        while n_untracked > 0:
-            indc = cell_inds_all[-1]
-            cell_traj = self.get_cell_trajectory(indc)
-            trajectories.append(cell_traj)
-            indcells,indcomm_call,indcomm_ctraj = np.intersect1d(cell_inds_all, cell_traj, return_indices=True)
-            cell_inds_all[indcomm_call] = -1
-            inds_untracked=np.where(cell_inds_all >= 0)
-            cell_inds_all = cell_inds_all[inds_untracked]
-            n_untracked = cell_inds_all.size
-            if n_untracked%100 == 0:
-                sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
-        self.trajectories = trajectories
 
     def get_unique_trajectories(self, cell_inds=None, verbose=False, extra_depth=None):
         if extra_depth is None:
@@ -981,6 +965,27 @@ class cellPoseTraj():
                 if n_untracked%100 == 0:
                     sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
         self.trajectories=trajectories
+
+    def get_all_trajectories(self, cell_inds=None):
+        if cell_inds is None:
+            cell_inds_all = np.arange(self.cells_indSet.size).astype(int)
+        else:
+            cell_inds_all = cell_inds.copy()
+        n_untracked = cell_inds_all.size
+        nc0 = n_untracked
+        trajectories = []
+        while n_untracked > 0:
+            indc = cell_inds_all[-1]
+            cell_traj = self.get_cell_trajectory(indc)
+            trajectories.append(cell_traj)
+            indcells,indcomm_call,indcomm_ctraj = np.intersect1d(cell_inds_all, cell_traj, return_indices=True)
+            cell_inds_all[indcomm_call] = -1
+            inds_untracked=np.where(cell_inds_all >= 0)
+            cell_inds_all = cell_inds_all[inds_untracked]
+            n_untracked = cell_inds_all.size
+            if n_untracked%100 == 0:
+                sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
+        self.trajectories = trajectories
 
     def get_dx_tcf(self, trajectories=None):
         if trajectories is None:
@@ -1427,8 +1432,15 @@ class cellPoseTraj():
     def save_all(self):
         objFile = self.modelName+'.obj'
         objFileHandler = open(objFile, 'wb')
-        pickle.dump(self, objFileHandler, protocol=4)
+        pickle.dump(self, objFileHandler, protocol=protocolPik)
         objFileHandler.close()
+                             
+    def dumpObjs_jl(self): 
+        fileName = self.modelName+'.joblib'
+        print("Dumping linSet, Xf, Xf_com, cells_frameset, cells_indSet, trajectories, and cells_imgfileSet using joblib")
+        with open(fileName, 'wb') as fp:
+           dump((self.linSet, self.Xf, self.Xf_com, self.cells_frameSet, self.cells_indSet,
+                 self.trajectories, self.cells_imgfileSet), fp, compress = 'zlib')
 
     def save_dmat_row(self, row, dmat_row, overwrite=False):
         f = h5py.File(self.modelName+'.h5', 'a')
@@ -1676,8 +1688,10 @@ class cellPoseTraj():
                         cmskx = np.sum(np.multiply(xx, cmskcell))/np.sum(cmskcell)
                         cmsky = np.sum(np.multiply(yy, cmskcell))/np.sum(cmskcell)
                         if show_segs:
-                            scatter_cc = ax[inds2d[0][ic], inds2d[1][ic]].scatter(np.where(ccborder)[1], np.where(ccborder)[0], s=4, c='purple', marker='s', alpha=0.2)
-                            scatter_cs = ax[inds2d[0][ic], inds2d[1][ic]].scatter(np.where(csborder)[1], np.where(csborder)[0], s=4, c='green', marker='s', alpha=0.2)
+                            scatter_cc = ax[inds2d[0][ic], inds2d[1][ic]].scatter(np.where(ccborder)[1], np.where(ccborder)[0],
+                                                                                  s=4, c='purple', marker='s', alpha=0.2)
+                            scatter_cs = ax[inds2d[0][ic], inds2d[1][ic]].scatter(np.where(csborder)[1], np.where(csborder)[0],
+                                                                                  s=4, c='green', marker='s', alpha=0.2)
                         else:
                             scatter_x = ax[inds2d[0][ic], inds2d[1][ic]].scatter(cmsky, cmskx, s=500, color='black', marker='x', alpha=0.2)
                         ax[inds2d[0][ic], inds2d[1][ic]].axis('off')
@@ -1689,14 +1703,14 @@ class cellPoseTraj():
             sys.stdout.write('not in visual mode...\n')
 
     def cluster_trajectories(self, n_clusters, x=None):
-        if x is None:
-            x = self.Xtraj
+        if x is None: 
+          x = self.Xtraj
         clusters = coor.cluster_kmeans([x], k=n_clusters, metric='euclidean')
         self.clusterst = clusters
         self.n_clusterst = n_clusters
         self.indclusterst = clusters.assign(x)
 
-    def get_transition_matrix(self,x0,x1,clusters=None):
+    def get_transition_matrix(self, x0, x1, clusters=None):
         if clusters is None:
             clusters = self.clusterst
         n_clusters = clusters.clustercenters.shape[0]
@@ -2135,7 +2149,7 @@ class cellPoseTraj():
         if x is None:
             x = self.Xpca
         nC = x.shape[0]
-        self.clusters = coor.cluster_kmeans([x], k=n_clusters, metric='euclidean') #,max_iter=100)
+        self.clusters = KMeans(n_clusters = n_clusters, metric='euclidean').fit([x]).fetch_model()
         self.clusterFile = self.modelName+'_nc'+str(self.n_clusters)+'.h5'
         self.clusters.save(self.clusterFile, save_streaming_chain=True, overwrite=True)
 
@@ -2249,111 +2263,110 @@ class cellPoseTraj():
         dist = np.sqrt(np.sum(np.power((img1 - img2), 2)))
         return dist
 
-    @staticmethod
-    def get_dmat(x1, x2=None): #adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)
+    def get_dmat(self, x1, x2=None): #adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)
         x1 = np.transpose(x1) #default from Fung folks is D x N
         if x2 is None:
             nX1 = x1.shape[1];
             y = np.matlib.repmat(np.sum(np.power(x1, 2), 0), nX1, 1)
             y = y - np.matmul(np.transpose(x1), x1)
             y = y + np.transpose(y);
-            y = np.abs( y + np.transpose(y) ) / 2. # Iron-out numerical wrinkles
+            y = np.abs(y + np.transpose(y))/2. # Iron-out numerical wrinkles
         else:
             x2 = np.transpose(x2)
             nX1 = x1.shape[1]
             nX2 = x2.shape[1]
-            y = np.matlib.repmat( np.expand_dims(np.sum( np.power(x1,2), 0 ),1), 1, nX2 )
-            y = y + np.matlib.repmat( np.sum( np.power(x2,2), 0 ), nX1, 1 )
-            y = y - 2 * np.matmul(np.transpose(x1),x2)
+            y = np.matlib.repmat(np.expand_dims(np.sum(np.power(x1, 2), 0),1), 1, nX2)
+            y = y + np.matlib.repmat(np.sum(np.power(x2, 2), 0), nX1, 1)
+            y = y - 2.0 * np.matmul(np.transpose(x1), x2)
         return np.sqrt(y)
 
     @staticmethod
     def afft(img):
-        if img.ndim==1:
-            nx=int(np.sqrt(img.size))
-            img=img.reshape(nx,nx)
-        fimg=np.abs(np.fft.fftshift(np.fft.fft2(img)))
+        if img.ndim == 1:
+            nx = int(np.sqrt(img.size))
+            img = img.reshape(nx, nx)
+        fimg = np.abs(np.fft.fftshift(np.fft.fft2(img)))
         return fimg
 
     @staticmethod
     def znorm(x):
-        z=(x-np.mean(x))/np.std(x)
+        z = (x - np.mean(x))/np.std(x)
         return z
 
     @staticmethod
-    def dist_with_masks(x1,x2,m1,m2):
-        cm=np.multiply(m1,m2)
-        dist=np.sqrt(np.sum(np.power(np.multiply(x1,cm)-np.multiply(x2,cm),2)))/np.sum(cm)
+    def dist_with_masks(x1, x2, m1, m2):
+        cm = np.multiply(m1, m2)
+        dist = np.sqrt(np.sum(np.power(np.multiply(x1, cm) - np.multiply(x2, cm), 2)))/np.sum(cm)
         return dist
 
     @staticmethod
-    def featZernike(img,radius=None,degree=12):
-        if img.ndim==1:
-            nx=int(np.sqrt(img.size))
-            img=img.reshape(nx,nx)
+    def featZernike(img, radius = None, degree = 12):
+        if img.ndim == 1:
+            nx = int(np.sqrt(img.size))
+            img = img.reshape(nx, nx)
         if radius is None:
-            radius=int(img.shape[0]/2)
+            radius = int(img.shape[0]/2)
         if degree is None:
-            degree=img.shape[0]
-        return mahotas.features.zernike_moments(np.abs(img), radius,degree=degree)
+            degree = img.shape[0]
+        return mahotas.features.zernike_moments(np.abs(img), radius, degree = degree)
 
     @staticmethod
-    def featHaralick(img,levels=None):
-        if img.ndim==1:
-            nx=int(np.sqrt(img.size))
-            img=img.reshape(nx,nx)
+    def featHaralick(img, levels = None):
+        if img.ndim == 1:
+            nx = int(np.sqrt(img.size))
+            img = img.reshape(nx, nx)
         if levels is None:
-            nlevels=21
-            levels=np.linspace(-10,10,nlevels)
-            levels=np.append(levels,np.inf)
-            levels=np.insert(levels,0,-np.inf)
-        nlevels=levels.size-2
-        imgn=np.digitize(img,levels)
-        feath=np.mean(mahotas.features.haralick(imgn),axis=0)
-        feath[5]=feath[5]/nlevels #feature 5 is sum average which is way over scale with average of nlevels
+            nlevels = 21
+            levels = np.linspace(-10, 10, nlevels)
+            levels = np.append(levels, np.inf)
+            levels = np.insert(levels, 0, -np.inf)
+        nlevels = levels.size - 2
+        imgn = np.digitize(img, levels)
+        feath = np.mean(mahotas.features.haralick(imgn), axis = 0)
+        feath[5] = feath[5]/nlevels #feature 5 is sum average which is way over scale with average of nlevels
         return feath
 
     @staticmethod
-    def featBoundary(msk,ncomp=15,center=None,nth=256):
+    def featBoundary(msk, ncomp = 15, center = None, nth = 256):
         try:
-            if msk.ndim==1:
-                nx=int(np.sqrt(msk.size))
-                msk=msk.reshape(nx,nx)
-            border=mahotas.borders(msk)
+            if msk.ndim == 1:
+                nx = int(np.sqrt(msk.size))
+                msk = msk.reshape(nx, nx)
+            border = mahotas.borders(msk)
             if center is None:
-                center=np.array([np.shape(msk)[0],np.shape(msk)[1]])/2
-            bordercoords=np.array(np.where(border)).astype('float')-center[:,np.newaxis]
-            rcoords=np.sqrt(np.power(bordercoords[0,:],2)+np.power(bordercoords[1,:],2))
-            thetacoords=np.arctan2(bordercoords[1,:],bordercoords[0,:])
-            indth=np.argsort(thetacoords)
-            thetacoords=thetacoords[indth]
-            rcoords=rcoords[indth]
-            thetacoords,inds=np.unique(thetacoords,return_index=True)
-            rcoords=rcoords[inds]
-            thetacoords=np.append(thetacoords,np.pi)
-            thetacoords=np.insert(thetacoords,0,-np.pi)
-            rcoords=np.append(rcoords,rcoords[-1])
-            rcoords=np.insert(rcoords,0,rcoords[0])
-            spl=scipy.interpolate.interp1d(thetacoords,rcoords)
-            thetaset=np.linspace(-np.pi,np.pi,nth+2)
-            thetaset=thetaset[1:-1]
+                center = np.array([np.shape(msk)[0], np.shape(msk)[1]])/2
+            bordercoords = np.array(np.where(border)).astype('float') - center[:, np.newaxis]
+            rcoords = np.sqrt(np.power(bordercoords[0, :], 2) + np.power(bordercoords[1, :], 2))
+            thetacoords = np.arctan2(bordercoords[1, :], bordercoords[0, :])
+            indth = np.argsort(thetacoords)
+            thetacoords = thetacoords[indth]
+            rcoords = rcoords[indth]
+            thetacoords, inds = np.unique(thetacoords, return_index = True)
+            rcoords = rcoords[inds]
+            thetacoords = np.append(thetacoords, np.pi)
+            thetacoords = np.insert(thetacoords, 0, -np.pi)
+            rcoords = np.append(rcoords, rcoords[-1])
+            rcoords = np.insert(rcoords, 0, rcoords[0])
+            spl = scipy.interpolate.interp1d(thetacoords, rcoords)
+            thetaset = np.linspace(-np.pi, np.pi, nth + 2)
+            thetaset = thetaset[1:-1]
             rth=spl(thetaset)
-            rtha=np.abs(np.fft.fft(rth))
-            freq=np.fft.fftfreq(rth.size,thetaset[1]-thetaset[0])
-            indf=freq>=0
-            freq=freq[indf]
-            rtha=rtha[indf]
-            indsort=np.argsort(freq)
-            freq=freq[indsort]
-            rtha=rtha[indsort]
-            rtha=rtha[0:ncomp]
-            rtha=rtha/np.sum(rtha)
+            rtha = np.abs(np.fft.fft(rth))
+            freq = np.fft.fftfreq(rth.size, thetaset[1] - thetaset[0])
+            indf = freq >= 0
+            freq = freq[indf]
+            rtha = rtha[indf]
+            indsort = np.argsort(freq)
+            freq = freq[indsort]
+            rtha = rtha[indsort]
+            rtha = rtha[0:ncomp]
+            rtha = rtha/np.sum(rtha)
             return rtha
         except:
-            rtha=np.ones(ncomp)*np.nan
+            rtha = np.ones(ncomp)*np.nan
             return rtha
 
-    def featBoundaryCB(self,fmsk,ncomp=15,center=None,nth=256):
+    def featBoundaryCB(self, fmsk, ncomp = 15, center = None, nth = 256):
         try:
             nx = int(np.sqrt(fmsk.size))
             fmsk = fmsk.reshape(nx,nx)
