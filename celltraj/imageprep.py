@@ -21,6 +21,8 @@ import re
 from pystackreg import StackReg
 from skimage import transform as tf
 from sklearn.linear_model import LinearRegression
+from scipy import ndimage
+from skimage.transform import resize,rescale
 
 """
 A toolset for single-cell trajectory modeling and multidomain translation. See:
@@ -495,34 +497,96 @@ def save_frame_h5(filename,frame,img=None,msks=None,fmsk=None,overwrite=False,ti
                 sys.stdout.write('    ...overwritten\n')
     f.close()
 
-def get_linear_coef(counts0,countsA,countsB,countsAB):
-    regress_linear = LinearRegression(fit_intercept=False)
-    regress_linear.fit(np.array([countsA,countsB]).T,countsAB)
-    return regress_linear.coef_
+def get_cell_centers(labels):
+    centers=np.array(ndimage.measurements.center_of_mass(np.ones_like(labels),labels=labels,index=np.arange(1,np.max(labels)+1).astype(int)))
+    return centers
 
-def get_linear_batch_normalization(feat0_all,feat1_all,nbins=100,return_coef=False,stdcut=5): #fit linear normalization feat1=a*feat0+b from histogram
-    feat1=feat1_all[np.abs((feat1_all-np.nanmean(feat1_all))/np.nanstd(feat1_all))<stdcut]
-    feat0=feat0_all[np.abs((feat0_all-np.nanmean(feat0_all))/np.nanstd(feat0_all))<stdcut]
-    bins_feat=np.linspace(np.min(np.append(feat0,feat1)),np.max(np.append(feat0,feat1)),nbins+1)
-    prob0,bins0=np.histogram(feat0,bins=bins_feat)
-    prob1,bins1=np.histogram(feat1,bins=bins0)
-    cprob0=np.cumsum(prob0/np.sum(prob0)); cprob1=np.cumsum(prob1/np.sum(prob1))
-    bins=.5*bins0[0:-1]+.5*bins0[1:]
-    cbins_edges=np.linspace(np.min(np.append(cprob0,cprob1)),1,nbins+1)
-    cbins=.5*cbins_edges[0:-1]+.5*cbins_edges[1:]
-    inv_cprob1=np.zeros(nbins)
-    for ibin in range(nbins):
-        imatch=np.argmin(np.abs(cprob1-cbins[ibin]))
-        inv_cprob1[ibin]=bins[imatch]
-    inds_bins_cprob0=np.digitize(feat0,np.append(bins_feat[0:-1],np.inf))-1
-    cprob1_feat0=cprob0[inds_bins_cprob0]
-    inds_bins_inv_cprob1=np.digitize(cprob1_feat0,np.append(cbins_edges[0:-1],np.inf))-1
-    feat1_est=inv_cprob1[inds_bins_inv_cprob1]
-    regress_linear = LinearRegression(fit_intercept=True)
-    regress_linear.fit(np.array([feat1_est]).T,feat0)
-    if return_coef:
-        a=regress_linear.coef_[0]
-        b=regress_linear.intercept_
-        return a,b
+def get_nndist_sum(self,tshift,centers1,centers2,rcut=None):
+    if rcut is None:
+        print('Setting distance cutoff to infinite. Consider using a distance cutoff of the size of the diagonal of the image to vastly speed up calculation.')
+    inds_tshift=np.where(self.get_dmat([centers1[ind1,:]+tshift],centers2)[0]<rcut)[0]
+    nnd=np.nansum(self.get_dmat(centers1+tshift,centers2[inds_tshift,:]).min(axis=1))+np.nansum(self.get_dmat(centers2[inds_tshift,:],centers1+tshift).min(axis=1))
+    return nnd
+
+def get_pair_rdf_fromcenters(self,centers,rbins=None,nr=50,rmax=500):
+    if rbins is None:
+        rbins=np.linspace(1.e-6,rmax,nr)
+    if rbins[0]==0:
+        rbins[0]=rbins[0]+1.e-8
+    nr=rbins.shape[0]
+    paircorrx=np.zeros(nr+1)
+    dmatr=self.get_dmat(centers,centers)
+    indr=np.digitize(dmatr,rbins)
+    for ir in range(1,nr):
+        paircorrx[ir]=paircorrx[ir]+np.sum(indr==ir)
+    drbins=rbins[1:]-rbins[0:-1]
+    rbins=rbins[1:]
+    paircorrx=paircorrx[1:-1]
+    V=0.0
+    nc=0
+    for ir in range(nr-1):
+        norm=2.*np.pi*rbins[ir]*drbins[ir]
+        V=V+norm
+        nc=nc+paircorrx[ir]
+        paircorrx[ir]=paircorrx[ir]/norm
+    paircorrx=paircorrx*V/nc
+    return rbins,paircorrx
+
+def dist_to_contact(r,r0,d0,n=6,m=12):
+    if np.isscalar(r):
+        if r<d0:
+            c=1.
+        else:
+            w=(r-d0)/r0
+            c=(1-w**n)/(1-w**m)
     else:
-        return regress_linear.predict(np.array([feat0_all]).T)
+        c=np.zeros_like(r)
+        indc=np.where(r<d0)[0]
+        inds=np.where(r>=d0)[0]
+        c[indc]=1.
+        w=(r[inds]-d0)/r0
+        c[inds]=np.divide((1-np.power(w,n)),(1-np.power(w,m)))
+    return c
+
+def get_contactsum_dev(centers1,centers2,img2,rp1,nt=None,savefile=None):
+	if nt is None:
+		nt=int(img2.shape[0]/20)
+	txSet=np.linspace(0,img2.shape[0],nt)
+	tySet=np.linspace(0,img2.shape[1],nt)
+	xxt,yyt=np.meshgrid(txSet,tySet)
+	xxt=xxt.flatten(); yyt=yyt.flatten()
+	d0=rp1/2
+	r0=rp1/2
+	ndx=np.max(centers1[:,0])-np.min(centers1[:,0])
+	ndy=np.max(centers1[:,1])-np.min(centers1[:,1])
+	nncs=np.zeros(nt*nt)
+	for i1 in range(nt*nt):
+		tshift=np.array([xxt[i1],yyt[i1]])
+		#inds_tshift=np.where(self.get_dmat([tshift],centers2)[0]<rcut)[0]
+		ctx=np.logical_and(centers2[:,0]>tshift[0],centers2[:,0]<tshift[0]+ndx)
+		cty=np.logical_and(centers2[:,1]>tshift[1],centers2[:,1]<tshift[1]+ndy)
+		inds_tshift=np.where(np.logical_and(ctx,cty))[0]
+		if inds_tshift.size==0:
+			nncs[i1]=np.nan
+		else:
+			r1=sctm.get_dmat(centers1+tshift,centers2[inds_tshift,:]).min(axis=1)
+			c1=dist_to_contact(r1,r0,d0)
+			r2=sctm.get_dmat(centers2[inds_tshift,:],centers1+tshift).min(axis=1)
+			c2=dist_to_contact(r1,r0,d0)
+			nncs[i1]=(np.nansum(c1)/c1.size+np.nansum(c2)/c2.size)
+		if i1%1000==0:
+			print(f'grid {i1} of {nt*nt}, tx: {tshift[0]:.2f} ty: {tshift[1]:.2f} nncs: {nncs[i1]:.4e}')
+	local_av=generic_filter(nncs.reshape(nt,nt),np.mean,size=int(2*rp1))
+	nncs_dev=nncs-local_av.flatten()
+	nncs_dev[np.isnan(nncs_dev)]=0
+	if savefile is not None:
+		np.save(savefile,nncs_dev)
+	return nncs_dev
+
+def crop_image(img,tshift,nx,ny):
+    img_cropped=img[int(tshift[0]):int(tshift[0])+nx,:]
+    img_cropped=img_cropped[:,int(tshift[1]):int(tshift[1])+ny]
+    img_cropped=resize(img_cropped,(nx,ny),anti_aliasing=False)
+    return img_cropped
+
+

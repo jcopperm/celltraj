@@ -33,6 +33,146 @@ Jeremy Copperman, Ian McLean, Young Hwan Chang, Laura M. Heiser, and Daniel M. Z
 Morphodynamical and gene expression trajectories of cell state change..
 Manuscript in preparation.
 """
+def get_transition_matrix(self,x0,x1,clusters):
+	n_clusters=clusters.clustercenters.shape[0]
+	indc0=clusters.assign(x0)
+	indc1=clusters.assign(x1)
+	Cm=np.zeros((n_clusters,n_clusters))
+	for itt in range(x0.shape[0]):
+		Cm[indc0[itt],indc1[itt]]=Cm[indc0[itt],indc1[itt]]+1
+	Mt=Cm.copy()
+	sM=np.sum(Mt,1)
+	for iR in range(n_clusters):
+		if sM[iR]>0:
+			Mt[iR,:]=Mt[iR,:]/sM[iR]
+		if sM[iR]==0.0:
+			Mt[iR,iR]=1.0
+	self.Mt=Mt
+	return Mt
+
+def get_transition_matrix_CG(self,x0,x1,clusters,states):
+	n_clusters=clusters.clustercenters.shape[0]
+	n_states=np.max(states)+1
+	indc0=states[clusters.assign(x0)]
+	indc1=states[clusters.assign(x1)]
+	Cm=np.zeros((n_states,n_states))
+	for itt in range(x0.shape[0]):
+		Cm[indc0[itt],indc1[itt]]=Cm[indc0[itt],indc1[itt]]+1
+	Mt=Cm.copy()
+	sM=np.sum(Mt,1)
+	for iR in range(n_states):
+		if sM[iR]>0:
+			Mt[iR,:]=Mt[iR,:]/sM[iR]
+		if sM[iR]==0.0:
+			Mt[iR,iR]=1.0
+	return Mt
+
+def clean_clusters(clusters,P):
+	centers=clusters.clustercenters.copy()
+	graph = csr_matrix(P>0.)
+	n_components, labels = connected_components(csgraph=graph, directed=False, return_labels=True)
+	unique, counts = np.unique(labels, return_counts=True)
+	icc=unique[np.argmax(counts)]
+	indcc=np.where(labels==icc)[0]
+	centers=centers[indcc,:]
+	clusters_clean=coor.clustering.AssignCenters(centers, metric='euclidean')
+	return clusters_clean
+
+def get_path_entropy_2point(self,x0,x1,clusters,Mt,exclude_stays=False):
+	indc0=clusters.assign(x0)
+	indc1=clusters.assign(x1)
+	entp=0.0
+	itt=0
+	ntraj=indc0.size
+	try:
+		for itraj in range(ntraj):
+			if exclude_stays:
+				if Mt[indc0[itraj],indc1[itraj]]>0. and indc1[itraj]!=indc0[itraj]:
+					itt=itt+1
+					pt=Mt[indc0[itraj],indc1[itraj]]
+					entp=entp-pt*np.log(pt)
+			else:
+				if Mt[indc0[itraj],indc1[itraj]]>0.: # and Mt[indc1[itraj],indc0[itraj]]>0.:
+					itt=itt+1
+					pt=Mt[indc0[itraj],indc1[itraj]]
+					entp=entp-pt*np.log(pt)
+		entp=entp/(1.*itt)
+	except:
+		sys.stdout.write('empty arrays or failed calc\n')
+		entp=np.nan
+	return entp
+
+def get_path_ll_2point(self,x0,x1,exclude_stays=False):
+	indc0=clusters.assign(x0)
+	indc1=clusters.assign(x1)
+	ll=0.0
+	itt=0
+	ntraj=indc0.size
+	try:
+		for itraj in range(ntraj):
+			if exclude_stays:
+				if Mt[indc0[itraj],indc1[itraj]]>0. and indc1[itraj]!=indc0[itraj]:
+					itt=itt+1
+					pt=Mt[indc0[itraj],indc1[itraj]]
+					ll=ll+np.log(pt)
+			else:
+				if Mt[indc0[itraj],indc1[itraj]]>0.: # and Mt[indc1[itraj],indc0[itraj]]>0.:
+					itt=itt+1
+					pt=Mt[indc0[itraj],indc1[itraj]]
+					ll=ll+np.log(pt)
+		ll=ll/(1.*itt)
+	except:
+		sys.stdout.write('empty arrays or failed calc\n')
+		ll=np.nan
+	return ll
+
+def get_kscore(self,Mt,eps=1.e-3): #,nw=10):
+	indeye=np.where(np.eye(Mt.shape[0]))
+	diag=Mt[indeye]
+	indgood=np.where(diag<1.)[0]
+	Mt=Mt[indgood,:]
+	Mt=Mt[:,indgood]
+	w,v=np.linalg.eig(np.transpose(Mt))
+	w=np.real(w)
+	if np.sum(np.abs(w-1.)<eps)>0:
+		indw=np.where(np.logical_and(np.logical_and(np.abs(w-1.)>eps,w>0.),w<1.))
+		tw=w[indw]
+		tw=np.sort(tw)
+		#tw=tw[-nw:]
+		tw=1./(1.-tw)
+		kscore=np.sum(tw)
+	else:
+		kscore=np.nan
+	return kscore
+
+def get_traj_ll_gmean(self,xt,exclude_stays=False,states=None):
+	if states is None:
+		states=np.arange(Mt.shape[0]).astype(int)
+	x0=xt[0:-1]
+	x1=xt[1:]
+	indc0=states[clusters.assign(x0)]
+	indc1=states[clusters.assign(x1)]
+	llSet=np.array([])
+	itt=0
+	ntraj=indc0.size
+	try:
+		for itraj in range(ntraj):
+			if exclude_stays:
+				if Mt[indc0[itraj],indc1[itraj]]>0. and indc1[itraj]!=indc0[itraj]:
+					itt=itt+1
+					pt=Mt[indc0[itraj],indc1[itraj]]
+					llSet=np.append(llSet,pt)
+			else:
+				if Mt[indc0[itraj],indc1[itraj]]>0.: # and Mt[indc1[itraj],indc0[itraj]]>0.:
+					itt=itt+1
+					pt=Mt[indc0[itraj],indc1[itraj]]
+					llSet=np.append(llSet,pt)
+		ll_mean=scipy.stats.mstats.gmean(llSet)
+	except:
+		sys.stdout.write('empty arrays or failed calc\n')
+		ll_mean=np.nan
+	return ll_mean
+
 
 def get_H_eigs(Mt):
     H=.5*(Mt+np.transpose(Mt))+.5j*(Mt-np.transpose(Mt))
@@ -149,25 +289,6 @@ def get_steady_state_matrixpowers(Tmatrix,conv=1.e-3):
             pSSp=pSS.copy()
             print('N='+str(N)+' dconv: '+str(dconv)+'\n')
     return pSS
-
-def get_kscore(Mt,eps=1.e-3): #,nw=10):
-    indeye=np.where(np.eye(Mt.shape[0]))
-    diag=Mt[indeye]
-    indgood=np.where(diag<1.)[0]
-    Mt=Mt[indgood,:]
-    Mt=Mt[:,indgood]
-    w,v=np.linalg.eig(np.transpose(Mt))
-    w=np.real(w)
-    if np.sum(np.abs(w-1.)<eps)>0:
-        indw=np.where(np.logical_and(np.logical_and(np.abs(w-1.)>eps,w>0.),w<1.))
-        tw=w[indw]
-        tw=np.sort(tw)
-        #tw=tw[-nw:]
-        tw=1./(1.-tw)
-        kscore=np.sum(tw)
-    else:
-        kscore=np.nan
-    return kscore
 
 def plot_dx_arrows(x_clusters,dx_clusters):
     plt.figure()
