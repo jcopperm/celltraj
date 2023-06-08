@@ -27,6 +27,7 @@ import btrack
 from btrack.constants import BayesianUpdates
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from sklearn.linear_model import LinearRegression
 
 
 class Trajectory():
