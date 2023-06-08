@@ -18,13 +18,13 @@ API Reference
    :members:
 
 .. automodule:: celltraj.trajectory.TrajectorySet
-      :members:
+   :members:
 
 .. automodule:: celltraj.imageprep
-   :members:
+      :members:
 
 .. automodule:: celltraj.translate
       :members:
 
 .. automodule:: celltraj.model
-         :members:
+      :members:
