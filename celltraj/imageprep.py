@@ -22,6 +22,29 @@ from pystackreg import StackReg
 from skimage import transform as tf
 from sklearn.linear_model import LinearRegression
 
+"""
+A toolset for single-cell trajectory modeling and multidomain translation. See:
+
+Danger
+-------
+This code, currently, should be considered as an untested pre-release version
+
+Todo
+----
+Refactor
+    In general, this class's methods generally handle data by holding state in the object.
+    The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.
+    The state being updated along the way is usually "helper" quantities.
+    I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --
+    one example of this might be setting them as properties, and then updating the value in state as part of that
+    accessor if necessary.
+References
+--------
+Jeremy Copperman, Ian McLean, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
+Morphodynamical and gene expression trajectories of cell state change..
+Manuscript in preparation.
+"""
+
 def list_images(imagespecifier):
     """list images in a directory matching a pattern..
 
