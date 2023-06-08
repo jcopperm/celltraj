@@ -108,7 +108,7 @@
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
 
 
-<div class="viewcode-block" id="Trajectory"><a class="viewcode-back" href="../../stubs/syncell.trajectory.Trajectory.html#celltraj.trajectory.Trajectory">[docs]</a><span class="k">class</span> <span class="nc">Trajectory</span><span class="p">():</span>
+<div class="viewcode-block" id="Trajectory"><a class="viewcode-back" href="../../stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory">[docs]</a><span class="k">class</span> <span class="nc">Trajectory</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A toolset for single-cell trajectory modeling. See:</span>
 <span class="sd">    </span>
@@ -132,7 +132,7 @@
 <span class="sd">    Biorxiv 10.1101/2021.10.07.463498, 2021.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-<div class="viewcode-block" id="Trajectory.__init__"><a class="viewcode-back" href="../../stubs/syncell.trajectory.Trajectory.html#celltraj.trajectory.Trajectory.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Trajectory.__init__"><a class="viewcode-back" href="../../stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Work-in-progress init function. For now, just start adding attribute definitions in here.</span>
 <span class="sd">        Todo</span>
@@ -2861,6 +2861,40 @@
         <span class="n">probc1</span><span class="o">=</span><span class="n">probc1</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">probc1</span></div>
 
+<span class="k">class</span> <span class="nc">Trajectory4D</span><span class="p">(</span><span class="n">Trajectory</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A modified toolset for 3D single-cell trajectory modeling. See:</span>
+
+<span class="sd">    Danger</span>
+<span class="sd">    -------</span>
+<span class="sd">    This code, currently, should be considered as an untested pre-release version</span>
+
+<span class="sd">    Todo</span>
+<span class="sd">    ----</span>
+<span class="sd">    Refactor</span>
+<span class="sd">        In general, this class&#39;s methods generally handle data by holding state in the object.</span>
+<span class="sd">        The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.</span>
+<span class="sd">        The state being updated along the way is usually &quot;helper&quot; quantities.</span>
+<span class="sd">        I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --</span>
+<span class="sd">        one example of this might be setting them as properties, and then updating the value in state as part of that</span>
+<span class="sd">        accessor if necessary.</span>
+<span class="sd">    References</span>
+<span class="sd">    --------</span>
+<span class="sd">    Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.</span>
+<span class="sd">    Morphodynamical cell-state description via live-cell imaging trajectory embedding.</span>
+<span class="sd">    Biorxiv 10.1101/2021.10.07.463498, 2021.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Work-in-progress init function. For now, just start adding attribute definitions in here.</span>
+<span class="sd">        Todo</span>
+<span class="sd">        ----</span>
+<span class="sd">        - Most logic from initialize() should be moved in here.</span>
+<span class="sd">        - Also, comment all of these here. Right now most of them have comments throughout the code.</span>
+<span class="sd">        - Reorganize these attributes into some meaningful structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="TrajectorySet"><a class="viewcode-back" href="../../stubs/celltraj.trajectory.TrajectorySet.html#celltraj.trajectory.TrajectorySet">[docs]</a><span class="k">class</span> <span class="nc">TrajectorySet</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A toolset for single-cell trajectory modeling over multiple trajectory objects. See:</span>
@@ -2893,120 +2927,8 @@
 <span class="sd">        - Most logic from initialize() should be moved in here.</span>
 <span class="sd">        - Also, comment all of these here. Right now most of them have comments throughout the code.</span>
 <span class="sd">        - Reorganize these attributes into some meaningful structure</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        &quot;&quot;&quot;</span></div></div>
 
-    <span class="k">def</span> <span class="nf">get_kineticstates_gpcca</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nstates_final</span><span class="p">,</span><span class="n">P</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">clusters_minima</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pcut_final</span><span class="o">=</span><span class="mf">.01</span><span class="p">):</span>
-        <span class="n">nstates_good</span><span class="o">=</span><span class="mi">0</span>
-        <span class="n">nstates</span><span class="o">=</span><span class="n">nstates_final</span><span class="o">-</span><span class="mi">1</span>
-        <span class="k">while</span> <span class="n">nstates_good</span><span class="o">&lt;</span><span class="n">nstates_final</span><span class="p">:</span> <span class="c1">#18 for tl1</span>
-            <span class="k">if</span> <span class="n">P</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">P</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Mt</span>
-            <span class="k">if</span> <span class="n">clusters_minima</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">clusters_minima</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clusterst</span>
-            <span class="n">gpcca</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">GPCCA</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">eta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="s1">&#39;LM&#39;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;brandts&#39;</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">gpcca</span><span class="o">.</span><span class="n">optimize</span><span class="p">({</span><span class="s1">&#39;m_min&#39;</span><span class="p">:</span><span class="n">nstates</span><span class="p">,</span> <span class="s1">&#39;m_max&#39;</span><span class="p">:</span><span class="n">nstates</span><span class="o">+</span><span class="mi">1</span><span class="p">})</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="n">nstates</span><span class="o">=</span><span class="n">nstates</span><span class="o">+</span><span class="mi">1</span>
-                <span class="n">gpcca</span><span class="o">.</span><span class="n">optimize</span><span class="p">({</span><span class="s1">&#39;m_min&#39;</span><span class="p">:</span><span class="n">nstates</span><span class="p">,</span> <span class="s1">&#39;m_max&#39;</span><span class="p">:</span><span class="n">nstates</span><span class="o">+</span><span class="mi">1</span><span class="p">})</span>
-            <span class="n">nstates</span><span class="o">=</span><span class="n">gpcca</span><span class="o">.</span><span class="n">n_m</span>
-            <span class="n">stateCenters</span><span class="o">=</span><span class="n">clusters_minima</span><span class="o">.</span><span class="n">clustercenters</span>
-            <span class="n">stateSet_kinetic</span><span class="o">=</span><span class="n">gpcca</span><span class="o">.</span><span class="n">macrostate_assignment</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">cell_states</span><span class="o">=</span><span class="n">coor</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="n">AssignCenters</span><span class="p">(</span><span class="n">stateCenters</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">n_kineticstates</span><span class="o">=</span><span class="n">gpcca</span><span class="o">.</span><span class="n">n_m</span>
-            <span class="n">state_center_minima</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_kineticstates</span><span class="p">,</span><span class="n">neigen</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_kineticstates</span><span class="p">):</span>
-                <span class="n">indstate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stateSet_kinetic</span><span class="o">==</span><span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">state_center_minima</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">cell_states</span><span class="o">.</span><span class="n">clustercenters</span><span class="p">[</span><span class="n">indstate</span><span class="p">,:],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">stateSet</span><span class="o">=</span><span class="n">gpcca</span><span class="o">.</span><span class="n">macrostate_assignment</span>
-            <span class="n">state_probs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nf</span><span class="p">,</span><span class="n">nstates</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nf</span><span class="p">):</span>
-                <span class="n">indstm</span><span class="o">=</span><span class="n">inds_conditions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">x0</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="n">indstm</span><span class="p">,:]</span>
-                <span class="n">indc0</span><span class="o">=</span><span class="n">stateSet</span><span class="p">[</span><span class="n">cell_states</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x0</span><span class="p">)]</span>
-                <span class="n">statesc</span><span class="p">,</span><span class="n">counts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">indc0</span><span class="p">,</span><span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">state_probs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">statesc</span><span class="p">]</span><span class="o">=</span><span class="n">counts</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
-            <span class="n">state_tprobs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">state_probs</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">/</span><span class="n">nf</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">state_tprobs</span><span class="p">))</span>
-            <span class="n">nstates_good</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">state_tprobs</span><span class="o">&gt;</span><span class="n">pcut_final</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> states initial, </span><span class="si">{}</span><span class="s1"> states final&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nstates</span><span class="p">,</span><span class="n">nstates_good</span><span class="p">))</span>
-            <span class="n">nstates</span><span class="o">=</span><span class="n">nstates</span><span class="o">+</span><span class="mi">1</span>
-        <span class="n">pcut</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">state_tprobs</span><span class="p">)[</span><span class="o">-</span><span class="p">(</span><span class="n">nstates_final</span><span class="p">)]</span> <span class="c1">#nstates]</span>
-        <span class="n">states_plow</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">state_tprobs</span><span class="o">&lt;</span><span class="n">pcut</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">states_plow</span><span class="p">:</span>
-            <span class="n">indstate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stateSet</span><span class="o">==</span><span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">imin</span> <span class="ow">in</span> <span class="n">indstate</span><span class="p">:</span>
-                <span class="n">dists</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dmat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">stateCenters</span><span class="p">[</span><span class="n">imin</span><span class="p">,:]]),</span><span class="n">stateCenters</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">dists</span><span class="p">[</span><span class="n">indstate</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-                <span class="n">ireplace</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span>
-                <span class="n">stateSet</span><span class="p">[</span><span class="n">imin</span><span class="p">]</span><span class="o">=</span><span class="n">stateSet</span><span class="p">[</span><span class="n">ireplace</span><span class="p">]</span>
-        <span class="n">slabels</span><span class="p">,</span><span class="n">counts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">stateSet</span><span class="p">,</span><span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">s</span><span class="o">=</span><span class="mi">0</span>
-        <span class="n">stateSet_clean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">stateSet</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">slabel</span> <span class="ow">in</span> <span class="n">slabels</span><span class="p">:</span>
-            <span class="n">indstate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stateSet</span><span class="o">==</span><span class="n">slabel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">stateSet_clean</span><span class="p">[</span><span class="n">indstate</span><span class="p">]</span><span class="o">=</span><span class="n">s</span>
-            <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span>
-        <span class="n">stateSet</span><span class="o">=</span><span class="n">stateSet_clean</span>
-        <span class="k">return</span> <span class="n">stateSet</span>
-
-    <span class="k">def</span> <span class="nf">get_kineticstates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">nstates_final</span><span class="p">,</span><span class="n">P</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">clusters_minima</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pcut_final</span><span class="o">=</span><span class="mf">.01</span><span class="p">,</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ncomp</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">P</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;input transition matrix&#39;</span><span class="p">)</span>
-            <span class="k">return</span>
-        <span class="k">if</span> <span class="n">clusters_minima</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">clusters_minima</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clusterst</span>
-        <span class="n">stateCenters</span><span class="o">=</span><span class="n">clusters_minima</span><span class="o">.</span><span class="n">clustercenters</span>
-        <span class="n">nstates_good</span><span class="o">=</span><span class="mi">0</span>
-        <span class="n">nstates</span><span class="o">=</span><span class="n">nstates_final</span>
-        <span class="k">while</span> <span class="n">nstates_good</span><span class="o">&lt;</span><span class="n">nstates_final</span> <span class="ow">and</span> <span class="n">nstates</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">*</span><span class="n">nstates_final</span><span class="p">:</span> <span class="c1">#18 for tl1</span>
-            <span class="n">H</span><span class="o">=</span><span class="mf">.5</span><span class="o">*</span><span class="p">(</span><span class="n">P</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">P</span><span class="p">))</span><span class="o">+</span><span class="mf">.5</span><span class="n">j</span><span class="o">*</span><span class="p">(</span><span class="n">P</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">P</span><span class="p">))</span>
-            <span class="n">w</span><span class="p">,</span><span class="n">v</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
-            <span class="n">w</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
-            <span class="n">indsort</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
-            <span class="n">w</span><span class="o">=</span><span class="n">w</span><span class="p">[</span><span class="n">indsort</span><span class="p">]</span>
-            <span class="n">v</span><span class="o">=</span><span class="n">v</span><span class="p">[:,</span><span class="n">indsort</span><span class="p">]</span>
-            <span class="c1">#ncomp=np.sum(w&gt;1.)</span>
-            <span class="n">vr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:]))</span>
-            <span class="n">vi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:]))</span>
-            <span class="n">vkin</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vr</span><span class="p">,</span><span class="n">vi</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">clusters_v</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">nstates</span><span class="p">,</span><span class="n">init</span><span class="o">=</span><span class="s1">&#39;k-means++&#39;</span><span class="p">,</span><span class="n">n_init</span><span class="o">=</span><span class="mi">20000</span><span class="p">,</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-            <span class="n">clusters_v</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">vkin</span><span class="p">)</span>
-            <span class="n">stateSet</span><span class="o">=</span><span class="n">clusters_v</span><span class="o">.</span><span class="n">labels_</span>
-            <span class="n">state_center_minima</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nstates</span><span class="p">,</span><span class="n">neigen</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nstates</span><span class="p">):</span>
-                <span class="n">indstate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stateSet</span><span class="o">==</span><span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">state_center_minima</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clusters_minima</span><span class="o">.</span><span class="n">clustercenters</span><span class="p">[</span><span class="n">indstate</span><span class="p">,:],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">state_probs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nf</span><span class="p">,</span><span class="n">nstates</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nf</span><span class="p">):</span>
-                <span class="n">indstm</span><span class="o">=</span><span class="n">inds_conditions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">x0</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="n">indstm</span><span class="p">,:]</span>
-                <span class="n">indc0</span><span class="o">=</span><span class="n">stateSet</span><span class="p">[</span><span class="n">clusters_minima</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x0</span><span class="p">)]</span>
-                <span class="n">statesc</span><span class="p">,</span><span class="n">counts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">indc0</span><span class="p">,</span><span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">state_probs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">statesc</span><span class="p">]</span><span class="o">=</span><span class="n">counts</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
-            <span class="n">state_tprobs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">state_probs</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">/</span><span class="n">nf</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">state_tprobs</span><span class="p">))</span>
-            <span class="n">nstates_good</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">state_tprobs</span><span class="o">&gt;</span><span class="n">pcut_final</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> states initial, </span><span class="si">{}</span><span class="s1"> states final&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nstates</span><span class="p">,</span><span class="n">nstates_good</span><span class="p">))</span>
-            <span class="n">nstates</span><span class="o">=</span><span class="n">nstates</span><span class="o">+</span><span class="mi">1</span>
-        <span class="n">pcut</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">state_tprobs</span><span class="p">)[</span><span class="o">-</span><span class="p">(</span><span class="n">nstates_final</span><span class="p">)]</span> <span class="c1">#nstates]</span>
-        <span class="n">states_plow</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">state_tprobs</span><span class="o">&lt;</span><span class="n">pcut</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">states_plow</span><span class="p">:</span>
-            <span class="n">indstate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stateSet</span><span class="o">==</span><span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">imin</span> <span class="ow">in</span> <span class="n">indstate</span><span class="p">:</span>
-                <span class="n">dists</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dmat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">stateCenters</span><span class="p">[</span><span class="n">imin</span><span class="p">,:]]),</span><span class="n">stateCenters</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">dists</span><span class="p">[</span><span class="n">indstate</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-                <span class="n">ireplace</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span>
-                <span class="n">stateSet</span><span class="p">[</span><span class="n">imin</span><span class="p">]</span><span class="o">=</span><span class="n">stateSet</span><span class="p">[</span><span class="n">ireplace</span><span class="p">]</span>
-        <span class="n">slabels</span><span class="p">,</span><span class="n">counts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">stateSet</span><span class="p">,</span><span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">s</span><span class="o">=</span><span class="mi">0</span>
-        <span class="n">stateSet_clean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">stateSet</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">slabel</span> <span class="ow">in</span> <span class="n">slabels</span><span class="p">:</span>
-            <span class="n">indstate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stateSet</span><span class="o">==</span><span class="n">slabel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">stateSet_clean</span><span class="p">[</span><span class="n">indstate</span><span class="p">]</span><span class="o">=</span><span class="n">s</span>
-            <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span>
-        <span class="n">stateSet</span><span class="o">=</span><span class="n">stateSet_clean</span>
-        <span class="k">return</span> <span class="n">stateSet</span></div>
 </pre></div>
 
            </div>

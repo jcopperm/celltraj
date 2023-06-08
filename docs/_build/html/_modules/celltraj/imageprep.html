@@ -100,6 +100,29 @@
 <span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">transform</span> <span class="k">as</span> <span class="n">tf</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A toolset for single-cell trajectory modeling and multidomain translation. See:</span>
+
+<span class="sd">Danger</span>
+<span class="sd">-------</span>
+<span class="sd">This code, currently, should be considered as an untested pre-release version</span>
+
+<span class="sd">Todo</span>
+<span class="sd">----</span>
+<span class="sd">Refactor</span>
+<span class="sd">    In general, this class&#39;s methods generally handle data by holding state in the object.</span>
+<span class="sd">    The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.</span>
+<span class="sd">    The state being updated along the way is usually &quot;helper&quot; quantities.</span>
+<span class="sd">    I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --</span>
+<span class="sd">    one example of this might be setting them as properties, and then updating the value in state as part of that</span>
+<span class="sd">    accessor if necessary.</span>
+<span class="sd">References</span>
+<span class="sd">--------</span>
+<span class="sd">Jeremy Copperman, Ian McLean, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.</span>
+<span class="sd">Morphodynamical and gene expression trajectories of cell state change..</span>
+<span class="sd">Manuscript in preparation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="list_images"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.list_images">[docs]</a><span class="k">def</span> <span class="nf">list_images</span><span class="p">(</span><span class="n">imagespecifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;list images in a directory matching a pattern..</span>
 

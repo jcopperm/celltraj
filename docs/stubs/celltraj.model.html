@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>celltraj.trajectory.TrajectorySet &mdash; celltraj 0.0 documentation</title>
+  <title>celltraj.model &mdash; celltraj 0.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -17,8 +17,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="celltraj.imageprep" href="celltraj.imageprep.html" />
-    <link rel="prev" title="celltraj.trajectory.Trajectory" href="celltraj.trajectory.Trajectory.html" /> 
+    <link rel="next" title="Contributing" href="../contributing.html" />
+    <link rel="prev" title="celltraj.translate" href="celltraj.translate.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,16 +50,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="celltraj.trajectory.Trajectory.html">celltraj.trajectory.Trajectory</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">celltraj.trajectory.TrajectorySet</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#celltraj.trajectory.TrajectorySet"><code class="docutils literal notranslate"><span class="pre">TrajectorySet</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.TrajectorySet.__init__"><code class="docutils literal notranslate"><span class="pre">TrajectorySet.__init__()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="celltraj.trajectory.TrajectorySet.html">celltraj.trajectory.TrajectorySet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="celltraj.imageprep.html">celltraj.imageprep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="celltraj.translate.html">celltraj.translate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="celltraj.model.html">celltraj.model</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">celltraj.model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.list_images"><code class="docutils literal notranslate"><span class="pre">list_images()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.organize_filelist_fov"><code class="docutils literal notranslate"><span class="pre">organize_filelist_fov()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.organize_filelist_time"><code class="docutils literal notranslate"><span class="pre">organize_filelist_time()</span></code></a></li>
@@ -93,9 +87,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API Reference</a></li>
-      <li class="breadcrumb-item active">celltraj.trajectory.TrajectorySet</li>
+      <li class="breadcrumb-item active">celltraj.model</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/stubs/celltraj.trajectory.TrajectorySet.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/stubs/celltraj.model.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -103,50 +97,54 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="celltraj-trajectory-trajectoryset">
-<h1>celltraj.trajectory.TrajectorySet<a class="headerlink" href="#celltraj-trajectory-trajectoryset" title="Permalink to this heading">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="celltraj.trajectory.TrajectorySet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">celltraj.trajectory.</span></span><span class="sig-name descname"><span class="pre">TrajectorySet</span></span><a class="reference internal" href="../_modules/celltraj/trajectory.html#TrajectorySet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.TrajectorySet" title="Permalink to this definition">¶</a></dt>
-<dd><p>A toolset for single-cell trajectory modeling over multiple trajectory objects. See:</p>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
-<p>This code, currently, should be considered as an untested pre-release version</p>
-</div>
-<p class="rubric">References</p>
-<p>Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
-Morphodynamical cell-state description via live-cell imaging trajectory embedding.
-Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="celltraj.trajectory.TrajectorySet.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/celltraj/trajectory.html#TrajectorySet.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.TrajectorySet.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Work-in-progress init function. For now, just start adding attribute definitions in here.
-.. todo:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">Most</span> <span class="n">logic</span> <span class="kn">from</span> <span class="nn">initialize</span><span class="p">()</span> <span class="n">should</span> <span class="n">be</span> <span class="n">moved</span> <span class="ow">in</span> <span class="n">here</span><span class="o">.</span>
-<span class="o">-</span> <span class="n">Also</span><span class="p">,</span> <span class="n">comment</span> <span class="nb">all</span> <span class="n">of</span> <span class="n">these</span> <span class="n">here</span><span class="o">.</span> <span class="n">Right</span> <span class="n">now</span> <span class="n">most</span> <span class="n">of</span> <span class="n">them</span> <span class="n">have</span> <span class="n">comments</span> <span class="n">throughout</span> <span class="n">the</span> <span class="n">code</span><span class="o">.</span>
-<span class="o">-</span> <span class="n">Reorganize</span> <span class="n">these</span> <span class="n">attributes</span> <span class="n">into</span> <span class="n">some</span> <span class="n">meaningful</span> <span class="n">structure</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<p class="rubric">Methods</p>
+  <section id="module-celltraj.model">
+<span id="celltraj-model"></span><h1>celltraj.model<a class="headerlink" href="#module-celltraj.model" title="Permalink to this heading">¶</a></h1>
+<p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#celltraj.trajectory.TrajectorySet.__init__" title="celltraj.trajectory.TrajectorySet.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p>Work-in-progress init function. For now, just start adding attribute definitions in here. .. todo::.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_H_eigs</span></code>(Mt)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_avdx_clusters</span></code>(x_clusters, Mt)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_committor</span></code>(Tmatrix, indTargets, indSource)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dmat</span></code>(x1[, x2])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_kineticstates</span></code>(vkin, nstates_final[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_kscore</span></code>(Mt[, eps])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_landscape_coords_umap</span></code>(vkin)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_motifs</span></code>(v, ncomp[, w])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_steady_state_matrixpowers</span></code>(Tmatrix[, conv])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_dx_arrows</span></code>(x_clusters, dx_clusters)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_eig</span></code>(v, x_clusters, ncomp)</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="celltraj.trajectory.Trajectory.html" class="btn btn-neutral float-left" title="celltraj.trajectory.Trajectory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="celltraj.imageprep.html" class="btn btn-neutral float-right" title="celltraj.imageprep" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="celltraj.translate.html" class="btn btn-neutral float-left" title="celltraj.translate" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

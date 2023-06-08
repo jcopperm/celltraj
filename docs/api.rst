@@ -11,6 +11,7 @@ API Reference
    celltraj.trajectory.TrajectorySet
    celltraj.imageprep
    celltraj.translate
+   celltraj.model
 
 
 .. automodule:: celltraj.trajectory.Trajectory
@@ -24,3 +25,6 @@ API Reference
 
 .. automodule:: celltraj.translate
       :members:
+
+.. automodule:: celltraj.model
+         :members:
