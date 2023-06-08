@@ -1,4 +1,6 @@
 #!/bin/bash
 make html
-cp _build/html/*.html _build/html/stubs/*.html ./
+rm -r stubs
+cp _build/html/*.html ./
+cp -r _build/html/stubs ./
 
