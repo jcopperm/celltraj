@@ -2783,6 +2783,40 @@ class Trajectory():
         probc1=probc1.reshape((nx,ny))
         return probc1
 
+class TrajectorySet():
+    """
+    A toolset for single-cell trajectory modeling over multiple trajectory objects. See:
+
+    Danger
+    -------
+    This code, currently, should be considered as an untested pre-release version
+
+    Todo
+    ----
+    Refactor
+        In general, this class's methods generally handle data by holding state in the object.
+        The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.
+        The state being updated along the way is usually "helper" quantities.
+        I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --
+        one example of this might be setting them as properties, and then updating the value in state as part of that
+        accessor if necessary.
+    References
+    --------
+    Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
+    Morphodynamical cell-state description via live-cell imaging trajectory embedding.
+    Biorxiv 10.1101/2021.10.07.463498, 2021.
+    """
+
+    def __init__(self):
+        """
+        Work-in-progress init function. For now, just start adding attribute definitions in here.
+        Todo
+        ----
+        - Most logic from initialize() should be moved in here.
+        - Also, comment all of these here. Right now most of them have comments throughout the code.
+        - Reorganize these attributes into some meaningful structure
+        """
+
     def get_kineticstates_gpcca(self,nstates_final,P=None,clusters_minima=None,pcut_final=.01):
         nstates_good=0
         nstates=nstates_final-1

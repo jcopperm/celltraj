@@ -11,10 +11,8 @@
   <![endif]-->
   
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -25,14 +23,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> celltraj
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            celltraj
           </a>
               <div class="version">
                 0.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -62,9 +64,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      <li>celltraj.imageprep</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">celltraj.imageprep</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -82,7 +84,6 @@
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">color</span><span class="p">,</span> <span class="n">morphology</span>
 <span class="kn">import</span> <span class="nn">skimage.transform</span>
-<span class="kn">from</span> <span class="nn">skimage.registration</span> <span class="kn">import</span> <span class="n">phase_cross_correlation</span>
 <span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">fourier_shift</span>
 <span class="kn">import</span> <span class="nn">h5py</span>
 <span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">transform</span> <span class="k">as</span> <span class="n">tf</span>
@@ -97,9 +98,10 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">pystackreg</span> <span class="kn">import</span> <span class="n">StackReg</span>
 <span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">transform</span> <span class="k">as</span> <span class="n">tf</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
 
 <div class="viewcode-block" id="list_images"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.list_images">[docs]</a><span class="k">def</span> <span class="nf">list_images</span><span class="p">(</span><span class="n">imagespecifier</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;list images in a directory matching a pattern..</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;list images in a directory matching a pattern..</span>
 
 <span class="sd">    :param imagepath: directory :param filespecifier pattern to match for image files</span>
 <span class="sd">    :type imagepath: string filespecifier string</span>
@@ -115,7 +117,7 @@
     <span class="k">return</span> <span class="n">fileList</span></div>
 
 <div class="viewcode-block" id="organize_filelist_fov"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.organize_filelist_fov">[docs]</a><span class="k">def</span> <span class="nf">organize_filelist_fov</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">fov_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fov_len</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Organize imagefiles in a list to field of view.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Organize imagefiles in a list to field of view.</span>
 
 <span class="sd">    :param filelist: list of image files :param fov_pos: string position of fov specifier :param fov_len: length of fov speficier</span>
 <span class="sd">    :type filelist: list of strings fov_pos: int fov_len: int</span>
@@ -143,7 +145,7 @@
     <span class="k">return</span> <span class="n">filelist_sorted</span></div>
 
 <div class="viewcode-block" id="organize_filelist_time"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.organize_filelist_time">[docs]</a><span class="k">def</span> <span class="nf">organize_filelist_time</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">time_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Organize imagefiles in a list to timestamp ??d??h??m.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Organize imagefiles in a list to timestamp ??d??h??m.</span>
 
 <span class="sd">    :param filelist: list of image files</span>
 <span class="sd">    :type filelist: list of strings fov_pos: int fov_len: int</span>
@@ -168,7 +170,7 @@
     <span class="k">return</span> <span class="n">filelist_sorted</span></div>
 
 <div class="viewcode-block" id="znorm"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.znorm">[docs]</a><span class="k">def</span> <span class="nf">znorm</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Variance normalization (z-norm) of an array or image)..</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Variance normalization (z-norm) of an array or image)..</span>
 
 <span class="sd">    :param img: array or image</span>
 <span class="sd">    :type uuids: real array</span>
@@ -179,7 +181,7 @@
     <span class="k">return</span> <span class="n">img</span></div>
 
 <div class="viewcode-block" id="histogram_stretch"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.histogram_stretch">[docs]</a><span class="k">def</span> <span class="nf">histogram_stretch</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">lp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">hp</span><span class="o">=</span><span class="mi">99</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Histogram stretch of an array or image for normalization..</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Histogram stretch of an array or image for normalization..</span>
 
 <span class="sd">    :param img: array or image</span>
 <span class="sd">    :type uuids: real array</span>
@@ -191,7 +193,7 @@
     <span class="k">return</span> <span class="n">img</span></div>
 
 <div class="viewcode-block" id="get_images"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.get_images">[docs]</a><span class="k">def</span> <span class="nf">get_images</span><span class="p">(</span><span class="n">filelist</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get images from list of files.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get images from list of files.</span>
 
 <span class="sd">    :param filelist: list of image files</span>
 <span class="sd">    :type filelist: list of strings</span>
@@ -202,7 +204,7 @@
     <span class="k">return</span> <span class="n">imgs</span></div>
 
 <div class="viewcode-block" id="get_tile_order"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.get_tile_order">[docs]</a><span class="k">def</span> <span class="nf">get_tile_order</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">,</span><span class="n">snake</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Construct ordering for to put together image tiles compatible with incell microscope.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct ordering for to put together image tiles compatible with incell microscope.</span>
 <span class="sd">    :param nrows: number of rows ncols: number of columns </span>
 <span class="sd">    snake: snake across whole image (left to right, right to left, left to right...)</span>
 <span class="sd">    :type nrows: int ncols: int ncols: int snake: bool</span>
@@ -216,10 +218,10 @@
                 <span class="n">image_inds</span><span class="p">[</span><span class="n">rowv</span><span class="p">,:]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">image_inds</span><span class="p">[</span><span class="n">rowv</span><span class="p">,:])</span>
     <span class="k">return</span> <span class="n">image_inds</span></div>
 
-<div class="viewcode-block" id="get_slide_image"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.get_slide_image">[docs]</a><span class="k">def</span> <span class="nf">get_slide_image</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">nrows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">foverlap</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">histnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Construct slide image from a set of tiles (fields of view). </span>
+<div class="viewcode-block" id="get_slide_image"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.get_slide_image">[docs]</a><span class="k">def</span> <span class="nf">get_slide_image</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">nrows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">image_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">foverlap</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">histnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct slide image from a set of tiles (fields of view). </span>
 <span class="sd">    Ordering from (get_tile_order).</span>
-<span class="sd">    :param imgs: list of images nrows: number of rows, default assumes a square tiling (36 images = 8 rows x 8 cols) </span>
+<span class="sd">    :param imgs: list of images nrows: number of rows, default assumes a square tiling (64 images = 8 rows x 8 cols) </span>
 <span class="sd">    ncols: number of columns foverlap: fraction of overlap between images</span>
 <span class="sd">    :type imgs: list of 2D images (2D arrays) nrows: int ncols: int foverlap: float</span>
 <span class="sd">    :return: constructed slide image from image tiles</span>
@@ -235,7 +237,8 @@
     <span class="n">nfv</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">foverlap</span><span class="o">*</span><span class="n">nv_single</span><span class="p">))</span>
     <span class="n">npixh</span><span class="o">=</span><span class="n">ncols</span><span class="o">*</span><span class="n">nh_single</span><span class="o">-</span><span class="nb">int</span><span class="p">((</span><span class="n">ncols</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">nfh</span><span class="p">)</span>
     <span class="n">npixv</span><span class="o">=</span><span class="n">nrows</span><span class="o">*</span><span class="n">nv_single</span><span class="o">-</span><span class="nb">int</span><span class="p">((</span><span class="n">nrows</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">nfv</span><span class="p">)</span>
-    <span class="n">image_inds</span><span class="o">=</span><span class="n">get_tile_order</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">image_inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">image_inds</span><span class="o">=</span><span class="n">get_tile_order</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">)</span>
     <span class="n">ws_img</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">npixv</span><span class="p">,</span><span class="n">npixh</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">imgs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimg</span><span class="p">):</span>
         <span class="n">img</span><span class="o">=</span><span class="n">imgs</span><span class="p">[</span><span class="n">im</span><span class="p">]</span>
@@ -252,7 +255,7 @@
     <span class="k">return</span> <span class="n">ws_img</span></div>
 
 <div class="viewcode-block" id="load_ilastik"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.load_ilastik">[docs]</a><span class="k">def</span> <span class="nf">load_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Load ilastik prediction (pixel classification) from h5 file format.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load ilastik prediction (pixel classification) from h5 file format.</span>
 <span class="sd">    :param file_ilastik: filename</span>
 <span class="sd">    :type file_ilastik: string</span>
 <span class="sd">    :return: ndarray of ilastik output</span>
@@ -264,22 +267,27 @@
     <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">pmask</span></div>
 
-<span class="k">def</span> <span class="nf">get_mask_2channel_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_mask_2channel_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">growthcycles</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
     <span class="n">pmask</span><span class="o">=</span><span class="n">load_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">)</span>
     <span class="n">msk_fore</span><span class="o">=</span><span class="n">pmask</span><span class="p">[:,:,</span><span class="n">fore_channel</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">holefill_area</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
         <span class="n">msk_fore</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">area_opening</span><span class="p">(</span><span class="n">msk_fore</span><span class="p">,</span> <span class="n">area_threshold</span><span class="o">=</span><span class="n">holefill_area</span><span class="p">)</span>
         <span class="n">msk_fore</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">area_closing</span><span class="p">(</span><span class="n">msk_fore</span><span class="p">,</span> <span class="n">area_threshold</span><span class="o">=</span><span class="n">holefill_area</span><span class="p">)</span>
     <span class="n">msk_fore</span><span class="o">=</span><span class="n">msk_fore</span><span class="o">&gt;</span><span class="n">pcut</span>
+    <span class="k">if</span> <span class="n">growthcycles</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+       <span class="k">for</span> <span class="n">ir</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">growthcycles</span><span class="p">):</span>
+           <span class="n">msk_fore</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">binary_dilation</span><span class="p">(</span><span class="n">msk_fore</span><span class="p">)</span>
+       <span class="k">for</span> <span class="n">ir</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">growthcycles</span><span class="p">):</span>
+           <span class="n">msk_fore</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span><span class="n">msk_fore</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">msk_fore</span>
 
-<span class="k">def</span> <span class="nf">get_masks</span><span class="p">(</span><span class="n">masklist</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_masks</span><span class="p">(</span><span class="n">masklist</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">growthcycles</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
     <span class="n">nF</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">masklist</span><span class="p">)</span>
     <span class="n">masks</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">nF</span>
     <span class="k">for</span> <span class="n">iF</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nF</span><span class="p">):</span>
         <span class="n">file_ilastik</span><span class="o">=</span><span class="n">masklist</span><span class="p">[</span><span class="n">iF</span><span class="p">]</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;loading &#39;</span><span class="o">+</span><span class="n">file_ilastik</span><span class="p">)</span>
-        <span class="n">msk</span><span class="o">=</span><span class="n">get_mask_2channel_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="n">fore_channel</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="n">holefill_area</span><span class="p">)</span>
+        <span class="n">msk</span><span class="o">=</span><span class="n">get_mask_2channel_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="n">fore_channel</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="n">holefill_area</span><span class="p">,</span><span class="n">growthcycles</span><span class="o">=</span><span class="n">growthcycles</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="n">pcut</span><span class="p">)</span>
         <span class="n">masks</span><span class="p">[</span><span class="n">iF</span><span class="p">]</span><span class="o">=</span><span class="n">msk</span>
     <span class="k">return</span> <span class="n">masks</span>
 
@@ -414,7 +422,7 @@
     <span class="k">return</span> <span class="n">cell_intensities</span>
 
 <div class="viewcode-block" id="get_registrations"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.get_registrations">[docs]</a><span class="k">def</span> <span class="nf">get_registrations</span><span class="p">(</span><span class="n">imgs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Apply pystackreg to get registrations along image stack</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply pystackreg to get registrations along image stack</span>
 <span class="sd">    :param imgs: images (Z,X,Y), registration along Z</span>
 <span class="sd">    :type imgs: ndarray</span>
 <span class="sd">    :return: set of transformations to register image stack, with the triplet (radial angle, x-translation, y-translation) for each image</span>
@@ -464,7 +472,7 @@
     <span class="k">return</span> <span class="n">img</span>
 
 <div class="viewcode-block" id="expand_registered_images"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.expand_registered_images">[docs]</a><span class="k">def</span> <span class="nf">expand_registered_images</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">tSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Apply transformations to a stack of images and expand images so they align</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply transformations to a stack of images and expand images so they align</span>
 <span class="sd">    :param imgs: images (Z,X,Y), registration along Z tSet: transformations for each image (angle, x-trans, y-trans)</span>
 <span class="sd">    :type imgs: ndarray or list of images (each image same size) tSet: ndarray (NZ, 3)</span>
 <span class="sd">    :return: expanded and registered image stack</span>
@@ -493,7 +501,86 @@
         <span class="n">imgst</span><span class="p">[</span><span class="n">iS</span><span class="p">,:,:]</span><span class="o">=</span><span class="n">img</span>
     <span class="k">return</span> <span class="n">imgst</span></div>
 
+<span class="k">def</span> <span class="nf">save_frame_h5</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">img</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">msks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fmsk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">timestamp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">iS</span><span class="o">=</span><span class="n">frame</span>
+    <span class="k">if</span> <span class="n">timestamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">timestamp</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">=</span><span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dsetName</span><span class="o">=</span><span class="s2">&quot;/images/img_</span><span class="si">%d</span><span class="s2">/image&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">iS</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">dsetName</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
+            <span class="n">dset</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">img</span>
+            <span class="n">dset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">timestamp</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;image &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">iS</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; exists</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">overwrite</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">f</span><span class="p">[</span><span class="n">dsetName</span><span class="p">]</span>
+                <span class="n">dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">dsetName</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
+                <span class="n">dset</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">img</span>
+                <span class="n">dset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">timestamp</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    ...overwritten</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">msks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dsetName</span><span class="o">=</span><span class="s2">&quot;/images/img_</span><span class="si">%d</span><span class="s2">/mask&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">iS</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">dsetName</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">msks</span><span class="p">))</span>
+            <span class="n">dset</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">msks</span>
+            <span class="n">dset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">timestamp</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;mask &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">iS</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; exists</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">overwrite</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">f</span><span class="p">[</span><span class="n">dsetName</span><span class="p">]</span>
+                <span class="n">dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">dsetName</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">msks</span><span class="p">))</span>
+                <span class="n">dset</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">msks</span>
+                <span class="n">dset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">timestamp</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    ...overwritten</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fmsk</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dsetName</span><span class="o">=</span><span class="s2">&quot;/images/img_</span><span class="si">%d</span><span class="s2">/fmsk&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">iS</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">dsetName</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">fmsk</span><span class="p">))</span>
+            <span class="n">dset</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">fmsk</span>
+            <span class="n">dset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">timestamp</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;fmsk &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">iS</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; exists</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">overwrite</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">f</span><span class="p">[</span><span class="n">dsetName</span><span class="p">]</span>
+                <span class="n">dset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">dsetName</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">fmsk</span><span class="p">))</span>
+                <span class="n">dset</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">fmsk</span>
+                <span class="n">dset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">timestamp</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    ...overwritten</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
+<span class="k">def</span> <span class="nf">get_linear_coef</span><span class="p">(</span><span class="n">counts0</span><span class="p">,</span><span class="n">countsA</span><span class="p">,</span><span class="n">countsB</span><span class="p">,</span><span class="n">countsAB</span><span class="p">):</span>
+    <span class="n">regress_linear</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">(</span><span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">regress_linear</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">countsA</span><span class="p">,</span><span class="n">countsB</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">countsAB</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">regress_linear</span><span class="o">.</span><span class="n">coef_</span>
+
+<span class="k">def</span> <span class="nf">get_linear_batch_normalization</span><span class="p">(</span><span class="n">feat0_all</span><span class="p">,</span><span class="n">feat1_all</span><span class="p">,</span><span class="n">nbins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">return_coef</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">stdcut</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span> <span class="c1">#fit linear normalization feat1=a*feat0+b from histogram</span>
+    <span class="n">feat1</span><span class="o">=</span><span class="n">feat1_all</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">feat1_all</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">feat1_all</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">feat1_all</span><span class="p">))</span><span class="o">&lt;</span><span class="n">stdcut</span><span class="p">]</span>
+    <span class="n">feat0</span><span class="o">=</span><span class="n">feat0_all</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">feat0_all</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">feat0_all</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">feat0_all</span><span class="p">))</span><span class="o">&lt;</span><span class="n">stdcut</span><span class="p">]</span>
+    <span class="n">bins_feat</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat0</span><span class="p">,</span><span class="n">feat1</span><span class="p">)),</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat0</span><span class="p">,</span><span class="n">feat1</span><span class="p">)),</span><span class="n">nbins</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">prob0</span><span class="p">,</span><span class="n">bins0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">feat0</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="n">bins_feat</span><span class="p">)</span>
+    <span class="n">prob1</span><span class="p">,</span><span class="n">bins1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">feat1</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="n">bins0</span><span class="p">)</span>
+    <span class="n">cprob0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">prob0</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">prob0</span><span class="p">));</span> <span class="n">cprob1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">prob1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">prob1</span><span class="p">))</span>
+    <span class="n">bins</span><span class="o">=</span><span class="mf">.5</span><span class="o">*</span><span class="n">bins0</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mf">.5</span><span class="o">*</span><span class="n">bins0</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">cbins_edges</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cprob0</span><span class="p">,</span><span class="n">cprob1</span><span class="p">)),</span><span class="mi">1</span><span class="p">,</span><span class="n">nbins</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">cbins</span><span class="o">=</span><span class="mf">.5</span><span class="o">*</span><span class="n">cbins_edges</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mf">.5</span><span class="o">*</span><span class="n">cbins_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">inv_cprob1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nbins</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ibin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbins</span><span class="p">):</span>
+        <span class="n">imatch</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cprob1</span><span class="o">-</span><span class="n">cbins</span><span class="p">[</span><span class="n">ibin</span><span class="p">]))</span>
+        <span class="n">inv_cprob1</span><span class="p">[</span><span class="n">ibin</span><span class="p">]</span><span class="o">=</span><span class="n">bins</span><span class="p">[</span><span class="n">imatch</span><span class="p">]</span>
+    <span class="n">inds_bins_cprob0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">feat0</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bins_feat</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">))</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">cprob1_feat0</span><span class="o">=</span><span class="n">cprob0</span><span class="p">[</span><span class="n">inds_bins_cprob0</span><span class="p">]</span>
+    <span class="n">inds_bins_inv_cprob1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">cprob1_feat0</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cbins_edges</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">))</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">feat1_est</span><span class="o">=</span><span class="n">inv_cprob1</span><span class="p">[</span><span class="n">inds_bins_inv_cprob1</span><span class="p">]</span>
+    <span class="n">regress_linear</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">(</span><span class="n">fit_intercept</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">regress_linear</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">feat1_est</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">feat0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_coef</span><span class="p">:</span>
+        <span class="n">a</span><span class="o">=</span><span class="n">regress_linear</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">b</span><span class="o">=</span><span class="n">regress_linear</span><span class="o">.</span><span class="n">intercept_</span>
+        <span class="k">return</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">regress_linear</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">feat0_all</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
 </pre></div>
 
            </div>

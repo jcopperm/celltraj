@@ -18,9 +18,13 @@ dependencies:
  - mahotas
  - umap-learn
  - pytorch
+ - pandas
+
  - pip:
    - csaps
    - pystackreg
    - pygpcca
    - cellpose
    - sklearn
+   - btrack
+   - adjustText

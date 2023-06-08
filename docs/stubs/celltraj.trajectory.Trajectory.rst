@@ -38,6 +38,7 @@
       ~Trajectory.get_borders
       ~Trajectory.get_bunch_clusters
       ~Trajectory.get_cc_cs_border
+      ~Trajectory.get_cdist2d
       ~Trajectory.get_cell_blocks
       ~Trajectory.get_cell_boundary_size
       ~Trajectory.get_cell_bunches
@@ -67,6 +68,7 @@
       ~Trajectory.get_imageSet_trans_turboreg
       ~Trajectory.get_image_data
       ~Trajectory.get_kscore
+      ~Trajectory.get_lineage_btrack
       ~Trajectory.get_lineage_bunch_overlap
       ~Trajectory.get_lineage_mindist
       ~Trajectory.get_minRT

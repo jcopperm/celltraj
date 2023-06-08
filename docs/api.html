@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>API Reference &mdash; celltraj 0.0 documentation</title>
@@ -12,10 +12,8 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -28,14 +26,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> celltraj
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            celltraj
           </a>
               <div class="version">
                 0.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -48,7 +50,20 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.trajectory.Trajectory.html">celltraj.trajectory.Trajectory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.trajectory.TrajectorySet.html">celltraj.trajectory.TrajectorySet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.imageprep.html">celltraj.imageprep</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.translate.html">celltraj.translate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.list_images"><code class="docutils literal notranslate"><span class="pre">list_images()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.organize_filelist_fov"><code class="docutils literal notranslate"><span class="pre">organize_filelist_fov()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.organize_filelist_time"><code class="docutils literal notranslate"><span class="pre">organize_filelist_time()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.znorm"><code class="docutils literal notranslate"><span class="pre">znorm()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.histogram_stretch"><code class="docutils literal notranslate"><span class="pre">histogram_stretch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.get_images"><code class="docutils literal notranslate"><span class="pre">get_images()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.get_tile_order"><code class="docutils literal notranslate"><span class="pre">get_tile_order()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.get_slide_image"><code class="docutils literal notranslate"><span class="pre">get_slide_image()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.load_ilastik"><code class="docutils literal notranslate"><span class="pre">load_ilastik()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.get_registrations"><code class="docutils literal notranslate"><span class="pre">get_registrations()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.expand_registered_images"><code class="docutils literal notranslate"><span class="pre">expand_registered_images()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
@@ -69,8 +84,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>API Reference</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -83,15 +98,17 @@
   <section id="api-reference">
 <h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this heading">¶</a></h1>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/syncell.trajectory.Trajectory.html#celltraj.trajectory.Trajectory" title="celltraj.trajectory.Trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.trajectory.Trajectory</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#module-celltraj.trajectory.Trajectory" title="celltraj.trajectory.Trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.trajectory.Trajectory</span></code></a></p></td>
 <td><p>A toolset for single-cell trajectory modeling.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/syncell.imageprep.html#module-celltraj.imageprep" title="celltraj.imageprep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.imageprep</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#module-celltraj.trajectory.TrajectorySet" title="celltraj.trajectory.TrajectorySet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.trajectory.TrajectorySet</span></code></a></p></td>
+<td><p>A toolset for single-cell trajectory modeling over multiple trajectory objects.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#module-celltraj.imageprep" title="celltraj.imageprep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.imageprep</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/celltraj.translate.html#module-celltraj.translate" title="celltraj.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.translate</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -105,18 +122,27 @@
 <p>Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
 Morphodynamical cell-state description via live-cell imaging trajectory embedding.
 Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
+<span class="target" id="module-celltraj.trajectory.TrajectorySet"></span><p>A toolset for single-cell trajectory modeling over multiple trajectory objects. See:</p>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>This code, currently, should be considered as an untested pre-release version</p>
+</div>
+<p class="rubric">References</p>
+<p>Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
+Morphodynamical cell-state description via live-cell imaging trajectory embedding.
+Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="target" id="module-celltraj.imageprep"></span><dl class="py function">
 <dt class="sig sig-object py" id="celltraj.imageprep.list_images">
 <span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">list_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imagespecifier</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#list_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.list_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>list images in a directory matching a pattern..</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>imagepath</strong> (<em>string filespecifier string</em>) – directory :param filespecifier pattern to match for image files</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>list of matching imagefiles</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of strings</p>
 </dd>
 </dl>
@@ -127,13 +153,13 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">organize_filelist_fov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#organize_filelist_fov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.organize_filelist_fov" title="Permalink to this definition">¶</a></dt>
 <dd><p>Organize imagefiles in a list to field of view.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filelist</strong> (<em>list of strings fov_pos: int fov_len: int</em>) – list of image files :param fov_pos: string position of fov specifier :param fov_len: length of fov speficier</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filelist</strong> (<em>list</em><em> of </em><em>strings fov_pos: int fov_len: int</em>) – list of image files :param fov_pos: string position of fov specifier :param fov_len: length of fov speficier</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>list of imagefiles organized by fov (increasing)</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of strings</p>
 </dd>
 </dl>
@@ -144,13 +170,13 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">organize_filelist_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#organize_filelist_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.organize_filelist_time" title="Permalink to this definition">¶</a></dt>
 <dd><p>Organize imagefiles in a list to timestamp ??d??h??m.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filelist</strong> (<em>list of strings fov_pos: int fov_len: int</em>) – list of image files</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filelist</strong> (<em>list</em><em> of </em><em>strings fov_pos: int fov_len: int</em>) – list of image files</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>list of imagefiles organized by fov (increasing)</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of strings</p>
 </dd>
 </dl>
@@ -161,13 +187,13 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">znorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#znorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.znorm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Variance normalization (z-norm) of an array or image)..</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>img</strong> – array or image</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>z-normed array</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>real array</p>
 </dd>
 </dl>
@@ -178,13 +204,13 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">histogram_stretch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">99</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#histogram_stretch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.histogram_stretch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Histogram stretch of an array or image for normalization..</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>img</strong> – array or image</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>histogram stretched array</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>real array</p>
 </dd>
 </dl>
@@ -195,13 +221,13 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">get_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#get_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.get_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get images from list of files.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filelist</strong> (<em>list of strings</em>) – list of image files</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filelist</strong> (<em>list</em><em> of </em><em>strings</em>) – list of image files</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>list of images</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of arrays</p>
 </dd>
 </dl>
@@ -220,10 +246,10 @@ snake: snake across whole image (left to right, right to left, left to right…)
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.imageprep.get_slide_image">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">get_slide_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">foverlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">histnorm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#get_slide_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.get_slide_image" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">get_slide_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_inds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">foverlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">histnorm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#get_slide_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.get_slide_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct slide image from a set of tiles (fields of view).
 Ordering from (get_tile_order).
-:param imgs: list of images nrows: number of rows, default assumes a square tiling (36 images = 8 rows x 8 cols)
+:param imgs: list of images nrows: number of rows, default assumes a square tiling (64 images = 8 rows x 8 cols)
 ncols: number of columns foverlap: fraction of overlap between images
 :type imgs: list of 2D images (2D arrays) nrows: int ncols: int foverlap: float
 :return: constructed slide image from image tiles
@@ -260,7 +286,7 @@ ncols: number of columns foverlap: fraction of overlap between images
 :rtype: ndarray (NZ, X, Y)</p>
 </dd></dl>
 
-</section>
+<span class="target" id="module-celltraj.translate"></span></section>
 
 
            </div>

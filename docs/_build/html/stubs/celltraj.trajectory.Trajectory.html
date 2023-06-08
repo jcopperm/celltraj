@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>celltraj.trajectory.Trajectory &mdash; celltraj 0.0 documentation</title>
@@ -12,14 +12,12 @@
   <![endif]-->
   
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="celltraj.imageprep" href="celltraj.imageprep.html" />
+    <link rel="next" title="celltraj.trajectory.TrajectorySet" href="celltraj.trajectory.TrajectorySet.html" />
     <link rel="prev" title="API Reference" href="../api.html" /> 
 </head>
 
@@ -28,14 +26,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> celltraj
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            celltraj
           </a>
               <div class="version">
                 0.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -47,8 +49,26 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">celltraj.trajectory.Trajectory</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">celltraj.trajectory.Trajectory</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.trajectory.Trajectory"><code class="docutils literal notranslate"><span class="pre">Trajectory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.__init__"><code class="docutils literal notranslate"><span class="pre">Trajectory.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="celltraj.trajectory.TrajectorySet.html">celltraj.trajectory.TrajectorySet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="celltraj.imageprep.html">celltraj.imageprep</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.list_images"><code class="docutils literal notranslate"><span class="pre">list_images()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.organize_filelist_fov"><code class="docutils literal notranslate"><span class="pre">organize_filelist_fov()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.organize_filelist_time"><code class="docutils literal notranslate"><span class="pre">organize_filelist_time()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.znorm"><code class="docutils literal notranslate"><span class="pre">znorm()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.histogram_stretch"><code class="docutils literal notranslate"><span class="pre">histogram_stretch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.get_images"><code class="docutils literal notranslate"><span class="pre">get_images()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.get_tile_order"><code class="docutils literal notranslate"><span class="pre">get_tile_order()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.get_slide_image"><code class="docutils literal notranslate"><span class="pre">get_slide_image()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.load_ilastik"><code class="docutils literal notranslate"><span class="pre">load_ilastik()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.get_registrations"><code class="docutils literal notranslate"><span class="pre">get_registrations()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.expand_registered_images"><code class="docutils literal notranslate"><span class="pre">expand_registered_images()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
@@ -69,9 +89,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API Reference</a> &raquo;</li>
-      <li>celltraj.trajectory.Trajectory</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API Reference</a></li>
+      <li class="breadcrumb-item active">celltraj.trajectory.Trajectory</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/stubs/celltraj.trajectory.Trajectory.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -109,10 +129,6 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 
 <p class="rubric">Methods</p>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="syncell.trajectory.Trajectory.html#celltraj.trajectory.Trajectory.__init__" title="celltraj.trajectory.Trajectory.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
 <td><p>Work-in-progress init function. For now, just start adding attribute definitions in here. .. todo::.</p></td>
@@ -189,91 +205,97 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cc_cs_border</span></code>(mskcell, fmskcell[, bordersize])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_blocks</span></code>(msk[, minsize])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cdist2d</span></code>(prob1)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_boundary_size</span></code>(indcell[, msk, cpix])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_blocks</span></code>(msk[, minsize])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_bunches</span></code>(fmsk[, bunchcut])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_boundary_size</span></code>(indcell[, msk, cpix])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_data</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_bunches</span></code>(fmsk[, bunchcut])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_images</span></code>([indcells])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_data</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_neighborhood</span></code>(indcell[, bmsk, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_images</span></code>([indcells])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_positions</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_neighborhood</span></code>(indcell[, bmsk, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_trajectory</span></code>(cell_ind[, n_hist])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_positions</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cellborder_images</span></code>([indcells, bordersize])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_trajectory</span></code>(cell_ind[, n_hist])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_clean_mask</span></code>(msk[, minsize])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cellborder_images</span></code>([indcells, bordersize])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_comdx_features</span></code>([cell_inds])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_clean_mask</span></code>(msk[, minsize])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dmat</span></code>(x1[, x2])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_comdx_features</span></code>([cell_inds])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dmatF_row</span></code>([rows])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dmat</span></code>(x1[, x2])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dmatRT_row</span></code>([rows])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dmatF_row</span></code>([rows])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dx</span></code>(i1)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dmatRT_row</span></code>([rows])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dx_alpha</span></code>([cell_inds, thbins, nth, rcut])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dx</span></code>(i1)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dx_rdf</span></code>([cell_inds, rbins, nr, rmax])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dx_alpha</span></code>([cell_inds, thbins, nth, rcut])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dx_tcf</span></code>([trajectories])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dx_rdf</span></code>([cell_inds, rbins, nr, rmax])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dx_theta</span></code>([cell_inds, thbins, nth, rcut])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dx_tcf</span></code>([trajectories])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_embedding</span></code>([sigma, k, nN, inds])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dx_theta</span></code>([cell_inds, thbins, nth, rcut])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_entropy_production</span></code>([clusters, Mt, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_embedding</span></code>([sigma, k, nN, inds])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_fmaskSet</span></code>(start_frame, end_frame)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_entropy_production</span></code>([clusters, Mt, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_fmask_data</span></code>(n_frame)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_fmaskSet</span></code>(start_frame, end_frame)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_fmask_data</span></code>(n_frame)</p></td>
 <td><p>Returns a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">bluepy.blte.Service</span></code> objects representing the services offered by the device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_frames</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_frames</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_imageSet</span></code>(start_frame, end_frame)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_imageSet</span></code>(start_frame, end_frame)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_imageSet_trans</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_imageSet_trans</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_imageSet_trans_turboreg</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_imageSet_trans_turboreg</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_image_data</span></code>(n_frame)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_image_data</span></code>(n_frame)</p></td>
 <td><p>Example function with PEP 484 type annotations.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_kscore</span></code>(Mt[, eps])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_kscore</span></code>(Mt[, eps])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lineage_btrack</span></code>([distcut, framewindow, ...])</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lineage_bunch_overlap</span></code>([distcut, ...])</p></td>
@@ -352,7 +374,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize</span></code>(fileSpecifier, modelName)</p></td>
-<td><p>Returns a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">bluepy.blte.Service</span></code> objects representing the services offered by the device.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pad_image</span></code>(img, maxedge)</p></td>
 <td><p></p></td>
@@ -410,7 +432,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../api.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="celltraj.imageprep.html" class="btn btn-neutral float-right" title="celltraj.imageprep" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="celltraj.trajectory.TrajectorySet.html" class="btn btn-neutral float-right" title="celltraj.trajectory.TrajectorySet" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
