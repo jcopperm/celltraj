@@ -1,0 +1,31 @@
+name: celltraj3d_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+ - python=3.9
+ - numpy
+ - h5py
+ - matplotlib
+ - pyemma
+ - sphinx_rtd_theme
+ - Sphinx
+ - pytest
+ - scipy
+ - pip
+ - scikit-image
+ - scipy
+ - mahotas
+ - umap-learn
+ - pytorch
+ - pandas
+
+ - pip:
+   - csaps
+   - pystackreg
+   - pygpcca
+   - cellpose
+   - sklearn
+   - btrack
+   - adjustText
+   - open3d
