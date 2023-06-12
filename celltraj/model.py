@@ -33,7 +33,7 @@ Jeremy Copperman, Ian McLean, Young Hwan Chang, Laura M. Heiser, and Daniel M. Z
 Morphodynamical and gene expression trajectories of cell state change..
 Manuscript in preparation.
 """
-def get_transition_matrix(self,x0,x1,clusters):
+def get_transition_matrix(x0,x1,clusters):
 	n_clusters=clusters.clustercenters.shape[0]
 	indc0=clusters.assign(x0)
 	indc1=clusters.assign(x1)
@@ -47,10 +47,9 @@ def get_transition_matrix(self,x0,x1,clusters):
 			Mt[iR,:]=Mt[iR,:]/sM[iR]
 		if sM[iR]==0.0:
 			Mt[iR,iR]=1.0
-	self.Mt=Mt
 	return Mt
 
-def get_transition_matrix_CG(self,x0,x1,clusters,states):
+def get_transition_matrix_CG(x0,x1,clusters,states):
 	n_clusters=clusters.clustercenters.shape[0]
 	n_states=np.max(states)+1
 	indc0=states[clusters.assign(x0)]
