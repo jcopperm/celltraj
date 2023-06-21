@@ -10,6 +10,7 @@ API Reference
    celltraj.trajectory.Trajectory
    celltraj.trajectory.TrajectorySet
    celltraj.imageprep
+   celltraj.imageprep3d
    celltraj.translate
    celltraj.model
    celltraj.utilities
