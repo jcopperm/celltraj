@@ -423,54 +423,60 @@ def expand_registered_images(imgs,tSet):
         imgst[iS,:,:]=img
     return imgst
 
-def save_frame_h5(filename,frame,img=None,msks=None,fmsk=None,overwrite=False,timestamp=None):
-    iS=frame
+def save_frame_h5(filename, frame, img=None, fmsk=None, cmsk=None, overwrite=False, timestamp=None):
+    iS = frame
     if timestamp is None:
-        timestamp=float(frame)
-    f=h5py.File(filename,'a')
-    if img is not None:
-        dsetName="/images/img_%d/image" % int(iS)
-        try:
-            dset = f.create_dataset(dsetName, np.shape(img))
-            dset[:] = img
-            dset.attrs['time']=timestamp
-        except:
-            sys.stdout.write('image '+str(iS)+' exists\n')
-            if overwrite:
-                del f[dsetName]
+        timestamp = float(frame)
+      
+    with h5py.File(filename, 'a') as f:
+          
+         if img is not None:
+            dsetName = "/images/img_%d/img" % int(iS)
+            try:
                 dset = f.create_dataset(dsetName, np.shape(img))
                 dset[:] = img
-                dset.attrs['time']=timestamp
-                sys.stdout.write('    ...overwritten\n')
-    if msks is not None:
-        dsetName="/images/img_%d/mask" % int(iS)
-        try:
-            dset = f.create_dataset(dsetName, np.shape(msks))
-            dset[:] = msks
-            dset.attrs['time']=timestamp
-        except:
-            sys.stdout.write('mask '+str(iS)+' exists\n')
-            if overwrite:
-                del f[dsetName]
-                dset = f.create_dataset(dsetName, np.shape(msks))
-                dset[:] = msks
-                dset.attrs['time']=timestamp
-                sys.stdout.write('    ...overwritten\n')
-    if fmsk is not None:
-        dsetName="/images/img_%d/fmsk" % int(iS)
-        try:
-            dset = f.create_dataset(dsetName, np.shape(fmsk))
-            dset[:] = fmsk
-            dset.attrs['time']=timestamp
-        except:
-            sys.stdout.write('fmsk '+str(iS)+' exists\n')
-            if overwrite:
-                del f[dsetName]
+                dset.attrs['time'] = timestamp
+            except:
+                sys.stdout.write('img '+str(iS)+' exists\n')
+            
+                if overwrite:
+                   del f[dsetName]
+                   dset = f.create_dataset(dsetName, np.shape(img))
+                   dset[:] = img
+                   dset.attrs['time'] = timestamp
+                   sys.stdout.write('    ...overwritten\n')
+                                           							 
+         if fmsk is not None:
+            dsetName = "/images/img_%d/fmsk" % int(iS)
+            try:
                 dset = f.create_dataset(dsetName, np.shape(fmsk))
                 dset[:] = fmsk
-                dset.attrs['time']=timestamp
-                sys.stdout.write('    ...overwritten\n')
-    f.close()
+                dset.attrs['time'] = timestamp
+            except:
+                sys.stdout.write('fmsk '+str(iS)+' exists\n')
+            
+                if overwrite:
+                   del f[dsetName]
+                   dset = f.create_dataset(dsetName, np.shape(fmsk))
+                   dset[:] = fmsk
+                   dset.attrs['time'] = timestamp
+                   sys.stdout.write('    ...overwritten\n')
+     
+         if cmsk is not None:
+            dsetName = "/images/img_%d/cmsk" % int(iS)
+            try:
+                dset = f.create_dataset(dsetName, np.shape(cmsk))
+                dset[:] = cmsk
+                dset.attrs['time'] = timestamp
+            except:
+                sys.stdout.write('cmsk '+str(iS)+' exists\n')
+            
+                if overwrite:
+                   del f[dsetName]
+                   dset = f.create_dataset(dsetName, np.shape(cmsk))
+                   dset[:] = cmsk
+                   dset.attrs['time'] = timestamp
+                   sys.stdout.write('    ...overwritten\n')
 
 def get_linear_coef(counts0,countsA,countsB,countsAB):
     regress_linear = LinearRegression(fit_intercept=False)
