@@ -238,69 +238,209 @@ def get_masks(masklist,fore_channel=0,holefill_area=0,growthcycles=0,pcut=0.8):
         masks[iF]=msk
     return masks
 
-def local_threshold(imgr,imgM=None,pcut=None,histnorm=False,fnuc=0.3,block_size=51,z_std=1.):
-    nx=np.shape(imgr)[0]
-    ny=np.shape(imgr)[1]
-    if histnorm:
-        imgr=histogram_stretch(imgr)
-    prob_nuc,bins_nuc=np.histogram(imgr.flatten()-np.mean(imgr),100)
-    prob_nuc=np.cumsum(prob_nuc/np.sum(prob_nuc))
-    if pcut is None:
-        if imgM is None:
-            nuc_thresh=z_std*np.std(imgr)
-            print('Using a cutoff of {} from variance stabilization. Provide a cutoff value (pcut) or a foreground mask for threshold estimation'.format(nuc_thresh))
-        else:
-            pcut=1.-fnuc*np.sum(imgM)/(nx*ny) #fraction of foreground pixels in nuc sites
-            nuc_thresh=bins_nuc[np.argmin(np.abs(prob_nuc-pcut))]
+def local_threshold(imgr,block_size=51,z_std=1.):
+    nuc_thresh=z_std*np.std(imgr)
     local_thresh = threshold_local(imgr, block_size, offset=-nuc_thresh)
     b_imgr = imgr > local_thresh
     return b_imgr
 
-def get_labeled_mask(b_imgr,imgM=None,apply_watershed=False,fill_holes=True):
+def get_labeled_mask(b_imgr,imgM=None,apply_watershed=False,fill_holes=True,dist_footprint=None,zscale=None):
     if imgM is None:
         pass
     else:
         indBackground=np.where(np.logical_not(imgM))
         b_imgr[indBackground]=False
     if fill_holes:
-        b_imgr=ndimage.binary_fill_holes(b_imgr)
-    if apply_watershed:
-        d_imgr = ndimage.distance_transform_edt(b_imgr)
-        local_maxi = peak_local_max(d_imgr, indices=False, footprint=np.ones((3, 3)), labels=b_imgr)
-        #markers_nuc = ndimage.label(local_maxi)[0]
-        masks_nuc = watershed(-d_imgr, markers_nuc, mask=b_imgr)
+        if b_imgr.ndim==2:
+            b_imgr=ndimage.binary_fill_holes(b_imgr)
+        if b_imgr.ndim==3:
+            for iz in range(b_imgr.shape[0]):
+                b_imgr[iz,:,:]=ndimage.binary_fill_holes(b_imgr[iz,:,:])
     masks_nuc = ndimage.label(b_imgr)[0]
+    if apply_watershed:
+        if dist_footprint is None:
+            dist_footprint=3
+        if b_imgr.ndim==2:
+            footprint=np.ones((dist_footprint, dist_footprint))
+        if b_imgr.ndim==3:
+            if zscale is None:
+                zscale=1.
+        d_imgr = ndimage.distance_transform_edt(b_imgr)
+        local_maxi = peak_local_max(d_imgr, indices=False, footprint=footprint, labels=masks_nuc,num_peaks_per_label=2)
+        markers_nuc = ndimage.label(local_maxi)[0]
+        masks_nuc = watershed(-d_imgr, markers=markers_nuc, mask=b_imgr)
     return masks_nuc
 
-def clean_labeled_mask(masks_nuc,edge_buffer=5,mincelldim=5,maxcelldim=30,verbose=False):
-    minsize=mincelldim*mincelldim
-    maxsize=maxcelldim*maxcelldim
-    xmin=np.min(np.where(masks_nuc>0)[0]);xmax=np.max(np.where(masks_nuc>0)[0])
-    ymin=np.min(np.where(masks_nuc>0)[1]);ymax=np.max(np.where(masks_nuc>0)[1])
-    masks_nuc_trimmed=masks_nuc[xmin:xmax,:]; masks_nuc_trimmed=masks_nuc_trimmed[:,ymin:ymax]
-    masks_nuc_trimmed=clear_border(masks_nuc_trimmed,buffer_size=edge_buffer)
-    bmsk1=np.zeros_like(masks_nuc).astype(bool);bmsk2=np.zeros_like(masks_nuc).astype(bool)
-    bmsk1[xmin:xmax,:]=True
-    bmsk2[:,ymin:ymax]=True
-    indscenter=np.where(np.logical_and(bmsk1,bmsk2))
-    masks_nuc_edgeless=np.zeros_like(masks_nuc)
-    masks_nuc_edgeless[indscenter]=masks_nuc_trimmed.flatten()
-    masks_nuc=masks_nuc_edgeless
+def clean_labeled_mask(masks_nuc,remove_borders=False,edge_buffer=0,minsize=None,maxsize=None,verbose=False,fill_holes=True,selection='largest',test_map=None,test_cut=0.):
+    ndim=masks_nuc.ndim
+    if minsize is None:
+        minsize=0
+    if maxsize is None:
+        maxsize is np.inf
+    if remove_borders:
+        if ndim==2:
+            xmin=np.min(np.where(masks_nuc>0)[0]);xmax=np.max(np.where(masks_nuc>0)[0])
+            ymin=np.min(np.where(masks_nuc>0)[1]);ymax=np.max(np.where(masks_nuc>0)[1])
+            masks_nuc_trimmed=masks_nuc[xmin:xmax,:]; masks_nuc_trimmed=masks_nuc_trimmed[:,ymin:ymax]
+        if ndim==3:
+            xmin=np.min(np.where(masks_nuc>0)[1]);xmax=np.max(np.where(masks_nuc>0)[1])
+            ymin=np.min(np.where(masks_nuc>0)[2]);ymax=np.max(np.where(masks_nuc>0)[2])
+            masks_nuc_trimmed=masks_nuc[:,xmin:xmax,:]; masks_nuc_trimmed=masks_nuc_trimmed[:,:,ymin:ymax]
+        masks_nuc_trimmed=clear_border(masks_nuc_trimmed,buffer_size=edge_buffer)
+        bmsk1=np.zeros_like(masks_nuc).astype(bool);bmsk2=np.zeros_like(masks_nuc).astype(bool)
+        if ndim==2:
+            bmsk1[xmin:xmax,:]=True
+            bmsk2[:,ymin:ymax]=True
+        if ndim==3:
+            bmsk1[:,xmin:xmax,:]=True
+            bmsk2[:,:,ymin:ymax]=True
+        indscenter=np.where(np.logical_and(bmsk1,bmsk2))
+        masks_nuc_edgeless=np.zeros_like(masks_nuc)
+        masks_nuc_edgeless[indscenter]=masks_nuc_trimmed.flatten()
+        masks_nuc=masks_nuc_edgeless
     masks_nuc_clean=np.zeros_like(masks_nuc).astype(int)
     nc=1
-    for ic in range(1,int(np.max(masks_nuc))+1):
+    for ic in range(1,int(np.max(masks_nuc))+1): #size filtering
         mskc = masks_nuc==ic
-        indc=np.where(mskc)
-        npixc=np.sum(mskc)
-        if verbose:
-            if npixc<minsize:
-                print('cell '+str(ic)+' too small: '+str(npixc))
-            if npixc>maxsize:
-                print('cell '+str(ic)+' too big: '+str(npixc))
-        if npixc>minsize and npixc<maxsize:
-            masks_nuc_clean[indc]=nc
-            nc=nc+1
+        if np.sum(mskc)>0:
+            if fill_holes:
+                if mskc.ndim==2:
+                    mskc=ndimage.binary_fill_holes(mskc)
+                if mskc.ndim==3:
+                    for iz in range(mskc.shape[0]):
+                        mskc[iz,:,:]=ndimage.binary_fill_holes(mskc[iz,:,:])
+            labelsc = ndimage.label(mskc)[0]
+            largestCC = np.argmax(np.bincount(labelsc.flat)[1:])+1
+            if selection=='largest':
+                indc=np.where(labelsc == largestCC) #keep largest connected component
+            else:
+                indc=np.where(mskc)
+            npixc=indc[0].size
+            if verbose:
+                if npixc<minsize:
+                    print('cell '+str(ic)+' too small: '+str(npixc))
+                if npixc>maxsize:
+                    print('cell '+str(ic)+' too big: '+str(npixc))
+            if npixc>minsize and npixc<maxsize:
+                if test_map is None:
+                    masks_nuc_clean[indc]=nc
+                    nc=nc+1
+                if test_map is not None:
+                    test_sum=np.sum(test_map[indc])
+                    if test_sum>test_cut:
+                        masks_nuc_clean[indc]=nc
+                        nc=nc+1
+                    else:
+                        print('cell '+str(ic)+' has not enough value in test map: '+str(test_sum))    
     return masks_nuc_clean
+
+def get_feature_map(features,labels):
+    if features.size != np.max(labels):
+        print('feature size needs to match labels')
+    fmap=np.zeros_like(labels)
+    for ic in range(1,int(np.max(labels))+1): #size filtering
+        mskc = labels==ic
+        indc=np.where(mskc)
+        fmap[indc]=features[ic-1]
+    return fmap
+
+def get_voronoi_masks_fromcenters(nuc_centers,imgM,selection='closest'):
+    indBackground=np.where(np.logical_not(imgM))
+    nuc_clusters=pyemma.coordinates.clustering.AssignCenters(nuc_centers, metric='euclidean')
+    if imgM.ndim==2:
+        nx=imgM.shape[0]; ny=imgM.shape[1]
+        xx,yy=np.meshgrid(np.arange(nx),np.arange(ny),indexing='ij')
+        voronoi_masks=nuc_clusters.assign(np.array([xx.flatten(),yy.flatten()]).T).reshape(nx,ny)+1
+    if imgM.ndim==3:
+        nz=imgM.shape[0];nx=imgM.shape[1]; ny=imgM.shape[2]
+        zz,xx,yy=np.meshgrid(np.arange(nz),np.arange(nx),np.arange(ny),indexing='ij')
+        voronoi_masks=nuc_clusters.assign(np.array([zz.flatten(),xx.flatten(),yy.flatten()]).T).reshape(nz,nx,ny)+1
+    voronoi_masks[indBackground]=0
+    masks_cyto=np.zeros_like(voronoi_masks).astype(int)
+    for ic in range(1,int(np.max(voronoi_masks))+1):
+        mskc = voronoi_masks==ic
+        if np.sum(mskc)>0:
+            labelsc = ndimage.label(mskc)[0]
+            centers=np.array(ndimage.center_of_mass(mskc,labels=labelsc,index=np.arange(1,np.max(labelsc)+1).astype(int)))
+            nuc_center=nuc_centers[ic-1]
+            dists=np.linalg.norm(centers-nuc_center,axis=1)
+            closestCC=np.argmin(dists)+1
+            largestCC = np.argmax(np.bincount(labelsc.flat)[1:])+1
+            if closestCC != largestCC:
+                print('cell: '+str(ic)+' nchunks: '+str(centers.shape[0])+' closest: '+str(closestCC)+' largest: '+str(largestCC))
+            largestCC = np.argmax(np.bincount(labelsc.flat)[1:])+1
+            if selection=='closest':
+                indc=np.where(labelsc == closestCC)
+            elif selection=='largest':
+                indc=np.where(labelsc == largestCC)
+            else:
+                indc=indc
+            masks_cyto[indc]=ic
+    return masks_cyto
+
+def make_odd(x):
+     x=int(np.ceil((x + 1)/2)*2 - 1)
+     return x
+
+def get_intensity_centers(img,msk=None,footprint_shape=None,rcut=None,smooth_sigma=None,pad_zeros=True):
+    if msk is None:
+        msk=np.ones_like(img).astype(bool)
+    if footprint_shape is None:
+        sigma=np.ones(img.ndim).astype(int)
+        footprint_shape=tuple(np.ones(img.ndim).astype(int))
+    if pad_zeros==True:
+        img_copy=np.zeros((tuple(np.array(img.shape)+2*np.array(footprint_shape))))
+        img_copy[footprint_shape[0]:-footprint_shape[0],footprint_shape[1]:-footprint_shape[1],footprint_shape[2]:-footprint_shape[2]]=img
+        img=img_copy
+        msk_copy=np.zeros((tuple(np.array(msk.shape)+2*np.array(footprint_shape))))
+        msk_copy[footprint_shape[0]:-footprint_shape[0],footprint_shape[1]:-footprint_shape[1],footprint_shape[2]:-footprint_shape[2]]=msk
+        msk=msk_copy.astype(int)
+    if smooth_sigma is not None:
+        img=skimage.filters.gaussian(img,sigma=smooth_sigma)
+    local_maxi = peak_local_max(img, footprint=np.ones(np.ceil(np.asarray(footprint_shape)).astype(int)), labels=msk,exclude_border=False)
+    if rcut is not None:
+        close_inds=np.array([]).astype(int)
+        for imax in range(local_maxi.shape[0]):
+            dists=np.linalg.norm(local_maxi-local_maxi[imax,:],axis=1)
+            if np.sum(dists<rcut)>1:
+                indclose=np.where(dists<rcut)[0]
+                mean_loc=np.mean(local_maxi[indclose,:],axis=0).astype(int)
+                local_maxi[imax,:]=mean_loc
+                indclose=np.setdiff1d(indclose,imax)
+                close_inds=np.append(close_inds,indclose)
+                local_maxi[indclose,:]=sys.maxsize
+                #print(f'{imax} close to {indclose}')
+        indkeep=np.setdiff1d(np.arange(local_maxi.shape[0]).astype(int),close_inds)
+        local_maxi=local_maxi[indkeep,:]
+        local_maxi=local_maxi-np.array(footprint_shape)
+    return local_maxi
+
+def save_for_viewing(data,fname,metadata=None,overwrite=False):
+    data_object=[data,metadata]
+    if overwrite:
+        objFileHandler=open(fname,'wb')
+        pickle.dump(data,objFileHandler,protocol=4)
+        objFileHandler.close()
+        return 0
+    else:
+        try:
+            objFileHandler=open(fname,'xb')
+            pickle.dump(data,objFileHandler,protocol=4)
+            objFileHandler.close()
+            return 0
+        except:
+            print('file may exist, use overwrite=True')
+            return 1
+
+def load_for_viewing(fname):
+    try:
+        objFileHandler=open(fname,'rb')
+        datalist=pickle.load(states_object)
+        objFileHandler.close()
+        return datalist
+    except:
+        print('load fail')
+        return 1
 
 def get_voronoi_masks(labels,imgM=None):
     if imgM is None:
@@ -346,10 +486,10 @@ def get_cyto_minus_nuc_labels(labels_cyto,labels_nuc):
     labels_cyto_new[ind_nuc]=0
     return labels_cyto_new
 
-def get_cell_intensities(img,labels,averaging=False):
+def get_cell_intensities(img,labels,averaging=False,is_3D=False):
     ncells=np.max(labels)
     cell_intensities=np.zeros(ncells)
-    if img.ndim>2:
+    if not is_3D and img.ndim>2:
         cell_intensities=np.zeros((ncells,img.shape[2]))
         for i in range(1,ncells+1):
             indcell = np.where(labels==i) #picks out image pixels where each single-cell is labeled
@@ -358,7 +498,16 @@ def get_cell_intensities(img,labels,averaging=False):
                     cell_intensities[i-1,ichannel] = np.mean(img[indcell[0],indcell[1],ichannel])
                 else:
                     cell_intensities[i-1,ichannel] = np.sum(img[indcell[0],indcell[1],ichannel])
-    if img.ndim==2:
+    if is_3D and img.ndim>3:
+        cell_intensities=np.zeros((ncells,img.shape[3]))
+        for i in range(1,ncells+1):
+            indcell = np.where(labels==i) #picks out image pixels where each single-cell is labeled
+            for ichannel in range(img.shape[3]):
+                if averaging:
+                    cell_intensities[i-1,ichannel] = np.mean(img[indcell[0],indcell[1],indcell[2],ichannel])
+                else:
+                    cell_intensities[i-1,ichannel] = np.sum(img[indcell[0],indcell[1],indcell[2],ichannel])
+    else:
         cell_intensities=np.zeros(ncells)
         for i in range(1,ncells+1):
             indcell = np.where(labels==i) #picks out image pixels where each single-cell is labeled
@@ -448,7 +597,7 @@ def expand_registered_images(imgs,tSet):
         imgst[iS,:,:]=img
     return imgst
 
-def save_frame_h5(filename,frame,img=None,msks=None,fmsk=None,overwrite=False,timestamp=None):
+def save_frame_h5(filename,frame,img=None,msks=None,fmsk=None,features=None,overwrite=False,timestamp=None):
     iS=frame
     if timestamp is None:
         timestamp=float(frame)
@@ -470,29 +619,43 @@ def save_frame_h5(filename,frame,img=None,msks=None,fmsk=None,overwrite=False,ti
     if msks is not None:
         dsetName="/images/img_%d/mask" % int(iS)
         try:
-            dset = f.create_dataset(dsetName, np.shape(msks))
+            dset = f.create_dataset(dsetName, np.shape(msks),dtype='int16')
             dset[:] = msks
             dset.attrs['time']=timestamp
         except:
             sys.stdout.write('mask '+str(iS)+' exists\n')
             if overwrite:
                 del f[dsetName]
-                dset = f.create_dataset(dsetName, np.shape(msks))
+                dset = f.create_dataset(dsetName, np.shape(msks),dtype='int16')
                 dset[:] = msks
                 dset.attrs['time']=timestamp
                 sys.stdout.write('    ...overwritten\n')
     if fmsk is not None:
         dsetName="/images/img_%d/fmsk" % int(iS)
         try:
-            dset = f.create_dataset(dsetName, np.shape(fmsk))
+            dset = f.create_dataset(dsetName, np.shape(fmsk),dtype='bool')
             dset[:] = fmsk
             dset.attrs['time']=timestamp
         except:
             sys.stdout.write('fmsk '+str(iS)+' exists\n')
             if overwrite:
                 del f[dsetName]
-                dset = f.create_dataset(dsetName, np.shape(fmsk))
+                dset = f.create_dataset(dsetName, np.shape(fmsk),dtype='bool')
                 dset[:] = fmsk
+                dset.attrs['time']=timestamp
+                sys.stdout.write('    ...overwritten\n')
+    if features is not None:
+        dsetName="/images/img_%d/features" % int(iS)
+        try:
+            dset = f.create_dataset(dsetName, np.shape(features))
+            dset[:] = features
+            dset.attrs['time']=timestamp
+        except:
+            sys.stdout.write('features '+str(iS)+' exists\n')
+            if overwrite:
+                del f[dsetName]
+                dset = f.create_dataset(dsetName, np.shape(features))
+                dset[:] = features
                 dset.attrs['time']=timestamp
                 sys.stdout.write('    ...overwritten\n')
     f.close()
