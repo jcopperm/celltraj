@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = syncell
+SPHINXPROJ    = celltraj
 SOURCEDIR     = .
 BUILDDIR      = _build
 

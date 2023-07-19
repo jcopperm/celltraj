@@ -114,7 +114,7 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dist_to_contact</span></code>(r, r0, d0[, n, m])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../api_2.html#celltraj.imageprep.expand_registered_images" title="celltraj.imageprep.expand_registered_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expand_registered_images</span></code></a>(imgs, tSet)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api.html#celltraj.imageprep.expand_registered_images" title="celltraj.imageprep.expand_registered_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expand_registered_images</span></code></a>(imgs, tSet)</p></td>
 <td><p>Apply transformations to a stack of images and expand images so they align :param imgs: images (Z,X,Y), registration along Z tSet: transformations for each image (angle, x-trans, y-trans) :type imgs: ndarray or list of images (each image same size) tSet: ndarray (NZ, 3) :return: expanded and registered image stack :rtype: ndarray (NZ, X, Y)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_centers</span></code>(labels)</p></td>
@@ -132,7 +132,7 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_map</span></code>(features, labels)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../api_2.html#celltraj.imageprep.get_images" title="celltraj.imageprep.get_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_images</span></code></a>(filelist)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api.html#celltraj.imageprep.get_images" title="celltraj.imageprep.get_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_images</span></code></a>(filelist)</p></td>
 <td><p>Get images from list of files.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_intensity_centers</span></code>(img[, msk, ...])</p></td>
@@ -153,13 +153,13 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pair_rdf_fromcenters</span></code>(self, centers[, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../api_2.html#celltraj.imageprep.get_registrations" title="celltraj.imageprep.get_registrations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_registrations</span></code></a>(imgs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../api.html#celltraj.imageprep.get_registrations" title="celltraj.imageprep.get_registrations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_registrations</span></code></a>(imgs)</p></td>
 <td><p>Apply pystackreg to get registrations along image stack :param imgs: images (Z,X,Y), registration along Z :type imgs: ndarray :return: set of transformations to register image stack, with the triplet (radial angle, x-translation, y-translation) for each image :rtype: ndarray (NZ,3), NZ number of images along Z</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../api_2.html#celltraj.imageprep.get_slide_image" title="celltraj.imageprep.get_slide_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_slide_image</span></code></a>(imgs[, nrows, ncols, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api.html#celltraj.imageprep.get_slide_image" title="celltraj.imageprep.get_slide_image"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_slide_image</span></code></a>(imgs[, nrows, ncols, ...])</p></td>
 <td><p>Construct slide image from a set of tiles (fields of view).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../api_2.html#celltraj.imageprep.get_tile_order" title="celltraj.imageprep.get_tile_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tile_order</span></code></a>(nrows, ncols[, snake])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../api.html#celltraj.imageprep.get_tile_order" title="celltraj.imageprep.get_tile_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tile_order</span></code></a>(nrows, ncols[, snake])</p></td>
 <td><p>Construct ordering for to put together image tiles compatible with incell microscope.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_voronoi_masks</span></code>(labels[, imgM])</p></td>
@@ -168,16 +168,16 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_voronoi_masks_fromcenters</span></code>(nuc_centers, imgM)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../api_2.html#celltraj.imageprep.histogram_stretch" title="celltraj.imageprep.histogram_stretch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">histogram_stretch</span></code></a>(img[, lp, hp])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api.html#celltraj.imageprep.histogram_stretch" title="celltraj.imageprep.histogram_stretch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">histogram_stretch</span></code></a>(img[, lp, hp])</p></td>
 <td><p>Histogram stretch of an array or image for normalization..</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../api_2.html#celltraj.imageprep.list_images" title="celltraj.imageprep.list_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_images</span></code></a>(imagespecifier)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../api.html#celltraj.imageprep.list_images" title="celltraj.imageprep.list_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_images</span></code></a>(imagespecifier)</p></td>
 <td><p>list images in a directory matching a pattern..</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_for_viewing</span></code>(fname)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../api_2.html#celltraj.imageprep.load_ilastik" title="celltraj.imageprep.load_ilastik"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_ilastik</span></code></a>(file_ilastik)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../api.html#celltraj.imageprep.load_ilastik" title="celltraj.imageprep.load_ilastik"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_ilastik</span></code></a>(file_ilastik)</p></td>
 <td><p>Load ilastik prediction (pixel classification) from h5 file format.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_threshold</span></code>(imgr[, block_size, z_std])</p></td>
@@ -186,10 +186,10 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_odd</span></code>(x)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../api_2.html#celltraj.imageprep.organize_filelist_fov" title="celltraj.imageprep.organize_filelist_fov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">organize_filelist_fov</span></code></a>(filelist[, fov_pos, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api.html#celltraj.imageprep.organize_filelist_fov" title="celltraj.imageprep.organize_filelist_fov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">organize_filelist_fov</span></code></a>(filelist[, fov_pos, ...])</p></td>
 <td><p>Organize imagefiles in a list to field of view.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../api_2.html#celltraj.imageprep.organize_filelist_time" title="celltraj.imageprep.organize_filelist_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">organize_filelist_time</span></code></a>(filelist[, time_pos])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../api.html#celltraj.imageprep.organize_filelist_time" title="celltraj.imageprep.organize_filelist_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">organize_filelist_time</span></code></a>(filelist[, time_pos])</p></td>
 <td><p>Organize imagefiles in a list to timestamp ??d??h??m.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pad_image</span></code>(img, maxedgex, maxedgey)</p></td>
@@ -204,7 +204,7 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_image</span></code>(x1, t)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../api_2.html#celltraj.imageprep.znorm" title="celltraj.imageprep.znorm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">znorm</span></code></a>(img)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api.html#celltraj.imageprep.znorm" title="celltraj.imageprep.znorm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">znorm</span></code></a>(img)</p></td>
 <td><p>Variance normalization (z-norm) of an array or image)..</p></td>
 </tr>
 </tbody>

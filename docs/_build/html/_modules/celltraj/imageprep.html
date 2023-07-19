@@ -126,7 +126,7 @@
 <span class="sd">Manuscript in preparation.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="list_images"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.list_images">[docs]</a><span class="k">def</span> <span class="nf">list_images</span><span class="p">(</span><span class="n">imagespecifier</span><span class="p">):</span>
+<div class="viewcode-block" id="list_images"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.list_images">[docs]</a><span class="k">def</span> <span class="nf">list_images</span><span class="p">(</span><span class="n">imagespecifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;list images in a directory matching a pattern..</span>
 
 <span class="sd">    :param imagepath: directory :param filespecifier pattern to match for image files</span>
@@ -142,7 +142,7 @@
     <span class="n">fileList</span><span class="o">=</span><span class="n">fileList</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">fileList</span></div>
 
-<div class="viewcode-block" id="organize_filelist_fov"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.organize_filelist_fov">[docs]</a><span class="k">def</span> <span class="nf">organize_filelist_fov</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">fov_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fov_len</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<div class="viewcode-block" id="organize_filelist_fov"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.organize_filelist_fov">[docs]</a><span class="k">def</span> <span class="nf">organize_filelist_fov</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">fov_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fov_len</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Organize imagefiles in a list to field of view.</span>
 
 <span class="sd">    :param filelist: list of image files :param fov_pos: string position of fov specifier :param fov_len: length of fov speficier</span>
@@ -170,7 +170,7 @@
         <span class="n">filelist_sorted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filelist</span><span class="p">[</span><span class="n">indfovs</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
     <span class="k">return</span> <span class="n">filelist_sorted</span></div>
 
-<div class="viewcode-block" id="organize_filelist_time"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.organize_filelist_time">[docs]</a><span class="k">def</span> <span class="nf">organize_filelist_time</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">time_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="organize_filelist_time"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.organize_filelist_time">[docs]</a><span class="k">def</span> <span class="nf">organize_filelist_time</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">time_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Organize imagefiles in a list to timestamp ??d??h??m.</span>
 
 <span class="sd">    :param filelist: list of image files</span>
@@ -195,7 +195,7 @@
         <span class="n">filelist_sorted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filelist</span><span class="p">[</span><span class="n">indtimes</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
     <span class="k">return</span> <span class="n">filelist_sorted</span></div>
 
-<div class="viewcode-block" id="znorm"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.znorm">[docs]</a><span class="k">def</span> <span class="nf">znorm</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+<div class="viewcode-block" id="znorm"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.znorm">[docs]</a><span class="k">def</span> <span class="nf">znorm</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Variance normalization (z-norm) of an array or image)..</span>
 
 <span class="sd">    :param img: array or image</span>
@@ -206,7 +206,7 @@
     <span class="n">img</span><span class="o">=</span><span class="p">(</span><span class="n">img</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">img</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">img</span></div>
 
-<div class="viewcode-block" id="histogram_stretch"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.histogram_stretch">[docs]</a><span class="k">def</span> <span class="nf">histogram_stretch</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">lp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">hp</span><span class="o">=</span><span class="mi">99</span><span class="p">):</span>
+<div class="viewcode-block" id="histogram_stretch"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.histogram_stretch">[docs]</a><span class="k">def</span> <span class="nf">histogram_stretch</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">lp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">hp</span><span class="o">=</span><span class="mi">99</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Histogram stretch of an array or image for normalization..</span>
 
 <span class="sd">    :param img: array or image</span>
@@ -218,7 +218,7 @@
     <span class="n">img</span><span class="o">=</span><span class="p">(</span><span class="n">img</span><span class="o">-</span><span class="n">plow</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">phigh</span><span class="o">-</span><span class="n">plow</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">img</span></div>
 
-<div class="viewcode-block" id="get_images"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.get_images">[docs]</a><span class="k">def</span> <span class="nf">get_images</span><span class="p">(</span><span class="n">filelist</span><span class="p">):</span>
+<div class="viewcode-block" id="get_images"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_images">[docs]</a><span class="k">def</span> <span class="nf">get_images</span><span class="p">(</span><span class="n">filelist</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get images from list of files.</span>
 
 <span class="sd">    :param filelist: list of image files</span>
@@ -229,7 +229,7 @@
     <span class="n">imgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">skimage</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filelist</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">imgs</span></div>
 
-<div class="viewcode-block" id="get_tile_order"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.get_tile_order">[docs]</a><span class="k">def</span> <span class="nf">get_tile_order</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">,</span><span class="n">snake</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="get_tile_order"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_tile_order">[docs]</a><span class="k">def</span> <span class="nf">get_tile_order</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">,</span><span class="n">snake</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct ordering for to put together image tiles compatible with incell microscope.</span>
 <span class="sd">    :param nrows: number of rows ncols: number of columns </span>
 <span class="sd">    snake: snake across whole image (left to right, right to left, left to right...)</span>
@@ -244,7 +244,7 @@
                 <span class="n">image_inds</span><span class="p">[</span><span class="n">rowv</span><span class="p">,:]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">image_inds</span><span class="p">[</span><span class="n">rowv</span><span class="p">,:])</span>
     <span class="k">return</span> <span class="n">image_inds</span></div>
 
-<div class="viewcode-block" id="get_slide_image"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.get_slide_image">[docs]</a><span class="k">def</span> <span class="nf">get_slide_image</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">nrows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">image_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">foverlap</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">histnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="get_slide_image"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_slide_image">[docs]</a><span class="k">def</span> <span class="nf">get_slide_image</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">nrows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">image_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">foverlap</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">histnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct slide image from a set of tiles (fields of view). </span>
 <span class="sd">    Ordering from (get_tile_order).</span>
 <span class="sd">    :param imgs: list of images nrows: number of rows, default assumes a square tiling (64 images = 8 rows x 8 cols) </span>
@@ -280,7 +280,7 @@
         <span class="n">ws_img</span><span class="p">[</span><span class="n">lv</span><span class="p">:</span><span class="n">uv</span><span class="p">,</span><span class="n">lh</span><span class="p">:</span><span class="n">uh</span><span class="p">]</span><span class="o">=</span><span class="n">img</span>
     <span class="k">return</span> <span class="n">ws_img</span></div>
 
-<div class="viewcode-block" id="load_ilastik"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.load_ilastik">[docs]</a><span class="k">def</span> <span class="nf">load_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">):</span>
+<div class="viewcode-block" id="load_ilastik"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.load_ilastik">[docs]</a><span class="k">def</span> <span class="nf">load_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load ilastik prediction (pixel classification) from h5 file format.</span>
 <span class="sd">    :param file_ilastik: filename</span>
 <span class="sd">    :type file_ilastik: string</span>
@@ -596,7 +596,7 @@
                 <span class="n">cell_intensities</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="n">indcell</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">cell_intensities</span>
 
-<div class="viewcode-block" id="get_registrations"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.get_registrations">[docs]</a><span class="k">def</span> <span class="nf">get_registrations</span><span class="p">(</span><span class="n">imgs</span><span class="p">):</span>
+<div class="viewcode-block" id="get_registrations"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_registrations">[docs]</a><span class="k">def</span> <span class="nf">get_registrations</span><span class="p">(</span><span class="n">imgs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply pystackreg to get registrations along image stack</span>
 <span class="sd">    :param imgs: images (Z,X,Y), registration along Z</span>
 <span class="sd">    :type imgs: ndarray</span>
@@ -646,7 +646,7 @@
     <span class="n">img</span><span class="o">=</span><span class="n">img</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">maxedgex</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="n">maxedgey</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">img</span>
 
-<div class="viewcode-block" id="expand_registered_images"><a class="viewcode-back" href="../../api_2.html#celltraj.imageprep.expand_registered_images">[docs]</a><span class="k">def</span> <span class="nf">expand_registered_images</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">tSet</span><span class="p">):</span>
+<div class="viewcode-block" id="expand_registered_images"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.expand_registered_images">[docs]</a><span class="k">def</span> <span class="nf">expand_registered_images</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">tSet</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply transformations to a stack of images and expand images so they align</span>
 <span class="sd">    :param imgs: images (Z,X,Y), registration along Z tSet: transformations for each image (angle, x-trans, y-trans)</span>
 <span class="sd">    :type imgs: ndarray or list of images (each image same size) tSet: ndarray (NZ, 3)</span>
