@@ -23,6 +23,7 @@ from skimage import transform as tf
 from sklearn.linear_model import LinearRegression
 from scipy import ndimage
 from skimage.transform import resize,rescale
+import utilities
 
 """
 A toolset for single-cell trajectory modeling and multidomain translation. See:
@@ -596,6 +597,23 @@ def expand_registered_images(imgs,tSet):
         img=transform_image(img,tSet[iS])
         imgst[iS,:,:]=img
     return imgst
+
+def create_h5(filename,dic,overwrite=False):
+    if os.path.isfile(filename):
+        if not overwrite:
+            print(f'{filename} already exists!')
+            return 1
+        if overwrite:
+            f=h5py.File(filename,'w')
+    else:
+        f=h5py.File(filename,'x')
+    try:
+        utilities.save_dict_to_h5(dic,f,'/metadata/')
+        return 0
+    except Exception as error:
+        print(f'error saving {filename}: {error}')
+        f.close()
+        return 1
 
 def save_frame_h5(filename,frame,img=None,msks=None,fmsk=None,features=None,overwrite=False,timestamp=None):
     iS=frame

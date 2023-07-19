@@ -19,7 +19,6 @@ dependencies:
  - umap-learn
  - pytorch
  - pandas
- - napari
  - scikit-learn
  - pygpcca
 

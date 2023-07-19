@@ -14,6 +14,7 @@ dependencies:
  - scipy
  - pip
  - scikit-image
+ - scikit-learn
  - scipy
  - mahotas
  - umap-learn
@@ -24,7 +25,6 @@ dependencies:
    - csaps
    - pystackreg
    - pygpcca
-   - cellpose
-   - sklearn
    - btrack
    - adjustText
+   - cmapfile
