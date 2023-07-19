@@ -52,9 +52,9 @@ class cellPoseTraj():
         # print("Number of files = ", nF)
         self.nF = nF
         self.visual = False
-        self.maximum_cell_size = 250 #biggest linear edge of square holding a single cell image
+        self.maximum_cell_size = 250 # biggest linear edge of square holding a single cell image
         self.ntrans = 30
-        self.maxtrans = 60.0 #sqrt number of points and max value for brute force registration
+        self.maxtrans = 60.0 # sqrt number of points and max value for brute force registration
         
         try:
             self.get_image_data(1)
@@ -69,29 +69,38 @@ class cellPoseTraj():
         nF = self.nF
         timeList = np.array([])
         imgfileList = np.array([])
+        imgs = [None]*nF # Cell images (frames)
         cmsks = [None]*nF # Cell masks
+        fmsks = [None]*nF # Cell masks
         e_cmsks = np.zeros(nF)
         # Read Masks of multiple frames from a HDF5 file
         for iF in range(self.nF):
             fileName = self.fileList[iF]
             try:
                 with h5py.File(fileName, 'r') as dataIn:
-                     dsetName = "/images/img_%d/cmsk" % int(n_frame)
+                     dsetName = "/images/img_%d/image" % int(n_frame)
                      e = dsetName in dataIn
                      if e:
                         e_cmsks[iF] = 1
                         dset = dataIn[dsetName]
-                        cmsks[iF] = dset[:]
+                        imgs[iF] = dset[:]
                         time = dset.attrs['time']
+                        dsetName = "/images/img_%d/cmsk" % int(n_frame)
+                        dset = dataIn[dsetName]
+                        cmsks[iF] = dset[:]
                         timeList = np.append(timeList, time)
                         imgfileList = np.append(imgfileList, iF)  
             except:
                 sys.stdout.write('error in '+fileName+str(sys.exc_info()[0])+'\n')
         indcmsks = np.where(e_cmsks > 0)
+        imgs = np.array(imgs)
         cmsks = np.array(cmsks)
+        imgs = imgs[indcmsks]
         cmsks = cmsks[indcmsks]
         
         if cmsks.ndim < 3:
+            imgs = imgs[0]
+            imgs = np.expand_dims(imgs, axis=0)
             cmsks = cmsks[0]
             cmsks = np.expand_dims(cmsks, axis=0)
         
@@ -99,8 +108,10 @@ class cellPoseTraj():
             pass
         else:
             cmsks = cmsks[:,:,:,self.cmskchannel]
-        
         self.cmsks = cmsks
+        fmsks = cmsks > 0 # Compute foreground masks from whole cell masks that is where no background 
+        self.fmsks = fmsks 
+        self.imgs = imgs
         self.timeList = timeList
         self.imgfileList = imgfileList
 
@@ -136,7 +147,9 @@ class cellPoseTraj():
         sys.stdout.write('getting masks from frame: '+str(start_frame)+'...\n')
         # Get cell masks of each frame in an image stack
         self.get_image_data(start_frame) 
+        self.imgSet = self.imgs.copy()
         self.cmskSet = self.cmsks.copy()
+        self.fmskSet = self.fmsks.copy()
         self.imgfileSet = self.imgfileList.copy()
         self.frameSet = start_frame*np.ones_like(self.imgfileSet)
         self.timeSet = self.timeList.copy()
@@ -145,7 +158,9 @@ class cellPoseTraj():
         for iS in range(start_frame + 1, end_frame + 1):
             sys.stdout.write('getting masks from frame: '+str(iS)+'...\n')
             self.get_image_data(iS)
+            self.imgSet = np.append(self.imgSet, self.imgs, axis=0)
             self.cmskSet = np.append(self.cmskSet, self.cmsks, axis=0)
+            self.fmskSet = np.append(self.fmskSet, self.fmsks, axis=0)
             self.imgfileSet = np.append(self.imgfileSet, self.imgfileList)
             self.frameSet = np.append(self.frameSet, iS*np.ones_like(self.imgfileList))
             self.timeSet = np.append(self.timeSet, self.timeList)
@@ -177,6 +192,7 @@ class cellPoseTraj():
             sys.stdout.write('no image set: first call get_imageSet(start_frame, end_frame)\n')
         nImg = np.shape(self.cmskSet)[0]
         totalcells = 0
+        ncellsLastFrame = 0
         cells_frameSet = np.array([])
         cells_imgfileSet = np.array([])
         cells_indSet = np.array([])
@@ -187,6 +203,9 @@ class cellPoseTraj():
             msk = self.cmskSet[im]
             cellblocks = self.get_cell_blocks(msk)
             ncells = np.shape(cellblocks)[0]
+            ######### REPLACE GARBAGE IMAGE DATA DUE TO FEW BAD MICROSCOPY IMAGES #########
+            if im != 0:
+               ncells = self.replace_garbage_image_data(im, ncellsLastFrame, ncells) 
             totalcells = totalcells + ncells
             cells_frameSet = np.append(cells_frameSet, self.frameSet[im]*np.ones(ncells))
             cells_imgfileSet = np.append(cells_imgfileSet, self.imgfileSet[im]*np.ones(ncells))
@@ -194,11 +213,25 @@ class cellPoseTraj():
             cells_timeSet = np.append(cells_timeSet, self.timeSet[im]*np.ones(ncells))
             cells_indcmskSet = np.append(cells_indcmskSet, im*np.ones(ncells))
             sys.stdout.write('frame '+str(self.frameSet[im])+' file '+str(self.imgfileSet[im])+' with '+str(ncells)+' cells\n')
+            ncellsLastFrame = ncells
         self.cells_frameSet = cells_frameSet.astype(int)
         self.cells_imgfileSet = cells_imgfileSet.astype(int)
         self.cells_indSet = cells_indSet.astype(int)
         self.cells_indcmskSet = cells_indcmskSet.astype(int)
         self.cells_timeSet = cells_timeSet
+
+    ############# Replace garbage image & mask data with the previous one ################
+    def replace_garbage_image_data(self, frameID, ncellsLastFrame, ncellsCurrFrame):
+        
+        diffCells = abs(ncellsCurrFrame - ncellsLastFrame)
+        if diffCells > 50: 
+          self.imgSet[frameID, :, :] = self.imgSet[frameID-1, :, :]
+          self.cmskSet[frameID, :, :] = self.cmskSet[frameID-1, :, :]
+          print("Absolute cell number difference b/w two consecutive frames (images) = ",diffCells)
+          print("Replaced image and masks data of Frame ", frameID)
+          return ncellsLastFrame
+        else:
+          return ncellsCurrFrame
 
     def get_imageSet_trans_turboreg(self):
         nimg = self.imgfileSet.size
@@ -244,6 +277,7 @@ class cellPoseTraj():
             sys.stdout.write('stack has not been trans registered: calling get_imageSet_trans() to register translations\n')
             self.get_imageSet_trans()
         ncells = indcells.size
+        cells_imgs = [None]*ncells
         cells_cmsks = [None]*ncells
         cells_positionSet = np.zeros((0, 2)) 
         # ip_frame and ip_file ??
@@ -253,8 +287,11 @@ class cellPoseTraj():
         for ic in indcells:
             if not self.cells_imgfileSet[ic] == ip_file or not self.cells_frameSet[ic] == ip_frame:
                 sys.stdout.write('loading cells from frame '+str(self.cells_frameSet[ic])+' image '+str(self.cells_imgfileSet[ic])+'\n')
+                img = self.imgSet[self.cells_indcmskSet[ic]]
                 msk = self.cmskSet[self.cells_indcmskSet[ic]]
                 cellblocks = self.get_cell_blocks(msk)
+            imgcell = img[cellblocks[self.cells_indSet[ic], 0, 0]:cellblocks[self.cells_indSet[ic], 0, 1], :]
+            imgcell = imgcell[:, cellblocks[self.cells_indSet[ic], 1, 0]:cellblocks[self.cells_indSet[ic], 1, 1]]
             mskcell = msk[cellblocks[self.cells_indSet[ic], 0, 0]:cellblocks[self.cells_indSet[ic], 0, 1], :]
             mskcell = mskcell[:, cellblocks[self.cells_indSet[ic], 1, 0]:cellblocks[self.cells_indSet[ic], 1, 1]]
             (values, counts) = np.unique(mskcell[np.where(mskcell > 0)], return_counts = True)
@@ -268,6 +305,7 @@ class cellPoseTraj():
             x = cmskx + cellblocks[self.cells_indSet[ic], 0, 0]
             y = cmsky + cellblocks[self.cells_indSet[ic], 1, 0]
             cells_positionSet = np.append(cells_positionSet, np.array([[x, y]]), axis=0)
+            cells_imgs[ii] = imgcell.copy()
             cells_cmsks[ii] = mskcell.copy()
             ip_file = self.cells_imgfileSet[ic]
             ip_frame = self.cells_frameSet[ic]
@@ -278,6 +316,7 @@ class cellPoseTraj():
             cells_x[ii, 0] = cells_positionSet[ii, 0]
             cells_x[ii, 1] = cells_positionSet[ii, 1]
             ii = ii + 1
+        self.cells_imgs = cells_imgs
         self.cells_cmsks = cells_cmsks
         self.cells_positionSet = cells_positionSet
         self.x = cells_x
@@ -296,6 +335,8 @@ class cellPoseTraj():
             msk = self.get_clean_mask(msk)
             centers = np.array(ndimage.measurements.center_of_mass(np.ones_like(msk), labels=msk, index=np.arange(1, np.max(msk)+1).astype(int)))
             cells_positionSet[indc_img, :] = centers
+            centers[:, 0] = centers[:, 0] - self.cmskSet_t[im, 2]
+            centers[:, 1] = centers[:, 1] - self.cmskSet_t[im, 1]
             cells_x[indc_img, :] = centers
         self.cells_positionSet = cells_positionSet
         self.x = cells_x
@@ -308,6 +349,8 @@ class cellPoseTraj():
             indcells = np.arange(self.cells_indSet.size).astype(int)
         ncells = indcells.size
         cellborder_cmsks = [None]*ncells
+        cellborder_fmsks = [None]*ncells
+        cellborder_imgs = [None]*ncells
         ip_frame = 100000
         ip_file = 100000
         ii = 0
@@ -315,23 +358,33 @@ class cellPoseTraj():
             if not self.cells_imgfileSet[ic] == ip_file or not self.cells_frameSet[ic] == ip_frame:
                 sys.stdout.write('extracting cellborders from frame '+str(self.cells_frameSet[ic])+' image '+str(self.cells_imgfileSet[ic])+'\n')
                 cmsk = self.cmskSet[self.cells_indcmskSet[ic]]
+                fmsk = self.fmskSet[self.cells_indcmskSet[ic]]
+                img = self.imgSet[self.cells_indcmskSet[ic]]
                 cellblocks = self.get_cell_blocks(cmsk)
             xmin = np.max(np.array([cellblocks[self.cells_indSet[ic], 0, 0] - bordersize, 0]))
             xmax = np.min(np.array([cellblocks[self.cells_indSet[ic], 0, 1] + bordersize, nx - 1]))
             ymin = np.max(np.array([cellblocks[self.cells_indSet[ic], 1, 0] - bordersize, 0]))
             ymax = np.min(np.array([cellblocks[self.cells_indSet[ic], 1, 1] + bordersize, ny - 1]))
+            fmskcell = fmsk[xmin:xmax, :]
+            fmskcell = fmskcell[:, ymin:ymax]
             cmskcell = cmsk[xmin:xmax, :]
             cmskcell = cmskcell[:, ymin:ymax]
+            imgcell = img[xmin:xmax, :]
+            imgcell = imgcell[:, ymin:ymax]
             tightmskcell = cmsk[cellblocks[self.cells_indSet[ic], 0, 0]:cellblocks[self.cells_indSet[ic], 0, 1], :]
             tightmskcell = tightmskcell[:, cellblocks[self.cells_indSet[ic], 1, 0]:cellblocks[self.cells_indSet[ic], 1, 1]]
             (values, counts) = np.unique(tightmskcell[np.where(tightmskcell > 0)], return_counts=True)
             icell = values[np.argmax(counts)].astype(int)
             cmskcell = cmskcell == icell
             cellborder_cmsks[ii] = cmskcell.copy()
+            cellborder_fmsks[ii] = fmskcell.copy()
+            cellborder_imgs[ii] = imgcell.copy()
             ip_file = self.cells_imgfileSet[ic]
             ip_frame = self.cells_frameSet[ic]
             ii = ii + 1
         self.cellborder_cmsks = cellborder_cmsks
+        self.cellborder_fmsks = cellborder_fmsks
+        self.cellborder_imgs = cellborder_imgs
         self.cellborder_inds = indcells.copy()
 
     def get_lineage_mindist(self, distcut=65.0, pathto=None):
@@ -341,9 +394,9 @@ class cellPoseTraj():
         if self.visual:
             plt.figure(figsize = (10, 8))
             nx = self.cmskSet.shape[1]; ny = self.cmskSet.shape[2]
-            xx,yy = np.meshgrid(np.arange(nx), np.arange(ny), indexing='ij')
-            maxdx = np.max(nx-self.cmskSet[:, 1]); mindx = np.min(0-self.cmskSet[:, 1]);
-            maxdy = np.max(ny-self.cmskSet[:, 2]); mindy = np.min(0-self.cmskSet[:, 2]);
+            xx, yy = np.meshgrid(np.arange(nx), np.arange(ny), indexing='ij')
+            maxdx = np.max(nx - self.cmskSet[:, 1]); mindx = np.min(0 - self.cmskSet[:, 1])
+            maxdy = np.max(ny - self.cmskSet[:, 2]); mindy = np.min(0 - self.cmskSet[:, 2])
             if not hasattr(self,'cmskSet'):
                 self.get_imageSet(self.start_frame, self.end_frame)
         for istack in stack_inds:
@@ -351,6 +404,7 @@ class cellPoseTraj():
             inds = np.where(self.imgfileSet == istack)
             inds = inds[0]
             cmskSet = self.cmskSet[inds, :, :]
+            imgSet = self.imgSet[inds, :, :]
             nframes = cmskSet.shape[0]
             indt0 = np.where(self.cells_indcmskSet == inds[0])[0]
             lin0 = np.arange(indt0.size).astype(int)
@@ -358,9 +412,11 @@ class cellPoseTraj():
             for im in range(0, nframes-1):
                 indt0 = np.where(self.cells_indcmskSet == inds[im])[0]
                 msk0 = cmskSet[im, :, :]
+                img0 = imgSet[im, :, :]
                 xt0 = self.x[indt0, :]
                 indt1 = np.where(self.cells_indcmskSet == inds[im+1])[0]
                 msk1 = cmskSet[im+1, :, :]
+                img1 = imgSet[im+1, :, :]
                 xt1 = self.x[indt1, :]
                 dmatx = self.get_dmat(xt1, xt0)
                 lin1 = np.zeros(indt1.size).astype(int)
@@ -375,32 +431,8 @@ class cellPoseTraj():
                 idGood = np.where(lin1 >= 0)
                 ulin1,lin1_counts = np.unique(lin1[idGood], return_counts=True)
                 sys.stdout.write('    stack '+str(istack)+' frame '+str(im+1)+' ntracked: '+str(lin1[idGood].shape)+
-                                 ' of '+str(indt1.size)+' twins: '+str(np.sum(lin1_counts==2))+' triplets: '+str(np.sum(lin1_counts==3))+'\n')
-                if self.visual:
-                    plt.clf()
-                    fmsk0 = self.cmskSet[inds[im], :, :]
-                    fmsk1 = self.cmskSet[inds[im+1], :, :]
-                    plt.contour(xx-self.cmskSet[inds[im], 2], yy-self.cmskSet[inds[im], 1], fmsk0, levels=[1], colors='darkgreen', alpha=0.5)
-                    plt.contour(xx-self.cmskSet[inds[im+1], 2], yy-self.cmskSet[inds[im+1], 1], fmsk1, levels=[1], colors='darkred', alpha=0.5)
-                    plt.contour(xx-self.cmskSet[inds[im], 2], yy-self.cmskSet[inds[im], 1], msk0>0, colors='green', levels=[1.0], alpha=0.5)
-                    plt.contour(xx-self.cmskSet[inds[im+1], 2], yy-self.cmskSet[inds[im+1], 1], msk1>0, colors='red', levels=[1.0], alpha=0.5)
-                    idGood=np.where(lin1 >=0 )[0]
-                    scatter1_pts = plt.scatter(xt1[idGood, 0], xt1[idGood, 1], s=30, c='red', marker='o') #when you scatter in pts, need (y,x)
-                    scatter0_pts = plt.scatter(xt0[lin1[idGood], 0], xt0[lin1[idGood], 1], s=30, c='green', marker='o')
-                    ax = plt.gca()
-                    for ic in idGood:
-                        ax.arrow(xt0[lin1[ic], 0], xt0[lin1[ic], 1], xt1[ic, 0] - xt0[lin1[ic], 0], xt1[ic, 1] - xt0[lin1[ic], 1],
-                                 head_width=10, linewidth=1.5, color='black', alpha=1.0)
-                    plt.xlim(mindx, maxdx)
-                    plt.ylim(mindy, maxdy)
-                    plt.axis('off')
-                    plt.pause(.1)
-                    if pathto is None:
-                        pass
-                    else:
-                        imgfile="%04d.png" % im
-                        plt.savefig(pathto+self.modelName+'_trackmd_stack'+str(istack)+'_'+imgfile)
-        self.linSet=linSet
+                                 ' of '+str(indt1.size)+' twins: '+str(np.sum(lin1_counts == 2))+' triplets: '+str(np.sum(lin1_counts == 3))+'\n')
+        self.linSet = linSet
 
     def get_lineage_bunch_overlap(self, distcut=45.0, distcutb=300.0, overlapcut=10.0, cellcut=10.0, 
                                   bunchcut=100.*100., pathto=None, clustervisual=False):
@@ -414,7 +446,7 @@ class cellPoseTraj():
             else:
                 command = 'mkdir '+pathto
                 os.system(command)
-        if not hasattr(self, 'cmskSet'):
+        if not hasattr(self, 'fmskSet'):
             self.get_imageSet(self.start_frame, self.end_frame)
         
         sr = StackReg(StackReg.RIGID_BODY)
@@ -426,6 +458,8 @@ class cellPoseTraj():
             inds = np.where(self.imgfileSet == istack)
             inds = inds[0]
             cmskSet = self.cmskSet[inds,:,:]
+            fmskSet = self.fmskSet[inds,:,:]
+            imgSet = self.imgSet[inds,:,:]
             nframes = cmskSet.shape[0]
             indt0 = np.where(self.cells_indcmskSet == inds[0])[0]
             lin0 = np.arange(indt0.size).astype(int)
@@ -434,14 +468,16 @@ class cellPoseTraj():
                 nx = cmskSet.shape[1]; ny = cmskSet.shape[2]
                 xx,yy = np.meshgrid(np.arange(nx), np.arange(ny), indexing = 'ij')
                 indt0 = np.where(self.cells_indcmskSet == inds[im])[0]
+                img0 = imgSet[im, :, :]
                 msk0 = self.get_clean_mask(cmskSet[im, :, :], minsize = cellcut)
-                cmsk0 = cmskSet[im, :, :]
-                bmsk0 = self.get_cell_bunches(cmsk0, bunchcut = bunchcut)
+                fmsk0 = fmskSet[im, :, :]
+                bmsk0 = self.get_cell_bunches(fmsk0, bunchcut = bunchcut)
                 xt0 = self.x[indt0, :]
-                cmsk1 = cmskSet[im+1, :, :]
-                bmsk1 = self.get_cell_bunches(cmsk1, bunchcut = bunchcut)
+                fmsk1 = fmskSet[im + 1, :, :]
+                bmsk1 = self.get_cell_bunches(fmsk1, bunchcut = bunchcut)
                 indt1 = np.where(self.cells_indcmskSet == inds[im + 1])[0]
-                msk1 = self.get_clean_mask(cmskSet[im+1, :, :], minsize = cellcut)
+                img1 = imgSet[im + 1, :, :]
+                msk1 = self.get_clean_mask(cmskSet[im + 1, :, :], minsize = cellcut)
                 xt1 = self.x[indt1, :]
                 dmatx = self.get_dmat(xt1, xt0)
                 lin1 = np.ones(indt1.size).astype(int)*-1
@@ -457,30 +493,13 @@ class cellPoseTraj():
                     dmatxb = self.get_dmat(xb1, xb0)
                     lin1b = np.zeros(xb1.shape[0]).astype(int)
                     for ib in range(xb1.shape[0]): #nn tracking
-                        ind_nnxb = np.argsort(dmatxb[ib,:])
+                        ind_nnxb = np.argsort(dmatxb[ib, :])
                         bdist = self.dist(xb0[ind_nnxb[0], :], xb1[ib, :])
                         if bdist < distcutb:
                             lin1b[ib] = ind_nnxb[0]
                         else:
                             lin1b[ib] = -1
                     indgood = np.where(lin1b >= 0)[0]
-                    if clustervisual:
-                        plt.clf()
-                        plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1], bmsk0,
-                                    levels = np.arange(np.max(bmsk0)), cmap = plt.cm.Greens)
-                        plt.contour(xx - self.cmskSet_t[inds[im + 1], 2], yy - self.cmskSet_t[inds[im + 1], 1], bmsk1,
-                                    levels = np.arange(np.max(bmsk1)), cmap = plt.cm.Reds)
-                        contour0_img = plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1], msk0, 
-                                                   levels = np.arange(np.max(msk0)), colors = 'red', alpha = 0.5)
-                        contour1_img = plt.contour(xx - self.cmskSet_t[inds[im+1], 2], yy - self.cmskSet_t[inds[im+1], 1], msk1,
-                                                   levels = np.arange(np.max(msk1)), colors = 'green',alpha = 0.5)
-                        scatter1_pts = plt.scatter(xb1[indgood,0], xb1[indgood, 1], s = 30000, c = 'red', marker = 'x') 
-                        #when you scatter in pts, need (y,x)
-                        scatter0_pts = plt.scatter(xb0[lin1b[indgood], 0], xb0[lin1b[indgood], 1], s = 30000, c = 'green', marker = 'x')
-                        for ib in indgood:
-                            plt.plot(np.array([xb0[lin1b[ib], 0], xb1[ib, 0]]), np.array([xb0[lin1b[ib], 1], xb1[ib, 1]]), 
-                                     '--', linewidth = 1.5, color = 'black', alpha = 0.5)
-                        plt.pause(1)
                     cellblocks0 = self.get_cell_blocks(bmsk0)
                     cellblocks0 = cellblocks0[lin1b[indgood], :, :]
                     cellblocks1 = self.get_cell_blocks(bmsk1)
@@ -495,6 +514,8 @@ class cellPoseTraj():
                         miny = np.min(np.array([cellblocks0[ib, 1, 0], cellblocks1[ib, 1, 0]]))
                         maxx = np.max(np.array([cellblocks0[ib, 0, 1], cellblocks1[ib, 0, 1]]))
                         maxy = np.max(np.array([cellblocks0[ib, 1, 1], cellblocks1[ib, 1, 1]]))
+                        imgb0 = img0[minx:maxx, :]; imgb0 = imgb0[:, miny:maxy]
+                        imgb1 = img1[minx:maxx, :]; imgb1 = imgb1[:, miny:maxy]
                         mskb0 = bmsk0[minx:maxx, :]; mskb0 = mskb0[:, miny:maxy]
                         mskb1 = bmsk1[minx:maxx, :]; mskb1 = mskb1[:, miny:maxy]
                         mskc0 = msk0[minx:maxx, :]; mskc0 = mskc0[:, miny:maxy]
@@ -509,9 +530,10 @@ class cellPoseTraj():
                             ibunch1 = values[np.argmax(counts)].astype(int)
                             mskb1 = mskb1 == ibunch1
                             # Initialize the pixels which are not part of any cell mask
-                            mskb0[np.where(np.logical_not(mskb0))] = 0.0 
-                            mskb1[np.where(np.logical_not(mskb1))] = 0.0
+                            imgb0[np.where(np.logical_not(mskb0))] = 0.0 
+                            imgb1[np.where(np.logical_not(mskb1))] = 0.0
                             tmatrix = sr.register(np.abs(mskb0) > 0, np.abs(mskb1) > 0) #from second to first
+                            imgb1_reg = tf.warp(imgb1, tmatrix)
                             mskb1_reg = tf.warp(mskb1.astype('float'), tmatrix, 0) #0 for nn interp
                             mskb1_reg = mskb1_reg.astype(int)
                             mskc1_reg = tf.warp(mskc1.astype('float'), tmatrix, 0) #0 for nn interp
@@ -534,7 +556,7 @@ class cellPoseTraj():
                                   cmsky = 0.
                                 xc0 = cmskx + cellblocks0[ib, 0, 0]
                                 yc0 = cmsky + cellblocks0[ib, 1, 0]
-                                x0[ic0, :] = np.array([xc0-cellblocks0[ib, 0, 0], yc0 - cellblocks0[ib, 1, 0]])
+                                x0[ic0, :] = np.array([xc0 - cellblocks0[ib, 0, 0], yc0 - cellblocks0[ib, 1, 0]])
                                 inds_c0[ic0] = cell_clusters0.assign(np.array([[xc0, yc0]]))[0]
                             inds_c1 = np.zeros(indc1.size).astype(int)
                             x1 = np.zeros((indc1.size, 2))
@@ -574,7 +596,7 @@ class cellPoseTraj():
                                  plt.contour(xxc, yyc, mskc0, colors = 'green', levels = np.unique(mskc0))
                                  plt.contour(xxc, yyc, mskc1_reg, colors = 'red', levels = np.unique(mskc1))
                                  plt.title('Cluster '+str(ib))
-                                 idGood = np.where(linb>-1)[0]; ax=plt.gca()
+                                 idGood = np.where(linb>-1)[0]; ax = plt.gca()
                                  for ic in idGood:
                                     ax.arrow(x0[linb[ic], 0], x0[linb[ic], 1], x1[ic, 0] - x0[linb[ic], 0], x1[ic, 1] 
                                              - x0[linb[ic], 1], head_width=2, linewidth=1.5, color='black', alpha=1.0)
@@ -611,33 +633,6 @@ class cellPoseTraj():
                     ind_nnx = np.argsort(distc1)
                     ind_out = indc1[ind_nnx[2:]]
                     lin1[ind_out] = -1
-                if self.visual:
-                    plt.clf()
-                    plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1], cmsk0, 
-                                levels = [1], colors = 'darkgreen', alpha = 0.5)
-                    plt.contour(xx - self.cmskSet_t[inds[im + 1] , 2], yy - self.cmskSet_t[inds[im + 1], 1], cmsk1,
-                                levels = [1], colors = 'darkred', alpha = 0.5)
-                    plt.contour(xx - self.cmskSet_t[inds[im], 2], yy - self.cmskSet_t[inds[im], 1], msk0 > 0,
-                                colors = 'green', levels = [1.0], alpha = 0.5)
-                    plt.contour(xx - self.cmskSet_t[inds[im + 1], 2], yy - self.cmskSet_t[inds[im + 1], 1], msk1 > 0,
-                                colors = 'red', levels = [1.0], alpha = 0.5)
-                    indgood = np.where(lin1 >= 0)[0]
-                    scatter1_pts = plt.scatter(xt1[indgood, 0], xt1[indgood, 1], s = 30, 
-                                               c = 'red', marker = 'o') #when you scatter in pts, need (y,x)
-                    scatter0_pts = plt.scatter(xt0[lin1[indgood], 0], xt0[lin1[indgood], 1], s = 30, c = 'green', marker = 'o')
-                    ax = plt.gca()
-                    for ic in indgood:
-                        ax.arrow(xt0[lin1[ic], 0], xt0[lin1[ic], 1], xt1[ic, 0] - xt0[lin1[ic], 0],
-                                 xt1[ic, 1] - xt0[lin1[ic], 1], head_width = 10, linewidth = 1.5, color = 'black', alpha = 1.0)
-                    plt.xlim(mindx, maxdx)
-                    plt.ylim(mindy, maxdy)
-                    plt.axis('off')
-                    plt.pause(.1)
-                    if pathto is None:
-                        pass
-                    else:
-                        imgfile = "%04d.png" % im
-                        plt.savefig(pathto+self.modelName+'_trackbo_stack'+str(istack)+'_'+imgfile)
                 linSet[inds[im + 1]] = lin1.copy()
             self.linSet = linSet
 
@@ -753,7 +748,7 @@ class cellPoseTraj():
         indt = indt[inds_not1[indsr]]
         clabels = clabels[inds_not1[indsr]]
         if bmsk is None:
-            fmsk = self.cmskSet[im, :, :]
+            fmsk = self.fmskSet[im, :, :]
             bmsk = self.get_cell_bunches(fmsk, bunchcut = 1.0)
         if bunch_clusters is None:
             bunch_clusters = self.get_bunch_clusters(bmsk, t=self.cmskSet_t[im, :])
@@ -779,13 +774,13 @@ class cellPoseTraj():
             xset = self.x[np.insert(indcells, 0, indcell)] #-self.cmskSet[self.cells_indcmskSet[indcell]][1:]
             for ic in range(indcells.size + 1):
                 plt.subplot(nrows, nrows, ic + 1)
-                plt.imshow(np.ma.masked_where(self.cellborder_omsks[ic].T == 1, self.cellborder_omsks[ic].T),
+                plt.imshow(np.ma.masked_where(self.cellborder_cmsks[ic].T == 1, self.cellborder_cmsks[ic].T),
                            cmap=plt.cm.gray, clim=[-5,5])
-                plt.imshow(np.ma.masked_where(self.cellborder_omsks[ic].T == 0, self.cellborder_omsks[ic].T),
+                plt.imshow(np.ma.masked_where(self.cellborder_cmsks[ic].T == 0, self.cellborder_cmsks[ic].T),
                            cmap=plt.cm.seismic, clim=(-5,5))
                 imcenter = np.zeros(2)
-                imcenter[0] = self.cellborder_omsks[ic].shape[0]/2.
-                imcenter[1] = self.cellborder_omsks[ic].shape[1]/2.
+                imcenter[0] = self.cellborder_cmsks[ic].shape[0]/2.
+                imcenter[1] = self.cellborder_cmsks[ic].shape[1]/2.
                 T_im = xset[ic, :] - imcenter
                 xset1_im = xset - T_im
                 xset0_im = np.zeros_like(xset1_im)
@@ -815,12 +810,12 @@ class cellPoseTraj():
         try:
             ip1 = self.get_cell_trajectory(i1, n_hist=1)[-2]
             ip2 = self.get_cell_trajectory(i2, n_hist=1)[-2]
-            dx1 = self.x[i1, :]-self.x[ip1, :]
+            dx1 = self.x[i1, :] - self.x[ip1, :]
             dx1 = dx1/np.linalg.norm(dx1)
-            dx2 = self.x[i2, :]-self.x[ip2, :]
+            dx2 = self.x[i2, :] - self.x[ip2, :]
             dx2 = dx2/np.linalg.norm(dx2)
             pij = dx1 - dx2
-            rij = (self.x[i1, :]-self.x[i2, :])
+            rij = (self.x[i1, :] - self.x[i2, :])
             nij = rij/np.sqrt(np.sum(np.power(rij, 2)))
             alpha = np.sum(np.multiply(pij, nij))
         except:
@@ -831,9 +826,9 @@ class cellPoseTraj():
         try:
             ip1 = self.get_cell_trajectory(i1, n_hist=1)[-2]
             ip2 = self.get_cell_trajectory(i2, n_hist=1)[-2]
-            dx1 = self.x[i1, :]-self.x[ip1, :]
+            dx1 = self.x[i1, :] - self.x[ip1, :]
             dx1 = dx1/np.linalg.norm(dx1)
-            dx2 = self.x[i2, :]-self.x[ip2, :]
+            dx2 = self.x[i2, :] - self.x[ip2, :]
             dx2 = dx2/np.linalg.norm(dx2)
             beta = np.sum(np.multiply(dx1, dx2))
         except:
@@ -843,7 +838,7 @@ class cellPoseTraj():
     def get_dx(self, i1):
         try:
             ip1 = self.get_cell_trajectory(i1, n_hist=1)[-2]
-            dx1 = self.x[i1, :]-self.x[ip1, :]
+            dx1 = self.x[i1, :] - self.x[ip1, :]
         except:
             dx1 = np.ones(2)*np.nan
         return dx1
@@ -873,7 +868,7 @@ class cellPoseTraj():
         traj_pairSet = self.get_traj_segments(2)
         indimgs = np.unique(self.cells_indcmskSet[cell_inds])
         for im in indimgs:
-            fmsk = self.cmskSet[im, :, :]
+            fmsk = self.fmskSet[im, :, :]
             bmsk = self.get_cell_bunches(fmsk, bunchcut=1.0)
             bunch_clusters = self.get_bunch_clusters(bmsk, t=self.cmskSet_t[im, :])
             sys.stdout.write('extracting motility features from image '+str(im)+' of '+str(indimgs.size)+'\n')
@@ -952,7 +947,7 @@ class cellPoseTraj():
                 else:
                     indlast = 0
                 cell_traj = cell_traj[indlast:] #retain only unique tracks up to extra_depth from common point
-            inds_tracked = np.append(inds_tracked,cell_traj)
+            inds_tracked = np.append(inds_tracked, cell_traj)
             trajectories.append(cell_traj)
             indcells,indcomm_call,indcomm_ctraj = np.intersect1d(cell_inds_all, cell_traj, return_indices=True)
             cell_inds_all[indcomm_call] = -1
@@ -964,7 +959,7 @@ class cellPoseTraj():
             else:
                 if n_untracked%100 == 0:
                     sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
-        self.trajectories=trajectories
+        self.trajectories = trajectories
 
     def get_all_trajectories(self, cell_inds=None):
         if cell_inds is None:
@@ -989,28 +984,28 @@ class cellPoseTraj():
 
     def get_dx_tcf(self, trajectories=None):
         if trajectories is None:
-            trajectories=self.trajectories
-        ntraj=len(trajectories)
-        traj_lengths=np.zeros(ntraj)
+            trajectories = self.trajectories
+        ntraj = len(trajectories)
+        traj_lengths = np.zeros(ntraj)
         for itraj in range(ntraj):
-            traj_lengths[itraj]=trajectories[itraj].size
-        nframes=np.max(traj_lengths)
-        nt=np.floor(nframes/2).astype(int)
-        dxcorr=np.zeros(nt)
-        tnorm=np.zeros(nt)
+            traj_lengths[itraj] = trajectories[itraj].size
+        nframes = np.max(traj_lengths)
+        nt = np.floor(nframes/2).astype(int)
+        dxcorr = np.zeros(nt)
+        tnorm = np.zeros(nt)
         for itraj in range(ntraj):
-            cell_traj=trajectories[itraj]
-            traj_len=cell_traj.size
-            nmax=np.floor(traj_len/2).astype(int)
-            if traj_len>1:
-                dxtraj=self.x[cell_traj[1:],:]-self.x[cell_traj[0:-1],:]
+            cell_traj = trajectories[itraj]
+            traj_len = cell_traj.size
+            nmax = np.floor(traj_len/2).astype(int)
+            if traj_len > 1:
+                dxtraj = self.x[cell_traj[1:], :] - self.x[cell_traj[0:-1], :]
                 for it1 in range(nmax):
-                    for it2 in range(it1,it1+nmax):
-                        it=it2-it1
-                        dxcorr[it]=dxcorr[it]+np.dot(dxtraj[it1,:],dxtraj[it2,:])
-                        tnorm[it]=tnorm[it]+1
+                    for it2 in range(it1, it1 + nmax):
+                        it = it2 - it1
+                        dxcorr[it] = dxcorr[it] + np.dot(dxtraj[it1, :], dxtraj[it2, :])
+                        tnorm[it] = tnorm[it] + 1
         for it in range(nt):
-            dxcorr[it]=dxcorr[it]/tnorm[it]
+            dxcorr[it] = dxcorr[it]/tnorm[it]
         return dxcorr
 
     def get_xtraj_tcf(self, trajectories=None):
@@ -1021,23 +1016,23 @@ class cellPoseTraj():
         for itraj in range(ntraj):
             traj_lengths[itraj] = trajectories[itraj].size
         nframes = np.max(traj_lengths)
-        nt = np.floor(nframes / 2).astype(int)
+        nt = np.floor(nframes/2).astype(int)
         dxcorr = np.zeros(nt)
         tnorm = np.zeros(nt)
         for itraj in range(ntraj):
             cell_traj = trajectories[itraj]
             traj_len = cell_traj.size
-            nmax = np.floor(traj_len / 2).astype(int)
+            nmax = np.floor(traj_len/2).astype(int)
             if traj_len > self.trajl:
                 xtraj,indstraj = get_Xtraj_celltrajectory(self,cell_traj)
-                nmax = np.floor(xtraj.shape[0] / 2).astype(int)
+                nmax = np.floor(xtraj.shape[0]/2).astype(int)
                 for it1 in range(nmax):
                     for it2 in range(it1, it1 + nmax):
                         it = it2 - it1
                         dxcorr[it] = dxcorr[it] + np.dot(xtraj[it1, :], xtraj[it2, :])
                         tnorm[it] = tnorm[it] + 1
         for it in range(nt):
-            dxcorr[it] = dxcorr[it] / tnorm[it]
+            dxcorr[it] = dxcorr[it]/tnorm[it]
         return dxcorr
 
     def get_tcf(self, trajectories=None, x=None):
@@ -1050,13 +1045,13 @@ class cellPoseTraj():
         for itraj in range(ntraj):
             traj_lengths[itraj] = trajectories[itraj].size
         nframes = np.max(traj_lengths)
-        nt = np.floor(nframes / 2).astype(int)
+        nt = np.floor(nframes/2).astype(int)
         dxcorr = np.zeros(nt)
         tnorm = np.zeros(nt)
         for itraj in range(ntraj):
             cell_traj = trajectories[itraj]
             traj_len = cell_traj.size
-            nmax = np.floor(traj_len / 2).astype(int)
+            nmax = np.floor(traj_len/2).astype(int)
             if traj_len > 1:
                 xtraj = x[cell_traj,:]
                 for it1 in range(nmax):
@@ -1065,7 +1060,7 @@ class cellPoseTraj():
                         dxcorr[it] = dxcorr[it] + np.sum(np.power(xtraj[it1, :]-xtraj[it2, :],2))
                         tnorm[it] = tnorm[it] + 1
         for it in range(nt):
-            dxcorr[it] = dxcorr[it] / tnorm[it]
+            dxcorr[it] = dxcorr[it]/tnorm[it]
         return dxcorr
 
     def get_pair_rdf(self, cell_indsA=None, cell_indsB=None, rbins=None, nr=50, rmax=500):
@@ -1089,14 +1084,14 @@ class cellPoseTraj():
             xSetB = self.x[cell_indsB[cell_inds_imgB], :]
             dmatr = self.get_dmat(xSetA, xSetB)
             indr = np.digitize(dmatr, rbins)
-            for ir in range(1,nr):
+            for ir in range(1, nr):
                 paircorrx[ir] = paircorrx[ir] + np.sum(indr == ir)
         drbins = rbins[1:] - rbins[0:-1]
         rbins = rbins[1:]
         paircorrx = paircorrx[1:-1]
         V = 0.0
         nc = 0
-        for ir in range(nr-1):
+        for ir in range(nr - 1):
             norm = 2.*np.pi*rbins[ir]*drbins[ir]
             V = V + norm
             nc = nc + paircorrx[ir]
@@ -1120,7 +1115,7 @@ class cellPoseTraj():
         indimgsB = np.unique(self.cells_indcmskSet[cell_indsB])
         indimgs = np.intersect1d(indimgsA, indimgsB)
         for im in indimgs:
-            fmsk = self.cmskSet[im, :, :]
+            fmsk = self.fmskSet[im, :, :]
             bmsk = self.get_cell_bunches(fmsk, bunchcut=10*10)
             bunch_clusters = self.get_bunch_clusters(bmsk, t=self.cmskSet_t[im, :])
             cell_inds_imgA = np.where(self.cells_indcmskSet[cell_indsA] == im)[0]
@@ -1264,7 +1259,7 @@ class cellPoseTraj():
     def show_cells_queue(self,X = None):
         if self.visual and self.imgdim == 2:
             if X is None:
-                if not hasattr(self,'cells_imgs'):
+                if not hasattr(self, 'cells_imgs'):
                     self.extract_cell_images()
                 plt.figure(figsize = (12, 16))
                 ncells = len(self.cells_imgs)
@@ -1303,27 +1298,41 @@ class cellPoseTraj():
         maxedge = np.ceil((2**.5)*np.max(cellSizes)).astype(int)
         if maxedge > self.maximum_cell_size:
             maxedge = self.maximum_cell_size
+        X = np.zeros((ncells,maxedge*maxedge))
         Xm = np.zeros((ncells,maxedge*maxedge))
         for ic in range(ncells):
+            img = self.cells_imgs[ic]
+            imgp = self.pad_image(img, maxedge)
             msk = self.cells_cmsks[ic]
             mskp = self.pad_image(msk, maxedge)
             ind = np.where(mskp == 0)
+            imgp[ind] = 0.0
+            ind = np.where(np.isinf(imgp))
+            imgp[ind] = 0.0
+            ind = np.where(np.isnan(imgp))
+            imgp[ind] = 0.0
             ind = np.where(np.isnan(mskp))
             mskp[ind] = 0.0
             ind = np.where(np.isinf(mskp))
             mskp[ind] = 0.0
             try:
-                mska = self.align_image(mskp)
+                imga, mska = self.align_image(imgp, mskp)
             except:
-                mska=mskp.copy()
+                imga = imgp.copy()
+                mska = mskp.copy()
             
-            Xm[ic,:]=mska.flatten()
+            if znormalize: 
+              X[ic,:] = self.znorm(imga.flatten())
+            else: 
+              X[ic,:] = imga.flatten()
+            Xm[ic,:] = mska.flatten()
             
             if ic%100 == 0:
                 if znormalize:
                     sys.stdout.write('Padding, aligning, znormalizing cell '+str(ic)+' of '+str(ncells)+'\n')
                 else:
                     sys.stdout.write('Padding, aligning, cell '+str(ic)+' of '+str(ncells)+'\n')
+        self.X = X
         self.Xm = Xm
         self.maxedge = maxedge
         self.ncells = ncells
@@ -1331,16 +1340,17 @@ class cellPoseTraj():
     def prepare_cell_features(self, apply_znorm=True):
         Xf = [None]*self.ncells
         ic = 0
-        #x1 = self.X[ic,:]
+        x1 = self.X[ic,:]
         m1 = self.Xm[ic,:]
-        x1fg = self.featZernike(m1)
-        x1fh = self.featHaralick(m1)
+        x1fg = self.featZernike(x1)
+        x1fh = self.featHaralick(x1)
         x1fh = self.znorm(x1fh) #apply for some relative normalization
         x1fb = self.featBoundary(m1)
         if hasattr(self,"cellborder_cmsks"):
             cbfeat = True
             cmsk = self.cellborder_cmsks[ic]
-            x1fcb = self.featBoundaryCB(cmsk) # Need to cross check whether it import correct boundaries
+            fmsk = self.cellborder_fmsks[ic]
+            x1fcb = self.featBoundaryCB(cmsk, fmsk) # Need to cross check whether it import correct boundaries
             ncb = x1fcb.size
         else:
             print('no cell foreground masks, skipping cell border featurization')
@@ -1357,14 +1367,15 @@ class cellPoseTraj():
         self.indfh = indfh
         self.indfb = indfb
         for ic in range(self.ncells):
-            #x1 = self.X[ic, :]
+            x1 = self.X[ic, :]
             m1 = self.Xm[ic, :]
-            x1fg = self.featZernike(m1)
-            x1fh = self.featHaralick(m1)
+            x1fg = self.featZernike(x1)
+            x1fh = self.featHaralick(x1)
             x1fb = self.featBoundary(m1)
             if cbfeat:
                 cmsk = self.cellborder_cmsks[ic]
-                x1fcb = self.featBoundaryCB(cmsk)
+                fmsk = self.cellborder_fmsks[ic]
+                x1fcb = self.featBoundaryCB(cmsk, fmsk)
                 x1f = np.zeros(ng + nh + nb + ncb)
                 x1f[indfcb] = x1fcb
             else:
@@ -1437,10 +1448,10 @@ class cellPoseTraj():
                              
     def dumpObjs_jl(self): 
         fileName = self.modelName+'.joblib'
-        print("Dumping linSet, Xf, Xf_com, cells_frameset, cells_indSet, trajectories, and cells_imgfileSet using joblib")
         with open(fileName, 'wb') as fp:
            dump((self.linSet, self.Xf, self.Xf_com, self.cells_frameSet, self.cells_indSet,
-                 self.trajectories, self.cells_imgfileSet), fp, compress = 'zlib')
+                 self.trajectories, self.cells_imgfileSet, self.cells_indcmskSet), fp, compress = 'zlib')
+        print("Dumping linSet, Xf, Xf_com, cells_frameset, cells_indSet, trajectories, cells_imgfileSet, and cells_indcmskSet using joblib")
 
     def save_dmat_row(self, row, dmat_row, overwrite=False):
         f = h5py.File(self.modelName+'.h5', 'a')
@@ -1678,11 +1689,13 @@ class cellPoseTraj():
                     if ic < ncells:
                         self.get_cellborder_images(indcells = np.array([cell_inds[ic]]), bordersize=40)
                         cmskcell = self.cellborder_cmsks[0]
-                        ccborder, csborder = self.get_cc_cs_border(cmskcell)
-                        img_fg = ax[inds2d[0][ic], inds2d[1][ic]].imshow(np.ma.masked_where(cmskcell == 0, cmskcell),
-                                                                         cmap=plt.cm.seismic, clim=(-10,10), alpha=1.0)
-                        img_bg = ax[inds2d[0][ic], inds2d[1][ic]].imshow(np.ma.masked_where(cmskcell == 1, cmskcell), 
-                                                                         cmap=plt.cm.gray, clim=(-10,10), alpha=0.6)
+                        fmskcell = self.cellborder_fmsks[0]
+                        imgcell = self.cellborder_imgs[0]
+                        ccborder, csborder = self.get_cc_cs_border(cmskcell, fmskcell)
+                        img_fg = ax[inds2d[0][ic], inds2d[1][ic]].imshow(np.ma.masked_where(fmskcell == 0, imgcell),
+                                                                         cmap=plt.cm.seismic, clim=(-10, 10), alpha=1.0)
+                        img_bg = ax[inds2d[0][ic], inds2d[1][ic]].imshow(np.ma.masked_where(fmskcell == 1, imgcell), 
+                                                                         cmap=plt.cm.gray, clim=(-10, 10), alpha=0.6)
                         nx = cmskcell.shape[0]; ny = cmskcell.shape[1]
                         xx,yy = np.meshgrid(np.arange(nx), np.arange(ny), indexing='ij')
                         cmskx = np.sum(np.multiply(xx, cmskcell))/np.sum(cmskcell)
@@ -2029,13 +2042,14 @@ class cellPoseTraj():
                     for il in range(trajl):
                          ax2 = plt.subplot(1, 1 + trajl, il + 2)
                          self.get_cellborder_images(indcells=np.array([traj_it[il]]), bordersize=40)
-                         #omskcell = self.cellborder_omsks[0]
+                         fmskcell = self.cellborder_fmsks[0]
                          cmskcell = self.cellborder_cmsks[0]
-                         ccborder,csborder = self.get_cc_cs_border(cmskcell)
-                         img_fg = plt.imshow(np.ma.masked_where(cmskcell == 0, cmskcell), cmap=plt.cm.seismic,
-                                             clim=(-10,10), alpha=1.0)
-                         img_bg = plt.imshow(np.ma.masked_where(cmskcell == 1, cmskcell), cmap=plt.cm.gray,
-                                             clim=(-10,10), alpha=0.6)
+                         imgcell = self.cellborder_imgs[0]
+                         ccborder,csborder = self.get_cc_cs_border(cmskcell, fmskcell)
+                         img_fg = plt.imshow(np.ma.masked_where(fmskcell == 0, imgcell), cmap=plt.cm.seismic,
+                                             clim=(-10, 10), alpha=1.0)
+                         img_bg = plt.imshow(np.ma.masked_where(fmskcell == 1, imgcell), cmap=plt.cm.gray,
+                                             clim=(-10, 10), alpha=0.6)
                          nx = cmskcell.shape[0]; ny = cmskcell.shape[1]
                          xx,yy = np.meshgrid(np.arange(nx), np.arange(ny), indexing='ij')
                          cmskx = np.sum(np.multiply(xx, cmskcell))/np.sum(cmskcell)
@@ -2100,10 +2114,12 @@ class cellPoseTraj():
                     ax2 = plt.subplot(1, 1+trajl, il+2)
                     self.get_cellborder_images(indcells=np.array([traj_it[il]]), bordersize=40)
                     cmskcell = self.cellborder_cmsks[0]
-                    ccborder,csborder = self.get_cc_cs_border(cmskcell)
-                    img_fg = plt.imshow(np.ma.masked_where(cmskcell == 0, cmskcell),
+                    fmskcell = self.cellborder_fmsks[0]
+                    imgcell = self.cellborder_imgs[0]
+                    ccborder,csborder = self.get_cc_cs_border(cmskcell, fmskcell)
+                    img_fg = plt.imshow(np.ma.masked_where(fmskcell == 0, imgcell),
                                         cmap=plt.cm.seismic, clim=(-10, 10), alpha=1.0)
-                    img_bg = plt.imshow(np.ma.masked_where(cmskcell == 1, cmskcell), 
+                    img_bg = plt.imshow(np.ma.masked_where(fmskcell == 1, imgcell), 
                                         cmap=plt.cm.gray, clim=(-10, 10), alpha=0.6)
                     nx = cmskcell.shape[0]; ny = cmskcell.shape[1]
                     xx,yy = np.meshgrid(np.arange(nx), np.arange(ny), indexing='ij')
@@ -2189,23 +2205,20 @@ class cellPoseTraj():
         return img
 
     @staticmethod
-    def align_image(msk):
-        msk = msk.copy()
-        msk = np.array(msk)
-        nx = np.shape(msk)[0]
-        ny = np.shape(msk)[1]
+    def align_image(img, msk):
+        img0 = img.copy()
+        nx = np.shape(img)[0]
+        ny = np.shape(img)[1]
         xx,yy = np.meshgrid(np.arange(nx), np.arange(ny), indexing='ij')
         msk_sum = np.sum(msk)
         if msk_sum != 0:                       
               cmskx = np.sum(np.multiply(xx, msk)) / msk_sum
               cmsky = np.sum(np.multiply(yy, msk)) / msk_sum
         else:
-              cmskx = 0.0 # or any other value that makes sense (discuss with JC)
-              cmsky = 0.0 # or any other value that makes sense (discuss with JC)
+              cmskx = 0.0 
+              cmsky = 0.0
         cmskx = np.nan_to_num(cmskx)
         cmsky = np.nan_to_num(cmsky)
-        #cmskx = np.sum(np.multiply(xx, msk))/np.sum(msk)
-        #cmsky = np.sum(np.multiply(yy, msk))/np.sum(msk)
         I = np.zeros((2, 2))
         I00 = (np.sum(np.multiply(msk, np.power(xx-cmskx,2))) + np.sum(np.multiply(msk, np.power(xx-cmskx,2))) - 
                np.sum(np.multiply(msk, np.multiply(xx-cmskx,xx-cmskx))))
@@ -2230,7 +2243,8 @@ class cellPoseTraj():
         tmatrix[2, 2] = 1.0
         tform = tf.SimilarityTransform(matrix = tmatrix)
         mska = tf.warp(msk, tform)
-        return  mska
+        imga = tf.warp(img0, tform)
+        return  imga, mska
 
     @staticmethod
     def transform_image(x1, t):
@@ -2366,16 +2380,18 @@ class cellPoseTraj():
             rtha = np.ones(ncomp)*np.nan
             return rtha
 
-    def featBoundaryCB(self, fmsk, ncomp = 15, center = None, nth = 256):
+    def featBoundaryCB(self, cmsk, fmsk, ncomp = 15, center = None, nth = 256):
         try:
-            nx = int(np.sqrt(fmsk.size))
-            fmsk = fmsk.reshape(nx,nx)
-            ccborder,csborder = self.get_cc_cs_border(fmsk)
+            if cmsk.ndim == 1:
+              nx = int(np.sqrt(cmsk.size))
+              cmsk = cmsk.reshape(nx, nx)
+              fmsk = fmsk.reshape(nx, nx)
+            ccborder, csborder = self.get_cc_cs_border(cmsk, fmsk)
             if center is None:
-                nx = fmsk.shape[0]; ny = fmsk.shape[1];
+                nx = cmsk.shape[0]; ny = cmsk.shape[1];
                 center = np.array([nx/2., ny/2.])
             bordercoords_cc = np.array(np.where(ccborder)).astype('float') - np.array([center]).T
-            thetacoords_cc = np.arctan2(bordercoords_cc[1,:], bordercoords_cc[0, :])
+            thetacoords_cc = np.arctan2(bordercoords_cc[1, :], bordercoords_cc[0, :])
             cbcoords_cc = np.ones_like(thetacoords_cc)
             bordercoords_cs = np.array(np.where(csborder)).astype('float') - np.array([center]).T
             thetacoords_cs = np.arctan2(bordercoords_cs[1, :], bordercoords_cs[0, :])
@@ -2426,7 +2442,7 @@ class cellPoseTraj():
         for i in range(nt*nt):
             t = np.array([0., xxt[i], yyt[i]])
             overlapSet[i] = self.get_neg_overlap(t, m1, m2)
-        overlapSet[np.where(np.isnan(overlapSet))]=np.inf
+        overlapSet[np.where(np.isnan(overlapSet))] = np.inf
         imin = np.argmin(overlapSet)
         tmin = np.array([0., xxt[imin], yyt[imin]])
         return tmin
@@ -2502,6 +2518,7 @@ class cellPoseTraj():
         t_local = self.get_minT(msk0, msk1, nt = self.ntrans, dt = self.maxtrans)
         tSet_loc[:] = t_global + t_local
         sys.stdout.write('transx: '+str(tSet_loc[1])+' transy: '+str(tSet_loc[2])+'\n')
+        #print("dcom: ",dcom, "dglobal: ",dglobal, "t_local: ",t_local)
         if self.visual:
             plt.clf()
             msk1 = cmskSetF2
@@ -2573,20 +2590,20 @@ class cellPoseTraj():
             cborder = mahotas.borders(cmsk)
             cellborders = np.logical_or(cellborders, cborder)
         return cellborders
-
-    def get_cc_cs_border(self, cmskcell, bordersize = 10):
+       
+    def get_cc_cs_border(self, cmskcell, fmskcell, bordersize = 10):
         border = self.get_borders(cmskcell).astype(bool)
         bordercoords = np.array(np.where(border)).astype('float').T
         nb = bordercoords.shape[0]
         for id in range(bordersize):
-            cmskcell = mahotas.morph.erode(cmskcell.astype(bool))
+            fmskcell = mahotas.morph.erode(fmskcell.astype(bool))
         for id in range(bordersize):
-            cmskcell = mahotas.morph.dilate(cmskcell)
+            fmskcell = mahotas.morph.dilate(fmskcell)
         for id in range(bordersize):
-            cmskcell = mahotas.morph.dilate(cmskcell.astype(bool))
+            fmskcell = mahotas.morph.dilate(fmskcell.astype(bool))
         for id in range(bordersize):
-            cmskcell = mahotas.morph.erode(cmskcell)
-        bg = np.logical_not(cmskcell)
+            fmskcell = mahotas.morph.erode(fmskcell)
+        bg = np.logical_not(fmskcell)
         if np.sum(bg) > 0:
             bgcoords = np.array(np.where(bg)).astype('float').T
         else:
@@ -2598,44 +2615,44 @@ class cellPoseTraj():
         indborder = np.where(border)
         ccborder = np.zeros_like(cmskcell)
         csborder = np.zeros_like(cmskcell)
-        ccborder[(indborder[0][indcc], indborder[1][indcc])]=1.0
-        csborder[(indborder[0][indcs], indborder[1][indcs])]=1.0
+        ccborder[(indborder[0][indcc], indborder[1][indcc])] = 1.0
+        csborder[(indborder[0][indcs], indborder[1][indcs])] = 1.0
         ccborder = ccborder.astype(int)
         csborder = csborder.astype(int)
         return ccborder, csborder
-
+   
     @staticmethod
-    def get_border_profile(cmskcell, bordersize=10):
+    def get_border_profile(imgcell, cmskcell, fmskcell, bordersize=10):
         cc_profile = np.zeros(2*bordersize + 1)
         cs_profile = np.zeros(2*bordersize + 1)
         cbins = np.arange(-bordersize, bordersize+1)
-        cmskcell = cmskcell.astype(bool)
+        fmskcell = fmskcell.astype(bool)
         for id in range(bordersize):
-            cmskcell = mahotas.morph.erode(cmskcell.astype(bool))
+            fmskcell = mahotas.morph.erode(fmskcell.astype(bool))
         for id in range(bordersize):
-            cmskcell = mahotas.morph.dilate(cmskcell)
+            fmskcell = mahotas.morph.dilate(fmskcell)
         for id in range(bordersize):
-            cmskcell = mahotas.morph.dilate(cmskcell.astype(bool))
+            fmskcell = mahotas.morph.dilate(fmskcell.astype(bool))
         for id in range(bordersize):
-            cmskcell = mahotas.morph.erode(cmskcell)
+            fmskcell = mahotas.morph.erode(fmskcell)
         se = np.array([[0, 1, 0],[1, 1, 1],[0, 1, 0]], bool)
         i0 = bordersize
-        ccborder, csborder = self.get_cc_cs_border(cmskcell)
-        cc_profile[i0] = np.mean(cmskcell[np.where(ccborder)])
-        cs_profile[i0] = np.mean(cmskcell[np.where(csborder)])
+        ccborder, csborder = self.get_cc_cs_border(cmskcell, fmskcell)
+        cc_profile[i0] = np.mean(imgcell[np.where(ccborder)])
+        cs_profile[i0] = np.mean(imgcell[np.where(csborder)])
         icp = bordersize; icm = bordersize
         cmskcellp = cmskcell.copy(); cmskcellm = cmskcell.copy()
         for i in range(bordersize):
             icp = icp + 1
             icm = icm - 1
-            cmskcellp = mahotas.morph.dilate(cmskcellp.astype(bool),se)
-            cmskcellm = mahotas.morph.erode(cmskcellm.astype(bool),se)
-            ccborderp, csborderp = self.get_cc_cs_border(cmskcellp)
-            ccborderm, csborderm = self.get_cc_cs_border(cmskcellm)
-            cc_profile[icp] = np.mean(cmskcell[np.where(ccborderp)])
-            cc_profile[icm] = np.mean(cmskcell[np.where(ccborderm)])
-            cs_profile[icp] = np.mean(cmskcell[np.where(csborderp)])
-            cs_profile[icm] = np.mean(cmskcell[np.where(csborderm)])
+            cmskcellp = mahotas.morph.dilate(cmskcellp.astype(bool), se)
+            cmskcellm = mahotas.morph.erode(cmskcellm.astype(bool), se)
+            ccborderp, csborderp = self.get_cc_cs_border(cmskcellp, fmskcell)
+            ccborderm, csborderm = self.get_cc_cs_border(cmskcellm, fmskcell)
+            cc_profile[icp] = np.mean(imgcell[np.where(ccborderp)])
+            cc_profile[icm] = np.mean(imgcell[np.where(ccborderm)])
+            cs_profile[icp] = np.mean(imgcell[np.where(csborderp)])
+            cs_profile[icm] = np.mean(imgcell[np.where(csborderm)])
         return cbins, cc_profile, cs_profile
 
     @staticmethod
@@ -2679,7 +2696,7 @@ class cellPoseTraj():
         nb = np.max(bmsk)
         cbSet = np.zeros((nb, 2))
         for ib in range(nb):
-            mskLoc = bmsk == ib + 1
+            mskLoc=bmsk==ib+1
             cbSet[ib, 0] = np.sum(np.multiply(xx, mskLoc))/np.sum(mskLoc) - t[2]
             cbSet[ib, 1] = np.sum(np.multiply(yy, mskLoc))/np.sum(mskLoc) - t[1]
         bunch_clusters = coor.clustering.AssignCenters(cbSet, metric='euclidean', stride=1, n_jobs=None, skip=0)
@@ -2830,5 +2847,42 @@ class cellPoseTraj():
     Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman. 
     Morphodynamical cell-state description via live-cell imaging trajectory embedding. 
     Biorxiv 10.1101/2021.10.07.463498, 2021.
-"""
 
+    def get_cc_cs_border(self, mskcell, bordersize=10): 
+        border=self.get_borders(mskcell).astype(bool)
+        bordercoords=np.array(np.where(border)).astype('float').T
+        nb=bordercoords.shape[0]
+        # fmskcell is the region of the cell material
+        fmskcell = mskcell.copy()
+        
+        # Erosion and dilation to get the cell core (cc) and cell surrounding (cs) region
+        for id in range(bordersize):
+          fmskcell = mahotas.morph.erode(fmskcell.astype(bool))
+        for id in range(bordersize):
+          fmskcell = mahotas.morph.dilate(fmskcell)
+        for id in range(bordersize):
+          fmskcell = mahotas.morph.dilate(fmskcell.astype(bool))
+        for id in range(bordersize):
+          fmskcell = mahotas.morph.erode(fmskcell)
+
+        # The background is the region where there is no cellular material
+        bg = np.logical_not(fmskcell)
+        if np.sum(bg) > 0:
+           bgcoords = np.array(np.where(bg)).astype('float').T
+        else:
+           bgcoords = np.array([[1.e10,1.e10]])
+        
+        distbg = np.amin(self.get_dmat(bordercoords, bgcoords), axis = 1)
+        ccborder = np.where(distbg > bordersize/2.,np.ones_like(distbg),np.zeros_like(distbg))
+        indcc = np.where(ccborder)
+        indcs = np.where(np.logical_not(ccborder))
+        indborder = np.where(border)
+        ccborder = np.zeros_like(mskcell)
+        csborder = np.zeros_like(mskcell)
+        ccborder[(indborder[0][indcc],indborder[1][indcc])] = 1.0
+        csborder[(indborder[0][indcs],indborder[1][indcs])] = 1.0
+        ccborder = ccborder.astype(int)
+        csborder = csborder.astype(int)
+
+        return ccborder,csborder
+"""
