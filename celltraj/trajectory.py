@@ -86,14 +86,11 @@ class Trajectory:
     def load_from_h5(self,path):
         """
         Read in records from h5 file path recursively.
-        Parameters
-        ----------
-        path
-            Base path in h5 file.
-        Returns
-        -------
-        bool
-            True if successful, False otherwise.
+
+        :param path: Base path in h5 file.
+        :type path: str
+        :returns: True if successful, False otherwise.
+        :rtype: str
         """
         if self.h5filename is not None:
             if os.path.isfile(self.h5filename):
