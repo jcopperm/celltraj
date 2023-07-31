@@ -331,6 +331,25 @@ class Trajectory:
             msk=dset[:]
         return msk
 
+    def get_fmask_data(self,n_frame)
+        """
+        Get foreground mask data for a frame, if self.fmskchannel is set will pull from mask data and be set from msk[...,fmskchannel]>0 (or default mskchannel if self.fmskchannel not set), or if self.fmsk_threshold is set, will be thresholded from self.fmsk_imgchannel or first imgchannel.
+        Parameters
+        ----------
+        n_frame
+            frame number
+        Returns
+        -------
+        fmsk : ndarray, bool
+            foreground (cells) / background mask
+        """
+        if has attr(self,'fmskchannel'):
+            with h5py.File(self.h5filename,'r') as f:
+                dsetName = "/images/img_%d/mask" % int(n_frame)
+                dset=f[dsetName]
+                msk=dset[:]
+        return msk
+
     def get_cell_blocks(self,label):
         """
         Get min max indices for each cell in mask. Note the order of output here determines cell indexing. Will return skimage convention of label (msk) integers in increasing order, which is re-indexed from 0.
@@ -359,7 +378,7 @@ class Trajectory:
             cblocks[:,2,1]=bbox_table['bbox-5']
         return cblocks
 
-    def get_cell_data(self,verbose=False,save_h5=False,overwrite=False):
+    def get_cell_index(self,verbose=False,save_h5=False,overwrite=False):
         """
         Get indices and host frame for each cell in image stack, and for each cell saves arrays of infor including frame index (cells_frameSet, cells_imgfileSet, cells_indimgSet, note these are named differently because of previous compatibility with running multiple image stacks in the same trajectory object, [ncells_total]), index value in trajectory object (cells_indSet, [ncells_total]), and bounding box in image (cellblocks [ncells_total, ndim, 2]
         Parameters
@@ -417,3 +436,66 @@ class Trajectory:
             attribute_list=['cells_frameSet','cells_imgfileSet','cells_indSet','cells_indimgSet','cellblocks']
             self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
         return True
+
+    def get_cell_data(self,ic,frametype='boundingbox',return_masks=True,relabel_masks=True,relabel_mskchannels=None,delete_background=False):
+    """Get image and mask data for a specific cell.
+
+    Review options for pulling cell neighborhood data as well as the local cell data:
+
+    Parameters
+    ----------
+    ic : int
+        cell ID.
+    frametype : str
+        Can be 'boundingbox' for a bounding box of the cell label, 'neighborhood' for the voronoi neighbors of the specified cell, or 'connected' for the full set of connected cells.
+    delete_background : bool
+        Whether to set label and image pixels other than the single, neighborhood, or connected set to zero.
+    return_masks : bool
+        Whether to return mask data along with image data
+    relabel_masks : bool
+        Whether to relabel masks with movie cell indices
+    relabel_mskchannels : array or list
+        List of channels to relabel
+
+    Returns
+    -------
+    imgc : ndarray, float
+        cell image data
+    mskc : ndarray, int
+        cell mask data, optional if return_masks=True
+    """
+        n_frame=self.cells_indimgSet[ic]
+        ic_msk=self.cells_indSet[ic] #cell index in labeled image
+        img=self.get_image_data(n_frame)
+        msk=self.get_mask_data(n_frame)
+        if frametype=='boundingbox':
+            indcells=np.array([ic_msk]).astype(int)
+            cblock=self.cellblocks[ic,...]
+        indt=np.where(self.cells_indimgSet==n_frame)[0] #all cells in frame
+        indcells_global=indt[indcells]
+        if self.ndim==3:
+            imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+            mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+        if self.ndim==2:
+            imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+            mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+        if relabel_masks:
+            if self.nmaskchannels>0:
+                if relabel_mskchannels is None:
+                    relabel_mskchannels=[self.mskchannel]
+                label = mskc[...,relabel_mskchannels]
+            else:
+                label = mskc[...,np.newaxis]
+            for ichannel in range(len(relabel_mskchannels)):
+                label_table=regionprops_table(msk[...,relabel_mskchannels[ichannel]],intensity_image=None,properties=['label'])
+                labelIDs=label_table['label'][indcells]
+                mskc_channel=np.zeros_like(label[...,relabel_mskchannels[ichannel]]).astype(int)
+                for ic_relabel in range(labelIDs.size):
+                    icell=labelIDs[ic_relabel]
+                    icell_global=indcells_global[ic_relabel]
+                    mskc_channel[label[...,relabel_mskchannels[ichannel]]==icell]=icell_global
+                label[...,relabel_mskchannels[ichannel]]=mskc_channel
+                
+
+       
+
