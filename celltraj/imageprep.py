@@ -538,15 +538,11 @@ def get_registrations(imgs):
         sys.stdout.write('frame '+str(iframe)+' transx: '+str(tSet[iframe,1])+' transy: '+str(tSet[iframe,2])+'\n')
     return tSet #stack translations
 
-def transform_image(x1,t):
-    if x1.ndim==1:
-        nx=int(np.sqrt(x1.size))
-        x1=x1.reshape(nx,nx)
-    nx=x1.shape[0]
-    ny=x1.shape[1]
+def get_tf_matrix_2d(t,img,s=1.):
+    nx=img.shape[0]
+    ny=img.shape[1]
     centerx=nx/2
     centery=ny/2
-    s=1.0
     th=t[0]
     trans=t[1:]
     tmatrix=np.zeros([3,3])
@@ -557,16 +553,60 @@ def transform_image(x1,t):
     tmatrix[1,1]=s*np.cos(th)
     tmatrix[1,2]=-centerx*s*np.sin(th)-centery*s*np.cos(th)+centery+trans[1]
     tmatrix[2,2]=1.0
-    tform = tf.SimilarityTransform(matrix=tmatrix)
-    x1rt=tf.warp(x1, tform)
-    return x1rt
+    return tmatrix
 
-def pad_image(img,maxedgex,maxedgey):
-    npad_lx=int(np.ceil((maxedgex-img.shape[0])/2))
-    npad_ly=int(np.ceil((maxedgey-img.shape[1])/2))
-    img=np.pad(img,((npad_lx,npad_lx),(npad_ly,npad_ly)),'constant',constant_values=(0,0))
-    img=img[0:maxedgex,0:maxedgey]
+def transform_image(img,tf_matrix,inverse_tform=False,pad_dims=None):
+    if tf_matrix.shape == (3,3) or tf_matrix.shape == (4,4):
+        pass
+    else:
+        print('provide valid transformation matrix')
+        return 1
+    if img.ndim==1:
+        print('reshape flat array to image first')
+    tform = tf.EuclideanTransform(matrix=tf_matrix,dimensionality=img.ndim)
+    if pad_dims is not None:
+        img=pad_image(img,*pad_dims)
+    if inverse_tform:
+        img_tf=ndimage.affine_transform(img, tform.inverse.params)
+    else:
+        img_tf=ndimage.affine_transform(img, tform.params)
+    img_tf=img_tf.astype(img.dtype)
+    return img_tf
+
+def pad_image(img,*maxdims):
+    ndim=len(maxdims)
+    img_ndim=img.ndim
+    if ndim != img_ndim:
+        print('maxdims and img dim must match')
+        return 1
+    npads=[None]*ndim
+    for idim in range(ndim):
+        npads[idim]=int(np.ceil((maxdims[idim]-img.shape[idim])/2))
+    if ndim==2:
+        img=np.pad(img,((npads[0],npads[0]),(npads[1],npads[1])),'constant',constant_values=(0,0))
+        img=img[0:maxdims[0],0:maxdims[1]]
+    if ndim==3:
+        img=np.pad(img,((npads[0],npads[0]),(npads[1],npads[1]),(npads[2],npads[2])),'constant',constant_values=(0,0))
+        img=img[0:maxdims[0],0:maxdims[1],0:maxdims[2]]
     return img
+
+def get_registration_expansions(tf_matrix_set,*imgdims):
+    tSet=tf_matrix_set[...,-1][:,0:-1]
+    tSet=tSet-np.min(tSet,axis=0)
+    max_trans=np.max(tSet,axis=0)
+    if len(imgdims)==2:
+        center=np.array([(imgdims[0]+max_trans[0])/2.,(imgdims[1]+max_trans[1])/2.])
+        tSet[:,0]=tSet[:,0]-max_trans[0]/2.
+        tSet[:,1]=tSet[:,1]-max_trans[1]/2.
+        pad_dims=(int(imgdims[0]+max_trans[0]),int(imgdims[1]+max_trans[1]))
+    if len(imgdims)==3:
+        center=np.array([(imgdims[0]+max_trans[0])/2.,(imgdims[1]+max_trans[1])/2.,(imgdims[2]+max_trans[2])/2.])
+        tSet[:,0]=tSet[:,0]-max_trans[0]/2.
+        tSet[:,1]=tSet[:,1]-max_trans[1]/2.
+        tSet[:,2]=tSet[:,2]-max_trans[2]/2.
+        pad_dims=(int(imgdims[0]+max_trans[0]),int(imgdims[1]+max_trans[1]),int(imgdims[2]+max_trans[2]))
+    tf_matrix_set[...,-1][:,0:-1]=tSet
+    return tf_matrix_set,pad_dims
 
 def expand_registered_images(imgs,tSet):
     """Apply transformations to a stack of images and expand images so they align

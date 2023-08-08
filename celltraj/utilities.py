@@ -11,6 +11,7 @@ from sklearn.cluster import KMeans
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components
 from sklearn.linear_model import LinearRegression
+from scipy import ndimage
 import h5py
 
 """
@@ -139,3 +140,85 @@ def recursively_load_dict_contents_from_group( h5file, path):
         elif isinstance(item, h5py._hl.group.Group):
             ans[key] = recursively_load_dict_contents_from_group(h5file, path + key + '/')
     return ans            
+
+def get_cell_centers(labels):
+    centers=np.array(ndimage.measurements.center_of_mass(np.ones_like(labels),labels=labels,index=np.arange(1,np.max(labels)+1).astype(int)))
+    return centers
+
+def get_dmat(x1,x2=None): #adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)
+    x1=np.transpose(x1) #default from Fung folks is D x N
+    if x2 is None:
+        nX1 = x1.shape[1];
+        y = np.matlib.repmat(np.sum(np.power(x1,2),0),nX1,1)
+        y = y - np.matmul(np.transpose(x1),x1)
+        y = y + np.transpose(y);
+        y = np.abs( y + np.transpose(y) ) / 2. # Iron-out numerical wrinkles
+    else:
+        x2=np.transpose(x2)
+        nX1 = x1.shape[1]
+        nX2 = x2.shape[1]
+        y = np.matlib.repmat( np.expand_dims(np.sum( np.power(x1,2), 0 ),1), 1, nX2 )
+        y = y + np.matlib.repmat( np.sum( np.power(x2,2), 0 ), nX1, 1 )
+        y = y - 2 * np.matmul(np.transpose(x1),x2)
+    return np.sqrt(y)
+
+def dist_to_contact(r,r0,d0,n=6,m=12):
+    if np.isscalar(r):
+        if r<d0:
+            c=1.
+        else:
+            w=(r-d0)/r0
+            c=(1-w**n)/(1-w**m)
+    else:
+        c=np.zeros_like(r)
+        indc=np.where(r<d0)[0]
+        inds=np.where(r>=d0)[0]
+        c[indc]=1.
+        w=(r[inds]-d0)/r0
+        c[inds]=np.divide((1-np.power(w,n)),(1-np.power(w,m)))
+    return c
+
+def get_pairwise_distance_sum(tshift,centers1,centers2,contact_transform=False,r0=100.,d0=100.,n=6,m=12):
+    max_dev=2*(np.max(centers1,axis=0)-np.min(centers1,axis=0))
+    inside_max_dev=np.logical_and(np.all(centers2>tshift-max_dev,axis=1),np.all(centers2<tshift+max_dev,axis=1))
+    if np.sum(inside_max_dev)==0:
+        nncs=np.nan
+    else:
+        inds_tshift=np.where(inside_max_dev)[0]
+        r1=get_dmat(centers1+tshift,centers2[inds_tshift,:]).min(axis=1)
+        if contact_transform:
+            r1=dist_to_contact(r1,r0,d0,n=n,m=m)
+            r2=get_dmat(centers2[inds_tshift,:],centers1+tshift).min(axis=1)
+            r2=dist_to_contact(r2,r0,d0,n=n,m=m)
+            nncs=-(np.nansum(r1)/r1.size+np.nansum(r2)/r2.size)
+        else:
+            nncs=np.nansum(get_dmat(centers1+tshift,centers2[inds_tshift,:]).min(axis=1))+np.nansum(get_dmat(centers2[inds_tshift,:],centers1+tshift).min(axis=1))
+    return nncs
+
+def get_tshift(centers1,centers2,dist_function,ntrans=100,maxt=10, **dist_function_keys):
+    ndim=centers1.shape[1]
+    if not isinstance(ntrans, (list,tuple,np.ndarray)):
+        ntrans=[ntrans]*ndim
+    if not isinstance(maxt, (list,tuple,np.ndarray)):
+        maxt=[maxt]*ndim
+    if ndim==2:
+        txSet=np.linspace(-maxt[0],maxt[0],ntrans[0])
+        tySet=np.linspace(-maxt[1],maxt[1],ntrans[1])
+        xxt,yyt=np.meshgrid(txSet,tySet)
+        xxt=xxt.flatten(); yyt=yyt.flatten()
+        tshifts=np.array([xxt,yyt]).T
+    if ndim==3:
+        tzSet=np.linspace(-maxt[0],maxt[0],ntrans[0])
+        txSet=np.linspace(-maxt[1],maxt[1],ntrans[1])
+        tySet=np.linspace(-maxt[2],maxt[2],ntrans[2])
+        xxt,yyt,zzt=np.meshgrid(tzSet,txSet,tySet)
+        xxt=xxt.flatten(); yyt=yyt.flatten(); zzt=zzt.flatten()
+        tshifts=np.array([xxt,yyt,zzt]).T
+    ntshifts=xxt.size
+    distSet=np.zeros(ntshifts)
+    for itshift in range(ntshifts):
+        tshift=tshifts[itshift,:]
+        distSet[itshift]=dist_function(tshift,centers1,centers2,**dist_function_keys)
+    indmatch=np.argmin(distSet)
+    tshift=tshifts[indmatch,:]
+    return tshift
