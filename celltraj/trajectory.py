@@ -24,13 +24,13 @@ from pystackreg import StackReg
 import pyemma.coordinates as coor
 import numpy.matlib
 import umap
-#import btrack
-#from btrack.constants import BayesianUpdates
+import btrack
+from btrack.constants import BayesianUpdates
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
 import utilities
-import imageprep
+import imageprep as imprep
 
 
 class Trajectory:
@@ -573,6 +573,72 @@ class Trajectory:
         else:
             return np.array(Xf)
 
+    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,make_disjoint=True,combined_and_disjoint=False,intensity_sum=False,save_h5=False,overwrite=False):
+        """
+        Get cell features using skimage's regionprops, passing a custom function tuple for measurement
+        Parameters
+        ----------
+        indcells : int ndarray
+            array of cell indices from which to calculate features
+        imgchannel : int
+            channel for intensity image for feature calc
+        mskchannel1 : int
+            first channel for single-cell labels for intensity calc, the numerator in ratio
+        mskchannel2 : int
+            second channel for single-cell labels for intensity calc, the denominator in ratio. Overlap with mskchannel1 will be removed
+        combined_and_disjoint : bool
+            combine masks 1 and 2, then dilate mask 2, erode mask 1, then remove mask 1 from mask 2
+        save_h5 : bool
+            whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
+        overwrite : bool
+            whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
+        Returns
+        -------
+        cratio : ndarray (indcells.size)
+            compartment intensity ratio
+        feature_list : string array (nfeatures)
+            description of cell features, optional
+        """
+        if imgchannel is None or mskchannel1 is None or mskchannel2 is None:
+            print('set imgchannel, mskchannel1, and mskchannel2 keys')
+            return 1
+        if not hasattr(self,'cells_indSet'):
+            print('no cell index, run get_cell_index')
+            return 1
+        if indcells is None:
+            indcells=np.arange(self.cells_indSet.size).astype(int)
+        feature_name=f'img{imgchannel}_m{mskchannel1}m{mskchannel2}_ratio'
+        Xf=[None]*np.array(indcells).size
+        ip_frame=10000000
+        icell=0
+        for icell in range(np.array(indcells).size):
+            ic=indcells[icell]
+            if not self.cells_frameSet[ic]==ip_frame:
+                sys.stdout.write('featurizing cells from frame '+str(self.cells_frameSet[ic])+'\n')
+                img=self.get_image_data(self.cells_indimgSet[ic]) #use image data for intensity image
+                msk=self.get_mask_data(self.cells_indimgSet[ic])
+                if self.axes[-1]=='c':
+                    img=img[...,imgchannel]
+                msk1=msk[...,mskchannel1]
+                msk2=msk[...,mskchannel2]
+                if combined_and_disjoint:
+                    msk2=imprep.get_cyto_minus_nuc_labels(msk2,msk1)
+                elif make_disjoint:
+                    msk2[msk1>0]=0
+                props1 = regionprops_table(msk1, intensity_image=img,properties=('label','intensity_mean','area'))
+                props2 = regionprops_table(msk1, intensity_image=img,properties=('label','intensity_mean','area'))
+                if intensity_sum:
+                    Xf_frame=np.divide(np.multiply(props1['intensity_mean'],props1['area']),np.multiply(props2['intensity_mean'],props2['area']))
+                else:
+                    Xf_frame=np.divide(props1['intensity_mean'],props2['intensity_mean'])
+            Xf[icell]=Xf_frame[self.cells_indSet[ic]]
+            ip_frame=self.cells_frameSet[ic]
+        if save_h5:
+            setattr(self,feature_name,Xf)
+            attribute_list=[feature_name]
+            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+        return np.array(Xf)
+
     def get_stack_trans(self,mskchannel=0,ntrans=20,maxt=10,dist_function=utilities.get_pairwise_distance_sum,zscale=None,save_h5=False,overwrite=False,do_global=False,**dist_function_keys):
         """
         Get translations over image stack using a brute force function optimization approach.
@@ -644,6 +710,141 @@ class Trajectory:
             attribute_list=['tf_matrix_set']
             self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
         return tf_matrix_set
+
+    def get_cell_positions(self,mskchannel=0,save_h5=False,overwrite=False):
+        if mskchannel != self.mskchannel:
+            print(f'getting positions from mask channel {mskchannel}, default mskchannel is {self.mskchannel}')
+        if not hasattr(self,'tf_matrix_set'):
+            sys.stdout.write('stack has not been trans registered: first call get_stack_trans() to set tf_matrix_set\n')
+            return 1
+        tSet=self.tf_matrix_set[...,-1][:,0:-1]
+        ncells=self.cells_indSet.size
+        cells_positionSet=np.zeros((ncells,self.ndim))
+        cells_x=np.zeros((ncells,self.ndim))
+        for im in range(self.nt):
+            sys.stdout.write('loading cells from frame '+str(im)+'\n')
+            indc_img=np.where(self.cells_indimgSet==im)
+            msk=self.get_mask_data(im)
+            if self.nmaskchannels>0:
+                msk=msk[...,mskchannel]
+            centers=np.array(ndimage.center_of_mass(np.ones_like(msk),labels=msk,index=np.arange(1,np.max(msk)+1).astype(int)))
+            cells_positionSet[indc_img,:]=centers
+            #centers[:,0]=centers[:,0]-self.imgSet_t[im,2]
+            #centers[:,1]=centers[:,1]-self.imgSet_t[im,1]
+            centers=centers-tSet[im,:]
+            cells_x[indc_img,:]=centers
+        if save_h5:
+            self.cells_positionSet=cells_positionSet
+            self.x=cells_x
+            attribute_list=['cells_positionSet','x']
+            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+        return cells_x
+
+    def get_lineage_btrack(self,mskchannel=0,distcut=5.,framewindow=6,visual_1cell=False,visual=False,max_search_radius=100,save_h5=False,overwrite=False):
+        nimg=self.nt
+        if not hasattr(self,'tf_matrix_set'):
+            print('need to run get_stack_trans for image stack registration before tracking')
+        tf_matrix_set_pad,pad_dims=imprep.get_registration_expansions(self.tf_matrix_set,self.nz,self.nx,self.ny)
+        segmentation=np.zeros((nimg,*pad_dims)).astype(int)
+        for im in range(nimg):
+            msk=self.get_mask_data(im)
+            if self.nmaskchannels>0:
+                msk=msk[...,mskchannel]
+            mskT=imprep.transform_image(msk,self.tf_matrix_set[im,...],inverse_tform=True,pad_dims=pad_dims)
+            segmentation[im,...]=mskT
+            print('loading and translating mask '+str(im))
+        linSet=[None]*nimg
+        indt0=np.where(self.cells_indimgSet==0)[0]
+        linSet[0]=np.ones(indt0.size).astype(int)*-1
+        for iS in range(1,nimg):
+            fl=np.maximum(0,iS-framewindow)
+            fu=np.minimum(iS+framewindow,nimg)
+            frameset=np.arange(fl,fu).astype(int)
+            frameind=np.where(frameset==iS)[0][0]
+            masks=segmentation[frameset,:,:]
+            msk=masks[frameind,:,:]
+            msk1=msk
+            msk0=masks[frameind-1,:,:]
+            indt1=np.where(self.cells_indimgSet==iS)[0]
+            xt1=self.x[indt1,:]
+            indt0=np.where(self.cells_indimgSet==iS-1)[0]
+            xt0=self.x[indt0,:]
+            ncells=xt1.shape[0] #np.max(masks[frameind,:,:])
+            lin1=np.ones(ncells).astype(int)*-1
+            objects = btrack.utils.segmentation_to_objects(masks, properties=('area', )) # initialise a tracker session using a context manager
+            tracker=btrack.BayesianTracker() # configure the tracker using a config file
+            tracker.configure_from_file('cell_config.json')
+            tracker.update_method = BayesianUpdates.APPROXIMATE
+            tracker.max_search_radius = 100
+            tracker.append(objects) # append the objects to be tracked
+            if self.ndim==2:
+                tracker.volume=((0, self.ny), (0, self.nx), (-1e5, 1e5)) # set the volume (Z axis volume is set very large for 2D data)
+            if self.ndim==3:
+                tracker.volume=((0, self.ny), (0, self.nx), (0, self.nz))
+            tracker.track_interactive(step_size=100) # track them (in interactive mode)
+            tracker.optimize() # generate hypotheses and run the global optimizer
+            ntracked=0
+            for itrack in range(tracker.n_tracks):
+                if np.isin(frameind,tracker.tracks[itrack]['t']):
+                    it=np.where(np.array(tracker.tracks[itrack]['t'])==frameind)[0][0]
+                    tp=np.array(tracker.tracks[itrack]['t'])[it-1]
+                    if tp==frameind-1 and tracker.tracks[itrack]['dummy'][it]==False and tracker.tracks[itrack]['dummy'][it-1]==False:
+                        if self.ndim==2:
+                            x1=np.array([tracker.tracks[itrack]['y'][it],tracker.tracks[itrack]['x'][it]]) #.astype(int)
+                            x0=np.array([tracker.tracks[itrack]['y'][it-1],tracker.tracks[itrack]['x'][it-1]]) #.astype(int)
+                        elif self.ndim==3:
+                            x1=np.array([tracker.tracks[itrack]['z'][it],tracker.tracks[itrack]['y'][it],tracker.tracks[itrack]['x'][it]]) #.astype(int)
+                            x0=np.array([tracker.tracks[itrack]['z'][it],tracker.tracks[itrack]['y'][it-1],tracker.tracks[itrack]['x'][it-1]]) #.astype(int)
+                        dists_x1=utilities.get_dmat([x1],xt1)[0]
+                        ind_nnx=np.argsort(dists_x1)
+                        ic1=ind_nnx[0]
+                        dists_x0=utilities.get_dmat([x0],xt0)[0]
+                        ind_nnx=np.argsort(dists_x0)
+                        ic0=ind_nnx[0]
+                        if dists_x1[ic1]<distcut and dists_x0[ic0]<distcut:
+                            lin1[ic1]=ic0
+                            print(f'frame {iS} a real track cell {ic0} to cell {ic1}')
+                            ntracked=ntracked+1
+                        if visual_1cell:
+                            if self.ndim==3:
+                                vmsk1=np.max(msk1,axis=0)
+                                vmsk0=np.max(msk0,axis=0)
+                                ix=1;iy=2
+                            elif self.ndim==2:
+                                vmsk1=msk1
+                                vmsk0=msk0
+                                ix=0;iy=1
+                            plt.clf()
+                            plt.scatter(x1[ix],x1[iy],s=100,marker='x',color='red',alpha=0.5)
+                            plt.scatter(x0[ix],x0[iy],s=100,marker='x',color='green',alpha=0.5)
+                            plt.scatter(xt1[:,ix],xt1[:,iy],s=20,marker='x',color='darkred',alpha=0.5)
+                            plt.scatter(xt0[:,ix],xt0[:,iy],s=20,marker='x',color='lightgreen',alpha=0.5)
+                            plt.scatter(xt1[ic1,ix],xt1[ic1,iy],s=200,marker='x',color='darkred',alpha=0.5)
+                            plt.scatter(xt0[ic0,ix],xt0[ic0,iy],s=200,marker='x',color='lightgreen',alpha=0.5)
+                            plt.contour(vmsk1.T>0,levels=[1],colors='red',alpha=.3)
+                            plt.contour(vmsk0.T>0,levels=[1],colors='green',alpha=.3)
+                            plt.pause(.1)
+            if visual:
+                if self.ndim==3:
+                    vmsk1=np.max(msk1,axis=0)
+                    vmsk0=np.max(msk0,axis=0)
+                    ix=1;iy=2
+                elif self.ndim==2:
+                    vmsk1=msk1
+                    vmsk0=msk0
+                    ix=0;iy=1
+                plt.clf()
+                plt.scatter(xt1[:,ix],xt1[:,iy],s=20,marker='x',color='darkred',alpha=0.5)
+                plt.scatter(xt0[:,ix],xt0[:,iy],s=20,marker='x',color='lightgreen',alpha=0.5)
+                plt.contour(vmsk1.T,levels=np.arange(np.max(vmsk1)),colors='red',alpha=.3,linewidths=.3)
+                plt.contour(vmsk0.T,levels=np.arange(np.max(vmsk0)),colors='green',alpha=.3,linewidths=.3)
+                plt.scatter(xt1[lin1>-1,ix],xt1[lin1>-1,iy],s=300,marker='o',alpha=.1,color='purple')
+                plt.pause(.1)
+        if save_h5:
+            self.linSet=linSet
+            attribute_list=['linSet']
+            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+        return linSet
 
     def get_pair_rdf(self,cell_indsA=None,cell_indsB=None,rbins=None,nr=50,rmax=500):
         if cell_indsA is None:

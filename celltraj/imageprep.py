@@ -555,7 +555,7 @@ def get_tf_matrix_2d(t,img,s=1.):
     tmatrix[2,2]=1.0
     return tmatrix
 
-def transform_image(img,tf_matrix,inverse_tform=False,pad_dims=None):
+def transform_image(img,tf_matrix,inverse_tform=False,pad_dims=None,**ndimage_args):
     if tf_matrix.shape == (3,3) or tf_matrix.shape == (4,4):
         pass
     else:
@@ -563,13 +563,22 @@ def transform_image(img,tf_matrix,inverse_tform=False,pad_dims=None):
         return 1
     if img.ndim==1:
         print('reshape flat array to image first')
+    if np.issubdtype(img.dtype,np.integer):
+        if 'ndimage_args' in locals():
+            if 'order' in ndimage_args:
+                if ndimage_args['order']>0:
+                    print(f'with integer arrays spline order of 0 recommended, {ndimage_args["order"]} requested')
+            else:
+                ndimage_args['order']=0
+        else:
+            ndimage_args={'order': 0}
     tform = tf.EuclideanTransform(matrix=tf_matrix,dimensionality=img.ndim)
     if pad_dims is not None:
         img=pad_image(img,*pad_dims)
     if inverse_tform:
-        img_tf=ndimage.affine_transform(img, tform.inverse.params)
+        img_tf=ndimage.affine_transform(img, tform.inverse.params, **ndimage_args)
     else:
-        img_tf=ndimage.affine_transform(img, tform.params)
+        img_tf=ndimage.affine_transform(img, tform.params, **ndimage_args)
     img_tf=img_tf.astype(img.dtype)
     return img_tf
 
