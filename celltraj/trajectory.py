@@ -341,11 +341,18 @@ class Trajectory:
             foreground (cells) / background mask
         """
         if has_attr(self,'fmskchannel'):
-            with h5py.File(self.h5filename,'r') as f:
-                dsetName = "/images/img_%d/mask" % int(n_frame)
-                dset=f[dsetName]
-                msk=dset[:]
+            print(f'getting foreground mask from {self.h5filename} mask channel {self.fmskchannel}')
+            msk=get_mask_data(n_frame)
             fmsk=msk[...,self.fmskchannel]
+        elif has_attr(self,'fmsk_threshold'):
+            if not has_attr(self,'fmsk_imgchannel'):
+                print('need to set fmsk_imgchannel, image channel for thresholding')
+            print(f'getting foreground mask from thresholded image data channel {self.fmsk_imgchannel}')
+            img=self.get_image_data(n_frame)
+            img=img[...,self.fmsk_imgchannel]
+            fmsk=img>self.fmsk_threshold
+        else:
+            print(f'need to set attribute fmskchannel to pull from a mask channel or fmsk_threshold and fmsk_imgchannel to threshold an image channel for foreground masks')
         return fmsk
 
     def get_cell_blocks(self,label):
@@ -573,7 +580,7 @@ class Trajectory:
         else:
             return np.array(Xf)
 
-    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,make_disjoint=True,combined_and_disjoint=False,intensity_sum=False,save_h5=False,overwrite=False):
+    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,make_disjoint=True,combined_and_disjoint=False,intensity_sum=False,intensity_ztransform=False,save_h5=False,overwrite=False):
         """
         Get cell features using skimage's regionprops, passing a custom function tuple for measurement
         Parameters
@@ -608,7 +615,7 @@ class Trajectory:
         if indcells is None:
             indcells=np.arange(self.cells_indSet.size).astype(int)
         feature_name=f'img{imgchannel}_m{mskchannel1}m{mskchannel2}_ratio'
-        Xf=[None]*np.array(indcells).size
+        cratio=[None]*np.array(indcells).size
         ip_frame=10000000
         icell=0
         for icell in range(np.array(indcells).size):
@@ -625,19 +632,28 @@ class Trajectory:
                     msk2=imprep.get_cyto_minus_nuc_labels(msk2,msk1)
                 elif make_disjoint:
                     msk2[msk1>0]=0
+                if not np.all(np.unique(msk1)==np.unique(msk2)):
+                    print(f'frame {self.cells_indimgSet[ic]} mask1 and mask2 yielding different indices. try combined_and_disjoint=True, or indexing may be off')
+                    return 1
                 props1 = regionprops_table(msk1, intensity_image=img,properties=('label','intensity_mean','area'))
-                props2 = regionprops_table(msk1, intensity_image=img,properties=('label','intensity_mean','area'))
+                props2 = regionprops_table(msk2, intensity_image=img,properties=('label','intensity_mean','area'))
                 if intensity_sum:
-                    Xf_frame=np.divide(np.multiply(props1['intensity_mean'],props1['area']),np.multiply(props2['intensity_mean'],props2['area']))
+                    if intensity_ztransform:
+                        cratio_frame=np.divide(self.img_zstds[imgchannel]*np.multiply(props1['intensity_mean'],props1['area'])+self.img_zmeans[imgchannel],self.img_zstds[imgchannel]*np.multiply(props2['intensity_mean'],props2['area'])+self.img_zmeans[imgchannel])
+                    else:
+                        cratio_frame=np.divide(np.multiply(props1['intensity_mean'],props1['area']),np.multiply(props2['intensity_mean'],props2['area']))
                 else:
-                    Xf_frame=np.divide(props1['intensity_mean'],props2['intensity_mean'])
-            Xf[icell]=Xf_frame[self.cells_indSet[ic]]
+                    if intensity_ztransform:
+                        cratio_frame=np.divide(self.img_zstds[imgchannel]*props1['intensity_mean']+self.img_zmeans[imgchannel],self.img_zstds[imgchannel]*props2['intensity_mean']+self.img_zmeans[imgchannel])
+                    else:
+                        cratio_frame=np.divide(props1['intensity_mean'],props2['intensity_mean'])
+            cratio[icell]=cratio_frame[self.cells_indSet[ic]]
             ip_frame=self.cells_frameSet[ic]
         if save_h5:
-            setattr(self,feature_name,Xf)
+            setattr(self,feature_name,cratio)
             attribute_list=[feature_name]
             self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
-        return np.array(Xf)
+        return np.array(cratio)
 
     def get_stack_trans(self,mskchannel=0,ntrans=20,maxt=10,dist_function=utilities.get_pairwise_distance_sum,zscale=None,save_h5=False,overwrite=False,do_global=False,**dist_function_keys):
         """
@@ -840,6 +856,8 @@ class Trajectory:
                 plt.contour(vmsk0.T,levels=np.arange(np.max(vmsk0)),colors='green',alpha=.3,linewidths=.3)
                 plt.scatter(xt1[lin1>-1,ix],xt1[lin1>-1,iy],s=300,marker='o',alpha=.1,color='purple')
                 plt.pause(.1)
+            print('frame '+str(iS)+' tracked '+str(ntracked)+' of '+str(ncells)+' cells')
+            linSet[iS]=lin1
         if save_h5:
             self.linSet=linSet
             attribute_list=['linSet']

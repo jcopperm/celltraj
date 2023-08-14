@@ -104,9 +104,27 @@ def recursively_save_dict_contents_to_group( h5file, path, dic):
     for key, item in dic.items():
         #print(key,item)
         key = str(key)
-        if isinstance(item, list):
-            item = np.array(item)
-            #print(item)
+#        if isinstance(item, list):
+#            item = np.array(item)
+#            #print(item)
+        if isinstance(item, list): #c
+            try:
+                item = np.array(item)
+            except Exception as e:
+                print(f'{e} , trying elements one-by-one')
+                for index, element in enumerate(item): #c
+                    element_name = key + "/Element_%d" % index #c
+                    if isinstance(element, (np.int64, np.float64, str, float, np.float32, int)): #c
+                        h5file[path + element_name] = element #c
+                    elif isinstance(element, np.ndarray): #c
+                        try: #c
+                            h5file[path + element_name] = element #c
+                        except: #c
+                            element = np.array(element).astype('|S9') #c
+                            h5file[path + element_name] = element #c
+                    else: #c
+                        raise ValueError('Cannot save %s type within a list.' % type(element)) #c
+                continue #c
         if not isinstance(key, str):
             raise ValueError("dict keys must be strings to save to hdf5")
         # save strings, numpy.int64, and numpy.float64 types
@@ -132,14 +150,32 @@ def recursively_save_dict_contents_to_group( h5file, path, dic):
             #print(item)
             raise ValueError('Cannot save %s type.' % type(item))
 
-def recursively_load_dict_contents_from_group( h5file, path): 
+#def recursively_load_dict_contents_from_group( h5file, path): 
+#    ans = {}
+#    for key, item in h5file[path].items():
+#        if isinstance(item, h5py._hl.dataset.Dataset):
+#            ans[key] = item[()]
+#        elif isinstance(item, h5py._hl.group.Group):
+#            ans[key] = recursively_load_dict_contents_from_group(h5file, path + key + '/')
+#    return ans            
+
+def recursively_load_dict_contents_from_group(h5file, path):
     ans = {}
     for key, item in h5file[path].items():
+        # For datasets
         if isinstance(item, h5py._hl.dataset.Dataset):
             ans[key] = item[()]
+        # For groups (which might be dictionaries or lists)
         elif isinstance(item, h5py._hl.group.Group):
-            ans[key] = recursively_load_dict_contents_from_group(h5file, path + key + '/')
-    return ans            
+            # Check if the group appears to contain list elements
+            is_potential_list = all(("Element_" in sub_key) for sub_key in item.keys())
+            if is_potential_list:
+                # If all child keys of the group have the "Element_" pattern, it's likely a list
+                list_data = [item["Element_" + str(i)][()] for i in range(len(item))]
+                ans[key] = list_data
+            else:
+                ans[key] = recursively_load_dict_contents_from_group(h5file, path + key + '/')
+    return ans
 
 def get_cell_centers(labels):
     centers=np.array(ndimage.measurements.center_of_mass(np.ones_like(labels),labels=labels,index=np.arange(1,np.max(labels)+1).astype(int)))
