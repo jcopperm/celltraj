@@ -272,13 +272,13 @@ def get_labeled_mask(b_imgr,imgM=None,apply_watershed=False,fill_holes=True,dist
         masks_nuc = watershed(-d_imgr, markers=markers_nuc, mask=b_imgr)
     return masks_nuc
 
-def clean_labeled_mask(masks_nuc,remove_borders=False,edge_buffer=0,minsize=None,maxsize=None,verbose=False,fill_holes=True,selection='largest',test_map=None,test_cut=0.):
+def clean_labeled_mask(masks_nuc,remove_borders=False,remove_padding=False,edge_buffer=0,minsize=None,maxsize=None,verbose=False,fill_holes=True,selection='largest',test_map=None,test_cut=0.):
     ndim=masks_nuc.ndim
     if minsize is None:
         minsize=0
     if maxsize is None:
-        maxsize is np.inf
-    if remove_borders:
+        maxsize=np.inf
+    if remove_padding:
         if ndim==2:
             xmin=np.min(np.where(masks_nuc>0)[0]);xmax=np.max(np.where(masks_nuc>0)[0])
             ymin=np.min(np.where(masks_nuc>0)[1]);ymax=np.max(np.where(masks_nuc>0)[1])
@@ -286,7 +286,8 @@ def clean_labeled_mask(masks_nuc,remove_borders=False,edge_buffer=0,minsize=None
         if ndim==3:
             xmin=np.min(np.where(masks_nuc>0)[1]);xmax=np.max(np.where(masks_nuc>0)[1])
             ymin=np.min(np.where(masks_nuc>0)[2]);ymax=np.max(np.where(masks_nuc>0)[2])
-            masks_nuc_trimmed=masks_nuc[:,xmin:xmax,:]; masks_nuc_trimmed=masks_nuc_trimmed[:,:,ymin:ymax]
+            zmin=np.min(np.where(masks_nuc>0)[0]);zmax=np.max(np.where(masks_nuc>0)[0])
+            masks_nuc_trimmed=masks_nuc[:,xmin:xmax,:]; masks_nuc_trimmed=masks_nuc_trimmed[:,:,ymin:ymax]; masks_nuc_trimmed=masks_nuc_trimmed[zmin:zmax,:,:]
         masks_nuc_trimmed=clear_border(masks_nuc_trimmed,buffer_size=edge_buffer)
         bmsk1=np.zeros_like(masks_nuc).astype(bool);bmsk2=np.zeros_like(masks_nuc).astype(bool)
         if ndim==2:
@@ -299,6 +300,8 @@ def clean_labeled_mask(masks_nuc,remove_borders=False,edge_buffer=0,minsize=None
         masks_nuc_edgeless=np.zeros_like(masks_nuc)
         masks_nuc_edgeless[indscenter]=masks_nuc_trimmed.flatten()
         masks_nuc=masks_nuc_edgeless
+    if remove_borders:
+        masks_nuc=clear_border(masks_nuc,buffer_size=edge_buffer)
     masks_nuc_clean=np.zeros_like(masks_nuc).astype(int)
     nc=1
     for ic in range(1,int(np.max(masks_nuc))+1): #size filtering

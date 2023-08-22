@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.matlib
 import sys
 import pandas
 import re
@@ -13,6 +14,7 @@ from scipy.sparse.csgraph import connected_components
 from sklearn.linear_model import LinearRegression
 from scipy import ndimage
 import h5py
+np.matlib=numpy.matlib
 
 """
 Utilities for single-cell trajectory modeling. See:
