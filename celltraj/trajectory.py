@@ -505,7 +505,7 @@ class Trajectory:
         else:
             return imgc
                 
-    def get_cell_features(self,function_tuple,indcells=None,imgchannel=0,mskchannel=0,use_fmask_for_intensity_image=False,use_mask_for_intensity_image=False,return_feature_list=False,save_h5=False,overwrite=False):
+    def get_cell_features(self,function_tuple,indcells=None,imgchannel=0,mskchannel=0,use_fmask_for_intensity_image=False,use_mask_for_intensity_image=False,return_feature_list=False,save_h5=False,overwrite=False,concatenate_features=False):
         """
         Get cell features using skimage's regionprops, passing a custom function tuple for measurement
         Parameters
@@ -571,16 +571,31 @@ class Trajectory:
             if i>0:
                 feature_list[i-1]=key
         if save_h5:
-            self.Xf=np.array(Xf)
-            self.Xf_feature_list=feature_list
-            attribute_list=['Xf','Xf_feature_list']
-            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+            try:
+                if concatenate_features:
+                    if not hasattr(self,'Xf'):
+                        print('must have loaded feature array to concatenate')
+                        if return_feature_list:
+                            return np.array(Xf), feature_list
+                        else:
+                            return np.array(Xf)
+                    else:
+                        Xf_prev=self.Xf
+                        Xf_feature_list_prev=self.Xf_feature_list
+                        Xf=np.concatenate((Xf_prev,Xf),axis=0)
+                        feature_list=np.concatenate((Xf_feature_list_prev,feature_list))
+                self.Xf=np.array(Xf)
+                self.Xf_feature_list=feature_list
+                attribute_list=['Xf','Xf_feature_list']
+                data_written = self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+            except Exception as e:
+                print(f'data_written is {data_written}, {e}')
         if return_feature_list:
             return np.array(Xf), feature_list
         else:
             return np.array(Xf)
 
-    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,make_disjoint=True,combined_and_disjoint=False,intensity_sum=False,intensity_ztransform=False,save_h5=False,overwrite=False):
+    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,make_disjoint=True,erosion_footprint1=None,erosion_footprint2=None,combined_and_disjoint=False,intensity_sum=False,intensity_ztransform=False,inverse_ratio=False,save_h5=False,overwrite=False):
         """
         Get cell features using skimage's regionprops, passing a custom function tuple for measurement
         Parameters
@@ -595,6 +610,10 @@ class Trajectory:
             second channel for single-cell labels for intensity calc, the denominator in ratio. Overlap with mskchannel1 will be removed
         combined_and_disjoint : bool
             combine masks 1 and 2, then dilate mask 2, erode mask 1, then remove mask 1 from mask 2
+        erosion_footprint[12] : ndarray
+            footprint of binary erosions to perform for each mask channel
+        inverse_ratio : bool
+            whether to take inverse (e.g. switch to c/n from n/c)
         save_h5 : bool
             whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
         overwrite : bool
@@ -635,11 +654,15 @@ class Trajectory:
                 if not np.all(np.unique(msk1)==np.unique(msk2)):
                     print(f'frame {self.cells_indimgSet[ic]} mask1 and mask2 yielding different indices. try combined_and_disjoint=True, or indexing may be off')
                     return 1
+                if erosion_footprint1 is not None:
+                    fmsk1=skimage.morphology.binary_erosion(msk1>0,footprint=erosion_footprint1); msk1[fmsk1]=0
+                if erosion_footprint2 is not None:
+                    fmsk2=skimage.morphology.binary_erosion(msk2>0,footprint=erosion_footprint2); msk2[fmsk2]=0
                 props1 = regionprops_table(msk1, intensity_image=img,properties=('label','intensity_mean','area'))
                 props2 = regionprops_table(msk2, intensity_image=img,properties=('label','intensity_mean','area'))
                 if intensity_sum:
                     if intensity_ztransform:
-                        cratio_frame=np.divide(self.img_zstds[imgchannel]*np.multiply(props1['intensity_mean'],props1['area'])+self.img_zmeans[imgchannel],self.img_zstds[imgchannel]*np.multiply(props2['intensity_mean'],props2['area'])+self.img_zmeans[imgchannel])
+                        cratio_frame=np.divide(self.img_zstds[imgchannel]*np.multiply(props1['intensity_mean']+self.img_zmeans[imgchannel],props1['area']),self.img_zstds[imgchannel]*np.multiply(props2['intensity_mean']+self.img_zmeans[imgchannel],props2['area']))
                     else:
                         cratio_frame=np.divide(np.multiply(props1['intensity_mean'],props1['area']),np.multiply(props2['intensity_mean'],props2['area']))
                 else:
@@ -649,11 +672,73 @@ class Trajectory:
                         cratio_frame=np.divide(props1['intensity_mean'],props2['intensity_mean'])
             cratio[icell]=cratio_frame[self.cells_indSet[ic]]
             ip_frame=self.cells_frameSet[ic]
+        if inverse_ratio:
+            cratio=np.power(cratio,-1)
         if save_h5:
             setattr(self,feature_name,cratio)
             attribute_list=[feature_name]
             self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
         return np.array(cratio)
+
+    def get_cell_channel_crosscorr(self,indcells=None,mskchannel=None,imgchannel1=None,imgchannel2=None,save_h5=False,overwrite=False):
+        """
+        Get cross correlation between channels within cell labels
+        Parameters
+        ----------
+        indcells : int ndarray
+            array of cell indices from which to calculate features
+        mskchannel : int
+            channel for cell labels
+        imgchannel1 : int
+            first channel for correlation analysis
+        mskchannel2 : int
+            second channel for correlation analysis
+        save_h5 : bool
+            whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
+        overwrite : bool
+            whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
+        Returns
+        -------
+        corrc : ndarray (indcells.size)
+            channel cross-correlation
+        feature_list : string array (nfeatures)
+            description of cell features, optional
+        """
+        if mskchannel is None or imgchannel1 is None or imgchannel2 is None:
+            print('set imgchannel, mskchannel1, and mskchannel2 keys')
+            return 1
+        if not hasattr(self,'cells_indSet'):
+            print('no cell index, run get_cell_index')
+            return 1
+        if indcells is None:
+            indcells=np.arange(self.cells_indSet.size).astype(int)
+        feature_name=f'm{mskchannel}_img{imgchannel1}img{imgchannel2}_crosscorr'
+        corrc=[None]*np.array(indcells).size
+        ip_frame=10000000
+        icell=0
+        for icell in range(np.array(indcells).size):
+            ic=indcells[icell]
+            if not self.cells_frameSet[ic]==ip_frame:
+                sys.stdout.write('featurizing cells from frame '+str(self.cells_frameSet[ic])+'\n')
+                img=self.get_image_data(self.cells_indimgSet[ic]) #use image data for intensity image
+                msk=self.get_mask_data(self.cells_indimgSet[ic])
+                if self.axes[-1]=='c':
+                    msk=msk[...,mskchannel]
+                img1=img[...,imgchannel1]
+                img2=img[...,imgchannel2]
+                props1 = regionprops_table(msk, intensity_image=img1,properties=('label','image','image_intensity'))
+                props2 = regionprops_table(msk, intensity_image=img2,properties=('label','image','image_intensity'))
+                ncells_frame=props1['label'].size
+                corrc_frame=np.zeros(ncells_frame)
+                for icell_frame in range(ncells_frame):
+                    corrc_frame[icell_frame]=np.corrcoef(props1['image_intensity'][icell_frame][props1['image'][icell_frame]].flatten(),props2['image_intensity'][icell_frame][props2['image'][icell_frame]].flatten())[0,1]
+            corrc[icell]=corrc_frame[self.cells_indSet[ic]]
+            ip_frame=self.cells_frameSet[ic]
+        if save_h5:
+            setattr(self,feature_name,corrc)
+            attribute_list=[feature_name]
+            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+        return np.array(corrc)
 
     def get_stack_trans(self,mskchannel=0,ntrans=20,maxt=10,dist_function=utilities.get_pairwise_distance_sum,zscale=None,save_h5=False,overwrite=False,do_global=False,**dist_function_keys):
         """
@@ -863,6 +948,80 @@ class Trajectory:
             attribute_list=['linSet']
             self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
         return linSet
+
+    def get_cell_trajectory(self,cell_ind,n_hist=-1): #cell trajectory stepping backwards
+        minframe=np.min(self.cells_indimgSet)
+        if n_hist==-1:
+            n_hist=int(self.cells_indimgSet[cell_ind]-minframe)
+        cell_ind_history=np.empty(n_hist+1)
+        cell_ind_history[:]=np.nan
+        cell_ind_history[0]=cell_ind
+        ended=0
+        for iH in range(1,n_hist+1):
+            indCurrentCell=cell_ind_history[iH-1]
+            if ended:
+                pass
+            else:
+                indCurrentCell=int(indCurrentCell)
+                iframe1=self.cells_indimgSet[indCurrentCell]
+                iframe0=iframe1-1
+                if indCurrentCell<0 and not ended:
+                    sys.stdout.write('cell '+str(indCurrentCell)+' ended last frame: History must end NOW!\n')
+                    cell_ind_history[iH]=np.nan
+                    ended=True
+                elif indCurrentCell>=0 and not ended:
+                    indt1=np.where(self.cells_frameSet==iframe1)[0]
+                    i1=np.where(indt1==indCurrentCell)[0][0]
+                    indt0=np.where(self.cells_frameSet==iframe0)[0]
+                    indtrack=self.linSet[iframe1][i1]
+                    if indtrack<0:
+                        #sys.stdout.write('            cell '+str(indCurrentCell)+' ended '+str(iH)+' frames ago\n')
+                        cell_ind_history[iH]=np.nan
+                        ended=True
+                    else:
+                        cell_ind_history[iH]=indt0[self.linSet[iframe1][i1]]
+        indtracked=np.where(np.logical_not(np.isnan(cell_ind_history)))
+        cell_traj=np.flip(cell_ind_history[indtracked].astype(int))
+        return cell_traj
+
+    def get_unique_trajectories(self,cell_inds=None,verbose=False,extra_depth=None):
+        if extra_depth is None:
+            if hasattr(self,'trajl'):
+                extra_depth=self.trajl-1
+            else:
+                extra_depth=0
+        if cell_inds is None:
+            cell_inds_all=np.arange(self.cells_indSet.size).astype(int)
+        else:
+            cell_inds_all=cell_inds.copy()
+        n_untracked=cell_inds_all.size
+        trajectories=[]
+        inds_tracked=np.array([]).astype(int)
+        while n_untracked >0:
+            indc=cell_inds_all[-1]
+            cell_traj=self.get_cell_trajectory(indc)
+            indctracked,indcomm_tracked,indcomm_traj=np.intersect1d(inds_tracked,cell_traj,return_indices=True)
+            if indctracked.size>0:
+                indcomm_last=np.max(indcomm_traj)
+                #sys.stdout.write('cell '+str(indc)+' tracks to '+str(cell_traj[indcomm_last])+', already tracked\n')
+                if indcomm_last+1-extra_depth>=0:
+                    indlast=indcomm_last+1-extra_depth
+                else:
+                    indlast=0
+                cell_traj=cell_traj[indlast:] #retain only unique tracks up to extra_depth from common point
+            inds_tracked=np.append(inds_tracked,cell_traj)
+            trajectories.append(cell_traj)
+            indcells,indcomm_call,indcomm_ctraj=np.intersect1d(cell_inds_all,cell_traj,return_indices=True)
+            cell_inds_all[indcomm_call]=-1
+            inds_untracked=np.where(cell_inds_all>=0)
+            cell_inds_all=cell_inds_all[inds_untracked]
+            n_untracked=cell_inds_all.size
+            if verbose:
+                sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
+            else:
+                if n_untracked%100 == 0:
+                    sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
+        self.trajectories=trajectories
 
     def get_pair_rdf(self,cell_indsA=None,cell_indsB=None,rbins=None,nr=50,rmax=500):
         if cell_indsA is None:
