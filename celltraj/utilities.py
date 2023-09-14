@@ -183,6 +183,12 @@ def get_cell_centers(labels):
     centers=np.array(ndimage.measurements.center_of_mass(np.ones_like(labels),labels=labels,index=np.arange(1,np.max(labels)+1).astype(int)))
     return centers
 
+def dist(img1,img2):
+	#img1=img1.astype(float).flatten()
+	#img2=img2.astype(float).flatten()
+	dist=np.sqrt(np.sum(np.power((img1-img2),2)))
+	return dist
+
 def get_dmat(x1,x2=None): #adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)
     x1=np.transpose(x1) #default from Fung folks is D x N
     if x2 is None:

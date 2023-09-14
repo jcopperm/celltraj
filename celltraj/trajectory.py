@@ -237,6 +237,7 @@ class Trajectory:
                 self.axes='xy'
                 self.nx=img.shape[0]
                 self.ny=img.shape[1]
+                self.image_shape=np.array([sctm.nx,sctm.ny]).astype(int)
                 self.nchannels=0
                 self.ndim=2
                 if msk.ndim==2:
@@ -251,6 +252,7 @@ class Trajectory:
                     self.axes='xyc'
                     self.nx=img.shape[0]
                     self.ny=img.shape[1]
+                    self.image_shape=np.array([sctm.nx,sctm.ny]).astype(int)
                     self.nchannels=img.shape[2]
                     self.ndim=2
                     if msk.ndim==2:
@@ -265,6 +267,7 @@ class Trajectory:
                     self.nx=img.shape[1]
                     self.ny=img.shape[2]
                     self.nz=img.shape[0]
+                    self.image_shape=np.array([sctm.nz,sctm.nx,sctm.ny]).astype(int)
                     self.nchannels=0
                     self.ndim=3
                     if msk.ndim==3:
@@ -279,6 +282,7 @@ class Trajectory:
                 self.nx=img.shape[1]
                 self.ny=img.shape[2]
                 self.nz=img.shape[0]
+                self.image_shape=np.array([sctm.nz,sctm.nx,sctm.ny]).astype(int)
                 self.nchannels=img.shape[3]
                 self.ndim=3
                 if msk.ndim==3:
@@ -442,7 +446,7 @@ class Trajectory:
             self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
         return True
 
-    def get_cell_data(self,ic,frametype='boundingbox',return_masks=True,relabel_masks=True,relabel_mskchannels=None,delete_background=False):
+    def get_cell_data(self,ic,frametype='boundingbox',boundary_expansion=None,return_masks=True,relabel_masks=True,relabel_mskchannels=None,delete_background=False):
         """Get image and mask data for a specific cell.
 
         Review options for pulling cell neighborhood data as well as the local cell data:
@@ -461,7 +465,8 @@ class Trajectory:
             Whether to relabel masks with movie cell indices
         relabel_mskchannels : array or list
             List of channels to relabel
-
+        boundary_expansion : ndim ndarray, int
+            Array to expand single-cell image in each direction
         Returns
         -------
         imgc : ndarray, float
@@ -476,6 +481,12 @@ class Trajectory:
         if frametype=='boundingbox':
             indcells=np.array([ic_msk]).astype(int) #local indices of cells to return in the frame
             cblock=self.cellblocks[ic,...]
+            if boundary_expansion is not None:
+                cblock[:,0]=cblock[:,0]-boundary_expansion
+                cblock[:,0][cblock[:,0]<0]=0
+                cblock[:,1]=cblock[:,1]+boundary_expansion
+                indreplace=np.where(cblock[:,0]>sctm.axes_size)[0]
+                cblock[:,1][indreplace]=sctm.axes_size[indreplace]
         indt=np.where(self.cells_indimgSet==n_frame)[0] #all cells in frame
         indcells_global=indt[indcells] #global indices of cells to return in movie
         if self.ndim==3:
