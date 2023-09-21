@@ -13,6 +13,7 @@ import pyemma.coordinates.clustering as clustering
 import pyemma
 from skimage import transform as tf
 from skimage.measure import regionprops_table
+import skimage.morphology
 from scipy.optimize import minimize
 from scipy import ndimage
 import scipy
@@ -31,6 +32,7 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
 import utilities
 import imageprep as imprep
+import features
 
 
 class Trajectory:
@@ -237,7 +239,7 @@ class Trajectory:
                 self.axes='xy'
                 self.nx=img.shape[0]
                 self.ny=img.shape[1]
-                self.image_shape=np.array([sctm.nx,sctm.ny]).astype(int)
+                self.image_shape=np.array([self.nx,self.ny]).astype(int)
                 self.nchannels=0
                 self.ndim=2
                 if msk.ndim==2:
@@ -252,7 +254,7 @@ class Trajectory:
                     self.axes='xyc'
                     self.nx=img.shape[0]
                     self.ny=img.shape[1]
-                    self.image_shape=np.array([sctm.nx,sctm.ny]).astype(int)
+                    self.image_shape=np.array([self.nx,self.ny]).astype(int)
                     self.nchannels=img.shape[2]
                     self.ndim=2
                     if msk.ndim==2:
@@ -267,7 +269,7 @@ class Trajectory:
                     self.nx=img.shape[1]
                     self.ny=img.shape[2]
                     self.nz=img.shape[0]
-                    self.image_shape=np.array([sctm.nz,sctm.nx,sctm.ny]).astype(int)
+                    self.image_shape=np.array([self.nz,self.nx,self.ny]).astype(int)
                     self.nchannels=0
                     self.ndim=3
                     if msk.ndim==3:
@@ -282,7 +284,7 @@ class Trajectory:
                 self.nx=img.shape[1]
                 self.ny=img.shape[2]
                 self.nz=img.shape[0]
-                self.image_shape=np.array([sctm.nz,sctm.nx,sctm.ny]).astype(int)
+                self.image_shape=np.array([self.nz,self.nx,self.ny]).astype(int)
                 self.nchannels=img.shape[3]
                 self.ndim=3
                 if msk.ndim==3:
@@ -344,12 +346,12 @@ class Trajectory:
         fmsk : ndarray, bool
             foreground (cells) / background mask
         """
-        if has_attr(self,'fmskchannel'):
+        if hasattr(self,'fmskchannel'):
             print(f'getting foreground mask from {self.h5filename} mask channel {self.fmskchannel}')
-            msk=get_mask_data(n_frame)
+            msk=self.get_mask_data(n_frame)
             fmsk=msk[...,self.fmskchannel]
-        elif has_attr(self,'fmsk_threshold'):
-            if not has_attr(self,'fmsk_imgchannel'):
+        elif hasattr(self,'fmsk_threshold'):
+            if not hasattr(self,'fmsk_imgchannel'):
                 print('need to set fmsk_imgchannel, image channel for thresholding')
             print(f'getting foreground mask from thresholded image data channel {self.fmsk_imgchannel}')
             img=self.get_image_data(n_frame)
@@ -480,13 +482,13 @@ class Trajectory:
         msk=self.get_mask_data(n_frame)
         if frametype=='boundingbox':
             indcells=np.array([ic_msk]).astype(int) #local indices of cells to return in the frame
-            cblock=self.cellblocks[ic,...]
+            cblock=self.cellblocks[ic,...].copy()
             if boundary_expansion is not None:
                 cblock[:,0]=cblock[:,0]-boundary_expansion
                 cblock[:,0][cblock[:,0]<0]=0
                 cblock[:,1]=cblock[:,1]+boundary_expansion
-                indreplace=np.where(cblock[:,0]>sctm.axes_size)[0]
-                cblock[:,1][indreplace]=sctm.axes_size[indreplace]
+                indreplace=np.where(cblock[:,0]>self.image_shape)[0]
+                cblock[:,1][indreplace]=self.image_shape[indreplace]
         indt=np.where(self.cells_indimgSet==n_frame)[0] #all cells in frame
         indcells_global=indt[indcells] #global indices of cells to return in movie
         if self.ndim==3:
@@ -516,7 +518,7 @@ class Trajectory:
         else:
             return imgc
                 
-    def get_cell_features(self,function_tuple,indcells=None,imgchannel=0,mskchannel=0,use_fmask_for_intensity_image=False,use_mask_for_intensity_image=False,return_feature_list=False,save_h5=False,overwrite=False,concatenate_features=False):
+    def get_cell_features(self,function_tuple,indcells=None,imgchannel=0,mskchannel=0,use_fmask_for_intensity_image=False,use_mask_for_intensity_image=False,bordersize=10,apply_contact_transform=False,return_feature_list=False,save_h5=False,overwrite=False,concatenate_features=False):
         """
         Get cell features using skimage's regionprops, passing a custom function tuple for measurement
         Parameters
@@ -533,12 +535,18 @@ class Trajectory:
             useful for environment featurization
         use_mask_for_intensity_image : bool
             whether to use get_mask_data rather than get_image_data for intensity image
+        bordersize : int
+            number of pixels to erode foreground mask if use_fmask_for_intensity_image is True, or the radius to grow contact boundaries if apply_contact_transform is True
+        apply_contact_transform : bool
+            whether to apply contact transform to get a mask of segmentation contacts from the mask channel if use_mask_for_intensity_image is True
         return_feature_list : bool
             whether to return an array of strings describing features calculated
         save_h5 : bool
             whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
         overwrite : bool
             whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
+        concatenate_features : bool
+            whether to add features to existing Xf and Xf_feature_list
         Returns
         -------
         Xf : ndarray (indcells.size,nfeatures)
@@ -546,6 +554,10 @@ class Trajectory:
         feature_list : string array (nfeatures)
             description of cell features, optional
         """
+        feature_postpend=f'msk{mskchannel}img{imgchannel}'
+        if use_fmask_for_intensity_image:
+            print('using fmasks for intensity image')
+            feature_postpend=feature_postpend+'_fmsk'
         if not type(function_tuple) is tuple:
             function_tuple=(function_tuple,)
         if not hasattr(self,'cells_indSet'):
@@ -562,15 +574,32 @@ class Trajectory:
                 sys.stdout.write('featurizing cells from frame '+str(self.cells_frameSet[ic])+'\n')
                 if use_fmask_for_intensity_image:
                     img=self.get_fmask_data(self.cells_indimgSet[ic]) #use foreground mask
+                    for iborder in range(bordersize):
+                        if img.ndim==2:
+                            img=skimage.morphology.binary_erosion(img)
+                        if img.ndim==3:
+                            for iz in range(img.shape[0]):
+                                img[iz,...]=skimage.morphology.binary_erosion(img[iz,...])
                 elif use_mask_for_intensity_image:
+                    print('using masks for intensity image')
+                    feature_postpend=f'msk{mskchannel}msk{imgchannel}'
                     img=self.get_mask_data(self.cells_indimgSet[ic]) #use a mask for intensity image
                 else:
+                    print('using image for intensity image')
                     img=self.get_image_data(self.cells_indimgSet[ic]) #use image data for intensity image
                 msk=self.get_mask_data(self.cells_indimgSet[ic])
                 if self.axes[-1]=='c' and not use_fmask_for_intensity_image:
                     img=img[...,imgchannel]
                 if self.nmaskchannels>0:
                     msk=msk[...,mskchannel]
+                if apply_contact_transform:
+                    print('  applying contact transform')
+                    feature_postpend=f'msk{mskchannel}cmsk{imgchannel}'
+                    if img.ndim==2:
+                        img=features.get_contact_boundaries(img,radius=bordersize)
+                    if img.ndim==3:
+                        for iz in range(img.shape[0]):
+                            img[iz,...]=features.get_contact_boundaries(img[iz,...],radius=bordersize)
                 props = regionprops_table(msk, intensity_image=img,properties=('label',), extra_properties=function_tuple)
                 Xf_frame=np.zeros((props['label'].size,len(props.keys())))
                 for i,key in enumerate(props.keys()):
@@ -580,7 +609,7 @@ class Trajectory:
         feature_list=[None]*Xf[0].size
         for i,key in enumerate(props.keys()):
             if i>0:
-                feature_list[i-1]=key
+                feature_list[i-1]=key+'_'+feature_postpend
         if save_h5:
             try:
                 if concatenate_features:
@@ -593,14 +622,14 @@ class Trajectory:
                     else:
                         Xf_prev=self.Xf
                         Xf_feature_list_prev=self.Xf_feature_list
-                        Xf=np.concatenate((Xf_prev,Xf),axis=0)
+                        Xf=np.concatenate((Xf_prev,Xf),axis=1)
                         feature_list=np.concatenate((Xf_feature_list_prev,feature_list))
                 self.Xf=np.array(Xf)
                 self.Xf_feature_list=feature_list
                 attribute_list=['Xf','Xf_feature_list']
                 data_written = self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
             except Exception as e:
-                print(f'data_written is {data_written}, {e}')
+                print(f'error writing data, {e}')
         if return_feature_list:
             return np.array(Xf), feature_list
         else:
@@ -937,6 +966,56 @@ class Trajectory:
                             plt.contour(vmsk0.T>0,levels=[1],colors='green',alpha=.3)
                             plt.pause(.1)
             if visual:
+                if self.ndim==3:
+                    vmsk1=np.max(msk1,axis=0)
+                    vmsk0=np.max(msk0,axis=0)
+                    ix=1;iy=2
+                elif self.ndim==2:
+                    vmsk1=msk1
+                    vmsk0=msk0
+                    ix=0;iy=1
+                plt.clf()
+                plt.scatter(xt1[:,ix],xt1[:,iy],s=20,marker='x',color='darkred',alpha=0.5)
+                plt.scatter(xt0[:,ix],xt0[:,iy],s=20,marker='x',color='lightgreen',alpha=0.5)
+                plt.contour(vmsk1.T,levels=np.arange(np.max(vmsk1)),colors='red',alpha=.3,linewidths=.3)
+                plt.contour(vmsk0.T,levels=np.arange(np.max(vmsk0)),colors='green',alpha=.3,linewidths=.3)
+                plt.scatter(xt1[lin1>-1,ix],xt1[lin1>-1,iy],s=300,marker='o',alpha=.1,color='purple')
+                plt.pause(.1)
+            print('frame '+str(iS)+' tracked '+str(ntracked)+' of '+str(ncells)+' cells')
+            linSet[iS]=lin1
+        if save_h5:
+            self.linSet=linSet
+            attribute_list=['linSet']
+            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+        return linSet
+
+    def get_lineage_mindist(self,distcut=5.,visual=False,save_h5=False,overwrite=False):
+        nimg=self.nt
+        if not hasattr(self,'x'):
+            print('need to run get_cell_positions for cell locations')
+        linSet=[None]*nimg
+        indt0=np.where(self.cells_indimgSet==0)[0]
+        linSet[0]=np.ones(indt0.size).astype(int)*-1
+        for iS in range(1,nimg):
+            indt1=np.where(self.cells_indimgSet==iS)[0]
+            xt1=self.x[indt1,:]
+            indt0=np.where(self.cells_indimgSet==iS-1)[0]
+            xt0=self.x[indt0,:]
+            ncells=xt1.shape[0] #np.max(masks[frameind,:,:])
+            lin1=np.ones(ncells).astype(int)*-1
+            ntracked=0
+            dmatx=utilities.get_dmat(xt1,xt0)
+            lin1=np.zeros(indt1.size).astype(int)
+            for ic in range(indt1.size): #nn tracking
+                ind_nnx=np.argsort(dmatx[ic,:])
+                cdist=utilities.dist(xt0[ind_nnx[0],:],xt1[ic,:])
+                if cdist<distcut:
+                    lin1[ic]=ind_nnx[0]
+                else:
+                    lin1[ic]=-1
+            if visual:
+                msk1=self.get_mask_data(iS)[...,self.mskchannel]
+                msk0=self.get_mask_data(iS-1)[...,self.mskchannel]
                 if self.ndim==3:
                     vmsk1=np.max(msk1,axis=0)
                     vmsk0=np.max(msk0,axis=0)

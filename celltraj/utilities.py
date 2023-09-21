@@ -263,6 +263,9 @@ def get_tshift(centers1,centers2,dist_function,ntrans=100,maxt=10, **dist_functi
     for itshift in range(ntshifts):
         tshift=tshifts[itshift,:]
         distSet[itshift]=dist_function(tshift,centers1,centers2,**dist_function_keys)
-    indmatch=np.argmin(distSet)
-    tshift=tshifts[indmatch,:]
+    if ntshifts>0:
+        indmatch=np.argmin(distSet)
+        tshift=tshifts[indmatch,:]
+    else:
+        tshift=np.zeros(ndim)
     return tshift
