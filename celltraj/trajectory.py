@@ -504,12 +504,15 @@ class Trajectory:
                 labelc = mskc[...,relabel_mskchannels]
             else:
                 labelc = mskc[...,np.newaxis]
+            label_table=regionprops_table(msk[...,self.mskchannel],intensity_image=None,properties=['label']) #table of labels for cells in frame
+            labelIDs=label_table['label'][indcells] #integer labels of cells in place
             for ichannel in range(len(relabel_mskchannels)):
-                label_table=regionprops_table(msk[...,relabel_mskchannels[ichannel]],intensity_image=None,properties=['label']) #table of labels for cells in frame
-                labelIDs=label_table['label'][indcells] #integer labels of cells in place
+                label_table_channel=regionprops_table(msk[...,relabel_mskchannels[ichannel]],intensity_image=None,properties=['label']) #table of labels for cells in frame
+                labelIDs_channel=label_table_channel['label'] #integer labels of cells in place
+                labelIDs_common=np.intersect1d(labelIDs,labelIDs_channel)
                 mskc_channel=np.zeros_like(labelc[...,ichannel]).astype(int)
-                for ic_relabel in range(labelIDs.size):
-                    icell=labelIDs[ic_relabel]
+                for ic_relabel in range(labelIDs_common.size):
+                    icell=labelIDs_common[ic_relabel]
                     icell_global=indcells_global[ic_relabel]
                     mskc_channel[labelc[...,ichannel]==icell]=icell_global
                 mskc[...,relabel_mskchannels[ichannel]]=mskc_channel
@@ -688,18 +691,24 @@ class Trajectory:
                 msk1=msk[...,mskchannel1]
                 msk2=msk[...,mskchannel2]
                 if combined_and_disjoint:
-                    msk2=imprep.get_cyto_minus_nuc_labels(msk2,msk1)
+                    msk2=imprep.get_cyto_minus_nuc_labels(msk1,msk2)
                 elif make_disjoint:
-                    msk2[msk1>0]=0
+                    msk1[msk2>0]=0
                 if not np.all(np.unique(msk1)==np.unique(msk2)):
-                    print(f'frame {self.cells_indimgSet[ic]} mask1 and mask2 yielding different indices. try combined_and_disjoint=True, or indexing may be off')
-                    return 1
+                    print(f'warning: frame {self.cells_indimgSet[ic]} mask1 and mask2 yielding different indices')
                 if erosion_footprint1 is not None:
                     fmsk1=skimage.morphology.binary_erosion(msk1>0,footprint=erosion_footprint1); msk1[fmsk1]=0
                 if erosion_footprint2 is not None:
                     fmsk2=skimage.morphology.binary_erosion(msk2>0,footprint=erosion_footprint2); msk2[fmsk2]=0
                 props1 = regionprops_table(msk1, intensity_image=img,properties=('label','intensity_mean','area'))
                 props2 = regionprops_table(msk2, intensity_image=img,properties=('label','intensity_mean','area'))
+                commonlabels,indcommon1,indcommon2=np.intersect1d(props1['label'],props2['label'],return_indices=True)
+                props2_matched=props1.copy()
+                props2_matched['intensity_mean']=np.ones_like(props1['intensity_mean'])*np.nan
+                props2_matched['intensity_mean'][indcommon1]=props2['intensity_mean'][indcommon2]
+                props2_matched['area']=np.ones_like(props1['area'])*np.nan
+                props2_matched['area'][indcommon1]=props2['area'][indcommon2]
+                props2=props2_matched
                 if intensity_sum:
                     if intensity_ztransform:
                         cratio_frame=np.divide(self.img_zstds[imgchannel]*np.multiply(props1['intensity_mean']+self.img_zmeans[imgchannel],props1['area']),self.img_zstds[imgchannel]*np.multiply(props2['intensity_mean']+self.img_zmeans[imgchannel],props2['area']))
@@ -1112,6 +1121,54 @@ class Trajectory:
                 if n_untracked%100 == 0:
                     sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
         self.trajectories=trajectories
+
+    def get_traj_segments(self,seg_length):
+        ntraj=len(self.trajectories)
+        traj_segSet=np.zeros((0,seg_length)).astype(int)
+        for itraj in range(ntraj):
+            cell_traj=self.trajectories[itraj]
+            traj_len=cell_traj.size
+            if traj_len>=seg_length:
+                for ic in range(traj_len-seg_length+1): #was -1, think that was an error, changed 2june21 because ended up missing data
+                    traj_seg=cell_traj[ic:ic+seg_length]
+                    traj_segSet=np.append(traj_segSet,traj_seg[np.newaxis,:],axis=0)
+        return traj_segSet
+
+    def get_trajectory_steps(self,inds=None,traj=None,Xtraj=None,get_trajectories=True,nlag=1): #traj and Xtraj should be indexed same
+        if inds is None:
+            inds=np.arange(self.cells_indSet.size).astype(int)
+        if get_trajectories:
+            self.get_unique_trajectories(cell_inds=inds)
+        if traj is None:
+            traj=self.traj
+        if Xtraj is None:
+            x=self.Xtraj
+        else:
+            x=Xtraj
+        trajp1=self.get_traj_segments(self.trajl+nlag)
+        inds_nlag=np.flipud(np.arange(self.trajl+nlag-1,-1,-nlag)).astype(int) #keep indices every nlag
+        trajp1=trajp1[:,inds_nlag]
+        ntraj=trajp1.shape[0]
+        neigen=x.shape[1]
+        x0=np.zeros((0,neigen))
+        x1=np.zeros((0,neigen))
+        inds_trajp1=np.zeros((0,2)).astype(int)
+        for itraj in range(ntraj):
+            test0=trajp1[itraj,0:-1]
+            test1=trajp1[itraj,1:]
+            res0 = (traj[:, None] == test0[np.newaxis,:]).all(-1).any(-1)
+            res1 = (traj[:, None] == test1[np.newaxis,:]).all(-1).any(-1)
+            if np.sum(res0)==1 and np.sum(res1)==1:
+                indt0=np.where(res0)[0][0]
+                indt1=np.where(res1)[0][0]
+                x0=np.append(x0,np.array([x[indt0,:]]),axis=0)
+                x1=np.append(x1,np.array([x[indt1,:]]),axis=0)
+                inds_trajp1=np.append(inds_trajp1,np.array([[indt0,indt1]]),axis=0)
+            if itraj%100==0:
+                sys.stdout.write('matching up trajectory '+str(itraj)+'\n')
+        self.Xtraj0=x0
+        self.Xtraj1=x1
+        self.inds_trajp1=inds_trajp1
 
     def get_pair_rdf(self,cell_indsA=None,cell_indsB=None,rbins=None,nr=50,rmax=500):
         if cell_indsA is None:

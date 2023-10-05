@@ -122,7 +122,7 @@ def recursively_save_dict_contents_to_group( h5file, path, dic):
                         try: #c
                             h5file[path + element_name] = element #c
                         except: #c
-                            element = np.array(element).astype('|S9') #c
+                            element = np.array(element).astype('|S32') #c
                             h5file[path + element_name] = element #c
                     else: #c
                         raise ValueError('Cannot save %s type within a list.' % type(element)) #c
@@ -140,7 +140,7 @@ def recursively_save_dict_contents_to_group( h5file, path, dic):
             try:
                 h5file[path + key] = item
             except:
-                item = np.array(item).astype('|S9')
+                item = np.array(item).astype('|S32')
                 h5file[path + key] = item
             if not np.array_equal(h5file[path + key][()], item):
                 raise ValueError('The data representation in the HDF5 file does not match the original dict.')

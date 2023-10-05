@@ -21,6 +21,7 @@ dependencies:
  - pytorch
  - pandas
  - dask
+ - msmtools
 
  - pip:
    - csaps

@@ -34,143 +34,143 @@ Morphodynamical and gene expression trajectories of cell state change..
 Manuscript in preparation.
 """
 def get_transition_matrix(x0,x1,clusters):
-	n_clusters=clusters.clustercenters.shape[0]
-	indc0=clusters.assign(x0)
-	indc1=clusters.assign(x1)
-	Cm=np.zeros((n_clusters,n_clusters))
-	for itt in range(x0.shape[0]):
-		Cm[indc0[itt],indc1[itt]]=Cm[indc0[itt],indc1[itt]]+1
-	Mt=Cm.copy()
-	sM=np.sum(Mt,1)
-	for iR in range(n_clusters):
-		if sM[iR]>0:
-			Mt[iR,:]=Mt[iR,:]/sM[iR]
-		if sM[iR]==0.0:
-			Mt[iR,iR]=1.0
-	return Mt
+    n_clusters=clusters.clustercenters.shape[0]
+    indc0=clusters.assign(x0)
+    indc1=clusters.assign(x1)
+    Cm=np.zeros((n_clusters,n_clusters))
+    for itt in range(x0.shape[0]):
+        Cm[indc0[itt],indc1[itt]]=Cm[indc0[itt],indc1[itt]]+1
+    Mt=Cm.copy()
+    sM=np.sum(Mt,1)
+    for iR in range(n_clusters):
+        if sM[iR]>0:
+            Mt[iR,:]=Mt[iR,:]/sM[iR]
+        if sM[iR]==0.0:
+            Mt[iR,iR]=1.0
+    return Mt
 
 def get_transition_matrix_CG(x0,x1,clusters,states):
-	n_clusters=clusters.clustercenters.shape[0]
-	n_states=np.max(states)+1
-	indc0=states[clusters.assign(x0)]
-	indc1=states[clusters.assign(x1)]
-	Cm=np.zeros((n_states,n_states))
-	for itt in range(x0.shape[0]):
-		Cm[indc0[itt],indc1[itt]]=Cm[indc0[itt],indc1[itt]]+1
-	Mt=Cm.copy()
-	sM=np.sum(Mt,1)
-	for iR in range(n_states):
-		if sM[iR]>0:
-			Mt[iR,:]=Mt[iR,:]/sM[iR]
-		if sM[iR]==0.0:
-			Mt[iR,iR]=1.0
-	return Mt
+    n_clusters=clusters.clustercenters.shape[0]
+    n_states=np.max(states)+1
+    indc0=states[clusters.assign(x0)]
+    indc1=states[clusters.assign(x1)]
+    Cm=np.zeros((n_states,n_states))
+    for itt in range(x0.shape[0]):
+        Cm[indc0[itt],indc1[itt]]=Cm[indc0[itt],indc1[itt]]+1
+    Mt=Cm.copy()
+    sM=np.sum(Mt,1)
+    for iR in range(n_states):
+        if sM[iR]>0:
+            Mt[iR,:]=Mt[iR,:]/sM[iR]
+        if sM[iR]==0.0:
+            Mt[iR,iR]=1.0
+    return Mt
 
 def clean_clusters(clusters,P):
-	centers=clusters.clustercenters.copy()
-	graph = csr_matrix(P>0.)
-	n_components, labels = connected_components(csgraph=graph, directed=False, return_labels=True)
-	unique, counts = np.unique(labels, return_counts=True)
-	icc=unique[np.argmax(counts)]
-	indcc=np.where(labels==icc)[0]
-	centers=centers[indcc,:]
-	clusters_clean=coor.clustering.AssignCenters(centers, metric='euclidean')
-	return clusters_clean
+    centers=clusters.clustercenters.copy()
+    graph = csr_matrix(P>0.)
+    n_components, labels = connected_components(csgraph=graph, directed=False, return_labels=True)
+    unique, counts = np.unique(labels, return_counts=True)
+    icc=unique[np.argmax(counts)]
+    indcc=np.where(labels==icc)[0]
+    centers=centers[indcc,:]
+    clusters_clean=coor.clustering.AssignCenters(centers, metric='euclidean')
+    return clusters_clean
 
 def get_path_entropy_2point(self,x0,x1,clusters,Mt,exclude_stays=False):
-	indc0=clusters.assign(x0)
-	indc1=clusters.assign(x1)
-	entp=0.0
-	itt=0
-	ntraj=indc0.size
-	try:
-		for itraj in range(ntraj):
-			if exclude_stays:
-				if Mt[indc0[itraj],indc1[itraj]]>0. and indc1[itraj]!=indc0[itraj]:
-					itt=itt+1
-					pt=Mt[indc0[itraj],indc1[itraj]]
-					entp=entp-pt*np.log(pt)
-			else:
-				if Mt[indc0[itraj],indc1[itraj]]>0.: # and Mt[indc1[itraj],indc0[itraj]]>0.:
-					itt=itt+1
-					pt=Mt[indc0[itraj],indc1[itraj]]
-					entp=entp-pt*np.log(pt)
-		entp=entp/(1.*itt)
-	except:
-		sys.stdout.write('empty arrays or failed calc\n')
-		entp=np.nan
-	return entp
+    indc0=clusters.assign(x0)
+    indc1=clusters.assign(x1)
+    entp=0.0
+    itt=0
+    ntraj=indc0.size
+    try:
+        for itraj in range(ntraj):
+            if exclude_stays:
+                if Mt[indc0[itraj],indc1[itraj]]>0. and indc1[itraj]!=indc0[itraj]:
+                    itt=itt+1
+                    pt=Mt[indc0[itraj],indc1[itraj]]
+                    entp=entp-pt*np.log(pt)
+            else:
+                if Mt[indc0[itraj],indc1[itraj]]>0.: # and Mt[indc1[itraj],indc0[itraj]]>0.:
+                    itt=itt+1
+                    pt=Mt[indc0[itraj],indc1[itraj]]
+                    entp=entp-pt*np.log(pt)
+        entp=entp/(1.*itt)
+    except:
+        sys.stdout.write('empty arrays or failed calc\n')
+        entp=np.nan
+    return entp
 
 def get_path_ll_2point(self,x0,x1,exclude_stays=False):
-	indc0=clusters.assign(x0)
-	indc1=clusters.assign(x1)
-	ll=0.0
-	itt=0
-	ntraj=indc0.size
-	try:
-		for itraj in range(ntraj):
-			if exclude_stays:
-				if Mt[indc0[itraj],indc1[itraj]]>0. and indc1[itraj]!=indc0[itraj]:
-					itt=itt+1
-					pt=Mt[indc0[itraj],indc1[itraj]]
-					ll=ll+np.log(pt)
-			else:
-				if Mt[indc0[itraj],indc1[itraj]]>0.: # and Mt[indc1[itraj],indc0[itraj]]>0.:
-					itt=itt+1
-					pt=Mt[indc0[itraj],indc1[itraj]]
-					ll=ll+np.log(pt)
-		ll=ll/(1.*itt)
-	except:
-		sys.stdout.write('empty arrays or failed calc\n')
-		ll=np.nan
-	return ll
+    indc0=clusters.assign(x0)
+    indc1=clusters.assign(x1)
+    ll=0.0
+    itt=0
+    ntraj=indc0.size
+    try:
+        for itraj in range(ntraj):
+            if exclude_stays:
+                if Mt[indc0[itraj],indc1[itraj]]>0. and indc1[itraj]!=indc0[itraj]:
+                    itt=itt+1
+                    pt=Mt[indc0[itraj],indc1[itraj]]
+                    ll=ll+np.log(pt)
+            else:
+                if Mt[indc0[itraj],indc1[itraj]]>0.: # and Mt[indc1[itraj],indc0[itraj]]>0.:
+                    itt=itt+1
+                    pt=Mt[indc0[itraj],indc1[itraj]]
+                    ll=ll+np.log(pt)
+        ll=ll/(1.*itt)
+    except:
+        sys.stdout.write('empty arrays or failed calc\n')
+        ll=np.nan
+    return ll
 
 def get_kscore(self,Mt,eps=1.e-3): #,nw=10):
-	indeye=np.where(np.eye(Mt.shape[0]))
-	diag=Mt[indeye]
-	indgood=np.where(diag<1.)[0]
-	Mt=Mt[indgood,:]
-	Mt=Mt[:,indgood]
-	w,v=np.linalg.eig(np.transpose(Mt))
-	w=np.real(w)
-	if np.sum(np.abs(w-1.)<eps)>0:
-		indw=np.where(np.logical_and(np.logical_and(np.abs(w-1.)>eps,w>0.),w<1.))
-		tw=w[indw]
-		tw=np.sort(tw)
-		#tw=tw[-nw:]
-		tw=1./(1.-tw)
-		kscore=np.sum(tw)
-	else:
-		kscore=np.nan
-	return kscore
+    indeye=np.where(np.eye(Mt.shape[0]))
+    diag=Mt[indeye]
+    indgood=np.where(diag<1.)[0]
+    Mt=Mt[indgood,:]
+    Mt=Mt[:,indgood]
+    w,v=np.linalg.eig(np.transpose(Mt))
+    w=np.real(w)
+    if np.sum(np.abs(w-1.)<eps)>0:
+        indw=np.where(np.logical_and(np.logical_and(np.abs(w-1.)>eps,w>0.),w<1.))
+        tw=w[indw]
+        tw=np.sort(tw)
+        #tw=tw[-nw:]
+        tw=1./(1.-tw)
+        kscore=np.sum(tw)
+    else:
+        kscore=np.nan
+    return kscore
 
 def get_traj_ll_gmean(self,xt,exclude_stays=False,states=None):
-	if states is None:
-		states=np.arange(Mt.shape[0]).astype(int)
-	x0=xt[0:-1]
-	x1=xt[1:]
-	indc0=states[clusters.assign(x0)]
-	indc1=states[clusters.assign(x1)]
-	llSet=np.array([])
-	itt=0
-	ntraj=indc0.size
-	try:
-		for itraj in range(ntraj):
-			if exclude_stays:
-				if Mt[indc0[itraj],indc1[itraj]]>0. and indc1[itraj]!=indc0[itraj]:
-					itt=itt+1
-					pt=Mt[indc0[itraj],indc1[itraj]]
-					llSet=np.append(llSet,pt)
-			else:
-				if Mt[indc0[itraj],indc1[itraj]]>0.: # and Mt[indc1[itraj],indc0[itraj]]>0.:
-					itt=itt+1
-					pt=Mt[indc0[itraj],indc1[itraj]]
-					llSet=np.append(llSet,pt)
-		ll_mean=scipy.stats.mstats.gmean(llSet)
-	except:
-		sys.stdout.write('empty arrays or failed calc\n')
-		ll_mean=np.nan
-	return ll_mean
+    if states is None:
+        states=np.arange(Mt.shape[0]).astype(int)
+    x0=xt[0:-1]
+    x1=xt[1:]
+    indc0=states[clusters.assign(x0)]
+    indc1=states[clusters.assign(x1)]
+    llSet=np.array([])
+    itt=0
+    ntraj=indc0.size
+    try:
+        for itraj in range(ntraj):
+            if exclude_stays:
+                if Mt[indc0[itraj],indc1[itraj]]>0. and indc1[itraj]!=indc0[itraj]:
+                    itt=itt+1
+                    pt=Mt[indc0[itraj],indc1[itraj]]
+                    llSet=np.append(llSet,pt)
+            else:
+                if Mt[indc0[itraj],indc1[itraj]]>0.: # and Mt[indc1[itraj],indc0[itraj]]>0.:
+                    itt=itt+1
+                    pt=Mt[indc0[itraj],indc1[itraj]]
+                    llSet=np.append(llSet,pt)
+        ll_mean=scipy.stats.mstats.gmean(llSet)
+    except:
+        sys.stdout.write('empty arrays or failed calc\n')
+        ll_mean=np.nan
+    return ll_mean
 
 
 def get_H_eigs(Mt):
@@ -312,19 +312,214 @@ def plot_eig(v,x_clusters,ncomp):
         plt.pause(1);
 
 def get_dmat(x1,x2=None): #adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)
-	x1=np.transpose(x1) #default from Fung folks is D x N
-	if x2 is None:
-		nX1 = x1.shape[1];
-		y = np.matlib.repmat(np.sum(np.power(x1,2),0),nX1,1)
-		y = y - np.matmul(np.transpose(x1),x1)
-		y = y + np.transpose(y);
-		y = np.abs( y + np.transpose(y) ) / 2. # Iron-out numerical wrinkles
-	else:
-		x2=np.transpose(x2)
-		nX1 = x1.shape[1]
-		nX2 = x2.shape[1]
-		y = np.matlib.repmat( np.expand_dims(np.sum( np.power(x1,2), 0 ),1), 1, nX2 )
-		y = y + np.matlib.repmat( np.sum( np.power(x2,2), 0 ), nX1, 1 )
-		y = y - 2 * np.matmul(np.transpose(x1),x2)
-	return np.sqrt(y)
+    x1=np.transpose(x1) #default from Fung folks is D x N
+    if x2 is None:
+        nX1 = x1.shape[1];
+        y = np.matlib.repmat(np.sum(np.power(x1,2),0),nX1,1)
+        y = y - np.matmul(np.transpose(x1),x1)
+        y = y + np.transpose(y);
+        y = np.abs( y + np.transpose(y) ) / 2. # Iron-out numerical wrinkles
+    else:
+        x2=np.transpose(x2)
+        nX1 = x1.shape[1]
+        nX2 = x2.shape[1]
+        y = np.matlib.repmat( np.expand_dims(np.sum( np.power(x1,2), 0 ),1), 1, nX2 )
+        y = y + np.matlib.repmat( np.sum( np.power(x2,2), 0 ), nX1, 1 )
+        y = y - 2 * np.matmul(np.transpose(x1),x2)
+    return np.sqrt(y)
+
+####################################feature tuned kernel DMD a la aristoff########################
+def get_kernel_sigmas(X,M,s=.05):
+    """Get sigmas from observation matrix
+
+    Parameters
+    ----------
+    X : ndarray
+        observation matrix, samples x features
+    M : ndarray
+        Mahalanobis scaling matrix, features x features
+    s : float
+        bandwidth scaling factor
+    Returns
+    -------
+    h : ndarray, n_features (float)
+        vector of sigmas to scale observations in kernel
+    """
+    XM=np.matmul(X,M)
+    h=s*np.std(scipy.spatial.distance.cdist(XM,XM,metric='euclidean'),axis=0)
+    return h
+
+def get_gaussianKernelM(X,Y,M,h):
+    """Get Malanobis scaled gaussian kernel from observation matrices X,Y
+
+    Parameters
+    ----------
+    X : ndarray
+        observation matrix, samples x features
+    Y : ndarray
+        observation matrix at t+1, samples x features
+    M : ndarray
+        Mahalanobis scaling matrix, features x features
+    h : ndarray
+        vector of sigma scalings for gaussian from get_kernel_sigmas
+    Returns
+    -------
+    k : ndarray, samples x samples (float)
+        Malanobis scaled kernel for X,Y
+    """
+    XM=np.matmul(X,M)
+    YM=np.matmul(Y,M)
+    k=np.exp(-np.divide(np.power(scipy.spatial.distance.cdist(YM,XM),2),2*h))
+    return k
+
+def get_koopman_eig(X,Y,M=None,s=.05,bta=1.e-5,h=None,psi_X=None,psi_Y=None):
+    """Get linear matrix solution for Koopman operator from X,Y paired observation Y=F(X) with F the forward operator
+
+    Parameters
+    ----------
+    X : ndarray
+        observation matrix, samples x features
+    Y : ndarray
+        observation matrix at t+1, samples x features
+    M : ndarray
+        Mahalanobis scaling matrix, features x features
+    s : float
+        kernel bandwidth scaling parameter
+    bta : float
+        regularization parameter for linear solve
+    Returns
+    -------
+    K : ndarray
+        Koopman operator matrix, samples x samples (float)
+    Xi : ndarray
+        Koopman left eigenvectors, samples x samples
+    Lam : ndarray
+        Koopman eigenvalue matrix (diagonal), samples x samples
+    W : ndarray
+        Koopman right eigenvectors, samples x samples
+    """
+    nsamples=X.shape[0]
+    if M is None:
+        M=np.eye(X.shape[1])
+    if h is None:
+        print('getting kernel sigmas...')
+        h=get_kernel_sigmas(X,M)
+    if psi_X is None:
+        print('applying kernel to X...')
+        psi_X=get_gaussianKernelM(X,X,M,h)
+    if psi_Y is None:
+        print('applying kernel to Y...')
+        psi_Y=get_gaussianKernelM(X,Y,M,h)
+    print('solving linear system for approximate Koopman...')
+    A = (psi_X+bta*np.eye(nsamples))
+    K,residuals,rank,s = np.linalg.lstsq(A, psi_Y)
+    print('getting Koopman eigendecomposition...')
+    Lam, W, Xi = scipy.linalg.eig(K,left=True,right=True)
+    indsort=np.argsort(np.abs(Lam))[::-1]
+    Xi=Xi[:,indsort]
+    W=W[:,indsort]
+    Lam=np.diag(Lam[indsort])
+    return K,Xi,Lam,W
+
+def get_koopman_modes(psi_X,Xi,W,X_obs):
+    """Get Koopman modes of an observable
+
+    Parameters
+    ----------
+    psi_X : ndarray
+        kernel matrix, samples x samples
+    Xi : ndarray
+        right eigenvectors of Koopman, samples x samples
+    W : ndarray
+        left eigenvectors of Koopman, samples x samples
+    X : ndarray
+        observation matrix, samples x features
+    X_obs : ndarray, samples x observables
+        observables of interest in same time order as X, can be X or features of X
+    Returns
+    -------
+    phi_X : ndarray
+        Koopman eigenfunctions
+    V : ndarray
+        Koopman modes of observables
+    """
+    phi_X=np.matmul(psi_X,Xi)
+    B = np.matmul(np.linalg.pinv(psi_X),X_obs)
+    Wprime = np.divide(np.conj(W.T),np.diag(np.matmul(np.conj(W.T),Xi))[:,np.newaxis])
+    V=np.matmul(Wprime,B)
+    return phi_X,V
+
+def get_koopman_inference(start,steps,phi_X,V,Lam):
+    """Get Koopman prediction of an observable
+
+    Parameters
+    ----------
+    start : int
+        sample index for start point
+    steps : int
+        number of steps of inference to perform
+    phi_X : ndarray
+        Koopman eigenfunctions, samples x samples
+    V : ndarray
+        Koopman modes of observables, must be calculated samples x samples
+    Lam : ndarray
+        Koopman eigenvalues matrix (diagonal), samples x samples
+    Returns
+    -------
+    X_pred : ndarray
+        predicted trajectory steps x observables
+    """
+    d = V.shape[1]
+    nmodes=V.shape[0]
+    lam = Lam[0:nmodes,:]
+    lam = lam[:,0:nmodes]
+    D = np.eye(nmodes)
+    X_pred = np.zeros((steps,d)).astype('complex128')
+    for step in range(steps):
+        #X_pred[step,:] = np.matmul(np.matmul(phi_X[start,:],D),V)
+        lambdas=np.diag(D)
+        X_pred[step,:] = np.matmul(np.multiply(phi_X[start,:],lambdas)[np.newaxis,:],V)
+        D = np.matmul(D,lam)
+    return X_pred
+
+def update_mahalanobis_matrix(Mprev,X,phi_X,nmodes=2,h=None,s=.05):
+    """Update estimation of mahalanobis matrix for kernel tuning
+
+    Parameters
+    ----------
+    Mprev : ndarray, features x features
+        Koopman eigenfunctions
+    X : ndarray
+        samples by features
+    phi_X : ndarray
+        Koopman eigenfunctions, samples x samples
+    Returns
+    -------
+    M : ndarray
+        updated mahalanobis matrix using Koopman eigenfunction gradients
+    """
+    #define gradient of Koopman eigenfunctions
+    #dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)));
+    #compute M as the gradient outerproduct
+    if h is None:
+        h = get_kernel_sigmas(X,Mprev,s=s)
+    M = np.zeros_like(Mprev)
+    N = X.shape[0]
+    for imode in range(nmodes):
+        print(f'updating M with gradient of mode {imode}')
+        for n in range(N):
+            x=X[n,:]
+            x=x[np.newaxis,:]
+            xMX=np.matmul(X-x,Mprev)
+            kxX=get_gaussianKernelM(X,x,Mprev,h)
+            xMX_kxX=np.multiply(xMX,np.conj(kxX).T)
+            xMX_kxX_phi=np.multiply(xMX_kxX,phi_X[:,[imode]])
+            grad = np.sum(xMX_kxX_phi,axis=0)[np.newaxis,:]
+            M = M + np.matmul(np.conj(grad.T),grad)
+    #get square root and regularize M
+    M = scipy.linalg.sqrtm(M)
+    M = np.real(M)
+    svdnorm=np.max(scipy.linalg.svdvals(M))
+    M = M/svdnorm
+    return M
 
