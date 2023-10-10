@@ -412,7 +412,7 @@ def get_koopman_eig(X,Y,M=None,s=.05,bta=1.e-5,h=None,psi_X=None,psi_Y=None):
         psi_Y=get_gaussianKernelM(X,Y,M,h)
     print('solving linear system for approximate Koopman...')
     A = (psi_X+bta*np.eye(nsamples))
-    K,residuals,rank,s = np.linalg.lstsq(A, psi_Y)
+    K,residuals,rank,s = np.linalg.lstsq(A.astype('float64'), psi_Y.astype('float64'))
     print('getting Koopman eigendecomposition...')
     Lam, W, Xi = scipy.linalg.eig(K,left=True,right=True)
     indsort=np.argsort(np.abs(Lam))[::-1]
@@ -444,7 +444,7 @@ def get_koopman_modes(psi_X,Xi,W,X_obs):
         Koopman modes of observables
     """
     phi_X=np.matmul(psi_X,Xi)
-    B = np.matmul(np.linalg.pinv(psi_X),X_obs)
+    B = np.matmul(np.linalg.pinv(psi_X.astype('float64')),X_obs)
     Wprime = np.divide(np.conj(W.T),np.diag(np.matmul(np.conj(W.T),Xi))[:,np.newaxis])
     V=np.matmul(Wprime,B)
     return phi_X,V
@@ -480,13 +480,13 @@ def get_koopman_inference(start,steps,phi_X,V,Lam):
         lambdas=np.diag(D)
         X_pred[step,:] = np.matmul(np.multiply(phi_X[start,:],lambdas)[np.newaxis,:],V)
         D = np.matmul(D,lam)
-    return X_pred
+    return np.real(X_pred)
 
 def update_mahalanobis_matrix(Mprev,X,phi_X,nmodes=2,h=None,s=.05):
     """Update estimation of mahalanobis matrix for kernel tuning
 
     Parameters
-    ----------
+    ----------`
     Mprev : ndarray, features x features
         Koopman eigenfunctions
     X : ndarray
@@ -515,7 +515,10 @@ def update_mahalanobis_matrix(Mprev,X,phi_X,nmodes=2,h=None,s=.05):
             xMX_kxX=np.multiply(xMX,np.conj(kxX).T)
             xMX_kxX_phi=np.multiply(xMX_kxX,phi_X[:,[imode]])
             grad = np.sum(xMX_kxX_phi,axis=0)[np.newaxis,:]
-            M = M + np.matmul(np.conj(grad.T),grad)
+            Madd = np.real(np.matmul(np.conj(grad.T),grad))
+            M = M + Madd
+            if n%100==0:
+                print(f' gradient calc for {n} of {N} content {np.sum(Madd):.2e}')
     #get square root and regularize M
     M = scipy.linalg.sqrtm(M)
     M = np.real(M)
