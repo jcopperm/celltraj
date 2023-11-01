@@ -1134,6 +1134,26 @@ class Trajectory:
                     traj_segSet=np.append(traj_segSet,traj_seg[np.newaxis,:],axis=0)
         return traj_segSet
 
+    def get_Xtraj_celltrajectory(self,cell_traj,Xtraj=None,traj=None): #traj and
+        if traj is None:
+            traj=self.traj
+        if Xtraj is None:
+            x=self.Xtraj
+        else:
+            x=Xtraj
+        ntraj=cell_traj.size
+        neigen=x.shape[1]
+        xt=np.zeros((0,neigen))
+        inds_traj=np.array([])
+        for itraj in range(ntraj-self.trajl):
+            test=cell_traj[itraj:itraj+self.trajl]
+            res = (traj[:, None] == test[np.newaxis,:]).all(-1).any(-1)
+            if np.sum(res)==1:
+                indt=np.where(res)[0][0]
+                xt=np.append(xt,np.array([x[indt,:]]),axis=0)
+                inds_traj=np.append(inds_traj,indt)
+        return xt,inds_traj.astype(int)
+
     def get_trajectory_steps(self,inds=None,traj=None,Xtraj=None,get_trajectories=True,nlag=1): #traj and Xtraj should be indexed same
         if inds is None:
             inds=np.arange(self.cells_indSet.size).astype(int)
@@ -1170,6 +1190,82 @@ class Trajectory:
         self.Xtraj1=x1
         self.inds_trajp1=inds_trajp1
 
+    def get_trajAB_segments(self,xt,stateA=None,stateB=None,clusters=None,states=None,distcutA=None,distcutB=None):
+        """
+        Takes real or assigned trajectories as input and returns indices in A (only stateA defined), or between A and B (stateA and stateB defined).
+        A is 1, B is 2, not A or B is 0
+        """
+        nt=xt.shape[0]
+        inds_xt=np.ma.masked_array(np.arange(nt).astype(int))
+        if xt.dtype.char in np.typecodes['AllInteger']:
+            is_statetraj=True
+            states_xt=xt
+            if clusters is not None:
+                print('discretized trajectory provided, ignoring provided clusters...')
+            if states is not None:
+                print('warning: discretized trajectories passed through provided states, probably unintended')
+        else:
+            is_statetraj=False
+        if stateA is None:
+            print('Must provide at least one state')
+        else:
+            if stateB is None:
+                is_1state=True
+            else:
+                is_1state=False
+        if not is_statetraj and clusters is None and distcutA is None:
+            print('must provide a clustering for continuous trajectories')
+            return None
+        if not is_statetraj and clusters is not None:
+            states_xt=clusters.assign(xt)
+        if not is_statetraj and distcutA is not None:
+            if stateA.dtype.char in np.typecodes['AllFloat']:
+                distsA=utilities.get_dmat(np.array([stateA]),xt)[0]
+                states_xt=distsA<distcutA
+                states_xt=states_xt.astype(int)
+                stateA=np.array([1]).astype(int)
+                if not is_1state:
+                    if distcutB is None:
+                        print('must provide a distance cutoff for both states for continuous trajectories')
+                        return None
+                    distsB=utilities.get_dmat(np.array([stateB]),xt)[0]
+                    states_xt[distsB<distcutB]=2
+                    stateB=np.array([2]).astype(int)
+        if states is None:
+            states=np.arange(np.max(states_xt)+1).astype(int)
+        states_xt=states[states_xt]
+        states_xtA=np.isin(states_xt,stateA)
+        if is_1state:
+            inds_xt[states_xtA]=np.ma.masked
+            slices=np.ma.clump_masked(inds_xt)
+            return slices
+        if not is_1state:
+            states_xtB=np.isin(states_xt,stateB)
+            fromA=False
+            fromB=False
+            lastinA=np.zeros_like(states_xt).astype(bool)
+            nextinB=np.zeros_like(states_xt).astype(bool)
+            for itt in range(nt):
+                if not fromA and states_xtA[itt]:
+                    fromA=True
+                if fromA and states_xtB[itt]:
+                    fromA=False
+                lastinA[itt]=fromA
+            for itt in range(nt-1,0,-1):
+                if not fromB and states_xtB[itt]:
+                    fromB=True
+                if fromB and states_xtA[itt]:
+                    fromB=False
+                nextinB[itt]=fromB
+            lastinA_goestoB=np.logical_and(lastinA,nextinB)
+            indsAB=np.where(np.logical_and(lastinA,nextinB))[0]
+            for indAB in indsAB:
+                lastinA_goestoB[indAB-1]=True
+                lastinA_goestoB[indAB+1]=True
+            inds_xt[lastinA_goestoB]=np.ma.masked
+            slices=np.ma.clump_masked(inds_xt)
+            return slices
+
     def get_pair_rdf(self,cell_indsA=None,cell_indsB=None,rbins=None,nr=50,rmax=500):
         if cell_indsA is None:
             cell_indsA=np.arange(self.cells_indSet.shape[0]).astype(int)
@@ -1205,4 +1301,82 @@ class Trajectory:
             paircorrx[ir]=paircorrx[ir]/norm
         paircorrx=paircorrx*V/nc
         return rbins,paircorrx
+
+    def get_cell_neighborhood(self,indcell):
+        return indcells,intersurfaces
+
+    def get_alpha(self,i1,i2):
+        try:
+            ip1=self.get_cell_trajectory(i1,n_hist=1)[-2]
+            ip2=self.get_cell_trajectory(i2,n_hist=1)[-2]
+            dx1=self.x[i1,:]-self.x[ip1,:]
+            dx1=dx1/np.linalg.norm(dx1)
+            dx2=self.x[i2,:]-self.x[ip2,:]
+            dx2=dx2/np.linalg.norm(dx2)
+            pij=dx1-dx2
+            rij=(self.x[i1,:]-self.x[i2,:])
+            nij=rij/np.sqrt(np.sum(np.power(rij,2)))
+            alpha=np.sum(np.multiply(pij,nij))
+        except:
+            alpha=np.nan
+        return alpha
+
+    def get_beta(self,i1,i2):
+        try:
+            ip1=self.get_cell_trajectory(i1,n_hist=1)[-2]
+            ip2=self.get_cell_trajectory(i2,n_hist=1)[-2]
+            dx1=self.x[i1,:]-self.x[ip1,:]
+            dx1=dx1/np.linalg.norm(dx1)
+            dx2=self.x[i2,:]-self.x[ip2,:]
+            dx2=dx2/np.linalg.norm(dx2)
+            beta=np.sum(np.multiply(dx1,dx2))
+        except:
+            beta=np.nan
+        return beta
+
+    def get_dx(self,i1):
+        try:
+            ip1=self.get_cell_trajectory(i1,n_hist=1)[-2]
+            dx1=self.x[i1,:]-self.x[ip1,:]
+        except:
+            dx1=np.ones(2)*np.nan
+        return dx1
+
+    def feat_comdx(self,indcell,bmsk=None,bunch_clusters=None):
+        if self.get_cell_trajectory(indcell,n_hist=1).size>1:
+            indcells,intersurfaces=self.get_cell_neighborhood(indcell,bmsk=bmsk,bunch_clusters=bunch_clusters)
+            alphaSet=np.zeros(indcells.size)
+            betaSet=np.zeros(indcells.size)
+            for ic in range(indcells.size):
+                alphaSet[ic]=self.get_alpha(indcell,indcells[ic])
+                betaSet[ic]=self.get_beta(indcell,indcells[ic])
+            intersurfaces=intersurfaces/np.nansum(intersurfaces)
+            comdx=np.zeros(3)
+            comdx[0]=np.linalg.norm(self.get_dx(indcell))
+            comdx[1]=np.nansum(np.multiply(intersurfaces,alphaSet))
+            comdx[2]=np.nansum(np.multiply(intersurfaces,betaSet))
+        else:
+            comdx=np.ones(3)*np.nan
+        return comdx
+
+    def get_comdx_features(self,cell_inds=None):
+        nfeat_com=3
+        if cell_inds is None:
+            cell_inds=np.arange(self.x.shape[0]).astype(int)
+        Xf_com=np.ones((self.x.shape[0],nfeat_com))*np.nan
+        traj_pairSet=self.get_traj_segments(2)
+        indimgs=np.unique(self.cells_indimgSet[cell_inds])
+        for im in indimgs:
+            fmsk=self.fmskSet[im,:,:]
+            bmsk=self.get_cell_bunches(fmsk,bunchcut=1.0)
+            bunch_clusters=self.get_bunch_clusters(bmsk,t=self.imgSet_t[im,:])
+            sys.stdout.write('extracting motility features from image '+str(im)+' of '+str(indimgs.size)+'\n')
+            cell_inds_img=np.where(self.cells_indimgSet[cell_inds]==im)[0]
+            indcells,indcomm_cindimg,indcomm_ctraj=np.intersect1d(cell_inds[cell_inds_img],traj_pairSet[:,1],return_indices=True)
+            xSet=self.x[traj_pairSet[indcomm_ctraj,1],:]
+            for ic in indcomm_ctraj:
+                indcell=traj_pairSet[ic,1]
+                comdx=self.feat_comdx(indcell,bmsk=bmsk,bunch_clusters=bunch_clusters)
+                Xf_com[indcell,:]=comdx
+        self.Xf_com=Xf_com
 

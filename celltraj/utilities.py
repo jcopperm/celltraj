@@ -13,6 +13,7 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components
 from sklearn.linear_model import LinearRegression
 from scipy import ndimage
+import scipy
 import h5py
 np.matlib=numpy.matlib
 
@@ -189,7 +190,7 @@ def dist(img1,img2):
 	dist=np.sqrt(np.sum(np.power((img1-img2),2)))
 	return dist
 
-def get_dmat(x1,x2=None): #adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)
+def get_dmat_vectorized(x1,x2=None): #adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)
     x1=np.transpose(x1) #default from Fung folks is D x N
     if x2 is None:
         nX1 = x1.shape[1];
@@ -205,6 +206,17 @@ def get_dmat(x1,x2=None): #adapted to python from Russell Fung matlab implementa
         y = y + np.matlib.repmat( np.sum( np.power(x2,2), 0 ), nX1, 1 )
         y = y - 2 * np.matmul(np.transpose(x1),x2)
     return np.sqrt(y)
+
+def get_dmat(x1,x2=None):
+    if np.iscomplex(x1).any():
+        x1=np.concatenate((np.real(x1),np.imag(x1)),axis=1)
+        if x2 is not None:
+            x2=np.concatenate((np.real(x2),np.imag(x2)),axis=1)
+    if x2 is None:
+        y = scipy.spatial.distance.cdist(x1,x1)
+    else:
+        y = scipy.spatial.distance.cdist(x1,x2)
+    return y
 
 def dist_to_contact(r,r0,d0,n=6,m=12):
     if np.isscalar(r):

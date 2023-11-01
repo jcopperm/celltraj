@@ -125,7 +125,7 @@ def znorm(img):
     :return: z-normed array
     :rtype: real array
     """
-    img=(img-np.mean(img))/np.std(img)
+    img=(img-np.nanmean(img))/np.nanstd(img)
     return img
 
 def histogram_stretch(img,lp=1,hp=99):

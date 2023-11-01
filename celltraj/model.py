@@ -10,6 +10,7 @@ import umap
 from sklearn.cluster import KMeans
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components
+import utilities
 
 """
 A toolset for single-cell trajectory data-driven modeling. See:
@@ -125,7 +126,7 @@ def get_path_ll_2point(self,x0,x1,exclude_stays=False):
         ll=np.nan
     return ll
 
-def get_kscore(self,Mt,eps=1.e-3): #,nw=10):
+def get_kscore(Mt,eps=1.e-3): #,nw=10):
     indeye=np.where(np.eye(Mt.shape[0]))
     diag=Mt[indeye]
     indgood=np.where(diag<1.)[0]
@@ -346,8 +347,12 @@ def get_kernel_sigmas(X,M,s=.05):
         vector of sigmas to scale observations in kernel
     """
     XM=np.matmul(X,M)
-    h=s*np.std(scipy.spatial.distance.cdist(XM,XM,metric='euclidean'),axis=0)
-    return h
+    if np.iscomplex(XM).any():
+        h=s*np.std(utilities.get_dmat(XM,XM),axis=0)
+    else:
+        XM=XM.astype('float64')
+        h=s*np.std(scipy.spatial.distance.cdist(XM,XM,metric='euclidean'),axis=0)
+    return h.astype('float64')
 
 def get_gaussianKernelM(X,Y,M,h):
     """Get Malanobis scaled gaussian kernel from observation matrices X,Y
@@ -369,8 +374,12 @@ def get_gaussianKernelM(X,Y,M,h):
     """
     XM=np.matmul(X,M)
     YM=np.matmul(Y,M)
-    k=np.exp(-np.divide(np.power(scipy.spatial.distance.cdist(YM,XM),2),2*h))
-    return k
+    if np.iscomplex(XM).any():
+        k=np.exp(-np.divide(np.power(utilities.get_dmat(YM,XM),2),2*h))
+    else:
+        XM=XM.astype('float64');YM=YM.astype('float64')
+        k=np.exp(-np.divide(np.power(scipy.spatial.distance.cdist(YM,XM),2),2*h))
+    return k.astype('float64')
 
 def get_koopman_eig(X,Y,M=None,s=.05,bta=1.e-5,h=None,psi_X=None,psi_Y=None):
     """Get linear matrix solution for Koopman operator from X,Y paired observation Y=F(X) with F the forward operator
@@ -449,7 +458,7 @@ def get_koopman_modes(psi_X,Xi,W,X_obs):
     V=np.matmul(Wprime,B)
     return phi_X,V
 
-def get_koopman_inference(start,steps,phi_X,V,Lam):
+def get_koopman_inference(start,steps,phi_X,V,Lam,nmodes=2):
     """Get Koopman prediction of an observable
 
     Parameters
@@ -469,10 +478,14 @@ def get_koopman_inference(start,steps,phi_X,V,Lam):
     X_pred : ndarray
         predicted trajectory steps x observables
     """
+    if not isinstance(nmodes, (list,tuple,np.ndarray)):
+        indmodes=np.arange(nmodes).astype(int)
+    else:
+        indmodes=nmodes
+        nmodes=indmodes.size
     d = V.shape[1]
-    nmodes=V.shape[0]
-    lam = Lam[0:nmodes,:]
-    lam = lam[:,0:nmodes]
+    lam = Lam[indmodes,:]
+    lam = lam[:,indmodes]
     D = np.eye(nmodes)
     X_pred = np.zeros((steps,d)).astype('complex128')
     for step in range(steps):
@@ -482,7 +495,44 @@ def get_koopman_inference(start,steps,phi_X,V,Lam):
         D = np.matmul(D,lam)
     return np.real(X_pred)
 
-def update_mahalanobis_matrix(Mprev,X,phi_X,nmodes=2,h=None,s=.05):
+def get_koopman_inference_multiple(starts,steps,phi_X,V,Lam,nmodes=2):
+    """Get Koopman prediction of an observable
+
+    Parameters
+    ----------
+    start : int
+        sample index for start point
+    steps : int
+        number of steps of inference to perform
+    phi_X : ndarray
+        Koopman eigenfunctions, samples x samples
+    V : ndarray
+        Koopman modes of observables, must be calculated samples x samples
+    Lam : ndarray
+        Koopman eigenvalues matrix (diagonal), samples x samples
+    Returns
+    -------
+    X_pred : ndarray
+        predicted trajectory steps x observables
+    """
+    if not isinstance(nmodes, (list,tuple,np.ndarray)):
+        indmodes=np.arange(nmodes).astype(int)
+    else:
+        indmodes=nmodes
+        nmodes=indmodes.size
+    d = V.shape[1]
+    lam = Lam[indmodes,:]
+    lam = lam[:,indmodes]
+    D = np.eye(nmodes)
+    X_pred = np.zeros((starts.size,steps,d)).astype('complex128')
+    for step in range(steps):
+        #X_pred[step,:] = np.matmul(np.matmul(phi_X[start,:],D),V)
+        lambdas=np.diag(D)
+        X_pred[:,step,:] = np.matmul(np.multiply(phi_X[starts,:],lambdas),V)
+        D = np.matmul(D,lam)
+    return np.real(X_pred)
+
+def update_mahalanobis_matrix_grad(Mprev,X,phi_X,h=None,s=.05):
     """Update estimation of mahalanobis matrix for kernel tuning
 
     Parameters
@@ -500,29 +550,239 @@ def update_mahalanobis_matrix(Mprev,X,phi_X,nmodes=2,h=None,s=.05):
     """
     #define gradient of Koopman eigenfunctions
     #dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)));
+    #flux = @(x,efcn) log(Lam(efcn))*sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)))'*V(efcn,:);
     #compute M as the gradient outerproduct
     if h is None:
         h = get_kernel_sigmas(X,Mprev,s=s)
     M = np.zeros_like(Mprev)
     N = X.shape[0]
+    nmodes=phi_X.shape[1]
     for imode in range(nmodes):
-        print(f'updating M with gradient of mode {imode}')
+        print(f'updating M with gradient of mode {imode} of {nmodes}')
         for n in range(N):
             x=X[n,:]
             x=x[np.newaxis,:]
             xMX=np.matmul(X-x,Mprev)
             kxX=get_gaussianKernelM(X,x,Mprev,h)
             xMX_kxX=np.multiply(xMX,np.conj(kxX).T)
-            xMX_kxX_phi=np.multiply(xMX_kxX,phi_X[:,[imode]])
+            xMX_kxX_phi=np.multiply(xMX_kxX,phi_X[:,[imode]]) #prev without V
             grad = np.sum(xMX_kxX_phi,axis=0)[np.newaxis,:]
-            Madd = np.real(np.matmul(np.conj(grad.T),grad))
+            Madd = np.matmul(np.conj(grad.T),grad)
             M = M + Madd
-            if n%100==0:
+            if n%500==0:
                 print(f' gradient calc for {n} of {N} content {np.sum(Madd):.2e}')
+    #get square root and regularize M
+    M = scipy.linalg.sqrtm(M)
+    #M = np.real(M)
+    svdnorm=np.max(scipy.linalg.svdvals(M))
+    M = M/svdnorm
+    return M
+
+def update_mahalanobis_matrix_J_old(Mprev,X,phi_X,V,Lam,h=None,s=.05):
+    """Update estimation of mahalanobis matrix for kernel tuning
+
+    Parameters
+    ----------`
+    Mprev : ndarray, features x features
+        Koopman eigenfunctions
+    X : ndarray
+        samples by features
+    phi_X : ndarray
+        Koopman eigenfunctions, samples x samples
+    Returns
+    -------
+    M : ndarray
+        updated mahalanobis matrix using Koopman eigenfunction gradients
+    """
+    #define gradient of Koopman eigenfunctions
+    #dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)));
+    #flux = @(x,efcn) log(Lam(efcn))*sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)))'*V(efcn,:);
+    #compute M as the gradient outerproduct
+    if h is None:
+        h = get_kernel_sigmas(X,Mprev,s=s)
+    M = np.zeros_like(Mprev)
+    N = X.shape[0]
+    lam=np.diag(Lam)
+    nmodes=V.shape[0]
+    for n in range(N):
+        #print(f'updating J with gradient of mode {imode}')
+        J=np.zeros((M.shape[0],1))
+        x=X[n,:]
+        x=x[np.newaxis,:]
+        kxX=get_gaussianKernelM(X,x,Mprev,h)
+        xMX=np.matmul(X-x,Mprev)
+        xMX_kxX=np.multiply(xMX,np.conj(kxX).T)
+        for imode in range(nmodes):
+            #phi_X_V=np.matmul(np.conj(phi_X[:,[imode]].T),V[[imode],:]) #added for flux
+            xMX_kxX_phi=np.multiply(xMX_kxX,phi_X[:,[imode]]) #prev without V
+            xMX_kxX_phi = np.log(lam[imode])*np.sum(xMX_kxX_phi,axis=0)[np.newaxis,:]
+            #Jflux=np.matmul(np.conj(xMX_kxX_phi.T),V[[imode],:])
+            Jflux=np.matmul(xMX_kxX_phi.T,V[[imode],:]) #hopefully conj fix 18oct23 from da
+            J = J + Jflux
+        #grad = np.sum(xMX_kxX_phiV,axis=0)[np.newaxis,:]
+        Madd = np.real(np.matmul(J,np.conj(J.T)))
+        M = M + Madd
+        if n%100==0:
+            print(f' J calc for {n} of {N} content {np.sum(Madd):.2e}')
     #get square root and regularize M
     M = scipy.linalg.sqrtm(M)
     M = np.real(M)
     svdnorm=np.max(scipy.linalg.svdvals(M))
     M = M/svdnorm
     return M
+
+def update_mahalanobis_matrix_J(Mprev,X,Xi,V,lam,h=None,s=.05): #updating per David's method 30oct23
+    """Update estimation of mahalanobis matrix for kernel tuning
+
+    Parameters
+    ----------`
+    Mprev : ndarray, features x features
+        Koopman eigenfunctions
+    X : ndarray
+        samples by features
+    phi_X : ndarray
+        Koopman eigenfunctions, samples x samples
+    Returns
+    -------
+    M : ndarray
+        updated mahalanobis matrix using Koopman eigenfunction gradients
+    """
+    #define gradient of Koopman eigenfunctions
+    #dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)));
+    #flux = @(x,efcn) log(Lam(efcn))*sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)))'*V(efcn,:);
+    #compute M as the gradient outerproduct
+    if h is None:
+        h = get_kernel_sigmas(X,Mprev,s=s)
+    M = np.zeros_like(Mprev)
+    N = X.shape[0]
+    nmodes=V.shape[0]
+    M2=np.matmul(Mprev,np.conj(Mprev.T))
+    #XiloglamV=np.matmul((Xi*np.log(lam)),np.conj(V))
+    Xiloglam=(Xi*np.log(lam[np.newaxis,:]))
+    for n in range(N):
+        #print(f'updating J with gradient of mode {imode}')
+        x=X[n,:]
+        x=x[np.newaxis,:]
+        kxX=get_gaussianKernelM(X,x,Mprev,h)
+        kxX_Xiloglam=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,Xiloglam)
+        #J=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,XiloglamV)
+        J=np.matmul(kxX_Xiloglam,np.conj(V))
+        Madd = np.matmul(J,np.conj(J.T))
+        M = M + Madd
+        if n%200==0:
+            print(f' J calc for {n} of {N} content {np.sum(Madd):.2e}')
+    #get square root and regularize M
+    M = scipy.linalg.sqrtm(M)
+    #M = np.real(M)
+    svdnorm=np.max(scipy.linalg.svdvals(M))
+    M = M/svdnorm
+    return M
+
+def update_mahalanobis_matrix_flux(Mprev,X,phi_X,V,Lam,h=None,s=.05):
+    """Update estimation of mahalanobis matrix for kernel tuning
+
+    Parameters
+    ----------`
+    Mprev : ndarray, features x features
+        Koopman eigenfunctions
+    X : ndarray
+        samples by features
+    phi_X : ndarray
+        Koopman eigenfunctions, samples x samples
+    Returns
+    -------
+    M : ndarray
+        updated mahalanobis matrix using Koopman eigenfunction gradients
+    """
+    #define gradient of Koopman eigenfunctions
+    #dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)));
+    #flux = @(x,efcn) log(Lam(efcn))*sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)))'*V(efcn,:);
+    #compute M as the gradient outerproduct
+    if h is None:
+        h = get_kernel_sigmas(X,Mprev,s=s)
+    M = np.zeros_like(Mprev)
+    N = X.shape[0]
+    lam=np.diag(Lam)
+    for n in range(N):
+        #print(f'updating J with gradient of mode {imode}')
+        F=np.zeros((1,M.shape[0]))
+        x=X[n,:]
+        x=x[np.newaxis,:]
+        kxX=get_gaussianKernelM(X,x,Mprev,h)
+        #for imode in range(nmodes):
+        #    phi_V=np.matmul(phi_X[:,[imode]],V[[imode],:])
+        #    flux=np.log(lam[imode])*np.matmul(kxX,phi_V)
+        #    F = F + flux
+        #vectorized version 18oct23
+        kxX_phi=np.matmul(kxX,phi_X)
+        kxX_phi_V=np.multiply(kxX_phi.T,V)
+        F=np.sum(np.multiply(np.log(lam)[:,np.newaxis],kxX_phi_V),axis=0)[np.newaxis,:]
+        #grad = np.sum(xMX_kxX_phiV,axis=0)[np.newaxis,:]
+        Madd = np.matmul(np.conj(F.T),F)
+        M = M + Madd
+        if n%100==0:
+            print(f' F calc for {n} of {N} content {np.sum(Madd):.2e}')
+    #get square root and regularize M
+    M = scipy.linalg.sqrtm(M)
+    #M = np.real(M)
+    svdnorm=np.max(scipy.linalg.svdvals(M))
+    M = M/svdnorm
+    return M
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
