@@ -65,6 +65,16 @@
 <li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.load_ilastik"><code class="docutils literal notranslate"><span class="pre">load_ilastik()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.get_registrations"><code class="docutils literal notranslate"><span class="pre">get_registrations()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.expand_registered_images"><code class="docutils literal notranslate"><span class="pre">expand_registered_images()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_kernel_sigmas"><code class="docutils literal notranslate"><span class="pre">get_kernel_sigmas()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_gaussianKernelM"><code class="docutils literal notranslate"><span class="pre">get_gaussianKernelM()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_koopman_eig"><code class="docutils literal notranslate"><span class="pre">get_koopman_eig()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_koopman_modes"><code class="docutils literal notranslate"><span class="pre">get_koopman_modes()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_koopman_inference"><code class="docutils literal notranslate"><span class="pre">get_koopman_inference()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_koopman_inference_multiple"><code class="docutils literal notranslate"><span class="pre">get_koopman_inference_multiple()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_grad"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_grad()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_J_old"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_J_old()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_J"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_J()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_flux"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_flux()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
@@ -281,7 +291,230 @@ ncols: number of columns foverlap: fraction of overlap between images
 :rtype: ndarray (NZ, X, Y)</p>
 </dd></dl>
 
-<span class="target" id="module-celltraj.translate"></span><span class="target" id="module-celltraj.model"></span><span class="target" id="module-celltraj.utilities"></span></section>
+<span class="target" id="module-celltraj.translate"></span><span class="target" id="module-celltraj.model"></span><dl class="py function">
+<dt class="sig sig-object py" id="celltraj.model.get_kernel_sigmas">
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_kernel_sigmas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_kernel_sigmas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_kernel_sigmas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get sigmas from observation matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
+<li><p><strong>M</strong> (<em>ndarray</em>) – Mahalanobis scaling matrix, features x features</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – bandwidth scaling factor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>h</strong> – vector of sigmas to scale observations in kernel</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray, n_features (float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.model.get_gaussianKernelM">
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_gaussianKernelM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_gaussianKernelM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_gaussianKernelM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Malanobis scaled gaussian kernel from observation matrices X,Y</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
+<li><p><strong>Y</strong> (<em>ndarray</em>) – observation matrix at t+1, samples x features</p></li>
+<li><p><strong>M</strong> (<em>ndarray</em>) – Mahalanobis scaling matrix, features x features</p></li>
+<li><p><strong>h</strong> (<em>ndarray</em>) – vector of sigma scalings for gaussian from get_kernel_sigmas</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>k</strong> – Malanobis scaled kernel for X,Y</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray, samples x samples (float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.model.get_koopman_eig">
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_eig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_eig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_eig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get linear matrix solution for Koopman operator from X,Y paired observation Y=F(X) with F the forward operator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
+<li><p><strong>Y</strong> (<em>ndarray</em>) – observation matrix at t+1, samples x features</p></li>
+<li><p><strong>M</strong> (<em>ndarray</em>) – Mahalanobis scaling matrix, features x features</p></li>
+<li><p><strong>s</strong> (<em>float</em>) – kernel bandwidth scaling parameter</p></li>
+<li><p><strong>bta</strong> (<em>float</em>) – regularization parameter for linear solve</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>K</strong> (<em>ndarray</em>) – Koopman operator matrix, samples x samples (float)</p></li>
+<li><p><strong>Xi</strong> (<em>ndarray</em>) – Koopman left eigenvectors, samples x samples</p></li>
+<li><p><strong>Lam</strong> (<em>ndarray</em>) – Koopman eigenvalue matrix (diagonal), samples x samples</p></li>
+<li><p><strong>W</strong> (<em>ndarray</em>) – Koopman right eigenvectors, samples x samples</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.model.get_koopman_modes">
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_modes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">psi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_obs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_modes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_modes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Koopman modes of an observable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>psi_X</strong> (<em>ndarray</em>) – kernel matrix, samples x samples</p></li>
+<li><p><strong>Xi</strong> (<em>ndarray</em>) – right eigenvectors of Koopman, samples x samples</p></li>
+<li><p><strong>W</strong> (<em>ndarray</em>) – left eigenvectors of Koopman, samples x samples</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
+<li><p><strong>X_obs</strong> (<em>ndarray</em><em>, </em><em>samples x observables</em>) – observables of interest in same time order as X, can be X or features of X</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions</p></li>
+<li><p><strong>V</strong> (<em>ndarray</em>) – Koopman modes of observables</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.model.get_koopman_inference">
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_inference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Koopman prediction of an observable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>int</em>) – sample index for start point</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – number of steps of inference to perform</p></li>
+<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
+<li><p><strong>V</strong> (<em>ndarray</em>) – Koopman modes of observables, must be calculated samples x samples</p></li>
+<li><p><strong>Lam</strong> (<em>ndarray</em>) – Koopman eigenvalues matrix (diagonal), samples x samples</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>X_pred</strong> – predicted trajectory steps x observables</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.model.get_koopman_inference_multiple">
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_inference_multiple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">starts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_inference_multiple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_inference_multiple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Koopman prediction of an observable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>int</em>) – sample index for start point</p></li>
+<li><p><strong>steps</strong> (<em>int</em>) – number of steps of inference to perform</p></li>
+<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
+<li><p><strong>V</strong> (<em>ndarray</em>) – Koopman modes of observables, must be calculated samples x samples</p></li>
+<li><p><strong>Lam</strong> (<em>ndarray</em>) – Koopman eigenvalues matrix (diagonal), samples x samples</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>X_pred</strong> – predicted trajectory steps x observables</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.model.update_mahalanobis_matrix_grad">
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">update_mahalanobis_matrix_grad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mprev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#update_mahalanobis_matrix_grad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.update_mahalanobis_matrix_grad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update estimation of mahalanobis matrix for kernel tuning</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
+<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.model.update_mahalanobis_matrix_J_old">
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">update_mahalanobis_matrix_J_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mprev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#update_mahalanobis_matrix_J_old"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.update_mahalanobis_matrix_J_old" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update estimation of mahalanobis matrix for kernel tuning</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
+<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.model.update_mahalanobis_matrix_J">
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">update_mahalanobis_matrix_J</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mprev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#update_mahalanobis_matrix_J"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.update_mahalanobis_matrix_J" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update estimation of mahalanobis matrix for kernel tuning</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
+<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.model.update_mahalanobis_matrix_flux">
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">update_mahalanobis_matrix_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mprev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#update_mahalanobis_matrix_flux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.update_mahalanobis_matrix_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update estimation of mahalanobis matrix for kernel tuning</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
+<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
+<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-celltraj.utilities"></span></section>
 
 
            </div>

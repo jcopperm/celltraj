@@ -30,8 +30,10 @@
       get_masks
       get_nndist_sum
       get_pair_rdf_fromcenters
+      get_registration_expansions
       get_registrations
       get_slide_image
+      get_tf_matrix_2d
       get_tile_order
       get_voronoi_masks
       get_voronoi_masks_fromcenters
