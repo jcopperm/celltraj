@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>celltraj.utilities &mdash; celltraj 0.0 documentation</title>
+  <title>celltraj.features &mdash; celltraj 0.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -17,8 +17,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Contributing" href="../contributing.html" />
-    <link rel="prev" title="celltraj.model" href="celltraj.model.html" /> 
+    <link rel="next" title="celltraj.imageprep" href="celltraj.imageprep.html" />
+    <link rel="prev" title="celltraj.trajectory.Trajectory" href="celltraj.trajectory.Trajectory.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,11 +50,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="celltraj.trajectory.Trajectory.html">celltraj.trajectory.Trajectory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="celltraj.features.html">celltraj.features</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">celltraj.features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="celltraj.imageprep.html">celltraj.imageprep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="celltraj.translate.html">celltraj.translate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="celltraj.model.html">celltraj.model</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">celltraj.utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="celltraj.utilities.html">celltraj.utilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.list_images"><code class="docutils literal notranslate"><span class="pre">list_images()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.organize_filelist_fov"><code class="docutils literal notranslate"><span class="pre">organize_filelist_fov()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#celltraj.imageprep.organize_filelist_time"><code class="docutils literal notranslate"><span class="pre">organize_filelist_time()</span></code></a></li>
@@ -98,9 +98,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../api.html">API Reference</a></li>
-      <li class="breadcrumb-item active">celltraj.utilities</li>
+      <li class="breadcrumb-item active">celltraj.features</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/stubs/celltraj.utilities.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/stubs/celltraj.features.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -108,57 +108,45 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-celltraj.utilities">
-<span id="celltraj-utilities"></span><h1>celltraj.utilities<a class="headerlink" href="#module-celltraj.utilities" title="Permalink to this heading">¶</a></h1>
+  <section id="module-celltraj.features">
+<span id="celltraj-features"></span><h1>celltraj.features<a class="headerlink" href="#module-celltraj.features" title="Permalink to this heading">¶</a></h1>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.colorbar" title="celltraj.utilities.colorbar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">colorbar</span></code></a>(mappable)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">boundaryCB_FFT</span></code>(msk, fmsk[, ncomp, center, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.dist" title="celltraj.utilities.dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dist</span></code></a>(img1, img2)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">boundaryFFT</span></code>(msk[, ncomp, center, nth])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.dist_to_contact" title="celltraj.utilities.dist_to_contact"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dist_to_contact</span></code></a>(r, r0, d0[, n, m])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">featBoundary</span></code>(regionmask, intensity)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.get_cdist" title="celltraj.utilities.get_cdist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cdist</span></code></a>(prob1)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">featBoundaryCB</span></code>(regionmask, intensity)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.get_cdist2d" title="celltraj.utilities.get_cdist2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cdist2d</span></code></a>(prob1)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">featHaralick</span></code>(regionmask, intensity)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.get_cell_centers" title="celltraj.utilities.get_cell_centers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_centers</span></code></a>(labels)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">featNucBoundary</span></code>(regionmask, intensity)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.get_dmat" title="celltraj.utilities.get_dmat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dmat</span></code></a>(x1[, x2])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">featSize</span></code>(regionmask, intensity)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.get_dmat_vectorized" title="celltraj.utilities.get_dmat_vectorized"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dmat_vectorized</span></code></a>(x1[, x2])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">featZernike</span></code>(regionmask, intensity)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.get_linear_batch_normalization" title="celltraj.utilities.get_linear_batch_normalization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_linear_batch_normalization</span></code></a>(feat0_all, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cc_cs_border</span></code>(mskcell, fmskcell[, bordersize])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.get_linear_coef" title="celltraj.utilities.get_linear_coef"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_linear_coef</span></code></a>(counts0, countsA, countsB, ...)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_contact_boundaries</span></code>(labels[, radius])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.get_pairwise_distance_sum" title="celltraj.utilities.get_pairwise_distance_sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pairwise_distance_sum</span></code></a>(tshift, centers1, ...)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pca_fromdata</span></code>(data[, dim, var_cutoff])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.get_tshift" title="celltraj.utilities.get_tshift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tshift</span></code></a>(centers1, centers2, dist_function)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.load_dict_from_h5" title="celltraj.utilities.load_dict_from_h5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_dict_from_h5</span></code></a>(h5file, path)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.recursively_load_dict_contents_from_group" title="celltraj.utilities.recursively_load_dict_contents_from_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recursively_load_dict_contents_from_group</span></code></a>(...)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.recursively_save_dict_contents_to_group" title="celltraj.utilities.recursively_save_dict_contents_to_group"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recursively_save_dict_contents_to_group</span></code></a>(...)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.utilities.save_dict_to_h5" title="celltraj.utilities.save_dict_to_h5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_dict_to_h5</span></code></a>(dic, h5file, path)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">meanIntensity</span></code>(regionmask, intensity)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -169,8 +157,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="celltraj.model.html" class="btn btn-neutral float-left" title="celltraj.model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="celltraj.trajectory.Trajectory.html" class="btn btn-neutral float-left" title="celltraj.trajectory.Trajectory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="celltraj.imageprep.html" class="btn btn-neutral float-right" title="celltraj.imageprep" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

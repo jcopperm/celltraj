@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.trajectory.Trajectory.html">celltraj.trajectory.Trajectory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.features.html">celltraj.features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.imageprep.html">celltraj.imageprep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.translate.html">celltraj.translate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.model.html">celltraj.model</a></li>
@@ -113,16 +114,19 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory" title="celltraj.trajectory.Trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.trajectory.Trajectory</span></code></a></p></td>
 <td><p>A toolset for single-cell trajectory modeling.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/celltraj.imageprep.html#module-celltraj.imageprep" title="celltraj.imageprep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.imageprep</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/celltraj.features.html#module-celltraj.features" title="celltraj.features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.features</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/celltraj.translate.html#module-celltraj.translate" title="celltraj.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.translate</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/celltraj.imageprep.html#module-celltraj.imageprep" title="celltraj.imageprep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.imageprep</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/celltraj.model.html#module-celltraj.model" title="celltraj.model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.model</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/celltraj.translate.html#module-celltraj.translate" title="celltraj.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.translate</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/celltraj.utilities.html#module-celltraj.utilities" title="celltraj.utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.utilities</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/celltraj.model.html#module-celltraj.model" title="celltraj.model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.model</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="stubs/celltraj.utilities.html#module-celltraj.utilities" title="celltraj.utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.utilities</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -136,7 +140,7 @@
 <p>Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
 Morphodynamical cell-state description via live-cell imaging trajectory embedding.
 Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
-<span class="target" id="module-celltraj.imageprep"></span><dl class="py function">
+<span class="target" id="module-celltraj.features"></span><span class="target" id="module-celltraj.imageprep"></span><dl class="py function">
 <dt class="sig sig-object py" id="celltraj.imageprep.list_images">
 <span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">list_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imagespecifier</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#list_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.list_images" title="Permalink to this definition">¶</a></dt>
 <dd><p>list images in a directory matching a pattern..</p>
@@ -293,7 +297,7 @@ ncols: number of columns foverlap: fraction of overlap between images
 
 <span class="target" id="module-celltraj.translate"></span><span class="target" id="module-celltraj.model"></span><dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_kernel_sigmas">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_kernel_sigmas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_kernel_sigmas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_kernel_sigmas" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_kernel_sigmas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_kernel_sigmas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_kernel_sigmas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get sigmas from observation matrix</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -362,7 +366,7 @@ ncols: number of columns foverlap: fraction of overlap between images
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_koopman_modes">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_modes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">psi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_obs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_modes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_modes" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_modes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">psi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_modes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_modes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Koopman modes of an observable</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

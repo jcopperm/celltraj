@@ -330,7 +330,7 @@ def get_dmat(x1,x2=None): #adapted to python from Russell Fung matlab implementa
     return np.sqrt(y)
 
 ####################################feature tuned kernel DMD a la aristoff########################
-def get_kernel_sigmas(X,M,s=.05):
+def get_kernel_sigmas(X,M,s=.05,vector_sigma=True):
     """Get sigmas from observation matrix
 
     Parameters
@@ -347,12 +347,17 @@ def get_kernel_sigmas(X,M,s=.05):
         vector of sigmas to scale observations in kernel
     """
     XM=np.matmul(X,M)
-    if np.iscomplex(XM).any():
-        h=s*np.std(utilities.get_dmat(XM,XM),axis=0)
+    if vector_sigma:
+        if np.iscomplex(XM).any():
+            h=s*np.power(np.std(utilities.get_dmat(XM,XM),axis=0),2) #to square, changed 6nov23 matching unit test
+        else:
+            XM=XM.astype('float64')
+            h=s*np.power(np.std(scipy.spatial.distance.cdist(XM,XM,metric='euclidean'),axis=0),2) #to square, changed 6nov23 matching unit test
+        return h.astype('float64')
     else:
-        XM=XM.astype('float64')
-        h=s*np.std(scipy.spatial.distance.cdist(XM,XM,metric='euclidean'),axis=0)
-    return h.astype('float64')
+        XX=np.sqrt(np.power(np.real(XM),2)+np.power(np.imag(XM),2))
+        h = s*np.std(scipy.spatial.distance.pdist(XX,metric='euclidean'))**2
+        return h
 
 def get_gaussianKernelM(X,Y,M,h):
     """Get Malanobis scaled gaussian kernel from observation matrices X,Y
@@ -430,7 +435,7 @@ def get_koopman_eig(X,Y,M=None,s=.05,bta=1.e-5,h=None,psi_X=None,psi_Y=None):
     Lam=np.diag(Lam[indsort])
     return K,Xi,Lam,W
 
-def get_koopman_modes(psi_X,Xi,W,X_obs):
+def get_koopman_modes(psi_X,Xi,W,X_obs,bta=1.e-5):
     """Get Koopman modes of an observable
 
     Parameters
@@ -453,9 +458,12 @@ def get_koopman_modes(psi_X,Xi,W,X_obs):
         Koopman modes of observables
     """
     phi_X=np.matmul(psi_X,Xi)
-    B = np.matmul(np.linalg.pinv(psi_X.astype('float64')),X_obs)
-    Wprime = np.divide(np.conj(W.T),np.diag(np.matmul(np.conj(W.T),Xi))[:,np.newaxis])
-    V=np.matmul(Wprime,B)
+    #B = np.matmul(np.linalg.pinv(psi_X.astype('float64')),X_obs) #change to ridge regression soon
+    #Wprime = np.divide(np.conj(W.T),np.diag(np.matmul(np.conj(W.T),Xi))[:,np.newaxis])
+    #V=np.matmul(Wprime,B)
+    B1 = (psi_X+bta*np.eye(psi_X.shape[0])) #\obs(X(1:N-1,:))
+    B,residuals,rank,s = np.linalg.lstsq(B1.astype('float64'), X_obs.astype('float64'))
+    V = np.matmul(np.conj(B).T,(np.divide(W,np.conj(np.diag(np.matmul(np.conj(W).T,Xi))).T)))
     return phi_X,V
 
 def get_koopman_inference(start,steps,phi_X,V,Lam,nmodes=2):
@@ -483,7 +491,7 @@ def get_koopman_inference(start,steps,phi_X,V,Lam,nmodes=2):
     else:
         indmodes=nmodes
         nmodes=indmodes.size
-    d = V.shape[1]
+    d = V.shape[0]
     lam = Lam[indmodes,:]
     lam = lam[:,indmodes]
     D = np.eye(nmodes)
@@ -491,7 +499,7 @@ def get_koopman_inference(start,steps,phi_X,V,Lam,nmodes=2):
     for step in range(steps):
         #X_pred[step,:] = np.matmul(np.matmul(phi_X[start,:],D),V)
         lambdas=np.diag(D)
-        X_pred[step,:] = np.matmul(np.multiply(phi_X[start,:],lambdas)[np.newaxis,:],V)
+        X_pred[step,:] = np.matmul(np.multiply(phi_X[start,:],lambdas)[np.newaxis,:],np.conj(V).T) #changed V to V.T to agree with DA notes 6nov23
         D = np.matmul(D,lam)
     return np.real(X_pred)
 
@@ -520,15 +528,15 @@ def get_koopman_inference_multiple(starts,steps,phi_X,V,Lam,nmodes=2):
     else:
         indmodes=nmodes
         nmodes=indmodes.size
-    d = V.shape[1]
+    d = V.shape[0]
     lam = Lam[indmodes,:]
     lam = lam[:,indmodes]
     D = np.eye(nmodes)
     X_pred = np.zeros((starts.size,steps,d)).astype('complex128')
     for step in range(steps):
-        #X_pred[step,:] = np.matmul(np.matmul(phi_X[start,:],D),V)
         lambdas=np.diag(D)
-        X_pred[:,step,:] = np.matmul(np.multiply(phi_X[starts,:],lambdas),V)
+        #X_pred[:,step,:] = np.matmul(np.multiply(phi_X[starts,:],lambdas),V)
+        X_pred[:,step,:] = np.matmul(np.multiply(phi_X[starts,:],lambdas),np.conj(V).T) #changed V to V.T to agree with DA notes 6nov23
         D = np.matmul(D,lam)
     return np.real(X_pred)
 
@@ -597,6 +605,7 @@ def update_mahalanobis_matrix_J_old(Mprev,X,phi_X,V,Lam,h=None,s=.05):
     #define gradient of Koopman eigenfunctions
     #dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)));
     #flux = @(x,efcn) log(Lam(efcn))*sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)))'*V(efcn,:);
+    V=V.T #changed V to V.T to agree with DA notes 6nov23
     #compute M as the gradient outerproduct
     if h is None:
         h = get_kernel_sigmas(X,Mprev,s=s)
@@ -655,18 +664,17 @@ def update_mahalanobis_matrix_J(Mprev,X,Xi,V,lam,h=None,s=.05): #updating per Da
         h = get_kernel_sigmas(X,Mprev,s=s)
     M = np.zeros_like(Mprev)
     N = X.shape[0]
-    nmodes=V.shape[0]
     M2=np.matmul(Mprev,np.conj(Mprev.T))
-    #XiloglamV=np.matmul((Xi*np.log(lam)),np.conj(V))
-    Xiloglam=(Xi*np.log(lam[np.newaxis,:]))
+    XiloglamV=np.matmul((Xi*np.log(lam)),np.conj(V).T)
+    #Xiloglam=(Xi*np.log(lam[np.newaxis,:]))
     for n in range(N):
         #print(f'updating J with gradient of mode {imode}')
         x=X[n,:]
         x=x[np.newaxis,:]
         kxX=get_gaussianKernelM(X,x,Mprev,h)
-        kxX_Xiloglam=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,Xiloglam)
-        #J=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,XiloglamV)
-        J=np.matmul(kxX_Xiloglam,np.conj(V))
+        #kxX_Xiloglam=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,Xiloglam)
+        J=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,XiloglamV)
+        #J=np.matmul(kxX_Xiloglam,np.conj(V))
         Madd = np.matmul(J,np.conj(J.T))
         M = M + Madd
         if n%200==0:
@@ -715,7 +723,7 @@ def update_mahalanobis_matrix_flux(Mprev,X,phi_X,V,Lam,h=None,s=.05):
         #    F = F + flux
         #vectorized version 18oct23
         kxX_phi=np.matmul(kxX,phi_X)
-        kxX_phi_V=np.multiply(kxX_phi.T,V)
+        kxX_phi_V=np.multiply(kxX_phi.T,np.conj(V).T) #V to V' 6nov23
         F=np.sum(np.multiply(np.log(lam)[:,np.newaxis],kxX_phi_V),axis=0)[np.newaxis,:]
         #grad = np.sum(xMX_kxX_phiV,axis=0)[np.newaxis,:]
         Madd = np.matmul(np.conj(F.T),F)
@@ -728,12 +736,6 @@ def update_mahalanobis_matrix_flux(Mprev,X,phi_X,V,Lam,h=None,s=.05):
     svdnorm=np.max(scipy.linalg.svdvals(M))
     M = M/svdnorm
     return M
-
-
-
-
-
-
 
 
 

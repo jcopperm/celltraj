@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="celltraj.trajectory.Trajectory.html">celltraj.trajectory.Trajectory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="celltraj.features.html">celltraj.features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="celltraj.imageprep.html">celltraj.imageprep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="celltraj.translate.html">celltraj.translate</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">celltraj.model</a></li>
@@ -130,7 +131,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.model.get_gaussianKernelM" title="celltraj.model.get_gaussianKernelM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gaussianKernelM</span></code></a>(X, Y, M, h)</p></td>
 <td><p>Get Malanobis scaled gaussian kernel from observation matrices X,Y</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.model.get_kernel_sigmas" title="celltraj.model.get_kernel_sigmas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_kernel_sigmas</span></code></a>(X, M[, s])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.model.get_kernel_sigmas" title="celltraj.model.get_kernel_sigmas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_kernel_sigmas</span></code></a>(X, M[, s, vector_sigma])</p></td>
 <td><p>Get sigmas from observation matrix</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.model.get_kineticstates" title="celltraj.model.get_kineticstates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_kineticstates</span></code></a>(vkin, nstates_final[, ...])</p></td>
@@ -145,7 +146,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.model.get_koopman_inference_multiple" title="celltraj.model.get_koopman_inference_multiple"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_koopman_inference_multiple</span></code></a>(starts, ...)</p></td>
 <td><p>Get Koopman prediction of an observable</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.model.get_koopman_modes" title="celltraj.model.get_koopman_modes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_koopman_modes</span></code></a>(psi_X, Xi, W, X_obs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.model.get_koopman_modes" title="celltraj.model.get_koopman_modes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_koopman_modes</span></code></a>(psi_X, Xi, W, X_obs[, bta])</p></td>
 <td><p>Get Koopman modes of an observable</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="../source/celltraj.html#celltraj.model.get_kscore" title="celltraj.model.get_kscore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_kscore</span></code></a>(Mt[, eps])</p></td>

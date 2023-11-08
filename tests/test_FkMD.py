@@ -30,17 +30,17 @@ X=test_data['X']
 N,d = X.shape; Xref = X.copy();
 
 #use only part of the data for training
-N = int(np.floor(N/2)); 
+N = 9; 
 X = Xref[0:N,:]
 Y = Xref[1:N+1,:]
 
 #define bandwidth, of inference steps, Mahalanobis matrix, and observable
 s = 0.05;        #bandwidth scaling factor
-steps = 40;      #number of inference steps per iteration
+steps = 10;      #number of inference steps per iteration
 iters = 2;       #number of iterations
-efcns = 100;     # of Koopman eigenfunctions to keep
+efcns = 5;     # of Koopman eigenfunctions to keep
 indmodes=np.arange(efcns).astype(int)
-bta = 1.e-5;   #regularization parameter
+bta = 1.e-2;   #regularization parameter
 M = np.eye(d);      #initial (square root of) Mahalanobis matrix
 start = N-1
 #obs = @(x) x;    %observable of interest
@@ -56,7 +56,7 @@ tic()
 koopman_models=[None]*iters
 for i_iter in range(iters):
     print('beginning iteration # ...'+str(i_iter));
-    h=model.get_kernel_sigmas(X,M,s=s)
+    h=model.get_kernel_sigmas(X,M,s=s,vector_sigma=False)
     #[Psi_x,Psi_y] = get_kernel_matrices(k,X,N);
     psi_X=model.get_gaussianKernelM(X,X,M,h)
     psi_Y=model.get_gaussianKernelM(X,Y,M,h)
@@ -70,24 +70,43 @@ for i_iter in range(iters):
     #get mahalanobis matrix
     #M = get_mahalanobis_matrix(k,X,Xi,V,Lam,M,N,d,efcns);
     Mprev=M.copy()
-    M=model.update_mahalanobis_matrix_J(Mprev,X,phi_X,V,np.diag(Lam)[indmodes],h=h,s=s)
-    koopman_dict = {"K":K, "M":Mprev, "Xi":Xi, "Lam":Lam, "W":W, "phi_X":phi_X, "V":V, "X_preds":X_preds, "obs_ref":obs_ref}
+    M=model.update_mahalanobis_matrix_J(Mprev,X,Xi[:,indmodes],V,np.diag(Lam)[indmodes],h=h,s=s)
+    koopman_dict = {"psi_X":psi_X,"K":K, "M":Mprev, "Xi":Xi, "Lam":Lam, "W":W, "phi_X":phi_X, "V":V, "X_preds":X_preds, "obs_ref":obs_ref}
     koopman_models[i_iter]=koopman_dict
 
 toc()
 
 def rmse(x,y):
-    rmse=np.linalg.norm(np.abs(x-y))/np.linalg.norm(y)
+    rmse=np.mean(np.divide(np.abs(x-y),np.mean(np.abs(y))))
     return rmse
 
-test2=scipy.io.loadmat('FkMD_test/flux_unit_test_iter2.mat')
-errorM=np.linalg.norm(test1['M'][0:3,:][:,0:3]-koopman_models[1]['M'][0:3,:][:,0:3])/np.linalg.norm(test1['M'][0:3,:][:,0:3])
-errorXi=rmse(koopman_models[0]['Xi'][0:999,:][:,0:999],test1['Xi'])
+ref=scipy.io.loadmat('FkMD_test/curvature_iter1.mat')
+rmse_psi_X=rmse(koopman_models[0]['psi_X'].flatten(),ref['Psi_x'].flatten())
+corr_psi_X=np.corrcoef(koopman_models[0]['psi_X'].flatten(),ref['Psi_x'].flatten())[0,1]
+X_reconstr_ref=np.matmul(ref['Phi_x'],np.conj(ref['V']).T)
+X_reconstr_test=np.matmul(koopman_models[0]['phi_X'],np.conj(koopman_models[0]['V']).T)
+err_reconstr=rmse(np.real(X_reconstr_ref),np.real(X_reconstr_test))
+corr_reconstr=np.corrcoef(np.real(X_reconstr_ref).flatten(),np.real(X_reconstr_test).flatten())[0,1]
+
+
+ref=scipy.io.loadmat('FkMD_test/curvature_iter2.mat')
+errorM=np.linalg.norm(ref['M'][0:3,:][:,0:3]-koopman_models[1]['M'][0:3,:][:,0:3])/np.linalg.norm(ref['M'][0:3,:][:,0:3])
+X_reconstr_ref=np.matmul(ref['Phi_x'],np.conj(ref['V']).T)
+X_reconstr_test=np.matmul(koopman_models[1]['phi_X'],np.conj(koopman_models[1]['V']).T)
+err=rmse(np.real(X_reconstr_ref),np.real(X_reconstr_test))
 
 plt.figure(figsize=(12,8))
 plt.subplot(3,1,1)
 plt.plot(obs_ref[:,0],'k-',label='ref')
 plt.plot(koopman_models[1]['X_preds'][:,0],'b-',label='JC code')
-plt.plot(test2['obs_inf'][:,0],'g-',label='DA code')
+plt.plot(ref['obs_inf'][:,0],'g-',label='DA code')
+plt.subplot(3,1,2)
+plt.plot(obs_ref[:,1],'k-',label='ref')
+plt.plot(koopman_models[1]['X_preds'][:,1],'b-',label='JC code')
+plt.plot(ref['obs_inf'][:,1],'g-',label='DA code')
+plt.subplot(3,1,3)
+plt.plot(obs_ref[:,2],'k-',label='ref')
+plt.plot(koopman_models[1]['X_preds'][:,2],'b-',label='JC code')
+plt.plot(ref['obs_inf'][:,2],'g-',label='DA code')
 plt.pause(.1)
 
