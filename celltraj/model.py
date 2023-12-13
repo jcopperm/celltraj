@@ -78,9 +78,13 @@ def clean_clusters(clusters,P):
     clusters_clean=coor.clustering.AssignCenters(centers, metric='euclidean')
     return clusters_clean
 
-def get_path_entropy_2point(self,x0,x1,clusters,Mt,exclude_stays=False):
-    indc0=clusters.assign(x0)
-    indc1=clusters.assign(x1)
+def get_path_entropy_2point(x0,x1,Mt,clusters=None,exclude_stays=False):
+    if clusters is not None:
+        indc0=clusters.assign(x0)
+        indc1=clusters.assign(x1)
+    else:
+        indc0=x0
+        indc1=x1
     entp=0.0
     itt=0
     ntraj=indc0.size
@@ -90,12 +94,12 @@ def get_path_entropy_2point(self,x0,x1,clusters,Mt,exclude_stays=False):
                 if Mt[indc0[itraj],indc1[itraj]]>0. and indc1[itraj]!=indc0[itraj]:
                     itt=itt+1
                     pt=Mt[indc0[itraj],indc1[itraj]]
-                    entp=entp-pt*np.log(pt)
+                    entp=entp-np.log(pt)
             else:
                 if Mt[indc0[itraj],indc1[itraj]]>0.: # and Mt[indc1[itraj],indc0[itraj]]>0.:
                     itt=itt+1
                     pt=Mt[indc0[itraj],indc1[itraj]]
-                    entp=entp-pt*np.log(pt)
+                    entp=entp-np.log(pt)
         entp=entp/(1.*itt)
     except:
         sys.stdout.write('empty arrays or failed calc\n')

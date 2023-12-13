@@ -456,7 +456,7 @@ class Trajectory:
         Parameters
         ----------
         ic : int
-            cell ID.
+            cell ID or list of cell IDs
         frametype : str
             Can be 'boundingbox' for a bounding box of the cell label, 'neighborhood' for the voronoi neighbors of the specified cell, or 'connected' for the full set of connected cells.
         delete_background : bool
@@ -478,17 +478,33 @@ class Trajectory:
         """
         n_frame=self.cells_indimgSet[ic]
         ic_msk=self.cells_indSet[ic] #cell index in labeled image
+        if hasattr(ic_msk,"__len__"):
+            if np.unique(n_frame).size>1:
+                print("all cells must be in same frame")
+                return 1
+            n_frame=n_frame[0]
+            indcells=ic_msk ##local indices of cells to return in the frame
+        else:
+            indcells=np.array([ic_msk]).astype(int)
+            ic=np.array([ic]).astype(int)
         img=self.get_image_data(n_frame)
         msk=self.get_mask_data(n_frame)
         if frametype=='boundingbox':
-            indcells=np.array([ic_msk]).astype(int) #local indices of cells to return in the frame
-            cblock=self.cellblocks[ic,...].copy()
-            if boundary_expansion is not None:
-                cblock[:,0]=cblock[:,0]-boundary_expansion
-                cblock[:,0][cblock[:,0]<0]=0
-                cblock[:,1]=cblock[:,1]+boundary_expansion
-                indreplace=np.where(cblock[:,0]>self.image_shape)[0]
-                cblock[:,1][indreplace]=self.image_shape[indreplace]
+            #indcells=np.array([ic_msk]).astype(int) #local indices of cells to return in the frame
+            cblocks=np.zeros((ic.size,self.ndim,2)).astype(int)
+            for icb in range(ic.size):
+                icell=ic[icb]
+                cblock=self.cellblocks[icell,...].copy()
+                if boundary_expansion is not None:
+                    cblock[:,0]=cblock[:,0]-boundary_expansion
+                    cblock[:,0][cblock[:,0]<0]=0
+                    cblock[:,1]=cblock[:,1]+boundary_expansion
+                    indreplace=np.where(cblock[:,1]>self.image_shape)[0]
+                    cblock[:,1][indreplace]=self.image_shape[indreplace]
+                cblocks[icb,...]=cblock
+            cblock=np.zeros((self.ndim,2)).astype(int)
+            cblock[:,1]=np.max(cblocks[:,:,1],axis=0)
+            cblock[:,0]=np.min(cblocks[:,:,0],axis=0)
         indt=np.where(self.cells_indimgSet==n_frame)[0] #all cells in frame
         indcells_global=indt[indcells] #global indices of cells to return in movie
         if self.ndim==3:
@@ -788,6 +804,73 @@ class Trajectory:
             attribute_list=[feature_name]
             self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
         return np.array(corrc)
+
+    def get_motility_features(self,indcells=None,mskchannel=None,save_h5=False,overwrite=False):
+        """
+        Get single-cell and neighbor-averaged motility features
+        Parameters
+        ----------
+        indcells : int ndarray
+            array of cell indices from which to calculate features
+        mskchannel : int
+            channel for cell labels
+        save_h5 : bool
+            whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
+        overwrite : bool
+            whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
+        Returns
+        -------
+        Xf_com : ndarray ((indcells.size,nfeat_com))
+            motility features
+        feature_list : string array (nfeat_com)
+            description of motility features, optional
+        """
+        if mskchannel is None:
+            print('set mskchannel')
+            return 1
+        if not hasattr(self,'cells_indSet'):
+            print('no cell index, run get_cell_index')
+            return 1
+        if not hasattr(self,'linSet'):
+            print('need to run tracking first')
+            return 1
+        if indcells is None:
+            indcells=np.arange(self.cells_indSet.size).astype(int)
+        feature_name=f'm{mskchannel}_comdx_feat'
+        Xf_com=[None]*np.array(indcells).size
+        ip_frame=10000000
+        icell=0
+        for icell in range(np.array(indcells).size):
+            ic=indcells[icell]
+            n_frame=self.cells_frameSet[ic]
+            if not n_frame==ip_frame:
+                sys.stdout.write('featurizing cells from frame '+str(self.cells_frameSet[ic])+'\n')
+                indcells_frame=np.where(self.cells_indimgSet==n_frame)[0]
+                img,msk=self.get_cell_data(indcells_frame,boundary_expansion=3*self.image_shape,return_masks=True,relabel_masks=True,relabel_mskchannels=[mskchannel])
+                if self.axes[-1]=='c':
+                    msk=msk[...,mskchannel]
+                beta_map=features.apply3d(msk,features.get_neighbor_feature_map,dtype=np.float64,neighbor_function=self.get_beta)
+                alpha_map=features.apply3d(msk,features.get_neighbor_feature_map,dtype=np.float64,neighbor_function=self.get_alpha)
+                if n_frame==0: #can't do motility for 0th frame
+                    props_beta={"label":np.arange(indcells_frame.size),"meanIntensity":np.ones(indcells_frame.size)*np.nan}
+                    props_alpha={"label":np.arange(indcells_frame.size),"meanIntensity":np.ones(indcells_frame.size)*np.nan}
+                else:
+                    props_beta = regionprops_table(msk, intensity_image=beta_map,properties=('label',), extra_properties=(features.meanIntensity,))
+                    props_alpha = regionprops_table(msk, intensity_image=alpha_map,properties=('label',), extra_properties=(features.meanIntensity,))
+                ncells_frame=props_beta['label'].size
+                Xf_com_frame=np.zeros((ncells_frame,3))
+                for icell_frame in range(ncells_frame):
+                    Xf_com_frame[icell_frame,0]=scipy.linalg.norm(self.get_dx(indcells_frame[icell_frame]),check_finite=False)
+                    Xf_com_frame[icell_frame,1]=props_beta['meanIntensity'][icell_frame]
+                    Xf_com_frame[icell_frame,2]=props_alpha['meanIntensity'][icell_frame]
+            Xf_com[icell]=Xf_com_frame[self.cells_indSet[ic],:]
+            ip_frame=self.cells_frameSet[ic]
+        Xf_com=np.array(Xf_com)
+        if save_h5:
+            setattr(self,feature_name,Xf_com)
+            attribute_list=[feature_name]
+            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+        return Xf_com
 
     def get_stack_trans(self,mskchannel=0,ntrans=20,maxt=10,dist_function=utilities.get_pairwise_distance_sum,zscale=None,save_h5=False,overwrite=False,do_global=False,**dist_function_keys):
         """

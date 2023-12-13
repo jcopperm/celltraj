@@ -35,7 +35,7 @@ def featSize(regionmask, intensity):
     return size
 
 def meanIntensity(regionmask, intensity):
-    mean_intensity = np.mean(intensity[regionmask])
+    mean_intensity = np.nanmean(intensity[regionmask])
     return mean_intensity
 
 def featZernike(regionmask, intensity):
@@ -239,7 +239,21 @@ def featBoundaryCB(regionmask, intensity):
         xf = boundaryCB_FFT(regionmask,intensity)
     return xf
 
-def get_contact_boundaries(labels,radius=10):
+def apply3d(img,function2d,dtype=None,**function2d_args):
+    if dtype is None:
+        img_processed=np.zeros_like(img)
+    else:
+        img_processed=np.zeros_like(img).astype(dtype)
+    if img.ndim>2:
+        for iz in range(img.shape[0]):
+            img_processed[iz,...]=function2d(img[iz,...],**function2d_args)
+    elif img.ndim==2:
+        img_processed=function2d(img,**function2d_args)
+    return img_processed
+
+def get_contact_boundaries(labels,radius=10,boundary_only=True):
+    if boundary_only:
+        boundary=skimage.segmentation.find_boundaries(labels)
     labels_inv=-1*labels
     labels_inv[labels_inv==0]=np.min(labels_inv)-1
     labels_inv=ndimage.grey_dilation(labels_inv,footprint=skimage.morphology.disk(radius=radius))
@@ -247,11 +261,52 @@ def get_contact_boundaries(labels,radius=10):
     labels_inv[labels_inv==np.min(labels_inv)]=0
     labels_inv=-1*labels_inv
     msk_contact=labels!=labels_inv
+    if boundary_only:
+        msk_contact=np.logical_and(msk_contact,boundary)
     return msk_contact
+
+def get_contact_labels(labels0,radius=10):
+    labels_inv=-1*labels0
+    labels_inv[labels_inv==0]=np.min(labels_inv)-1
+    labels_inv=ndimage.grey_dilation(labels_inv,footprint=skimage.morphology.disk(radius=radius))
+    labels=ndimage.grey_dilation(labels0,footprint=skimage.morphology.disk(radius=radius))
+    labels_inv[labels_inv==np.min(labels_inv)]=0
+    labels_inv=-1*labels_inv
+    contact_msk=get_contact_boundaries(labels0,boundary_only=True)
+    contact_labels=np.zeros_like(labels0)
+    for i in np.unique(labels0[labels0>0]):
+        indi=np.where(np.logical_and(labels0==i,contact_msk))
+        jset1=np.unique(labels[indi])
+        jset2=np.unique(labels_inv[indi])
+        jset=np.unique(np.concatenate((jset1,jset2)))
+        jset=np.setdiff1d(jset,[i])
+        for j in jset:
+            contact_labels[indi[0][labels[indi]==j],indi[1][labels[indi]==j]]=j
+            contact_labels[indi[0][labels_inv[indi]==j],indi[1][labels_inv[indi]==j]]=j
+    return contact_labels
+
+def get_neighbor_feature_map(labels,neighbor_function=None,contact_labels=None,dtype=np.float64,**neighbor_function_args):
+    if contact_labels is None:
+        contact_labels=get_contact_labels(labels)
+    if neighbor_function is None:
+        print('provide contact function')
+        return 1
+    neighbor_feature_map=np.nan*np.ones_like(labels).astype(dtype)
+    iset=np.unique(labels)
+    iset=iset[iset>0]
+    for i in iset:
+        indi=np.where(labels==i)
+        jset=np.unique(contact_labels[indi])
+        jset=np.setdiff1d(jset,[i,0])
+        for j in jset:
+            indj=np.where(contact_labels[indi]==j)[0]
+            feat=neighbor_function(i,j,**neighbor_function_args)
+            neighbor_feature_map[indi[0][indj],indi[1][indj]]=feat
+    return neighbor_feature_map
 
 
 def get_pca_fromdata(data,dim=-1,var_cutoff=0.95):
-	pca = PCA(n_components=var_cutoff) #n_components specifies the number of principal components to extract from the covariance matrix
-	pca.fit(data) #builds the covariance matrix and "fits" the principal components
-	Xpca = pca.transform(data) #transforms the data into the pca representation
-	return Xpca,pca
+    pca = PCA(n_components=var_cutoff) #n_components specifies the number of principal components to extract from the covariance matrix
+    pca.fit(data) #builds the covariance matrix and "fits" the principal components
+    Xpca = pca.transform(data) #transforms the data into the pca representation
+    return Xpca,pca
