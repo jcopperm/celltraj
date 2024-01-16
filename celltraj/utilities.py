@@ -185,10 +185,10 @@ def get_cell_centers(labels):
     return centers
 
 def dist(img1,img2):
-	#img1=img1.astype(float).flatten()
-	#img2=img2.astype(float).flatten()
-	dist=np.sqrt(np.sum(np.power((img1-img2),2)))
-	return dist
+    #img1=img1.astype(float).flatten()
+    #img2=img2.astype(float).flatten()
+    dist=np.sqrt(np.sum(np.power((img1-img2),2)))
+    return dist
 
 def get_dmat_vectorized(x1,x2=None): #adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)
     x1=np.transpose(x1) #default from Fung folks is D x N
@@ -281,3 +281,9 @@ def get_tshift(centers1,centers2,dist_function,ntrans=100,maxt=10, **dist_functi
     else:
         tshift=np.zeros(ndim)
     return tshift
+
+def get_meshfunc_average(faceValues,faceCenters,bins=10):
+    vdist1,edges=np.histogramdd(faceCenters,bins=bins,weights=faceValues)
+    norm1,edges=np.histogramdd(faceCenters,bins=edges)
+    vdist1=np.divide(vdist1,norm1+1.)
+    return vdist1,edges

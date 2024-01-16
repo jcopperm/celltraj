@@ -14,6 +14,7 @@ import pyemma
 from skimage import transform as tf
 from skimage.measure import regionprops_table
 import skimage.morphology
+import skimage
 from scipy.optimize import minimize
 from scipy import ndimage
 import scipy
@@ -33,6 +34,8 @@ from sklearn.linear_model import LinearRegression
 import utilities
 import imageprep as imprep
 import features
+from nanomesh import Mesher
+import fipy
 
 
 class Trajectory:
@@ -799,11 +802,12 @@ class Trajectory:
                     corrc_frame[icell_frame]=np.corrcoef(props1['image_intensity'][icell_frame][props1['image'][icell_frame]].flatten(),props2['image_intensity'][icell_frame][props2['image'][icell_frame]].flatten())[0,1]
             corrc[icell]=corrc_frame[self.cells_indSet[ic]]
             ip_frame=self.cells_frameSet[ic]
+        corrc=np.array(corrc)
         if save_h5:
             setattr(self,feature_name,corrc)
             attribute_list=[feature_name]
             self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
-        return np.array(corrc)
+        return corrc
 
     def get_motility_features(self,indcells=None,mskchannel=None,save_h5=False,overwrite=False):
         """
@@ -1463,3 +1467,75 @@ class Trajectory:
                 Xf_com[indcell,:]=comdx
         self.Xf_com=Xf_com
 
+    def get_secreted_ligand_density(self,frame,mskchannel=0,scale=2.,npad=None,indz_bm=0,secretion_rate=1.0,D=None,flipz=False,visual=False):
+        if npad is None:
+            npad=np.array([0,0,0])
+        if D is None:
+            D=10.0*(1./(self.micron_per_pixel*self.zscale))**2
+        img=self.get_image_data(frame)
+        msk=self.get_mask_data(frame)
+        if flipz:
+            img=np.flip(img,axis=0)
+            msk=np.flip(msk,axis=0)
+        img=img[indz_bm:,...]
+        msk=msk[indz_bm:,...]
+        msk_cells=msk[...,mskchannel]
+        orig_shape=msk_cells.shape
+        msk_cells=scipy.ndimage.zoom(msk_cells,zoom=[scale,scale/self.zscale,scale/self.zscale],order=1)
+        msk_cells=np.swapaxes(msk_cells,0,2)
+        npad_swp=npad.copy();npad_swp[0]=npad[2];npad_swp[2]=npad[0];npad=npad_swp.copy()
+        prepad_shape=msk_cells.shape
+        padmask=imprep.pad_image(np.ones_like(msk_cells),msk_cells.shape[0]+npad[0],msk_cells.shape[1]+npad[1],msk_cells.shape[2]+npad[2])
+        msk_cells=imprep.pad_image(msk_cells,msk_cells.shape[0]+npad[0],msk_cells.shape[1]+npad[1],msk_cells.shape[2]+npad[2])
+        msk_cells=imprep.get_label_largestcc(msk_cells)
+        cell_inds=np.unique(msk_cells)[np.unique(msk_cells)!=0]
+        borders_thick=skimage.segmentation.find_boundaries(msk_cells)
+        borders_pts=np.array(np.where(borders_thick)).T.astype(float)
+        cell_inds_borders=msk_cells[borders_thick]
+        if visual:
+            inds=np.where(borders_pts[:,2]<20)[0];
+            fig=plt.figure();ax=fig.add_subplot(111,projection='3d');
+            ax.scatter(borders_pts[inds,0],borders_pts[inds,1],borders_pts[inds,2],s=20,c=cell_inds_borders[inds]);
+            plt.pause(.1)
+        clusters_msk_cells=coor.clustering.AssignCenters(borders_pts, metric='euclidean')
+        mesher = Mesher(msk_cells>0)
+        mesher.generate_contour()
+        mesh = mesher.tetrahedralize(opts='-pAq')
+        tetra_mesh = mesh.get('tetra')
+        tetra_mesh.write('vmesh.msh', file_format='gmsh22', binary=False) #write
+        mesh_fipy = fipy.Gmsh3D('vmesh.msh') #,communicator=fipy.solvers.petsc.comms.petscCommWrapper) #,communicator=fipy.tools.serialComm)
+        facepoints=mesh_fipy.faceCenters.value.T
+        cell_inds_facepoints=cell_inds_borders[clusters_msk_cells.assign(facepoints)]
+        if visual:
+            inds=np.where(cell_inds_facepoints>0)[0]
+            fig=plt.figure();ax=fig.add_subplot(111,projection='3d');
+            ax.scatter(facepoints[inds,0],facepoints[inds,1],facepoints[inds,2],s=20,c=cell_inds_facepoints[inds],alpha=.3)
+            plt.pause(.1)
+        eq = fipy.TransientTerm() == fipy.DiffusionTerm(coeff=D)
+        phi = fipy.CellVariable(name = "solution variable",mesh = mesh_fipy,value = 0.)
+        facesUp=np.logical_and(mesh_fipy.exteriorFaces.value,facepoints[:,2]>np.min(facepoints[:,2]))
+        facesBottom=np.logical_and(mesh_fipy.exteriorFaces.value,facepoints[:,2]==np.min(facepoints[:,2]))
+        phi.constrain(0., facesUp) #absorbing boundary on exterior except bottom
+        phi.faceGrad.constrain(0., facesBottom) #reflecting boundary on bottom
+        if not isinstance(secretion_rate, (list,tuple,np.ndarray)):
+            flux_cells=secretion_rate*D*np.ones_like(cell_inds).astype(float)
+        else:
+            flux_cells=D*secretion_rate
+        for ic in range(cell_inds.size): #constrain boundary flux for each cell
+            phi.faceGrad.constrain(flux_cells[ic] * mesh_fipy.faceNormals, where=cell_inds_facepoints==cell_inds[ic])
+        fipy.DiffusionTerm(coeff=D).solve(var=phi)
+        vdist,edges=utilities.get_meshfunc_average(phi.faceValue.value,facepoints,bins=msk_cells.shape)
+        if visual:
+            plt.clf();plt.contour(np.max(msk_cells,axis=2)>0,colors='black');plt.imshow(np.max(vdist,axis=2),cmap=plt.cm.Blues);plt.pause(.1)
+        inds=np.where(np.sum(padmask,axis=(1,2))>0)[0];vdist=vdist[inds,:,:]
+        inds=np.where(np.sum(padmask,axis=(0,2))>0)[0];vdist=vdist[:,inds,:]
+        inds=np.where(np.sum(padmask,axis=(0,1))>0)[0];vdist=vdist[:,:,inds] #unpad msk_cells=imprep.pad_image(msk_cells,msk_cells.shape[0]+npad,msk_cells.shape[1]+npad,msk_cells.shape[2])
+        vdist=np.swapaxes(vdist,2,0) #unswap msk_cells=np.swapaxes(msk_cells,0,2)
+        vdist=skimage.transform.resize(vdist, orig_shape) #unzoom msk_cells=scipy.ndimage.zoom(msk_cells,zoom=[scale,scale/sctm.zscale,scale/sctm.zscale])
+        vdist[msk[...,mskchannel]>0]=0.
+        vdist=scipy.ndimage.gaussian_filter(vdist,sigma=[1./scale,1./(scale/self.zscale),1./(scale/self.zscale)])
+        vdist[msk[...,mskchannel]>0]=0.
+        vdist=np.pad(vdist,((indz_bm,0),(0,0),(0,0)))
+        if flipz:
+            msk=np.flip(vdist,axis=0)
+        return vdist

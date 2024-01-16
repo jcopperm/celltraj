@@ -338,10 +338,27 @@ def clean_labeled_mask(masks_nuc,remove_borders=False,remove_padding=False,edge_
                         print('cell '+str(ic)+' has not enough value in test map: '+str(test_sum))    
     return masks_nuc_clean
 
+def get_label_largestcc(label,fill_holes=True):
+    labels_clean=np.zeros_like(label)
+    for ic in np.unique(label)[np.unique(label)!=0]:
+        mskc = label==ic
+        if np.sum(mskc)>0:
+            if fill_holes:
+                if mskc.ndim==2:
+                    mskc=ndimage.binary_fill_holes(mskc)
+                if mskc.ndim==3:
+                    for iz in range(mskc.shape[0]):
+                        mskc[iz,:,:]=ndimage.binary_fill_holes(mskc[iz,:,:])
+            labelsc = ndimage.label(mskc)[0]
+            largestCC = np.argmax(np.bincount(labelsc.flat)[1:])+1
+            indc=np.where(labelsc == largestCC)
+            labels_clean[indc]=ic
+    return labels_clean
+
 def get_feature_map(features,labels):
     if features.size != np.max(labels):
         print('feature size needs to match labels')
-    fmap=np.zeros_like(labels)
+    fmap=np.zeros_like(labels).astype(features.dtype)
     for ic in range(1,int(np.max(labels))+1): #size filtering
         mskc = labels==ic
         indc=np.where(mskc)
@@ -585,7 +602,8 @@ def transform_image(img,tf_matrix,inverse_tform=False,pad_dims=None,**ndimage_ar
     img_tf=img_tf.astype(img.dtype)
     return img_tf
 
-def pad_image(img,*maxdims):
+def pad_image(img,*maxdims,padvalue=0):
+    print(maxdims)
     ndim=len(maxdims)
     img_ndim=img.ndim
     if ndim != img_ndim:
@@ -595,10 +613,10 @@ def pad_image(img,*maxdims):
     for idim in range(ndim):
         npads[idim]=int(np.ceil((maxdims[idim]-img.shape[idim])/2))
     if ndim==2:
-        img=np.pad(img,((npads[0],npads[0]),(npads[1],npads[1])),'constant',constant_values=(0,0))
+        img=np.pad(img,((npads[0],npads[0]),(npads[1],npads[1])),'constant',constant_values=(padvalue,padvalue))
         img=img[0:maxdims[0],0:maxdims[1]]
     if ndim==3:
-        img=np.pad(img,((npads[0],npads[0]),(npads[1],npads[1]),(npads[2],npads[2])),'constant',constant_values=(0,0))
+        img=np.pad(img,((npads[0],npads[0]),(npads[1],npads[1]),(npads[2],npads[2])),'constant',constant_values=(padvalue,padvalue))
         img=img[0:maxdims[0],0:maxdims[1],0:maxdims[2]]
     return img
 
@@ -782,39 +800,39 @@ def dist_to_contact(r,r0,d0,n=6,m=12):
     return c
 
 def get_contactsum_dev(centers1,centers2,img2,rp1,nt=None,savefile=None):
-	if nt is None:
-		nt=int(img2.shape[0]/20)
-	txSet=np.linspace(0,img2.shape[0],nt)
-	tySet=np.linspace(0,img2.shape[1],nt)
-	xxt,yyt=np.meshgrid(txSet,tySet)
-	xxt=xxt.flatten(); yyt=yyt.flatten()
-	d0=rp1/2
-	r0=rp1/2
-	ndx=np.max(centers1[:,0])-np.min(centers1[:,0])
-	ndy=np.max(centers1[:,1])-np.min(centers1[:,1])
-	nncs=np.zeros(nt*nt)
-	for i1 in range(nt*nt):
-		tshift=np.array([xxt[i1],yyt[i1]])
-		#inds_tshift=np.where(self.get_dmat([tshift],centers2)[0]<rcut)[0]
-		ctx=np.logical_and(centers2[:,0]>tshift[0],centers2[:,0]<tshift[0]+ndx)
-		cty=np.logical_and(centers2[:,1]>tshift[1],centers2[:,1]<tshift[1]+ndy)
-		inds_tshift=np.where(np.logical_and(ctx,cty))[0]
-		if inds_tshift.size==0:
-			nncs[i1]=np.nan
-		else:
-			r1=sctm.get_dmat(centers1+tshift,centers2[inds_tshift,:]).min(axis=1)
-			c1=dist_to_contact(r1,r0,d0)
-			r2=sctm.get_dmat(centers2[inds_tshift,:],centers1+tshift).min(axis=1)
-			c2=dist_to_contact(r1,r0,d0)
-			nncs[i1]=(np.nansum(c1)/c1.size+np.nansum(c2)/c2.size)
-		if i1%1000==0:
-			print(f'grid {i1} of {nt*nt}, tx: {tshift[0]:.2f} ty: {tshift[1]:.2f} nncs: {nncs[i1]:.4e}')
-	local_av=generic_filter(nncs.reshape(nt,nt),np.mean,size=int(2*rp1))
-	nncs_dev=nncs-local_av.flatten()
-	nncs_dev[np.isnan(nncs_dev)]=0
-	if savefile is not None:
-		np.save(savefile,nncs_dev)
-	return nncs_dev
+    if nt is None:
+        nt=int(img2.shape[0]/20)
+    txSet=np.linspace(0,img2.shape[0],nt)
+    tySet=np.linspace(0,img2.shape[1],nt)
+    xxt,yyt=np.meshgrid(txSet,tySet)
+    xxt=xxt.flatten(); yyt=yyt.flatten()
+    d0=rp1/2
+    r0=rp1/2
+    ndx=np.max(centers1[:,0])-np.min(centers1[:,0])
+    ndy=np.max(centers1[:,1])-np.min(centers1[:,1])
+    nncs=np.zeros(nt*nt)
+    for i1 in range(nt*nt):
+        tshift=np.array([xxt[i1],yyt[i1]])
+        #inds_tshift=np.where(self.get_dmat([tshift],centers2)[0]<rcut)[0]
+        ctx=np.logical_and(centers2[:,0]>tshift[0],centers2[:,0]<tshift[0]+ndx)
+        cty=np.logical_and(centers2[:,1]>tshift[1],centers2[:,1]<tshift[1]+ndy)
+        inds_tshift=np.where(np.logical_and(ctx,cty))[0]
+        if inds_tshift.size==0:
+            nncs[i1]=np.nan
+        else:
+            r1=sctm.get_dmat(centers1+tshift,centers2[inds_tshift,:]).min(axis=1)
+            c1=dist_to_contact(r1,r0,d0)
+            r2=sctm.get_dmat(centers2[inds_tshift,:],centers1+tshift).min(axis=1)
+            c2=dist_to_contact(r1,r0,d0)
+            nncs[i1]=(np.nansum(c1)/c1.size+np.nansum(c2)/c2.size)
+        if i1%1000==0:
+            print(f'grid {i1} of {nt*nt}, tx: {tshift[0]:.2f} ty: {tshift[1]:.2f} nncs: {nncs[i1]:.4e}')
+    local_av=generic_filter(nncs.reshape(nt,nt),np.mean,size=int(2*rp1))
+    nncs_dev=nncs-local_av.flatten()
+    nncs_dev[np.isnan(nncs_dev)]=0
+    if savefile is not None:
+        np.save(savefile,nncs_dev)
+    return nncs_dev
 
 def crop_image(img,tshift,nx,ny):
     img_cropped=img[int(tshift[0]):int(tshift[0])+nx,:]
