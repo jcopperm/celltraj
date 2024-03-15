@@ -38,6 +38,10 @@ def meanIntensity(regionmask, intensity):
     mean_intensity = np.nanmean(intensity[regionmask])
     return mean_intensity
 
+def totalIntensity(regionmask, intensity):
+    total_intensity = np.nansum(intensity[regionmask])
+    return total_intensity
+
 def featZernike(regionmask, intensity):
     degree=12
     radius=int(np.mean(np.array(regionmask.shape))/2)
@@ -254,10 +258,14 @@ def apply3d(img,function2d,dtype=None,**function2d_args):
 def get_contact_boundaries(labels,radius=10,boundary_only=True):
     if boundary_only:
         boundary=skimage.segmentation.find_boundaries(labels)
+    if labels.ndim==2:
+        footprint=skimage.morphology.disk(radius=radius)
+    if labels.ndim==3:
+        footprint=skimage.morphology.ball(radius=radius)
     labels_inv=-1*labels
     labels_inv[labels_inv==0]=np.min(labels_inv)-1
-    labels_inv=ndimage.grey_dilation(labels_inv,footprint=skimage.morphology.disk(radius=radius))
-    labels=ndimage.grey_dilation(labels,footprint=skimage.morphology.disk(radius=radius))
+    labels_inv=ndimage.grey_dilation(labels_inv,footprint=footprint)
+    labels=ndimage.grey_dilation(labels,footprint=footprint)
     labels_inv[labels_inv==np.min(labels_inv)]=0
     labels_inv=-1*labels_inv
     msk_contact=labels!=labels_inv
@@ -266,13 +274,17 @@ def get_contact_boundaries(labels,radius=10,boundary_only=True):
     return msk_contact
 
 def get_contact_labels(labels0,radius=10):
+    if labels0.ndim==2:
+        footprint=skimage.morphology.disk(radius=radius)
+    if labels0.ndim==3:
+        footprint=skimage.morphology.ball(radius=radius)
     labels_inv=-1*labels0
     labels_inv[labels_inv==0]=np.min(labels_inv)-1
-    labels_inv=ndimage.grey_dilation(labels_inv,footprint=skimage.morphology.disk(radius=radius))
-    labels=ndimage.grey_dilation(labels0,footprint=skimage.morphology.disk(radius=radius))
+    labels_inv=ndimage.grey_dilation(labels_inv,footprint=footprint)
+    labels=ndimage.grey_dilation(labels0,footprint=footprint)
     labels_inv[labels_inv==np.min(labels_inv)]=0
     labels_inv=-1*labels_inv
-    contact_msk=get_contact_boundaries(labels0,boundary_only=True)
+    contact_msk=get_contact_boundaries(labels0,boundary_only=True,radius=radius)
     contact_labels=np.zeros_like(labels0)
     for i in np.unique(labels0[labels0>0]):
         indi=np.where(np.logical_and(labels0==i,contact_msk))
@@ -281,8 +293,12 @@ def get_contact_labels(labels0,radius=10):
         jset=np.unique(np.concatenate((jset1,jset2)))
         jset=np.setdiff1d(jset,[i])
         for j in jset:
-            contact_labels[indi[0][labels[indi]==j],indi[1][labels[indi]==j]]=j
-            contact_labels[indi[0][labels_inv[indi]==j],indi[1][labels_inv[indi]==j]]=j
+            if labels0.ndim==2:
+                contact_labels[indi[0][labels[indi]==j],indi[1][labels[indi]==j]]=j
+                contact_labels[indi[0][labels_inv[indi]==j],indi[1][labels_inv[indi]==j]]=j
+            if labels0.ndim==3:
+                contact_labels[indi[0][labels[indi]==j],indi[1][labels[indi]==j],indi[2][labels[indi]==j]]=j
+                contact_labels[indi[0][labels_inv[indi]==j],indi[1][labels_inv[indi]==j],indi[2][labels_inv[indi]==j]]=j
     return contact_labels
 
 def get_neighbor_feature_map(labels,neighbor_function=None,contact_labels=None,dtype=np.float64,**neighbor_function_args):

@@ -1539,3 +1539,33 @@ class Trajectory:
         if flipz:
             msk=np.flip(vdist,axis=0)
         return vdist
+
+    def get_signal_contributions(self,S,time_lag=0,x_pos=None,rmax=5.,R=None,zscale=None,rescale_z=False):
+        #S needs to be indexed so S[cell_inds] gives the correct binary signal, same with x_pos
+        if x_pos is None:
+            x_pos=self.x
+            if rescale_z:
+                x_pos=np.multiply(x_pos,np.array([self.zscale,1.,1.]))
+        if R is None:
+            R=self.cellpose_diam
+        S_r=np.ones(S.size)*np.nan #this will be the average spatial signal (S/r)
+        traj_pairSet=self.get_traj_segments(time_lag+1)
+        if time_lag==0:
+            traj_pairSet=np.concatenate((traj_pairSet,traj_pairSet),axis=1)
+        else:
+            traj_pairSet=np.concatenate((traj_pairSet[:,[0]],traj_pairSet[:,[-1]]),axis=1)
+        indimgs=np.unique(self.cells_indimgSet[traj_pairSet[:,0]])
+        for im in indimgs:
+            cell_inds_img1=np.where(self.cells_indimgSet[traj_pairSet[:,0]]==im)[0]
+            indcomm_ctraj1=traj_pairSet[cell_inds_img1,0]
+            indcomm_ctraj2=traj_pairSet[cell_inds_img1,1]
+            x_pos1=x_pos[indcomm_ctraj1,:]
+            x_pos2=x_pos[indcomm_ctraj2,:]
+            S1=S[indcomm_ctraj1] #signaling status at pair timepoints
+            S2=S[indcomm_ctraj2]
+            dmatr=utilities.get_dmat(x_pos1,x_pos1)/R #distance at time 0
+            for j in range(indcomm_ctraj1.size):
+                d_r=dmatr[j,:]
+                inds=np.where(np.logical_and(d_r>0.,d_r<rmax))[0]
+                S_r[indcomm_ctraj1[j]]=np.sum(np.divide(S2[inds],d_r[inds]))
+        return S_r
