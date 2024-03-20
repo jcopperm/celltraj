@@ -749,7 +749,10 @@ def save_frame_h5(filename,frame,img=None,msks=None,fmsk=None,features=None,over
     f.close()
 
 def get_cell_centers(labels):
-    centers=np.array(ndimage.measurements.center_of_mass(np.ones_like(labels),labels=labels,index=np.arange(1,np.max(labels)+1).astype(int)))
+    if np.sum(labels>0):
+        centers=np.array(ndimage.measurements.center_of_mass(np.ones_like(labels),labels=labels,index=np.arange(1,np.max(labels)+1).astype(int)))
+    else:
+        centers=np.zeros((0,labels.ndim))
     return centers
 
 def get_nndist_sum(self,tshift,centers1,centers2,rcut=None):

@@ -181,7 +181,10 @@ def recursively_load_dict_contents_from_group(h5file, path):
     return ans
 
 def get_cell_centers(labels):
-    centers=np.array(ndimage.measurements.center_of_mass(np.ones_like(labels),labels=labels,index=np.arange(1,np.max(labels)+1).astype(int)))
+    if np.sum(labels>0):
+        centers=np.array(ndimage.measurements.center_of_mass(np.ones_like(labels),labels=labels,index=np.arange(1,np.max(labels)+1).astype(int)))
+    else:
+        centers=np.zeros((0,labels.ndim))
     return centers
 
 def dist(img1,img2):

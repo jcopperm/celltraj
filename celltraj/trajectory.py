@@ -657,7 +657,7 @@ class Trajectory:
         else:
             return np.array(Xf)
 
-    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,make_disjoint=True,erosion_footprint1=None,erosion_footprint2=None,combined_and_disjoint=False,intensity_sum=False,intensity_ztransform=False,inverse_ratio=False,save_h5=False,overwrite=False):
+    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,make_disjoint=True,erosion_footprint1=None,erosion_footprint2=None,combined_and_disjoint=False,intensity_sum=False,intensity_ztransform=False,noratio=False,inverse_ratio=False,save_h5=False,overwrite=False):
         """
         Get cell features using skimage's regionprops, passing a custom function tuple for measurement
         Parameters
@@ -737,7 +737,10 @@ class Trajectory:
                     if intensity_ztransform:
                         cratio_frame=np.divide(self.img_zstds[imgchannel]*props1['intensity_mean']+self.img_zmeans[imgchannel],self.img_zstds[imgchannel]*props2['intensity_mean']+self.img_zmeans[imgchannel])
                     else:
-                        cratio_frame=np.divide(props1['intensity_mean'],props2['intensity_mean'])
+                        if noratio:
+                            cratio_frame=props1['intensity_mean']
+                        else:
+                            cratio_frame=np.divide(props1['intensity_mean'],props2['intensity_mean'])
             cratio[icell]=cratio_frame[self.cells_indSet[ic]]
             ip_frame=self.cells_frameSet[ic]
         if inverse_ratio:
@@ -913,30 +916,33 @@ class Trajectory:
                 msk1=msk1[...,mskchannel]
             centers0=utilities.get_cell_centers(msk0)
             centers1=utilities.get_cell_centers(msk1)
-            if zscale is not None:
-                centers0[:,0]=zscale*centers0[:,0]
-                centers1[:,0]=zscale*centers1[:,0]
-            #translate centers1 com to centers0 com
-            if do_global:
-                dcom=np.mean(centers0,axis=0)-np.mean(centers1,axis=0)
-                centers1=centers1-dcom
-                clusters0=coor.clustering.AssignCenters(centers0, metric='euclidean')
-                ind0to1=clusters0.assign(centers1)
-                centers0_com=centers0[ind0to1,:]
-                dglobal=np.mean(centers0_com-centers1,axis=0)
-                centers1=centers1+dglobal
-                ind0to1g=clusters0.assign(centers1)
-                centers0_global=centers0[ind0to1g,:]
-                #tform = tf.estimate_transform('similarity', centers1, centers0_global)
-                t_global=-dcom+dglobal
+            if centers0.shape[0]==0 or centers1.shape[0]==0:
+                print(f'no cells found in msk1 or msk0 frame {iS}')
             else:
-                t_global=np.zeros(self.ndim)
-            t_local=utilities.get_tshift(centers0,centers1+t_global,dist_function,ntrans=ntrans,maxt=maxt,**dist_function_keys)
-            #t_local=self.get_minT(msk0,msk1,nt=self.ntrans,dt=self.maxtrans)
-            tSet[iS,:]=t_global+t_local
-            if zscale is not None:
-                tSet[iS,0]=tSet[iS,0]/zscale
-            sys.stdout.write(f'frame {iS} translation {t_global+t_local}\n')
+                if zscale is not None:
+                    centers0[:,0]=zscale*centers0[:,0]
+                    centers1[:,0]=zscale*centers1[:,0]
+                #translate centers1 com to centers0 com
+                if do_global:
+                    dcom=np.mean(centers0,axis=0)-np.mean(centers1,axis=0)
+                    centers1=centers1-dcom
+                    clusters0=coor.clustering.AssignCenters(centers0, metric='euclidean')
+                    ind0to1=clusters0.assign(centers1)
+                    centers0_com=centers0[ind0to1,:]
+                    dglobal=np.mean(centers0_com-centers1,axis=0)
+                    centers1=centers1+dglobal
+                    ind0to1g=clusters0.assign(centers1)
+                    centers0_global=centers0[ind0to1g,:]
+                    #tform = tf.estimate_transform('similarity', centers1, centers0_global)
+                    t_global=-dcom+dglobal
+                else:
+                    t_global=np.zeros(self.ndim)
+                t_local=utilities.get_tshift(centers0,centers1+t_global,dist_function,ntrans=ntrans,maxt=maxt,**dist_function_keys)
+                #t_local=self.get_minT(msk0,msk1,nt=self.ntrans,dt=self.maxtrans)
+                tSet[iS,:]=t_global+t_local
+                if zscale is not None:
+                    tSet[iS,0]=tSet[iS,0]/zscale
+                sys.stdout.write(f'frame {iS} translation {t_global+t_local}\n')
             msk0=msk1.copy()
         tSet=np.cumsum(tSet,axis=0)
         tf_matrix_set=np.zeros((nframes,self.ndim+1,self.ndim+1))
@@ -960,16 +966,17 @@ class Trajectory:
         cells_x=np.zeros((ncells,self.ndim))
         for im in range(self.nt):
             sys.stdout.write('loading cells from frame '+str(im)+'\n')
-            indc_img=np.where(self.cells_indimgSet==im)
-            msk=self.get_mask_data(im)
-            if self.nmaskchannels>0:
-                msk=msk[...,mskchannel]
-            centers=np.array(ndimage.center_of_mass(np.ones_like(msk),labels=msk,index=np.arange(1,np.max(msk)+1).astype(int)))
-            cells_positionSet[indc_img,:]=centers
-            #centers[:,0]=centers[:,0]-self.imgSet_t[im,2]
-            #centers[:,1]=centers[:,1]-self.imgSet_t[im,1]
-            centers=centers-tSet[im,:]
-            cells_x[indc_img,:]=centers
+            indc_img=np.where(self.cells_indimgSet==im)[0]
+            if indc_img.size>0:
+                msk=self.get_mask_data(im)
+                if self.nmaskchannels>0:
+                    msk=msk[...,mskchannel]
+                centers=np.array(ndimage.center_of_mass(np.ones_like(msk),labels=msk,index=np.arange(1,np.max(msk)+1).astype(int)))
+                cells_positionSet[indc_img,:]=centers
+                #centers[:,0]=centers[:,0]-self.imgSet_t[im,2]
+                #centers[:,1]=centers[:,1]-self.imgSet_t[im,1]
+                centers=centers-tSet[im,:]
+                cells_x[indc_img,:]=centers
         if save_h5:
             self.cells_positionSet=cells_positionSet
             self.x=cells_x
@@ -1073,8 +1080,8 @@ class Trajectory:
                 plt.clf()
                 plt.scatter(xt1[:,ix],xt1[:,iy],s=20,marker='x',color='darkred',alpha=0.5)
                 plt.scatter(xt0[:,ix],xt0[:,iy],s=20,marker='x',color='lightgreen',alpha=0.5)
-                plt.contour(vmsk1.T,levels=np.arange(np.max(vmsk1)),colors='red',alpha=.3,linewidths=.3)
-                plt.contour(vmsk0.T,levels=np.arange(np.max(vmsk0)),colors='green',alpha=.3,linewidths=.3)
+                plt.contour(vmsk1.T,levels=np.arange(np.max(vmsk1)+1),colors='red',alpha=.3,linewidths=.3)
+                plt.contour(vmsk0.T,levels=np.arange(np.max(vmsk0)+1),colors='green',alpha=.3,linewidths=.3)
                 plt.scatter(xt1[lin1>-1,ix],xt1[lin1>-1,iy],s=300,marker='o',alpha=.1,color='purple')
                 plt.pause(.1)
             print('frame '+str(iS)+' tracked '+str(ntracked)+' of '+str(ncells)+' cells')
@@ -1103,12 +1110,16 @@ class Trajectory:
             dmatx=utilities.get_dmat(xt1,xt0)
             lin1=np.zeros(indt1.size).astype(int)
             for ic in range(indt1.size): #nn tracking
-                ind_nnx=np.argsort(dmatx[ic,:])
-                cdist=utilities.dist(xt0[ind_nnx[0],:],xt1[ic,:])
+                if indt0.size>0:
+                    ind_nnx=np.argsort(dmatx[ic,:])
+                    cdist=utilities.dist(xt0[ind_nnx[0],:],xt1[ic,:])
+                else:
+                    cdist=np.inf
                 if cdist<distcut:
                     lin1[ic]=ind_nnx[0]
                 else:
                     lin1[ic]=-1
+                ntracked=np.sum(lin1>-1)
             if visual:
                 msk1=self.get_mask_data(iS)[...,self.mskchannel]
                 msk0=self.get_mask_data(iS-1)[...,self.mskchannel]
@@ -1123,8 +1134,8 @@ class Trajectory:
                 plt.clf()
                 plt.scatter(xt1[:,ix],xt1[:,iy],s=20,marker='x',color='darkred',alpha=0.5)
                 plt.scatter(xt0[:,ix],xt0[:,iy],s=20,marker='x',color='lightgreen',alpha=0.5)
-                plt.contour(vmsk1.T,levels=np.arange(np.max(vmsk1)),colors='red',alpha=.3,linewidths=.3)
-                plt.contour(vmsk0.T,levels=np.arange(np.max(vmsk0)),colors='green',alpha=.3,linewidths=.3)
+                plt.contour(vmsk1.T,levels=np.arange(np.max(vmsk1)+1),colors='red',alpha=.3,linewidths=.3)
+                plt.contour(vmsk0.T,levels=np.arange(np.max(vmsk0)+1),colors='green',alpha=.3,linewidths=.3)
                 plt.scatter(xt1[lin1>-1,ix],xt1[lin1>-1,iy],s=300,marker='o',alpha=.1,color='purple')
                 plt.pause(.1)
             print('frame '+str(iS)+' tracked '+str(ntracked)+' of '+str(ncells)+' cells')
