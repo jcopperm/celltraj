@@ -360,8 +360,16 @@ class Trajectory:
             img=self.get_image_data(n_frame)
             img=img[...,self.fmsk_imgchannel]
             fmsk=img>self.fmsk_threshold
+        elif hasattr(self,'fmask_channels'):
+            foreground_fmskchannel=np.where(self.fmask_channels==np.array(['foreground']).astype('S32'))[0][0]
+            print(f'getting foreground mask from {self.h5filename} fmask channel {foreground_fmskchannel}')
+            with h5py.File(self.h5filename,'r') as f:
+                dsetName = "/images/img_%d/fmsk" % int(n_frame)
+                dset=f[dsetName]
+                msk=dset[:]
+                fmsk=msk[...,foreground_fmskchannel]
         else:
-            print(f'need to set attribute fmskchannel to pull from a mask channel or fmsk_threshold and fmsk_imgchannel to threshold an image channel for foreground masks')
+            print(f'need to set attribute fmskchannel to pull from a mask channel, fmsk_threshold and fmsk_imgchannel to threshold an image channel for foreground masks, fmask_channels foreground and fmsk under image data in h5')
         return fmsk
 
     def get_cell_blocks(self,label):
@@ -540,7 +548,7 @@ class Trajectory:
         else:
             return imgc
                 
-    def get_cell_features(self,function_tuple,indcells=None,imgchannel=0,mskchannel=0,use_fmask_for_intensity_image=False,use_mask_for_intensity_image=False,bordersize=10,apply_contact_transform=False,return_feature_list=False,save_h5=False,overwrite=False,concatenate_features=False):
+    def get_cell_features(self,function_tuple,indcells=None,imgchannel=0,mskchannel=0,use_fmask_for_intensity_image=False,fmskchannel=None,use_mask_for_intensity_image=False,bordersize=10,apply_contact_transform=False,return_feature_list=False,save_h5=False,overwrite=False,concatenate_features=False):
         """
         Get cell features using skimage's regionprops, passing a custom function tuple for measurement
         Parameters
@@ -596,6 +604,7 @@ class Trajectory:
                 sys.stdout.write('featurizing cells from frame '+str(self.cells_frameSet[ic])+'\n')
                 if use_fmask_for_intensity_image:
                     img=self.get_fmask_data(self.cells_indimgSet[ic]) #use foreground mask
+                    img=img[...,fmskchannel]
                     for iborder in range(bordersize):
                         if img.ndim==2:
                             img=skimage.morphology.binary_erosion(img)
@@ -657,7 +666,7 @@ class Trajectory:
         else:
             return np.array(Xf)
 
-    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,make_disjoint=True,erosion_footprint1=None,erosion_footprint2=None,combined_and_disjoint=False,intensity_sum=False,intensity_ztransform=False,noratio=False,inverse_ratio=False,save_h5=False,overwrite=False):
+    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,fmskchannel=None,make_disjoint=True,erosion_footprint1=None,erosion_footprint2=None,combined_and_disjoint=False,intensity_sum=False,intensity_ztransform=False,noratio=False,inverse_ratio=False,save_h5=False,overwrite=False):
         """
         Get cell features using skimage's regionprops, passing a custom function tuple for measurement
         Parameters
@@ -687,9 +696,13 @@ class Trajectory:
         feature_list : string array (nfeatures)
             description of cell features, optional
         """
-        if imgchannel is None or mskchannel1 is None or mskchannel2 is None:
+        if imgchannel is None or mskchannel1 is None:
             print('set imgchannel, mskchannel1, and mskchannel2 keys')
             return 1
+        if mskchannel2 is None:
+            if fmskchannel is None:
+                print('set fmskchannel if not using mskchannel2')
+                return 1
         if not hasattr(self,'cells_indSet'):
             print('no cell index, run get_cell_index')
             return 1
@@ -708,7 +721,13 @@ class Trajectory:
                 if self.axes[-1]=='c':
                     img=img[...,imgchannel]
                 msk1=msk[...,mskchannel1]
-                msk2=msk[...,mskchannel2]
+                if fmskchannel is None:
+                    msk2=msk[...,mskchannel2]
+                else:
+                    fmsk=self.get_fmask_data(self.cells_indimgSet[ic])
+                    fmsk=fmsk[...,fmskchannel]
+                    msk2=msk1.copy()
+                    msk2[np.logical_not(fmsk>0)]=0
                 if combined_and_disjoint:
                     msk2=imprep.get_cyto_minus_nuc_labels(msk1,msk2)
                 elif make_disjoint:
