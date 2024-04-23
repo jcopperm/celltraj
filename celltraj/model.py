@@ -669,7 +669,8 @@ def update_mahalanobis_matrix_J(Mprev,X,Xi,V,lam,h=None,s=.05): #updating per Da
     M = np.zeros_like(Mprev)
     N = X.shape[0]
     M2=np.matmul(Mprev,np.conj(Mprev.T))
-    XiloglamV=np.matmul((Xi*np.log(lam)),np.conj(V).T)
+    #XiloglamV=np.matmul((Xi*np.log(lam)),np.conj(V).T)
+    XilamV=np.matmul((Xi*lam),np.conj(V).T) #changed to no log 11apr24
     #Xiloglam=(Xi*np.log(lam[np.newaxis,:]))
     for n in range(N):
         #print(f'updating J with gradient of mode {imode}')
@@ -677,7 +678,8 @@ def update_mahalanobis_matrix_J(Mprev,X,Xi,V,lam,h=None,s=.05): #updating per Da
         x=x[np.newaxis,:]
         kxX=get_gaussianKernelM(X,x,Mprev,h)
         #kxX_Xiloglam=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,Xiloglam)
-        J=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,XiloglamV)
+        #J=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,XiloglamV)
+        J=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,XilamV) #changed to no log 11apr24
         #J=np.matmul(kxX_Xiloglam,np.conj(V))
         Madd = np.matmul(J,np.conj(J.T))
         M = M + Madd

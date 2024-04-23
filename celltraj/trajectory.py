@@ -337,7 +337,7 @@ class Trajectory:
             msk=dset[:]
         return msk
 
-    def get_fmask_data(self,n_frame):
+    def get_fmask_data(self,n_frame,channel=None):
         """
         Get foreground mask data for a frame, if self.fmskchannel is set will pull from mask data and be set from msk[...,fmskchannel]>0 (or default mskchannel if self.fmskchannel not set), or if self.fmsk_threshold is set, will be thresholded from self.fmsk_imgchannel or first imgchannel.
         Parameters
@@ -361,7 +361,10 @@ class Trajectory:
             img=img[...,self.fmsk_imgchannel]
             fmsk=img>self.fmsk_threshold
         elif hasattr(self,'fmask_channels'):
-            foreground_fmskchannel=np.where(self.fmask_channels==np.array(['foreground']).astype('S32'))[0][0]
+            if channel is None:
+                foreground_fmskchannel=np.where(self.fmask_channels==np.array(['foreground']).astype('S32'))[0][0]
+            else:
+                foreground_fmskchannel=channel
             print(f'getting foreground mask from {self.h5filename} fmask channel {foreground_fmskchannel}')
             with h5py.File(self.h5filename,'r') as f:
                 dsetName = "/images/img_%d/fmsk" % int(n_frame)
@@ -456,7 +459,7 @@ class Trajectory:
             return False
         if save_h5:
             attribute_list=['cells_frameSet','cells_imgfileSet','cells_indSet','cells_indimgSet','cellblocks']
-            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return True
 
     def get_cell_data(self,ic,frametype='boundingbox',boundary_expansion=None,return_masks=True,relabel_masks=True,relabel_mskchannels=None,delete_background=False):
@@ -603,8 +606,7 @@ class Trajectory:
             if not self.cells_frameSet[ic]==ip_frame:
                 sys.stdout.write('featurizing cells from frame '+str(self.cells_frameSet[ic])+'\n')
                 if use_fmask_for_intensity_image:
-                    img=self.get_fmask_data(self.cells_indimgSet[ic]) #use foreground mask
-                    img=img[...,fmskchannel]
+                    img=self.get_fmask_data(self.cells_indimgSet[ic],channel=fmskchannel) #use foreground mask
                     for iborder in range(bordersize):
                         if img.ndim==2:
                             img=skimage.morphology.binary_erosion(img)
@@ -658,7 +660,7 @@ class Trajectory:
                 self.Xf=np.array(Xf)
                 self.Xf_feature_list=feature_list
                 attribute_list=['Xf','Xf_feature_list']
-                data_written = self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+                data_written = self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
             except Exception as e:
                 print(f'error writing data, {e}')
         if return_feature_list:
@@ -767,7 +769,7 @@ class Trajectory:
         if save_h5:
             setattr(self,feature_name,cratio)
             attribute_list=[feature_name]
-            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return np.array(cratio)
 
     def get_cell_channel_crosscorr(self,indcells=None,mskchannel=None,imgchannel1=None,imgchannel2=None,save_h5=False,overwrite=False):
@@ -828,7 +830,7 @@ class Trajectory:
         if save_h5:
             setattr(self,feature_name,corrc)
             attribute_list=[feature_name]
-            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return corrc
 
     def get_motility_features(self,indcells=None,mskchannel=None,save_h5=False,overwrite=False):
@@ -895,7 +897,7 @@ class Trajectory:
         if save_h5:
             setattr(self,feature_name,Xf_com)
             attribute_list=[feature_name]
-            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return Xf_com
 
     def get_stack_trans(self,mskchannel=0,ntrans=20,maxt=10,dist_function=utilities.get_pairwise_distance_sum,zscale=None,save_h5=False,overwrite=False,do_global=False,**dist_function_keys):
@@ -970,7 +972,7 @@ class Trajectory:
         if save_h5:
             self.tf_matrix_set=tf_matrix_set
             attribute_list=['tf_matrix_set']
-            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return tf_matrix_set
 
     def get_cell_positions(self,mskchannel=0,save_h5=False,overwrite=False):
@@ -1000,7 +1002,7 @@ class Trajectory:
             self.cells_positionSet=cells_positionSet
             self.x=cells_x
             attribute_list=['cells_positionSet','x']
-            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return cells_x
 
     def get_lineage_btrack(self,mskchannel=0,distcut=5.,framewindow=6,visual_1cell=False,visual=False,max_search_radius=100,save_h5=False,overwrite=False):
@@ -1108,7 +1110,7 @@ class Trajectory:
         if save_h5:
             self.linSet=linSet
             attribute_list=['linSet']
-            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return linSet
 
     def get_lineage_mindist(self,distcut=5.,visual=False,save_h5=False,overwrite=False):
@@ -1162,7 +1164,7 @@ class Trajectory:
         if save_h5:
             self.linSet=linSet
             attribute_list=['linSet']
-            self.save_to_h5('/cell_data/',attribute_list,overwrite=overwrite)
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return linSet
 
     def get_cell_trajectory(self,cell_ind,n_hist=-1): #cell trajectory stepping backwards

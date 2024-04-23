@@ -603,7 +603,7 @@ def transform_image(img,tf_matrix,inverse_tform=False,pad_dims=None,**ndimage_ar
     return img_tf
 
 def pad_image(img,*maxdims,padvalue=0):
-    print(maxdims)
+    #print(maxdims)
     ndim=len(maxdims)
     img_ndim=img.ndim
     if ndim != img_ndim:
