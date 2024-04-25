@@ -1,2 +1,3 @@
+make clean
 make html
-cp build/html/*.html ./
+cp -r build/html/* ./

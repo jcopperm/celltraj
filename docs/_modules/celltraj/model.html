@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>celltraj.model &mdash; celltraj 0.1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            celltraj
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">celltraj</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">celltraj</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">celltraj.model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for celltraj.model</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">pyemma.coordinates</span> <span class="k">as</span> <span class="nn">coor</span>
+<span class="kn">from</span> <span class="nn">adjustText</span> <span class="kn">import</span> <span class="n">adjust_text</span>
+<span class="kn">import</span> <span class="nn">umap</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">csr_matrix</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse.csgraph</span> <span class="kn">import</span> <span class="n">connected_components</span>
+<span class="kn">import</span> <span class="nn">celltraj.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A toolset for single-cell trajectory data-driven modeling. See:</span>
+
+<span class="sd">Danger</span>
+<span class="sd">-------</span>
+<span class="sd">This code, currently, should be considered as an untested pre-release version</span>
+
+<span class="sd">Todo</span>
+<span class="sd">----</span>
+<span class="sd">Refactor</span>
+<span class="sd">    In general, this class&#39;s methods generally handle data by holding state in the object.</span>
+<span class="sd">    The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.</span>
+<span class="sd">    The state being updated along the way is usually &quot;helper&quot; quantities.</span>
+<span class="sd">    I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --</span>
+<span class="sd">    one example of this might be setting them as properties, and then updating the value in state as part of that</span>
+<span class="sd">    accessor if necessary.</span>
+<span class="sd">References</span>
+<span class="sd">--------</span>
+<span class="sd">Jeremy Copperman, Ian McLean, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.</span>
+<span class="sd">Morphodynamical and gene expression trajectories of cell state change..</span>
+<span class="sd">Manuscript in preparation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="get_transition_matrix"><a class="viewcode-back" href="../../api.html#celltraj.model.get_transition_matrix">[docs]</a><span class="k">def</span> <span class="nf">get_transition_matrix</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">clusters</span><span class="p">):</span>
+    <span class="n">n_clusters</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">clustercenters</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">indc0</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
+    <span class="n">indc1</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span>
+    <span class="n">Cm</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_clusters</span><span class="p">,</span><span class="n">n_clusters</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">itt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">Cm</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itt</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itt</span><span class="p">]]</span><span class="o">=</span><span class="n">Cm</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itt</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itt</span><span class="p">]]</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">Mt</span><span class="o">=</span><span class="n">Cm</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sM</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Mt</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">iR</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sM</span><span class="p">[</span><span class="n">iR</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">Mt</span><span class="p">[</span><span class="n">iR</span><span class="p">,:]</span><span class="o">=</span><span class="n">Mt</span><span class="p">[</span><span class="n">iR</span><span class="p">,:]</span><span class="o">/</span><span class="n">sM</span><span class="p">[</span><span class="n">iR</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">sM</span><span class="p">[</span><span class="n">iR</span><span class="p">]</span><span class="o">==</span><span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">Mt</span><span class="p">[</span><span class="n">iR</span><span class="p">,</span><span class="n">iR</span><span class="p">]</span><span class="o">=</span><span class="mf">1.0</span>
+    <span class="k">return</span> <span class="n">Mt</span></div>
+
+<div class="viewcode-block" id="get_transition_matrix_CG"><a class="viewcode-back" href="../../api.html#celltraj.model.get_transition_matrix_CG">[docs]</a><span class="k">def</span> <span class="nf">get_transition_matrix_CG</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">clusters</span><span class="p">,</span><span class="n">states</span><span class="p">):</span>
+    <span class="n">n_clusters</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">clustercenters</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">states</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">indc0</span><span class="o">=</span><span class="n">states</span><span class="p">[</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x0</span><span class="p">)]</span>
+    <span class="n">indc1</span><span class="o">=</span><span class="n">states</span><span class="p">[</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x1</span><span class="p">)]</span>
+    <span class="n">Cm</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_states</span><span class="p">,</span><span class="n">n_states</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">itt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">Cm</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itt</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itt</span><span class="p">]]</span><span class="o">=</span><span class="n">Cm</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itt</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itt</span><span class="p">]]</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">Mt</span><span class="o">=</span><span class="n">Cm</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sM</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Mt</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">iR</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_states</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sM</span><span class="p">[</span><span class="n">iR</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">Mt</span><span class="p">[</span><span class="n">iR</span><span class="p">,:]</span><span class="o">=</span><span class="n">Mt</span><span class="p">[</span><span class="n">iR</span><span class="p">,:]</span><span class="o">/</span><span class="n">sM</span><span class="p">[</span><span class="n">iR</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">sM</span><span class="p">[</span><span class="n">iR</span><span class="p">]</span><span class="o">==</span><span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">Mt</span><span class="p">[</span><span class="n">iR</span><span class="p">,</span><span class="n">iR</span><span class="p">]</span><span class="o">=</span><span class="mf">1.0</span>
+    <span class="k">return</span> <span class="n">Mt</span></div>
+
+<div class="viewcode-block" id="clean_clusters"><a class="viewcode-back" href="../../api.html#celltraj.model.clean_clusters">[docs]</a><span class="k">def</span> <span class="nf">clean_clusters</span><span class="p">(</span><span class="n">clusters</span><span class="p">,</span><span class="n">P</span><span class="p">):</span>
+    <span class="n">centers</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">clustercenters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">(</span><span class="n">P</span><span class="o">&gt;</span><span class="mf">0.</span><span class="p">)</span>
+    <span class="n">n_components</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">connected_components</span><span class="p">(</span><span class="n">csgraph</span><span class="o">=</span><span class="n">graph</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">return_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">unique</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">icc</span><span class="o">=</span><span class="n">unique</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">counts</span><span class="p">)]</span>
+    <span class="n">indcc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labels</span><span class="o">==</span><span class="n">icc</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">centers</span><span class="o">=</span><span class="n">centers</span><span class="p">[</span><span class="n">indcc</span><span class="p">,:]</span>
+    <span class="n">clusters_clean</span><span class="o">=</span><span class="n">coor</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="n">AssignCenters</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">clusters_clean</span></div>
+
+<div class="viewcode-block" id="get_path_entropy_2point"><a class="viewcode-back" href="../../api.html#celltraj.model.get_path_entropy_2point">[docs]</a><span class="k">def</span> <span class="nf">get_path_entropy_2point</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">Mt</span><span class="p">,</span><span class="n">clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">clusters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">indc0</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
+        <span class="n">indc1</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">indc0</span><span class="o">=</span><span class="n">x0</span>
+        <span class="n">indc1</span><span class="o">=</span><span class="n">x1</span>
+    <span class="n">entp</span><span class="o">=</span><span class="mf">0.0</span>
+    <span class="n">itt</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">ntraj</span><span class="o">=</span><span class="n">indc0</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">itraj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntraj</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">exclude_stays</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span><span class="o">&gt;</span><span class="mf">0.</span> <span class="ow">and</span> <span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]</span><span class="o">!=</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">]:</span>
+                    <span class="n">itt</span><span class="o">=</span><span class="n">itt</span><span class="o">+</span><span class="mi">1</span>
+                    <span class="n">pt</span><span class="o">=</span><span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span>
+                    <span class="n">entp</span><span class="o">=</span><span class="n">entp</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span><span class="o">&gt;</span><span class="mf">0.</span><span class="p">:</span> <span class="c1"># and Mt[indc1[itraj],indc0[itraj]]&gt;0.:</span>
+                    <span class="n">itt</span><span class="o">=</span><span class="n">itt</span><span class="o">+</span><span class="mi">1</span>
+                    <span class="n">pt</span><span class="o">=</span><span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span>
+                    <span class="n">entp</span><span class="o">=</span><span class="n">entp</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+        <span class="n">entp</span><span class="o">=</span><span class="n">entp</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span><span class="o">*</span><span class="n">itt</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;empty arrays or failed calc</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">entp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">return</span> <span class="n">entp</span></div>
+
+<div class="viewcode-block" id="get_path_ll_2point"><a class="viewcode-back" href="../../api.html#celltraj.model.get_path_ll_2point">[docs]</a><span class="k">def</span> <span class="nf">get_path_ll_2point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">indc0</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
+    <span class="n">indc1</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span>
+    <span class="n">ll</span><span class="o">=</span><span class="mf">0.0</span>
+    <span class="n">itt</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">ntraj</span><span class="o">=</span><span class="n">indc0</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">itraj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntraj</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">exclude_stays</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span><span class="o">&gt;</span><span class="mf">0.</span> <span class="ow">and</span> <span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]</span><span class="o">!=</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">]:</span>
+                    <span class="n">itt</span><span class="o">=</span><span class="n">itt</span><span class="o">+</span><span class="mi">1</span>
+                    <span class="n">pt</span><span class="o">=</span><span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span>
+                    <span class="n">ll</span><span class="o">=</span><span class="n">ll</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span><span class="o">&gt;</span><span class="mf">0.</span><span class="p">:</span> <span class="c1"># and Mt[indc1[itraj],indc0[itraj]]&gt;0.:</span>
+                    <span class="n">itt</span><span class="o">=</span><span class="n">itt</span><span class="o">+</span><span class="mi">1</span>
+                    <span class="n">pt</span><span class="o">=</span><span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span>
+                    <span class="n">ll</span><span class="o">=</span><span class="n">ll</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+        <span class="n">ll</span><span class="o">=</span><span class="n">ll</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span><span class="o">*</span><span class="n">itt</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;empty arrays or failed calc</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">ll</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">return</span> <span class="n">ll</span></div>
+
+<div class="viewcode-block" id="get_kscore"><a class="viewcode-back" href="../../api.html#celltraj.model.get_kscore">[docs]</a><span class="k">def</span> <span class="nf">get_kscore</span><span class="p">(</span><span class="n">Mt</span><span class="p">,</span><span class="n">eps</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span> <span class="c1">#,nw=10):</span>
+    <span class="n">indeye</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">Mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">diag</span><span class="o">=</span><span class="n">Mt</span><span class="p">[</span><span class="n">indeye</span><span class="p">]</span>
+    <span class="n">indgood</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">diag</span><span class="o">&lt;</span><span class="mf">1.</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Mt</span><span class="o">=</span><span class="n">Mt</span><span class="p">[</span><span class="n">indgood</span><span class="p">,:]</span>
+    <span class="n">Mt</span><span class="o">=</span><span class="n">Mt</span><span class="p">[:,</span><span class="n">indgood</span><span class="p">]</span>
+    <span class="n">w</span><span class="p">,</span><span class="n">v</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Mt</span><span class="p">))</span>
+    <span class="n">w</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">w</span><span class="o">-</span><span class="mf">1.</span><span class="p">)</span><span class="o">&lt;</span><span class="n">eps</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">indw</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">w</span><span class="o">-</span><span class="mf">1.</span><span class="p">)</span><span class="o">&gt;</span><span class="n">eps</span><span class="p">,</span><span class="n">w</span><span class="o">&gt;</span><span class="mf">0.</span><span class="p">),</span><span class="n">w</span><span class="o">&lt;</span><span class="mf">1.</span><span class="p">))</span>
+        <span class="n">tw</span><span class="o">=</span><span class="n">w</span><span class="p">[</span><span class="n">indw</span><span class="p">]</span>
+        <span class="n">tw</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">tw</span><span class="p">)</span>
+        <span class="c1">#tw=tw[-nw:]</span>
+        <span class="n">tw</span><span class="o">=</span><span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">tw</span><span class="p">)</span>
+        <span class="n">kscore</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tw</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">kscore</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">return</span> <span class="n">kscore</span></div>
+
+<div class="viewcode-block" id="get_traj_ll_gmean"><a class="viewcode-back" href="../../api.html#celltraj.model.get_traj_ll_gmean">[docs]</a><span class="k">def</span> <span class="nf">get_traj_ll_gmean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">xt</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">x0</span><span class="o">=</span><span class="n">xt</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">x1</span><span class="o">=</span><span class="n">xt</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">indc0</span><span class="o">=</span><span class="n">states</span><span class="p">[</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x0</span><span class="p">)]</span>
+    <span class="n">indc1</span><span class="o">=</span><span class="n">states</span><span class="p">[</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x1</span><span class="p">)]</span>
+    <span class="n">llSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="n">itt</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">ntraj</span><span class="o">=</span><span class="n">indc0</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">itraj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntraj</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">exclude_stays</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span><span class="o">&gt;</span><span class="mf">0.</span> <span class="ow">and</span> <span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]</span><span class="o">!=</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">]:</span>
+                    <span class="n">itt</span><span class="o">=</span><span class="n">itt</span><span class="o">+</span><span class="mi">1</span>
+                    <span class="n">pt</span><span class="o">=</span><span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span>
+                    <span class="n">llSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">llSet</span><span class="p">,</span><span class="n">pt</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span><span class="o">&gt;</span><span class="mf">0.</span><span class="p">:</span> <span class="c1"># and Mt[indc1[itraj],indc0[itraj]]&gt;0.:</span>
+                    <span class="n">itt</span><span class="o">=</span><span class="n">itt</span><span class="o">+</span><span class="mi">1</span>
+                    <span class="n">pt</span><span class="o">=</span><span class="n">Mt</span><span class="p">[</span><span class="n">indc0</span><span class="p">[</span><span class="n">itraj</span><span class="p">],</span><span class="n">indc1</span><span class="p">[</span><span class="n">itraj</span><span class="p">]]</span>
+                    <span class="n">llSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">llSet</span><span class="p">,</span><span class="n">pt</span><span class="p">)</span>
+        <span class="n">ll_mean</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">mstats</span><span class="o">.</span><span class="n">gmean</span><span class="p">(</span><span class="n">llSet</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;empty arrays or failed calc</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">ll_mean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">return</span> <span class="n">ll_mean</span></div>
+
+
+<div class="viewcode-block" id="get_H_eigs"><a class="viewcode-back" href="../../api.html#celltraj.model.get_H_eigs">[docs]</a><span class="k">def</span> <span class="nf">get_H_eigs</span><span class="p">(</span><span class="n">Mt</span><span class="p">):</span>
+    <span class="n">H</span><span class="o">=</span><span class="mf">.5</span><span class="o">*</span><span class="p">(</span><span class="n">Mt</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Mt</span><span class="p">))</span><span class="o">+</span><span class="mf">.5</span><span class="n">j</span><span class="o">*</span><span class="p">(</span><span class="n">Mt</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Mt</span><span class="p">))</span>
+    <span class="n">w</span><span class="p">,</span><span class="n">v</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+    <span class="n">w</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+    <span class="n">indsort</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+    <span class="n">w</span><span class="o">=</span><span class="n">w</span><span class="p">[</span><span class="n">indsort</span><span class="p">]</span>
+    <span class="n">v</span><span class="o">=</span><span class="n">v</span><span class="p">[:,</span><span class="n">indsort</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">w</span><span class="p">,</span><span class="n">v</span></div>
+
+<div class="viewcode-block" id="get_motifs"><a class="viewcode-back" href="../../api.html#celltraj.model.get_motifs">[docs]</a><span class="k">def</span> <span class="nf">get_motifs</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">ncomp</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">w</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">vr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:]))</span>
+        <span class="n">vi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:]))</span>
+        <span class="n">vi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:]))</span>
+    <span class="n">vkin</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vr</span><span class="p">,</span><span class="n">vi</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vkin</span></div>
+
+<div class="viewcode-block" id="get_landscape_coords_umap"><a class="viewcode-back" href="../../api.html#celltraj.model.get_landscape_coords_umap">[docs]</a><span class="k">def</span> <span class="nf">get_landscape_coords_umap</span><span class="p">(</span><span class="n">vkin</span><span class="p">):</span>
+    <span class="n">reducer</span><span class="o">=</span><span class="n">umap</span><span class="o">.</span><span class="n">UMAP</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">trans</span> <span class="o">=</span> <span class="n">reducer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">vkin</span><span class="p">)</span>
+    <span class="n">x_clusters</span><span class="o">=</span><span class="n">trans</span><span class="o">.</span><span class="n">embedding_</span>
+    <span class="k">return</span> <span class="n">x_clusters</span></div>
+
+<div class="viewcode-block" id="get_avdx_clusters"><a class="viewcode-back" href="../../api.html#celltraj.model.get_avdx_clusters">[docs]</a><span class="k">def</span> <span class="nf">get_avdx_clusters</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">,</span><span class="n">Mt</span><span class="p">):</span>
+    <span class="n">n_clusters</span><span class="o">=</span><span class="n">Mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dxmatrix</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_clusters</span><span class="p">,</span><span class="n">n_clusters</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">):</span>
+            <span class="n">dxmatrix</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span><span class="o">=</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">[</span><span class="n">jj</span><span class="p">,:]</span><span class="o">-</span><span class="n">x_clusters</span><span class="p">[</span><span class="n">ii</span><span class="p">,:])</span><span class="o">*</span><span class="n">Mt</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">jj</span><span class="p">]</span>
+    <span class="n">dx_clusters</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dxmatrix</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dx_clusters</span></div>
+
+<div class="viewcode-block" id="get_kineticstates"><a class="viewcode-back" href="../../api.html#celltraj.model.get_kineticstates">[docs]</a><span class="k">def</span> <span class="nf">get_kineticstates</span><span class="p">(</span><span class="n">vkin</span><span class="p">,</span><span class="n">nstates_final</span><span class="p">,</span><span class="n">nstates_initial</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pcut_final</span><span class="o">=</span><span class="mf">.01</span><span class="p">,</span><span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">max_states</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">return_nstates_initial</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">cluster_ninit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">nstates_initial</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nstates_initial</span><span class="o">=</span><span class="n">nstates_final</span>
+    <span class="n">nstates_good</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">nstates</span><span class="o">=</span><span class="n">nstates_initial</span>
+    <span class="k">while</span> <span class="n">nstates_good</span><span class="o">&lt;</span><span class="n">nstates_final</span> <span class="ow">and</span> <span class="n">nstates</span><span class="o">&lt;</span><span class="n">max_states</span><span class="p">:</span>
+        <span class="n">clusters_v</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">nstates</span><span class="p">,</span><span class="n">init</span><span class="o">=</span><span class="s1">&#39;k-means++&#39;</span><span class="p">,</span><span class="n">n_init</span><span class="o">=</span><span class="n">cluster_ninit</span><span class="p">,</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span><span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">clusters_v</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">vkin</span><span class="p">)</span>
+        <span class="n">stateSet</span><span class="o">=</span><span class="n">clusters_v</span><span class="o">.</span><span class="n">labels_</span>
+        <span class="n">state_probs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nstates</span><span class="p">)</span>
+        <span class="n">statesc</span><span class="p">,</span><span class="n">counts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">stateSet</span><span class="p">,</span><span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">state_probs</span><span class="p">[</span><span class="n">statesc</span><span class="p">]</span><span class="o">=</span><span class="n">counts</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">state_probs</span><span class="p">))</span>
+        <span class="n">nstates_good</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">state_probs</span><span class="o">&gt;</span><span class="n">pcut_final</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> states initial, </span><span class="si">{}</span><span class="s1"> states final&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nstates</span><span class="p">,</span><span class="n">nstates_good</span><span class="p">))</span>
+        <span class="n">nstates</span><span class="o">=</span><span class="n">nstates</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">pcut</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">state_probs</span><span class="p">)[</span><span class="o">-</span><span class="p">(</span><span class="n">nstates_final</span><span class="p">)]</span> <span class="c1">#nstates]</span>
+    <span class="n">states_plow</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">state_probs</span><span class="o">&lt;</span><span class="n">pcut</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">states_plow</span><span class="p">:</span>
+        <span class="n">indstate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stateSet</span><span class="o">==</span><span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">imin</span> <span class="ow">in</span> <span class="n">indstate</span><span class="p">:</span>
+            <span class="n">dists</span><span class="o">=</span><span class="n">get_dmat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">vkin</span><span class="p">[</span><span class="n">imin</span><span class="p">,:]]),</span><span class="n">vkin</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#closest in eig space</span>
+            <span class="n">dists</span><span class="p">[</span><span class="n">indstate</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="n">ireplace</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span>
+            <span class="n">stateSet</span><span class="p">[</span><span class="n">imin</span><span class="p">]</span><span class="o">=</span><span class="n">stateSet</span><span class="p">[</span><span class="n">ireplace</span><span class="p">]</span>
+    <span class="n">slabels</span><span class="p">,</span><span class="n">counts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">stateSet</span><span class="p">,</span><span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">stateSet_clean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">stateSet</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">slabel</span> <span class="ow">in</span> <span class="n">slabels</span><span class="p">:</span>
+        <span class="n">indstate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stateSet</span><span class="o">==</span><span class="n">slabel</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">stateSet_clean</span><span class="p">[</span><span class="n">indstate</span><span class="p">]</span><span class="o">=</span><span class="n">s</span>
+        <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span>
+    <span class="n">stateSet</span><span class="o">=</span><span class="n">stateSet_clean</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">stateSet</span><span class="p">)</span><span class="o">&gt;</span><span class="n">nstates_final</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;returning </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">stateSet</span><span class="p">)</span><span class="si">}</span><span class="s1"> states, </span><span class="si">{</span><span class="n">nstates_final</span><span class="si">}</span><span class="s1"> requested&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_nstates_initial</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">stateSet</span><span class="p">,</span><span class="n">nstates</span><span class="o">-</span><span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">stateSet</span></div>
+
+<div class="viewcode-block" id="get_committor"><a class="viewcode-back" href="../../api.html#celltraj.model.get_committor">[docs]</a><span class="k">def</span> <span class="nf">get_committor</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">,</span><span class="n">indTargets</span><span class="p">,</span><span class="n">indSource</span><span class="p">,</span><span class="n">conv</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span>
+    <span class="n">Mt</span><span class="o">=</span><span class="n">Tmatrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">nBins</span><span class="o">=</span><span class="n">Tmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">sinkBins</span><span class="o">=</span><span class="n">indSource</span> <span class="c1">#np.where(avBinPnoColor==0.0)</span>
+    <span class="n">nsB</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">sinkBins</span><span class="p">)</span>
+    <span class="n">nsB</span><span class="o">=</span><span class="n">nsB</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">sinkBins</span><span class="p">:</span>
+        <span class="n">Mt</span><span class="p">[</span><span class="n">ii</span><span class="p">,:]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">nBins</span><span class="p">))</span>
+        <span class="n">Mt</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span><span class="n">ii</span><span class="p">]</span><span class="o">=</span><span class="mf">1.0</span>
+    <span class="n">q</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nBins</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">q</span><span class="p">[</span><span class="n">indTargets</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mf">1.0</span>
+    <span class="n">dconv</span><span class="o">=</span><span class="mf">100.0</span>
+    <span class="n">qp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">dconv</span><span class="o">&gt;</span><span class="n">conv</span><span class="p">:</span>
+        <span class="n">q</span><span class="p">[</span><span class="n">indTargets</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mf">1.0</span>
+        <span class="n">q</span><span class="p">[</span><span class="n">indSource</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mf">0.0</span>
+        <span class="n">q</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Mt</span><span class="p">,</span><span class="n">q</span><span class="p">)</span>
+        <span class="n">dconv</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">qp</span><span class="o">-</span><span class="n">q</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;convergence: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dconv</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">qp</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">q</span><span class="p">[</span><span class="n">indTargets</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mf">1.0</span>
+    <span class="n">q</span><span class="p">[</span><span class="n">indSource</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">q</span></div>
+
+<div class="viewcode-block" id="get_steady_state_matrixpowers"><a class="viewcode-back" href="../../api.html#celltraj.model.get_steady_state_matrixpowers">[docs]</a><span class="k">def</span> <span class="nf">get_steady_state_matrixpowers</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">,</span><span class="n">conv</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span>
+    <span class="n">max_iters</span><span class="o">=</span><span class="mi">10000</span>
+    <span class="n">Mt</span><span class="o">=</span><span class="n">Tmatrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">dconv</span><span class="o">=</span><span class="mf">1.e100</span>
+    <span class="n">N</span><span class="o">=</span><span class="mi">1</span>
+    <span class="n">pSS</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Mt</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">pSSp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">pSS</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">dconv</span><span class="o">&gt;</span><span class="n">conv</span> <span class="ow">and</span> <span class="n">N</span><span class="o">&lt;</span><span class="n">max_iters</span><span class="p">:</span>
+        <span class="n">Mt</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">,</span><span class="n">Mt</span><span class="p">)</span>
+        <span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">N</span><span class="o">%</span><span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">pSS</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Mt</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">pSS</span><span class="o">=</span><span class="n">pSS</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pSS</span><span class="p">)</span>
+            <span class="n">dconv</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">pSS</span><span class="o">-</span><span class="n">pSSp</span><span class="p">))</span>
+            <span class="n">pSSp</span><span class="o">=</span><span class="n">pSS</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;N=&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; dconv: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dconv</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pSS</span></div>
+
+<div class="viewcode-block" id="plot_dx_arrows"><a class="viewcode-back" href="../../api.html#celltraj.model.plot_dx_arrows">[docs]</a><span class="k">def</span> <span class="nf">plot_dx_arrows</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">,</span><span class="n">dx_clusters</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dx_clusters</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">x_clusters</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">dx_clusters</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">dx_clusters</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">head_width</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">.3</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="plot_eig"><a class="viewcode-back" href="../../api.html#celltraj.model.plot_eig">[docs]</a><span class="k">def</span> <span class="nf">plot_eig</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">x_clusters</span><span class="p">,</span><span class="n">ncomp</span><span class="p">):</span>
+    <span class="n">vr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:])</span>
+    <span class="n">vi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:])</span>
+    <span class="n">va</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:])</span>
+    <span class="n">vth</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">vr</span><span class="p">,</span><span class="n">vi</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">icomp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncomp</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#range(ncomp):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">x_clusters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="n">va</span><span class="p">[:,</span><span class="n">icomp</span><span class="p">],</span><span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">seismic</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;absolute value &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ncomp</span><span class="o">-</span><span class="n">icomp</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">x_clusters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="n">vth</span><span class="p">[:,</span><span class="n">icomp</span><span class="p">],</span><span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">seismic</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;theta &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ncomp</span><span class="o">-</span><span class="n">icomp</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span></div>
+
+<div class="viewcode-block" id="get_dmat"><a class="viewcode-back" href="../../api.html#celltraj.model.get_dmat">[docs]</a><span class="k">def</span> <span class="nf">get_dmat</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="c1">#adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)</span>
+    <span class="n">x1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span> <span class="c1">#default from Fung folks is D x N</span>
+    <span class="k">if</span> <span class="n">x2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nX1</span> <span class="o">=</span> <span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matlib</span><span class="o">.</span><span class="n">repmat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="mi">0</span><span class="p">),</span><span class="n">nX1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">x1</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">y</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span> <span class="c1"># Iron-out numerical wrinkles</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x2</span><span class="p">)</span>
+        <span class="n">nX1</span> <span class="o">=</span> <span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">nX2</span> <span class="o">=</span> <span class="n">x2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matlib</span><span class="o">.</span><span class="n">repmat</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="mi">0</span> <span class="p">),</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nX2</span> <span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">matlib</span><span class="o">.</span><span class="n">repmat</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="mi">0</span> <span class="p">),</span> <span class="n">nX1</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">x2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y</span><span class="p">)</span></div>
+
+<span class="c1">####################################feature tuned kernel DMD a la aristoff########################</span>
+<div class="viewcode-block" id="get_kernel_sigmas"><a class="viewcode-back" href="../../api.html#celltraj.model.get_kernel_sigmas">[docs]</a><span class="k">def</span> <span class="nf">get_kernel_sigmas</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">vector_sigma</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get sigmas from observation matrix</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : ndarray</span>
+<span class="sd">        observation matrix, samples x features</span>
+<span class="sd">    M : ndarray</span>
+<span class="sd">        Mahalanobis scaling matrix, features x features</span>
+<span class="sd">    s : float</span>
+<span class="sd">        bandwidth scaling factor</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    h : ndarray, n_features (float)</span>
+<span class="sd">        vector of sigmas to scale observations in kernel</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">XM</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vector_sigma</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplex</span><span class="p">(</span><span class="n">XM</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">h</span><span class="o">=</span><span class="n">s</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">utilities</span><span class="o">.</span><span class="n">get_dmat</span><span class="p">(</span><span class="n">XM</span><span class="p">,</span><span class="n">XM</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span> <span class="c1">#to square, changed 6nov23 matching unit test</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">XM</span><span class="o">=</span><span class="n">XM</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+            <span class="n">h</span><span class="o">=</span><span class="n">s</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">XM</span><span class="p">,</span><span class="n">XM</span><span class="p">,</span><span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span> <span class="c1">#to square, changed 6nov23 matching unit test</span>
+        <span class="k">return</span> <span class="n">h</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">XX</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">XM</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">XM</span><span class="p">),</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">s</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">XX</span><span class="p">,</span><span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+        <span class="k">return</span> <span class="n">h</span></div>
+
+<div class="viewcode-block" id="get_gaussianKernelM"><a class="viewcode-back" href="../../api.html#celltraj.model.get_gaussianKernelM">[docs]</a><span class="k">def</span> <span class="nf">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">h</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Malanobis scaled gaussian kernel from observation matrices X,Y</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : ndarray</span>
+<span class="sd">        observation matrix, samples x features</span>
+<span class="sd">    Y : ndarray</span>
+<span class="sd">        observation matrix at t+1, samples x features</span>
+<span class="sd">    M : ndarray</span>
+<span class="sd">        Mahalanobis scaling matrix, features x features</span>
+<span class="sd">    h : ndarray</span>
+<span class="sd">        vector of sigma scalings for gaussian from get_kernel_sigmas</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    k : ndarray, samples x samples (float)</span>
+<span class="sd">        Malanobis scaled kernel for X,Y</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">XM</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">M</span><span class="p">)</span>
+    <span class="n">YM</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplex</span><span class="p">(</span><span class="n">XM</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">k</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">utilities</span><span class="o">.</span><span class="n">get_dmat</span><span class="p">(</span><span class="n">YM</span><span class="p">,</span><span class="n">XM</span><span class="p">),</span><span class="mi">2</span><span class="p">),</span><span class="mi">2</span><span class="o">*</span><span class="n">h</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">XM</span><span class="o">=</span><span class="n">XM</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">);</span><span class="n">YM</span><span class="o">=</span><span class="n">YM</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+        <span class="n">k</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">YM</span><span class="p">,</span><span class="n">XM</span><span class="p">),</span><span class="mi">2</span><span class="p">),</span><span class="mi">2</span><span class="o">*</span><span class="n">h</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">k</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_koopman_eig"><a class="viewcode-back" href="../../api.html#celltraj.model.get_koopman_eig">[docs]</a><span class="k">def</span> <span class="nf">get_koopman_eig</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">M</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">bta</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">psi_X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">psi_Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get linear matrix solution for Koopman operator from X,Y paired observation Y=F(X) with F the forward operator</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : ndarray</span>
+<span class="sd">        observation matrix, samples x features</span>
+<span class="sd">    Y : ndarray</span>
+<span class="sd">        observation matrix at t+1, samples x features</span>
+<span class="sd">    M : ndarray</span>
+<span class="sd">        Mahalanobis scaling matrix, features x features</span>
+<span class="sd">    s : float</span>
+<span class="sd">        kernel bandwidth scaling parameter</span>
+<span class="sd">    bta : float</span>
+<span class="sd">        regularization parameter for linear solve</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : ndarray</span>
+<span class="sd">        Koopman operator matrix, samples x samples (float)</span>
+<span class="sd">    Xi : ndarray</span>
+<span class="sd">        Koopman left eigenvectors, samples x samples</span>
+<span class="sd">    Lam : ndarray</span>
+<span class="sd">        Koopman eigenvalue matrix (diagonal), samples x samples</span>
+<span class="sd">    W : ndarray</span>
+<span class="sd">        Koopman right eigenvectors, samples x samples</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nsamples</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">M</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;getting kernel sigmas...&#39;</span><span class="p">)</span>
+        <span class="n">h</span><span class="o">=</span><span class="n">get_kernel_sigmas</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">psi_X</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;applying kernel to X...&#39;</span><span class="p">)</span>
+        <span class="n">psi_X</span><span class="o">=</span><span class="n">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">psi_Y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;applying kernel to Y...&#39;</span><span class="p">)</span>
+        <span class="n">psi_Y</span><span class="o">=</span><span class="n">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;solving linear system for approximate Koopman...&#39;</span><span class="p">)</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="p">(</span><span class="n">psi_X</span><span class="o">+</span><span class="n">bta</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">nsamples</span><span class="p">))</span>
+    <span class="n">K</span><span class="p">,</span><span class="n">residuals</span><span class="p">,</span><span class="n">rank</span><span class="p">,</span><span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">),</span> <span class="n">psi_Y</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;getting Koopman eigendecomposition...&#39;</span><span class="p">)</span>
+    <span class="n">Lam</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">Xi</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">K</span><span class="p">,</span><span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">indsort</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Lam</span><span class="p">))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">Xi</span><span class="o">=</span><span class="n">Xi</span><span class="p">[:,</span><span class="n">indsort</span><span class="p">]</span>
+    <span class="n">W</span><span class="o">=</span><span class="n">W</span><span class="p">[:,</span><span class="n">indsort</span><span class="p">]</span>
+    <span class="n">Lam</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">Lam</span><span class="p">[</span><span class="n">indsort</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">K</span><span class="p">,</span><span class="n">Xi</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">W</span></div>
+
+<div class="viewcode-block" id="get_koopman_modes"><a class="viewcode-back" href="../../api.html#celltraj.model.get_koopman_modes">[docs]</a><span class="k">def</span> <span class="nf">get_koopman_modes</span><span class="p">(</span><span class="n">psi_X</span><span class="p">,</span><span class="n">Xi</span><span class="p">,</span><span class="n">W</span><span class="p">,</span><span class="n">X_obs</span><span class="p">,</span><span class="n">bta</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Koopman modes of an observable</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    psi_X : ndarray</span>
+<span class="sd">        kernel matrix, samples x samples</span>
+<span class="sd">    Xi : ndarray</span>
+<span class="sd">        right eigenvectors of Koopman, samples x samples</span>
+<span class="sd">    W : ndarray</span>
+<span class="sd">        left eigenvectors of Koopman, samples x samples</span>
+<span class="sd">    X : ndarray</span>
+<span class="sd">        observation matrix, samples x features</span>
+<span class="sd">    X_obs : ndarray, samples x observables</span>
+<span class="sd">        observables of interest in same time order as X, can be X or features of X</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    phi_X : ndarray</span>
+<span class="sd">        Koopman eigenfunctions</span>
+<span class="sd">    V : ndarray</span>
+<span class="sd">        Koopman modes of observables</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">phi_X</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">psi_X</span><span class="p">,</span><span class="n">Xi</span><span class="p">)</span>
+    <span class="c1">#B = np.matmul(np.linalg.pinv(psi_X.astype(&#39;float64&#39;)),X_obs) #change to ridge regression soon</span>
+    <span class="c1">#Wprime = np.divide(np.conj(W.T),np.diag(np.matmul(np.conj(W.T),Xi))[:,np.newaxis])</span>
+    <span class="c1">#V=np.matmul(Wprime,B)</span>
+    <span class="n">B1</span> <span class="o">=</span> <span class="p">(</span><span class="n">psi_X</span><span class="o">+</span><span class="n">bta</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">psi_X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="c1">#\obs(X(1:N-1,:))</span>
+    <span class="n">B</span><span class="p">,</span><span class="n">residuals</span><span class="p">,</span><span class="n">rank</span><span class="p">,</span><span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">B1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">),</span> <span class="n">X_obs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float64&#39;</span><span class="p">))</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">B</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,(</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">W</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">W</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">Xi</span><span class="p">)))</span><span class="o">.</span><span class="n">T</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">phi_X</span><span class="p">,</span><span class="n">V</span></div>
+
+<div class="viewcode-block" id="get_koopman_inference"><a class="viewcode-back" href="../../api.html#celltraj.model.get_koopman_inference">[docs]</a><span class="k">def</span> <span class="nf">get_koopman_inference</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">steps</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">nmodes</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Koopman prediction of an observable</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    start : int</span>
+<span class="sd">        sample index for start point</span>
+<span class="sd">    steps : int</span>
+<span class="sd">        number of steps of inference to perform</span>
+<span class="sd">    phi_X : ndarray</span>
+<span class="sd">        Koopman eigenfunctions, samples x samples</span>
+<span class="sd">    V : ndarray</span>
+<span class="sd">        Koopman modes of observables, must be calculated samples x samples</span>
+<span class="sd">    Lam : ndarray</span>
+<span class="sd">        Koopman eigenvalues matrix (diagonal), samples x samples</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    X_pred : ndarray</span>
+<span class="sd">        predicted trajectory steps x observables</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nmodes</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span><span class="nb">tuple</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+        <span class="n">indmodes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">indmodes</span><span class="o">=</span><span class="n">nmodes</span>
+        <span class="n">nmodes</span><span class="o">=</span><span class="n">indmodes</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">Lam</span><span class="p">[</span><span class="n">indmodes</span><span class="p">,:]</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">lam</span><span class="p">[:,</span><span class="n">indmodes</span><span class="p">]</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)</span>
+    <span class="n">X_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">steps</span><span class="p">,</span><span class="n">d</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;complex128&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+        <span class="c1">#X_pred[step,:] = np.matmul(np.matmul(phi_X[start,:],D),V)</span>
+        <span class="n">lambdas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+        <span class="n">X_pred</span><span class="p">[</span><span class="n">step</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">phi_X</span><span class="p">[</span><span class="n">start</span><span class="p">,:],</span><span class="n">lambdas</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:],</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="c1">#changed V to V.T to agree with DA notes 6nov23</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">D</span><span class="p">,</span><span class="n">lam</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">X_pred</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_koopman_inference_multiple"><a class="viewcode-back" href="../../api.html#celltraj.model.get_koopman_inference_multiple">[docs]</a><span class="k">def</span> <span class="nf">get_koopman_inference_multiple</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span><span class="n">steps</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">nmodes</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Koopman prediction of an observable</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    start : int</span>
+<span class="sd">        sample index for start point</span>
+<span class="sd">    steps : int</span>
+<span class="sd">        number of steps of inference to perform</span>
+<span class="sd">    phi_X : ndarray</span>
+<span class="sd">        Koopman eigenfunctions, samples x samples</span>
+<span class="sd">    V : ndarray</span>
+<span class="sd">        Koopman modes of observables, must be calculated samples x samples</span>
+<span class="sd">    Lam : ndarray</span>
+<span class="sd">        Koopman eigenvalues matrix (diagonal), samples x samples</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    X_pred : ndarray</span>
+<span class="sd">        predicted trajectory steps x observables</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nmodes</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span><span class="nb">tuple</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+        <span class="n">indmodes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">indmodes</span><span class="o">=</span><span class="n">nmodes</span>
+        <span class="n">nmodes</span><span class="o">=</span><span class="n">indmodes</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">Lam</span><span class="p">[</span><span class="n">indmodes</span><span class="p">,:]</span>
+    <span class="n">lam</span> <span class="o">=</span> <span class="n">lam</span><span class="p">[:,</span><span class="n">indmodes</span><span class="p">]</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)</span>
+    <span class="n">X_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">starts</span><span class="o">.</span><span class="n">size</span><span class="p">,</span><span class="n">steps</span><span class="p">,</span><span class="n">d</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;complex128&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+        <span class="n">lambdas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+        <span class="c1">#X_pred[:,step,:] = np.matmul(np.multiply(phi_X[starts,:],lambdas),V)</span>
+        <span class="n">X_pred</span><span class="p">[:,</span><span class="n">step</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">phi_X</span><span class="p">[</span><span class="n">starts</span><span class="p">,:],</span><span class="n">lambdas</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="c1">#changed V to V.T to agree with DA notes 6nov23</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">D</span><span class="p">,</span><span class="n">lam</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">X_pred</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="update_mahalanobis_matrix_grad"><a class="viewcode-back" href="../../api.html#celltraj.model.update_mahalanobis_matrix_grad">[docs]</a><span class="k">def</span> <span class="nf">update_mahalanobis_matrix_grad</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update estimation of mahalanobis matrix for kernel tuning</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------`</span>
+<span class="sd">    Mprev : ndarray, features x features</span>
+<span class="sd">        Koopman eigenfunctions</span>
+<span class="sd">    X : ndarray</span>
+<span class="sd">        samples by features</span>
+<span class="sd">    phi_X : ndarray</span>
+<span class="sd">        Koopman eigenfunctions, samples x samples</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    M : ndarray</span>
+<span class="sd">        updated mahalanobis matrix using Koopman eigenfunction gradients</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#define gradient of Koopman eigenfunctions</span>
+    <span class="c1">#dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)&#39;.*Phi_x(:,efcn)));</span>
+    <span class="c1">#flux = @(x,efcn) log(Lam(efcn))*sum((X(1:N-1,:)-x)*M.*(k(x)&#39;.*Phi_x(:,efcn)))&#39;*V(efcn,:);</span>
+    <span class="c1">#compute M as the gradient outerproduct</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">get_kernel_sigmas</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Mprev</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Mprev</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">nmodes</span><span class="o">=</span><span class="n">phi_X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">imode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;updating M with gradient of mode </span><span class="si">{</span><span class="n">imode</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">nmodes</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="n">n</span><span class="p">,:]</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+            <span class="n">xMX</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">Mprev</span><span class="p">)</span>
+            <span class="n">kxX</span><span class="o">=</span><span class="n">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">Mprev</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+            <span class="n">xMX_kxX</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">xMX</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">kxX</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">xMX_kxX_phi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">xMX_kxX</span><span class="p">,</span><span class="n">phi_X</span><span class="p">[:,[</span><span class="n">imode</span><span class="p">]])</span> <span class="c1">#prev without V</span>
+            <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xMX_kxX_phi</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+            <span class="n">Madd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">grad</span><span class="o">.</span><span class="n">T</span><span class="p">),</span><span class="n">grad</span><span class="p">)</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">M</span> <span class="o">+</span> <span class="n">Madd</span>
+            <span class="k">if</span> <span class="n">n</span><span class="o">%</span><span class="mi">500</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39; gradient calc for </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s1"> content </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Madd</span><span class="p">)</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="c1">#get square root and regularize M</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">sqrtm</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="c1">#M = np.real(M)</span>
+    <span class="n">svdnorm</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svdvals</span><span class="p">(</span><span class="n">M</span><span class="p">))</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="o">/</span><span class="n">svdnorm</span>
+    <span class="k">return</span> <span class="n">M</span></div>
+
+<div class="viewcode-block" id="update_mahalanobis_matrix_J_old"><a class="viewcode-back" href="../../api.html#celltraj.model.update_mahalanobis_matrix_J_old">[docs]</a><span class="k">def</span> <span class="nf">update_mahalanobis_matrix_J_old</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update estimation of mahalanobis matrix for kernel tuning</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------`</span>
+<span class="sd">    Mprev : ndarray, features x features</span>
+<span class="sd">        Koopman eigenfunctions</span>
+<span class="sd">    X : ndarray</span>
+<span class="sd">        samples by features</span>
+<span class="sd">    phi_X : ndarray</span>
+<span class="sd">        Koopman eigenfunctions, samples x samples</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    M : ndarray</span>
+<span class="sd">        updated mahalanobis matrix using Koopman eigenfunction gradients</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#define gradient of Koopman eigenfunctions</span>
+    <span class="c1">#dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)&#39;.*Phi_x(:,efcn)));</span>
+    <span class="c1">#flux = @(x,efcn) log(Lam(efcn))*sum((X(1:N-1,:)-x)*M.*(k(x)&#39;.*Phi_x(:,efcn)))&#39;*V(efcn,:);</span>
+    <span class="n">V</span><span class="o">=</span><span class="n">V</span><span class="o">.</span><span class="n">T</span> <span class="c1">#changed V to V.T to agree with DA notes 6nov23</span>
+    <span class="c1">#compute M as the gradient outerproduct</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">get_kernel_sigmas</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Mprev</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Mprev</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">lam</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">Lam</span><span class="p">)</span>
+    <span class="n">nmodes</span><span class="o">=</span><span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="c1">#print(f&#39;updating J with gradient of mode {imode}&#39;)</span>
+        <span class="n">J</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="n">n</span><span class="p">,:]</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+        <span class="n">kxX</span><span class="o">=</span><span class="n">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">Mprev</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">xMX</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="o">-</span><span class="n">x</span><span class="p">,</span><span class="n">Mprev</span><span class="p">)</span>
+        <span class="n">xMX_kxX</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">xMX</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">kxX</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">imode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmodes</span><span class="p">):</span>
+            <span class="c1">#phi_X_V=np.matmul(np.conj(phi_X[:,[imode]].T),V[[imode],:]) #added for flux</span>
+            <span class="n">xMX_kxX_phi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">xMX_kxX</span><span class="p">,</span><span class="n">phi_X</span><span class="p">[:,[</span><span class="n">imode</span><span class="p">]])</span> <span class="c1">#prev without V</span>
+            <span class="n">xMX_kxX_phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lam</span><span class="p">[</span><span class="n">imode</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">xMX_kxX_phi</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+            <span class="c1">#Jflux=np.matmul(np.conj(xMX_kxX_phi.T),V[[imode],:])</span>
+            <span class="n">Jflux</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">xMX_kxX_phi</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">V</span><span class="p">[[</span><span class="n">imode</span><span class="p">],:])</span> <span class="c1">#hopefully conj fix 18oct23 from da</span>
+            <span class="n">J</span> <span class="o">=</span> <span class="n">J</span> <span class="o">+</span> <span class="n">Jflux</span>
+        <span class="c1">#grad = np.sum(xMX_kxX_phiV,axis=0)[np.newaxis,:]</span>
+        <span class="n">Madd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">J</span><span class="o">.</span><span class="n">T</span><span class="p">)))</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">M</span> <span class="o">+</span> <span class="n">Madd</span>
+        <span class="k">if</span> <span class="n">n</span><span class="o">%</span><span class="mi">100</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39; J calc for </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s1"> content </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Madd</span><span class="p">)</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="c1">#get square root and regularize M</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">sqrtm</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="n">svdnorm</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svdvals</span><span class="p">(</span><span class="n">M</span><span class="p">))</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="o">/</span><span class="n">svdnorm</span>
+    <span class="k">return</span> <span class="n">M</span></div>
+
+<div class="viewcode-block" id="update_mahalanobis_matrix_J"><a class="viewcode-back" href="../../api.html#celltraj.model.update_mahalanobis_matrix_J">[docs]</a><span class="k">def</span> <span class="nf">update_mahalanobis_matrix_J</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">Xi</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">lam</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span> <span class="c1">#updating per David&#39;s method 30oct23</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update estimation of mahalanobis matrix for kernel tuning</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------`</span>
+<span class="sd">    Mprev : ndarray, features x features</span>
+<span class="sd">        Koopman eigenfunctions</span>
+<span class="sd">    X : ndarray</span>
+<span class="sd">        samples by features</span>
+<span class="sd">    phi_X : ndarray</span>
+<span class="sd">        Koopman eigenfunctions, samples x samples</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    M : ndarray</span>
+<span class="sd">        updated mahalanobis matrix using Koopman eigenfunction gradients</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#define gradient of Koopman eigenfunctions</span>
+    <span class="c1">#dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)&#39;.*Phi_x(:,efcn)));</span>
+    <span class="c1">#flux = @(x,efcn) log(Lam(efcn))*sum((X(1:N-1,:)-x)*M.*(k(x)&#39;.*Phi_x(:,efcn)))&#39;*V(efcn,:);</span>
+    <span class="c1">#compute M as the gradient outerproduct</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">get_kernel_sigmas</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Mprev</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Mprev</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">M2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">Mprev</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+    <span class="c1">#XiloglamV=np.matmul((Xi*np.log(lam)),np.conj(V).T)</span>
+    <span class="n">XilamV</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">((</span><span class="n">Xi</span><span class="o">*</span><span class="n">lam</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="c1">#changed to no log 11apr24</span>
+    <span class="c1">#Xiloglam=(Xi*np.log(lam[np.newaxis,:]))</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="c1">#print(f&#39;updating J with gradient of mode {imode}&#39;)</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="n">n</span><span class="p">,:]</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+        <span class="n">kxX</span><span class="o">=</span><span class="n">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">Mprev</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+        <span class="c1">#kxX_Xiloglam=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,Xiloglam)</span>
+        <span class="c1">#J=np.matmul(np.matmul(M2,np.conj(X-x).T)*kxX,XiloglamV)</span>
+        <span class="n">J</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">M2</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">X</span><span class="o">-</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">*</span><span class="n">kxX</span><span class="p">,</span><span class="n">XilamV</span><span class="p">)</span> <span class="c1">#changed to no log 11apr24</span>
+        <span class="c1">#J=np.matmul(kxX_Xiloglam,np.conj(V))</span>
+        <span class="n">Madd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">J</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">J</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">M</span> <span class="o">+</span> <span class="n">Madd</span>
+        <span class="k">if</span> <span class="n">n</span><span class="o">%</span><span class="mi">200</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39; J calc for </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s1"> content </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Madd</span><span class="p">)</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="c1">#get square root and regularize M</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">sqrtm</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="c1">#M = np.real(M)</span>
+    <span class="n">svdnorm</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svdvals</span><span class="p">(</span><span class="n">M</span><span class="p">))</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="o">/</span><span class="n">svdnorm</span>
+    <span class="k">return</span> <span class="n">M</span></div>
+
+<div class="viewcode-block" id="update_mahalanobis_matrix_flux"><a class="viewcode-back" href="../../api.html#celltraj.model.update_mahalanobis_matrix_flux">[docs]</a><span class="k">def</span> <span class="nf">update_mahalanobis_matrix_flux</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update estimation of mahalanobis matrix for kernel tuning</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------`</span>
+<span class="sd">    Mprev : ndarray, features x features</span>
+<span class="sd">        Koopman eigenfunctions</span>
+<span class="sd">    X : ndarray</span>
+<span class="sd">        samples by features</span>
+<span class="sd">    phi_X : ndarray</span>
+<span class="sd">        Koopman eigenfunctions, samples x samples</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    M : ndarray</span>
+<span class="sd">        updated mahalanobis matrix using Koopman eigenfunction gradients</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#define gradient of Koopman eigenfunctions</span>
+    <span class="c1">#dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)&#39;.*Phi_x(:,efcn)));</span>
+    <span class="c1">#flux = @(x,efcn) log(Lam(efcn))*sum((X(1:N-1,:)-x)*M.*(k(x)&#39;.*Phi_x(:,efcn)))&#39;*V(efcn,:);</span>
+    <span class="c1">#compute M as the gradient outerproduct</span>
+    <span class="k">if</span> <span class="n">h</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">get_kernel_sigmas</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Mprev</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Mprev</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">lam</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">Lam</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="c1">#print(f&#39;updating J with gradient of mode {imode}&#39;)</span>
+        <span class="n">F</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">M</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">X</span><span class="p">[</span><span class="n">n</span><span class="p">,:]</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+        <span class="n">kxX</span><span class="o">=</span><span class="n">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">Mprev</span><span class="p">,</span><span class="n">h</span><span class="p">)</span>
+        <span class="c1">#for imode in range(nmodes):</span>
+        <span class="c1">#    phi_V=np.matmul(phi_X[:,[imode]],V[[imode],:])</span>
+        <span class="c1">#    flux=np.log(lam[imode])*np.matmul(kxX,phi_V)</span>
+        <span class="c1">#    F = F + flux</span>
+        <span class="c1">#vectorized version 18oct23</span>
+        <span class="n">kxX_phi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">kxX</span><span class="p">,</span><span class="n">phi_X</span><span class="p">)</span>
+        <span class="n">kxX_phi_V</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">kxX_phi</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="c1">#V to V&#39; 6nov23</span>
+        <span class="n">F</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lam</span><span class="p">)[:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span><span class="n">kxX_phi_V</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:]</span>
+        <span class="c1">#grad = np.sum(xMX_kxX_phiV,axis=0)[np.newaxis,:]</span>
+        <span class="n">Madd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">T</span><span class="p">),</span><span class="n">F</span><span class="p">)</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">M</span> <span class="o">+</span> <span class="n">Madd</span>
+        <span class="k">if</span> <span class="n">n</span><span class="o">%</span><span class="mi">100</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39; F calc for </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s1"> content </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Madd</span><span class="p">)</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="c1">#get square root and regularize M</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">sqrtm</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="c1">#M = np.real(M)</span>
+    <span class="n">svdnorm</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svdvals</span><span class="p">(</span><span class="n">M</span><span class="p">))</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="o">/</span><span class="n">svdnorm</span>
+    <span class="k">return</span> <span class="n">M</span></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jeremy Copperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
