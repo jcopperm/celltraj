@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>celltraj.translate &mdash; celltraj 0.1.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            celltraj
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">celltraj</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">celltraj</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">celltraj.translate</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for celltraj.translate</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">pyemma.coordinates</span> <span class="k">as</span> <span class="nn">coor</span>
+<span class="kn">from</span> <span class="nn">adjustText</span> <span class="kn">import</span> <span class="n">adjust_text</span>
+
+<span class="c1">#class Translate():</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A toolset for single-cell trajectory modeling and multidomain translation. See:</span>
+
+<span class="sd">Danger</span>
+<span class="sd">-------</span>
+<span class="sd">This code, currently, should be considered as an untested pre-release version</span>
+
+<span class="sd">Todo</span>
+<span class="sd">----</span>
+<span class="sd">Refactor</span>
+<span class="sd">    In general, this class&#39;s methods generally handle data by holding state in the object.</span>
+<span class="sd">    The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.</span>
+<span class="sd">    The state being updated along the way is usually &quot;helper&quot; quantities.</span>
+<span class="sd">    I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --</span>
+<span class="sd">    one example of this might be setting them as properties, and then updating the value in state as part of that</span>
+<span class="sd">    accessor if necessary.</span>
+<span class="sd">References</span>
+<span class="sd">--------</span>
+<span class="sd">Jeremy Copperman, Ian McLean, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.</span>
+<span class="sd">Morphodynamical and gene expression trajectories of cell state change..</span>
+<span class="sd">Manuscript in preparation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">#def __init__(self):</span>
+<span class="c1">#    &quot;&quot;&quot;</span>
+<span class="c1">#    Work-in-progress init function. For now, just start adding attribute definitions in here.</span>
+<span class="c1">#    Todo</span>
+<span class="c1">#    ----</span>
+<span class="c1">#    - Most logic from initialize() should be moved in here.</span>
+<span class="c1">#    - Also, comment all of these here. Right now most of them have comments throughout the code.</span>
+<span class="c1">#    - Reorganize these attributes into some meaningful structure</span>
+<span class="c1">#    &quot;&quot;&quot;a</span>
+
+<div class="viewcode-block" id="get_predictedFC"><a class="viewcode-back" href="../../api.html#celltraj.translate.get_predictedFC">[docs]</a><span class="k">def</span> <span class="nf">get_predictedFC</span><span class="p">(</span><span class="n">state_probs</span><span class="p">,</span><span class="n">statesFC</span><span class="p">):</span>
+    <span class="n">ntr</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">nG</span><span class="o">=</span><span class="n">statesFC</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">x_FC_predicted</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ntr</span><span class="p">,</span><span class="n">nG</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntr</span><span class="p">):</span>
+        <span class="n">statep</span><span class="o">=</span><span class="n">state_probs</span><span class="p">[</span><span class="n">itr</span><span class="p">,:]</span>
+        <span class="n">x_FC_predicted</span><span class="p">[</span><span class="n">itr</span><span class="p">,:]</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">statep</span><span class="p">,(</span><span class="n">nG</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">statesFC</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x_FC_predicted</span></div>
+
+<div class="viewcode-block" id="get_state_decomposition"><a class="viewcode-back" href="../../api.html#celltraj.translate.get_state_decomposition">[docs]</a><span class="k">def</span> <span class="nf">get_state_decomposition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x_fc</span><span class="p">,</span><span class="n">state_probs</span><span class="p">,</span><span class="n">npermutations</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">inds_tm_training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">gene_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ntr</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">nG</span><span class="o">=</span><span class="n">x_fc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ntr_measured</span><span class="o">=</span><span class="n">x_fc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">n</span><span class="o">&gt;</span><span class="n">ntr</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;error, more states than conditions in state probabilities&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">n</span><span class="o">&gt;</span><span class="n">ntr_measured</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;error, more states than measured bulk conditions&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">lb</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lb</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ub</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ub</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">x_fc_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">nG</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="n">inds_tm_training</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">inds_tm_training</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ntr</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">ntr_training</span><span class="o">=</span><span class="n">inds_tm_training</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">perm_trainarray</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">inds_tm_training</span><span class="p">,</span><span class="n">n</span><span class="p">)))</span>
+    <span class="n">nperm</span><span class="o">=</span><span class="n">perm_trainarray</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">nperm</span><span class="si">}</span><span class="s1"> possible permutations of </span><span class="si">{</span><span class="n">ntr</span><span class="si">}</span><span class="s1"> training measurements decomposed into </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> states&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">npermutations</span><span class="o">&gt;</span><span class="n">nperm</span><span class="p">:</span>
+        <span class="n">npermutations</span><span class="o">=</span><span class="n">nperm</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;using </span><span class="si">{</span><span class="n">npermutations</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">nperm</span><span class="si">}</span><span class="s1"> possible training set permutations randomly per feature&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ig</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nG</span><span class="p">):</span>
+        <span class="n">indr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">nperm</span><span class="p">,</span><span class="n">npermutations</span><span class="p">,</span><span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ig</span><span class="o">%</span><span class="n">nchunk</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;decomposing gene </span><span class="si">{</span><span class="n">ig</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">nG</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">save_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">save_file</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">)</span>
+        <span class="n">v_states_perm</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">npermutations</span><span class="p">,</span><span class="n">n</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">iperm</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">npermutations</span><span class="p">):</span>
+            <span class="n">indperm</span><span class="o">=</span><span class="n">perm_trainarray</span><span class="p">[</span><span class="n">indr</span><span class="p">[</span><span class="n">iperm</span><span class="p">]]</span>
+            <span class="n">v_treatments</span><span class="o">=</span><span class="n">x_fc</span><span class="p">[</span><span class="n">indperm</span><span class="p">,</span><span class="n">ig</span><span class="p">]</span>
+            <span class="n">res</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">lsq_linear</span><span class="p">(</span><span class="n">state_probs</span><span class="p">[</span><span class="n">indperm</span><span class="p">,:],</span><span class="n">v_treatments</span><span class="p">,</span><span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="n">lb</span><span class="p">,</span><span class="n">ub</span><span class="p">),</span><span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">v_states_perm</span><span class="p">[</span><span class="n">iperm</span><span class="p">,:]</span><span class="o">=</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">v_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">v_states_perm</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">x_fc_states</span><span class="p">[:,</span><span class="n">ig</span><span class="p">]</span><span class="o">=</span><span class="n">v_states</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ig</span><span class="o">%</span><span class="n">nchunk</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">visual</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">v_states_perm</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="s1">&#39;k.&#39;</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">v_states</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="s1">&#39;b-&#39;</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">gene_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ig</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">nG</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">gene_names</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ig</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39; gene &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ig</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; of &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">nG</span><span class="p">))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">.1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">save_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">save_file</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x_fc_states</span></div>
+
+<div class="viewcode-block" id="get_null_correlations"><a class="viewcode-back" href="../../api.html#celltraj.translate.get_null_correlations">[docs]</a><span class="k">def</span> <span class="nf">get_null_correlations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x_fc</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">,</span><span class="n">x_fc_predicted</span><span class="p">,</span><span class="n">nrandom</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">x_fc_states</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ntr</span><span class="o">=</span><span class="n">x_fc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">nrandom</span><span class="o">=</span><span class="mi">500</span>
+    <span class="n">xr</span><span class="o">=</span><span class="mi">6</span>
+    <span class="n">corrSet_pred</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ntr</span><span class="p">)</span>
+    <span class="n">corrSet_predrand</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nrandom</span><span class="p">,</span><span class="n">ntr</span><span class="p">))</span>
+    <span class="n">corrSet_rand</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nrandom</span><span class="p">,</span><span class="n">ntr</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">ir</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrandom</span><span class="p">):</span>
+        <span class="n">state_probs_r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ntr</span><span class="p">,</span><span class="n">n</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntr</span><span class="p">):</span>
+            <span class="n">rp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">rp</span><span class="o">=</span><span class="n">rp</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span>
+            <span class="n">state_probs_r</span><span class="p">[</span><span class="n">itr</span><span class="p">,:]</span><span class="o">=</span><span class="n">rp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">x_fc_null</span><span class="o">=</span><span class="n">get_predictedFC</span><span class="p">(</span><span class="n">state_probs_r</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntr</span><span class="p">):</span>
+            <span class="n">lfc_pred</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">x_fc_predicted</span><span class="p">[</span><span class="n">itr</span><span class="p">,:])</span>
+            <span class="n">lfc_real</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">x_fc</span><span class="p">[</span><span class="n">itr</span><span class="p">,:])</span>
+            <span class="n">lfc_null</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">x_fc_null</span><span class="p">[</span><span class="n">itr</span><span class="p">,:])</span> <span class="c1">#.5*x_counts_all[indcombos[i,0],:]+.5*x_counts_all[indcombos[i,1],:]</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">lfc_pred</span><span class="p">,</span><span class="n">lfc_null</span><span class="p">,</span><span class="n">lfc_real</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">rhoSet</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+            <span class="n">corrSet_pred</span><span class="p">[</span><span class="n">itr</span><span class="p">]</span><span class="o">=</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">corrSet_rand</span><span class="p">[</span><span class="n">ir</span><span class="p">,</span><span class="n">itr</span><span class="p">]</span><span class="o">=</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">corrSet_predrand</span><span class="p">[</span><span class="n">ir</span><span class="p">,</span><span class="n">itr</span><span class="p">]</span><span class="o">=</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">tmfSet</span><span class="p">[</span><span class="n">itr</span><span class="p">]</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39; correlation: prediction </span><span class="si">{</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">, null </span><span class="si">{</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> prednull </span><span class="si">{</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">, ir: </span><span class="si">{</span><span class="n">ir</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">nrandom</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ir</span><span class="o">%</span><span class="n">nchunk</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">ir</span><span class="o">==</span><span class="n">nrandom</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">save_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">save_file</span><span class="p">,</span><span class="n">corrSet_rand</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">corrSet_pred</span><span class="p">,</span> <span class="n">corrSet_rand</span><span class="p">,</span> <span class="n">corrSet_predrand</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jeremy Copperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
