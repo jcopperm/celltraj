@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 celltraj: single-cell trajectory modeling
-====================================
+=========================================
 
 .. toctree::
    :maxdepth: 2
