@@ -31,9 +31,9 @@ from btrack.constants import BayesianUpdates
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
-import utilities
-import imageprep as imprep
-import features
+import celltraj.utilities as utilities
+import celltraj.imageprep as imprep
+import celltraj.features as features
 from nanomesh import Mesher
 import fipy
 
@@ -879,7 +879,7 @@ class Trajectory:
                     msk=msk[...,mskchannel]
                 beta_map=features.apply3d(msk,features.get_neighbor_feature_map,dtype=np.float64,neighbor_function=self.get_beta)
                 alpha_map=features.apply3d(msk,features.get_neighbor_feature_map,dtype=np.float64,neighbor_function=self.get_alpha)
-                if n_frame==0: #can't do motility for 0th frame
+                if n_frame==self.cells_frameSet[0]: #can't do motility for 0th frame
                     props_beta={"label":np.arange(indcells_frame.size),"meanIntensity":np.ones(indcells_frame.size)*np.nan}
                     props_alpha={"label":np.arange(indcells_frame.size),"meanIntensity":np.ones(indcells_frame.size)*np.nan}
                 else:
