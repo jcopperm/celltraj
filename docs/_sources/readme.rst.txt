@@ -6,15 +6,6 @@ celltraj
 .. image:: https://img.shields.io/pypi/v/celltraj.svg
         :target: https://pypi.python.org/pypi/celltraj
 
-.. image:: https://img.shields.io/travis/jcopperm/celltraj.svg
-        :target: https://travis-ci.com/jcopperm/celltraj
-
-.. image:: https://readthedocs.org/projects/celltraj/badge/?version=latest
-        :target: https://celltraj.readthedocs.io/en/latest/?version=latest
-        :alt: Documentation Status
-
-
-
 
 A toolset for single-cell trajectory modeling.
 
