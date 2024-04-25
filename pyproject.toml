@@ -3,13 +3,13 @@ requires = ["setuptools>=68.2.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "celltraj_copperma"
-version = "0.1.0"
+name = "celltraj"
+version = "0.1.1"
 authors = [
   { name="Jeremy Copperman", email="copperma@ohsu.edu" },
 ]
 description = "Toolset for single-cell trajectory modeling."
-readme = "README.md"
+readme = "readme.rst"
 requires-python = ">=3.5"
 classifiers = [
     "Programming Language :: Python :: 3",
