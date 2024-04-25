@@ -26,7 +26,7 @@ from skimage.transform import resize,rescale
 import celltraj.utilities as utilities
 
 """
-A toolset for single-cell trajectory modeling and multidomain translation. See:
+Did I change it? A toolset for single-cell trajectory modeling and multidomain translation. See:
 
 Danger
 -------
