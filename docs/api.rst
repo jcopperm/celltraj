@@ -8,7 +8,6 @@ API Reference
    :toctree: stubs
 
    celltraj.trajectory.Trajectory
-   celltraj.trajectory.TrajectorySet
    celltraj.features
    celltraj.imageprep
    celltraj.translate
@@ -17,9 +16,6 @@ API Reference
 
 
 .. automodule:: celltraj.trajectory.Trajectory
-   :members:
-
-.. automodule:: celltraj.trajectory.TrajectorySet
    :members:
 
 .. automodule:: celltraj.features

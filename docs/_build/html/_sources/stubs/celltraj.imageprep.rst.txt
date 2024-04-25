@@ -25,6 +25,7 @@
       get_feature_map
       get_images
       get_intensity_centers
+      get_label_largestcc
       get_labeled_mask
       get_mask_2channel_ilastik
       get_masks

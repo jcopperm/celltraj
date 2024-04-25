@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68.2.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "celltraj_copperma"
+version = "0.1.0"
+authors = [
+  { name="Jeremy Copperman", email="copperma@ohsu.edu" },
+]
+description = "Toolset for single-cell trajectory modeling."
+readme = "README.md"
+requires-python = ">=3.5"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "numpy",
+  "h5py",
+  "matplotlib",
+  "pyemma",
+  "scipy",
+  "scikit-image",
+  "scikit-learn",
+  "scipy",
+  "pystackreg"
+]
+
+[project.urls]
+Homepage = "https://github.com/jcopperm/celltraj"
+Issues = "https://github.com/jcopperm/celltraj/issues"
+
+[project.optional-dependencies]
+dependencies = [
+  "mahotas",
+  "umap-learn",
+  "pytorch",
+  "pandas",
+  "dask",
+  "msmtools",
+  "csaps",
+  "pygpcca",
+  "btrack",
+  "adjustText",
+  "cmapfile"
+]
+
+[tool.setuptools]
+# ...
+package-dir = {"" = "celltraj"}
+    # directory containing all the packages (e.g.  src/mypkg1, src/mypkg2)

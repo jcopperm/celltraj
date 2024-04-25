@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Reference &mdash; celltraj 0.0 documentation</title>
+  <title>API Reference &mdash; celltraj 0.1.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -17,7 +17,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="celltraj.trajectory.Trajectory" href="stubs/celltraj.trajectory.Trajectory.html" />
+    <link rel="next" title="celltraj" href="stubs/celltraj.html" />
     <link rel="prev" title="Usage" href="usage.html" /> 
 </head>
 
@@ -33,7 +33,7 @@
             celltraj
           </a>
               <div class="version">
-                0.0
+                0.1.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -49,33 +49,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.trajectory.Trajectory.html">celltraj.trajectory.Trajectory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.features.html">celltraj.features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.imageprep.html">celltraj.imageprep</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.translate.html">celltraj.translate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.model.html">celltraj.model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.utilities.html">celltraj.utilities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.list_images"><code class="docutils literal notranslate"><span class="pre">list_images()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.organize_filelist_fov"><code class="docutils literal notranslate"><span class="pre">organize_filelist_fov()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.organize_filelist_time"><code class="docutils literal notranslate"><span class="pre">organize_filelist_time()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.znorm"><code class="docutils literal notranslate"><span class="pre">znorm()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.histogram_stretch"><code class="docutils literal notranslate"><span class="pre">histogram_stretch()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.get_images"><code class="docutils literal notranslate"><span class="pre">get_images()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.get_tile_order"><code class="docutils literal notranslate"><span class="pre">get_tile_order()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.get_slide_image"><code class="docutils literal notranslate"><span class="pre">get_slide_image()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.load_ilastik"><code class="docutils literal notranslate"><span class="pre">load_ilastik()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.get_registrations"><code class="docutils literal notranslate"><span class="pre">get_registrations()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.imageprep.expand_registered_images"><code class="docutils literal notranslate"><span class="pre">expand_registered_images()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_kernel_sigmas"><code class="docutils literal notranslate"><span class="pre">get_kernel_sigmas()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_gaussianKernelM"><code class="docutils literal notranslate"><span class="pre">get_gaussianKernelM()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_koopman_eig"><code class="docutils literal notranslate"><span class="pre">get_koopman_eig()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_koopman_modes"><code class="docutils literal notranslate"><span class="pre">get_koopman_modes()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_koopman_inference"><code class="docutils literal notranslate"><span class="pre">get_koopman_inference()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.get_koopman_inference_multiple"><code class="docutils literal notranslate"><span class="pre">get_koopman_inference_multiple()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_grad"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_grad()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_J_old"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_J_old()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_J"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_J()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_flux"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_flux()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.html">celltraj</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
@@ -111,421 +85,20 @@
 <h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this heading">¶</a></h1>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory" title="celltraj.trajectory.Trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.trajectory.Trajectory</span></code></a></p></td>
-<td><p>A toolset for single-cell trajectory modeling.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/celltraj.features.html#module-celltraj.features" title="celltraj.features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.features</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/celltraj.imageprep.html#module-celltraj.imageprep" title="celltraj.imageprep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.imageprep</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/celltraj.translate.html#module-celltraj.translate" title="celltraj.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.translate</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="stubs/celltraj.model.html#module-celltraj.model" title="celltraj.model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.model</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="stubs/celltraj.utilities.html#module-celltraj.utilities" title="celltraj.utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.utilities</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="stubs/celltraj.html#module-celltraj" title="celltraj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj</span></code></a></p></td>
+<td><p>Top-level package for celltraj.</p></td>
 </tr>
 </tbody>
 </table>
-<span class="target" id="module-celltraj.trajectory.Trajectory"></span><p>A toolset for single-cell trajectory modeling. See:</p>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
-<p>This code, currently, should be considered as an untested pre-release version</p>
-</div>
-<p class="rubric">References</p>
-<p>Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
-Morphodynamical cell-state description via live-cell imaging trajectory embedding.
-Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
-<span class="target" id="module-celltraj.features"></span><span class="target" id="module-celltraj.imageprep"></span><dl class="py function">
-<dt class="sig sig-object py" id="celltraj.imageprep.list_images">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">list_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imagespecifier</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#list_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.list_images" title="Permalink to this definition">¶</a></dt>
-<dd><p>list images in a directory matching a pattern..</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>imagepath</strong> (<em>string filespecifier string</em>) – directory :param filespecifier pattern to match for image files</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of matching imagefiles</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of strings</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.imageprep.organize_filelist_fov">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">organize_filelist_fov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#organize_filelist_fov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.organize_filelist_fov" title="Permalink to this definition">¶</a></dt>
-<dd><p>Organize imagefiles in a list to field of view.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filelist</strong> (<em>list</em><em> of </em><em>strings fov_pos: int fov_len: int</em>) – list of image files :param fov_pos: string position of fov specifier :param fov_len: length of fov speficier</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of imagefiles organized by fov (increasing)</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of strings</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.imageprep.organize_filelist_time">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">organize_filelist_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#organize_filelist_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.organize_filelist_time" title="Permalink to this definition">¶</a></dt>
-<dd><p>Organize imagefiles in a list to timestamp ??d??h??m.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filelist</strong> (<em>list</em><em> of </em><em>strings fov_pos: int fov_len: int</em>) – list of image files</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of imagefiles organized by fov (increasing)</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of strings</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.imageprep.znorm">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">znorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#znorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.znorm" title="Permalink to this definition">¶</a></dt>
-<dd><p>Variance normalization (z-norm) of an array or image)..</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>img</strong> – array or image</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>z-normed array</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>real array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.imageprep.histogram_stretch">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">histogram_stretch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">99</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#histogram_stretch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.histogram_stretch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Histogram stretch of an array or image for normalization..</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>img</strong> – array or image</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>histogram stretched array</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>real array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.imageprep.get_images">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">get_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#get_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.get_images" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get images from list of files.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filelist</strong> (<em>list</em><em> of </em><em>strings</em>) – list of image files</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of images</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of arrays</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.imageprep.get_tile_order">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">get_tile_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nrows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snake</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#get_tile_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.get_tile_order" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct ordering for to put together image tiles compatible with incell microscope.
-:param nrows: number of rows ncols: number of columns
-snake: snake across whole image (left to right, right to left, left to right…)
-:type nrows: int ncols: int ncols: int snake: bool
-:return: constructed 2D array of image indices
-:rtype: 2D array (int)</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.imageprep.get_slide_image">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">get_slide_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_inds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">foverlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">histnorm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#get_slide_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.get_slide_image" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct slide image from a set of tiles (fields of view).
-Ordering from (get_tile_order).
-:param imgs: list of images nrows: number of rows, default assumes a square tiling (64 images = 8 rows x 8 cols)
-ncols: number of columns foverlap: fraction of overlap between images
-:type imgs: list of 2D images (2D arrays) nrows: int ncols: int foverlap: float
-:return: constructed slide image from image tiles
-:rtype: 2D array</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.imageprep.load_ilastik">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">load_ilastik</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_ilastik</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#load_ilastik"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.load_ilastik" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load ilastik prediction (pixel classification) from h5 file format.
-:param file_ilastik: filename
-:type file_ilastik: string
-:return: ndarray of ilastik output
-:rtype: 2Dxn array (2D image by n ilastik labels)</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.imageprep.get_registrations">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">get_registrations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#get_registrations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.get_registrations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply pystackreg to get registrations along image stack
-:param imgs: images (Z,X,Y), registration along Z
-:type imgs: ndarray
-:return: set of transformations to register image stack, with the triplet (radial angle, x-translation, y-translation) for each image
-:rtype: ndarray (NZ,3), NZ number of images along Z</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.imageprep.expand_registered_images">
-<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">expand_registered_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tSet</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#expand_registered_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.expand_registered_images" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply transformations to a stack of images and expand images so they align
-:param imgs: images (Z,X,Y), registration along Z tSet: transformations for each image (angle, x-trans, y-trans)
-:type imgs: ndarray or list of images (each image same size) tSet: ndarray (NZ, 3)
-:return: expanded and registered image stack
-:rtype: ndarray (NZ, X, Y)</p>
-</dd></dl>
-
-<span class="target" id="module-celltraj.translate"></span><span class="target" id="module-celltraj.model"></span><dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.get_kernel_sigmas">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_kernel_sigmas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_kernel_sigmas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_kernel_sigmas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get sigmas from observation matrix</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
-<li><p><strong>M</strong> (<em>ndarray</em>) – Mahalanobis scaling matrix, features x features</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – bandwidth scaling factor</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>h</strong> – vector of sigmas to scale observations in kernel</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray, n_features (float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.get_gaussianKernelM">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_gaussianKernelM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_gaussianKernelM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_gaussianKernelM" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get Malanobis scaled gaussian kernel from observation matrices X,Y</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
-<li><p><strong>Y</strong> (<em>ndarray</em>) – observation matrix at t+1, samples x features</p></li>
-<li><p><strong>M</strong> (<em>ndarray</em>) – Mahalanobis scaling matrix, features x features</p></li>
-<li><p><strong>h</strong> (<em>ndarray</em>) – vector of sigma scalings for gaussian from get_kernel_sigmas</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>k</strong> – Malanobis scaled kernel for X,Y</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray, samples x samples (float)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.get_koopman_eig">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_eig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_eig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_eig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get linear matrix solution for Koopman operator from X,Y paired observation Y=F(X) with F the forward operator</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
-<li><p><strong>Y</strong> (<em>ndarray</em>) – observation matrix at t+1, samples x features</p></li>
-<li><p><strong>M</strong> (<em>ndarray</em>) – Mahalanobis scaling matrix, features x features</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – kernel bandwidth scaling parameter</p></li>
-<li><p><strong>bta</strong> (<em>float</em>) – regularization parameter for linear solve</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>K</strong> (<em>ndarray</em>) – Koopman operator matrix, samples x samples (float)</p></li>
-<li><p><strong>Xi</strong> (<em>ndarray</em>) – Koopman left eigenvectors, samples x samples</p></li>
-<li><p><strong>Lam</strong> (<em>ndarray</em>) – Koopman eigenvalue matrix (diagonal), samples x samples</p></li>
-<li><p><strong>W</strong> (<em>ndarray</em>) – Koopman right eigenvectors, samples x samples</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.get_koopman_modes">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_modes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">psi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_modes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_modes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get Koopman modes of an observable</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>psi_X</strong> (<em>ndarray</em>) – kernel matrix, samples x samples</p></li>
-<li><p><strong>Xi</strong> (<em>ndarray</em>) – right eigenvectors of Koopman, samples x samples</p></li>
-<li><p><strong>W</strong> (<em>ndarray</em>) – left eigenvectors of Koopman, samples x samples</p></li>
-<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
-<li><p><strong>X_obs</strong> (<em>ndarray</em><em>, </em><em>samples x observables</em>) – observables of interest in same time order as X, can be X or features of X</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions</p></li>
-<li><p><strong>V</strong> (<em>ndarray</em>) – Koopman modes of observables</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.get_koopman_inference">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_inference" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get Koopman prediction of an observable</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<em>int</em>) – sample index for start point</p></li>
-<li><p><strong>steps</strong> (<em>int</em>) – number of steps of inference to perform</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
-<li><p><strong>V</strong> (<em>ndarray</em>) – Koopman modes of observables, must be calculated samples x samples</p></li>
-<li><p><strong>Lam</strong> (<em>ndarray</em>) – Koopman eigenvalues matrix (diagonal), samples x samples</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>X_pred</strong> – predicted trajectory steps x observables</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.get_koopman_inference_multiple">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_inference_multiple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">starts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_inference_multiple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_inference_multiple" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get Koopman prediction of an observable</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<em>int</em>) – sample index for start point</p></li>
-<li><p><strong>steps</strong> (<em>int</em>) – number of steps of inference to perform</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
-<li><p><strong>V</strong> (<em>ndarray</em>) – Koopman modes of observables, must be calculated samples x samples</p></li>
-<li><p><strong>Lam</strong> (<em>ndarray</em>) – Koopman eigenvalues matrix (diagonal), samples x samples</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>X_pred</strong> – predicted trajectory steps x observables</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.update_mahalanobis_matrix_grad">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">update_mahalanobis_matrix_grad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mprev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#update_mahalanobis_matrix_grad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.update_mahalanobis_matrix_grad" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update estimation of mahalanobis matrix for kernel tuning</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
-<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.update_mahalanobis_matrix_J_old">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">update_mahalanobis_matrix_J_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mprev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#update_mahalanobis_matrix_J_old"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.update_mahalanobis_matrix_J_old" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update estimation of mahalanobis matrix for kernel tuning</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
-<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.update_mahalanobis_matrix_J">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">update_mahalanobis_matrix_J</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mprev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#update_mahalanobis_matrix_J"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.update_mahalanobis_matrix_J" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update estimation of mahalanobis matrix for kernel tuning</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
-<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.update_mahalanobis_matrix_flux">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">update_mahalanobis_matrix_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mprev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#update_mahalanobis_matrix_flux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.update_mahalanobis_matrix_flux" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update estimation of mahalanobis matrix for kernel tuning</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
-<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<span class="target" id="module-celltraj.utilities"></span></section>
+<span class="target" id="module-celltraj"></span><p>Top-level package for celltraj.</p>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="stubs/celltraj.trajectory.Trajectory.html" class="btn btn-neutral float-right" title="celltraj.trajectory.Trajectory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="stubs/celltraj.html" class="btn btn-neutral float-right" title="celltraj" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -36,7 +36,10 @@
       ~Trajectory.get_lineage_btrack
       ~Trajectory.get_lineage_mindist
       ~Trajectory.get_mask_data
+      ~Trajectory.get_motility_features
       ~Trajectory.get_pair_rdf
+      ~Trajectory.get_secreted_ligand_density
+      ~Trajectory.get_signal_contributions
       ~Trajectory.get_stack_trans
       ~Trajectory.get_trajAB_segments
       ~Trajectory.get_traj_segments
