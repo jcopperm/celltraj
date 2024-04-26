@@ -11,6 +11,6 @@ make clean
 #make html
 sphinx-build -M html source/ build/ -a -j auto -n --keep-going
 cp -r build/html/* ./
-cp -r build/doctrees ./
+cp -r build/ ./
 cp source/readme.rst ../
 cp index.html ../
