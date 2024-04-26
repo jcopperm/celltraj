@@ -64,11 +64,29 @@ class Trajectory:
     
     def __init__(self,h5filename=None):
         """
-        Work-in-progress init function. Set h5filename, and tries to read in metadata.
-        Todo
-        ----
-        - Also, comment all of these here. Right now most of them have comments throughout the code.
-        - Reorganize these attributes into some meaningful structure
+        Initialize a Trajectory object, optionally loading metadata from an HDF5 file.
+
+        This constructor sets the HDF5 filename and attempts to load metadata associated with the file.
+        If the file is present, it reads the metadata from a predefined group. Errors during metadata
+        loading are caught and logged. Future updates should include better commenting and organizational
+        improvements of class attributes.
+
+        Parameters
+        ----------
+        h5filename : str, optional
+            The path to the HDF5 file from which to load the metadata. If not provided, the
+            instance will be initialized without loading metadata.
+
+        Notes
+        -----
+        TODO:
+        - Improve documentation of class attributes.
+        - Reorganize attributes into a more meaningful structure.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        loading path/to/your/hdf5file.h5
         """
         if h5filename is not None:
             self.h5filename=h5filename
@@ -90,12 +108,26 @@ class Trajectory:
 
     def load_from_h5(self,path):
         """
-        Read in records from h5 file path recursively.
+        Load data from a specified path within an HDF5 file. This method attempts to read records
+        recursively from the given path in the HDF5 file specified by the `h5filename` attribute
+        of the instance. 
 
-        :param path: Base path in h5 file.
-        :type path: str
-        :returns: True if successful, False otherwise.
-        :rtype: str
+        Parameters
+        ----------
+        path : str
+            The base path in the HDF5 file from which to load data.
+
+        Returns
+        -------
+        bool
+            Returns True if the data was successfully loaded, False otherwise. 
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        >>> traj.load_from_h5('/data/group1')
+        loading path/to/your/hdf5file.h5
+        True
         """
         if self.h5filename is not None:
             if os.path.isfile(self.h5filename):
@@ -976,6 +1008,44 @@ class Trajectory:
         return tf_matrix_set
 
     def get_cell_positions(self,mskchannel=0,save_h5=False,overwrite=False):
+        """
+        Calculate the center of mass for cells in each frame of the mask channel and optionally save 
+        these positions to an HDF5 file. This method processes mask data to find cell positions across
+        frames and can store these positions back into the HDF5 file associated with the Trajectory 
+        instance.
+
+        Parameters
+        ----------
+        mskchannel : int, optional
+            The index of the mask channel from which to calculate cell positions. Default is 0.
+        save_h5 : bool, optional
+            If True, the calculated cell positions will be saved to the HDF5 file specified by
+            `h5filename`. Default is False.
+        overwrite : bool, optional
+            If True and `save_h5` is also True, existing data in the HDF5 file will be overwritten.
+            Default is False.
+
+        Returns
+        -------
+        ndarray
+            An array of cell positions calculated from the mask channel. The shape of the array is
+            (number of cells, number of dimensions).
+
+        Raises
+        ------
+        RuntimeError
+            If the stack has not been transformed, indicated by `tf_matrix_set` not being set.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        >>> traj.get_stack_trans()  # Ensure transformation matrix is set
+        >>> positions = traj.get_cell_positions(mskchannel=1, save_h5=True, overwrite=True)
+        getting positions from mask channel 1, default mskchannel is 0
+        loading cells from frame 0
+        loading cells from frame 1
+        ...
+        """
         if mskchannel != self.mskchannel:
             print(f'getting positions from mask channel {mskchannel}, default mskchannel is {self.mskchannel}')
         if not hasattr(self,'tf_matrix_set'):

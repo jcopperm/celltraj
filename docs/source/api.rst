@@ -1,20 +1,29 @@
-API reference
-================
+=============
+API Reference
+=============
+
+
+.. autosummary::
+   :nosignatures:
+   :toctree: stubs
+
+   celltraj.trajectory
+   celltraj.features
+   celltraj.imageprep
+   celltraj.translate
+   celltraj.model
+   celltraj.utilities
 
 celltraj.trajectory
 --------------------------
 
-Trajectory modeling class for live-cell imaging.
-
 .. automodule:: celltraj.trajectory
-      :members:
-      :undoc-members:
-      :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 celltraj.features
 ------------------------
-
-Featurization functions for cell images.
 
 .. automodule:: celltraj.features
    :members:
@@ -24,8 +33,6 @@ Featurization functions for cell images.
 celltraj.imageprep
 -------------------------
 
-Image and mask processing tools.
-
 .. automodule:: celltraj.imageprep
    :members:
    :undoc-members:
@@ -33,8 +40,6 @@ Image and mask processing tools.
 
 celltraj.model
 ---------------------
-
-Modeling functions for single-cell trajectories.
 
 .. automodule:: celltraj.model
    :members:
@@ -44,8 +49,6 @@ Modeling functions for single-cell trajectories.
 celltraj.translate
 -------------------------
 
-Multi-domain translation functions between single-cell trajectory models and omics and others.
-
 .. automodule:: celltraj.translate
    :members:
    :undoc-members:
@@ -53,8 +56,6 @@ Multi-domain translation functions between single-cell trajectory models and omi
 
 celltraj.utilities
 -------------------------
-
-Utility functions.
 
 .. automodule:: celltraj.utilities
    :members:

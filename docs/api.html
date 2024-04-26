@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API reference &mdash; celltraj 0.1.1 documentation</title>
+  <title>API Reference &mdash; celltraj 0.1.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,6 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="celltraj.trajectory" href="stubs/celltraj.trajectory.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
@@ -45,9 +46,16 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="readme.html">celltraj</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj-trajectory">celltraj.trajectory</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.trajectory.html">celltraj.trajectory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.features.html">celltraj.features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.imageprep.html">celltraj.imageprep</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.translate.html">celltraj.translate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.model.html">celltraj.model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stubs/celltraj.utilities.html">celltraj.utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-celltraj.trajectory">celltraj.trajectory</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.trajectory.Trajectory"><code class="docutils literal notranslate"><span class="pre">Trajectory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.__init__"><code class="docutils literal notranslate"><span class="pre">Trajectory.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.feat_comdx"><code class="docutils literal notranslate"><span class="pre">Trajectory.feat_comdx()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_Xtraj_celltrajectory"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_Xtraj_celltrajectory()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_alpha"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_alpha()</span></code></a></li>
@@ -85,7 +93,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj-features">celltraj.features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-celltraj.features">celltraj.features</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.features.apply3d"><code class="docutils literal notranslate"><span class="pre">apply3d()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.features.boundaryCB_FFT"><code class="docutils literal notranslate"><span class="pre">boundaryCB_FFT()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.features.boundaryFFT"><code class="docutils literal notranslate"><span class="pre">boundaryFFT()</span></code></a></li>
@@ -104,7 +112,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.features.totalIntensity"><code class="docutils literal notranslate"><span class="pre">totalIntensity()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj-imageprep">celltraj.imageprep</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-celltraj.imageprep">celltraj.imageprep</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.imageprep.clean_labeled_mask"><code class="docutils literal notranslate"><span class="pre">clean_labeled_mask()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.imageprep.create_h5"><code class="docutils literal notranslate"><span class="pre">create_h5()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.imageprep.crop_image"><code class="docutils literal notranslate"><span class="pre">crop_image()</span></code></a></li>
@@ -145,7 +153,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.imageprep.znorm"><code class="docutils literal notranslate"><span class="pre">znorm()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj-model">celltraj.model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-celltraj.model">celltraj.model</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.clean_clusters"><code class="docutils literal notranslate"><span class="pre">clean_clusters()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_H_eigs"><code class="docutils literal notranslate"><span class="pre">get_H_eigs()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_avdx_clusters"><code class="docutils literal notranslate"><span class="pre">get_avdx_clusters()</span></code></a></li>
@@ -175,13 +183,13 @@
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_grad"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_grad()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj-translate">celltraj.translate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-celltraj.translate">celltraj.translate</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.translate.get_null_correlations"><code class="docutils literal notranslate"><span class="pre">get_null_correlations()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.translate.get_predictedFC"><code class="docutils literal notranslate"><span class="pre">get_predictedFC()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.translate.get_state_decomposition"><code class="docutils literal notranslate"><span class="pre">get_state_decomposition()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#celltraj-utilities">celltraj.utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-celltraj.utilities">celltraj.utilities</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.utilities.colorbar"><code class="docutils literal notranslate"><span class="pre">colorbar()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.utilities.dist"><code class="docutils literal notranslate"><span class="pre">dist()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.utilities.dist_to_contact"><code class="docutils literal notranslate"><span class="pre">dist_to_contact()</span></code></a></li>
@@ -219,7 +227,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">API reference</li>
+      <li class="breadcrumb-item active">API Reference</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -230,11 +238,32 @@
            <div itemprop="articleBody">
              
   <section id="api-reference">
-<h1>API reference<a class="headerlink" href="#api-reference" title="Permalink to this heading"></a></h1>
-<section id="celltraj-trajectory">
-<h2>celltraj.trajectory<a class="headerlink" href="#celltraj-trajectory" title="Permalink to this heading"></a></h2>
-<p>Trajectory modeling class for live-cell imaging.</p>
-<span class="target" id="module-celltraj.trajectory"></span><dl class="py class">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this heading"></a></h1>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="celltraj.html#module-celltraj.trajectory" title="celltraj.trajectory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.trajectory</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="celltraj.html#module-celltraj.features" title="celltraj.features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.features</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="celltraj.html#module-celltraj.imageprep" title="celltraj.imageprep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.imageprep</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="celltraj.html#module-celltraj.translate" title="celltraj.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.translate</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="celltraj.html#module-celltraj.model" title="celltraj.model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.model</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="celltraj.html#module-celltraj.utilities" title="celltraj.utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">celltraj.utilities</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<section id="module-celltraj.trajectory">
+<span id="celltraj-trajectory"></span><h2>celltraj.trajectory<a class="headerlink" href="#module-celltraj.trajectory" title="Permalink to this heading"></a></h2>
+<dl class="py class">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">celltraj.trajectory.</span></span><span class="sig-name descname"><span class="pre">Trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -247,6 +276,31 @@
 <p>Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
 Morphodynamical cell-state description via live-cell imaging trajectory embedding.
 Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize a Trajectory object, optionally loading metadata from an HDF5 file.</p>
+<p>This constructor sets the HDF5 filename and attempts to load metadata associated with the file.
+If the file is present, it reads the metadata from a predefined group. Errors during metadata
+loading are caught and logged. Future updates should include better commenting and organizational
+improvements of class attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>h5filename</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The path to the HDF5 file from which to load the metadata. If not provided, the
+instance will be initialized without loading metadata.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>TODO:
+- Improve documentation of class attributes.
+- Reorganize attributes into a more meaningful structure.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">traj</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="s1">&#39;path/to/your/hdf5file.h5&#39;</span><span class="p">)</span>
+<span class="go">loading path/to/your/hdf5file.h5</span>
+</pre></div>
+</div>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.feat_comdx">
 <span class="sig-name descname"><span class="pre">feat_comdx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indcell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bmsk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bunch_clusters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.feat_comdx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.feat_comdx" title="Permalink to this definition"></a></dt>
@@ -277,7 +331,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <dd class="field-odd"><p><strong>cellblocks</strong> – Array of min max values for each cell, shape (label_max,image dim,2)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>ndarray</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -287,22 +341,22 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-name descname"><span class="pre">get_cell_channel_crosscorr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indcells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgchannel1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgchannel2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_channel_crosscorr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_channel_crosscorr" title="Permalink to this definition"></a></dt>
 <dd><p>Get cross correlation between channels within cell labels
 :param indcells: array of cell indices from which to calculate features
-:type indcells: int ndarray
+:type indcells: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">ndarray</span></code>
 :param mskchannel: channel for cell labels
-:type mskchannel: int
+:type mskchannel: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
 :param imgchannel1: first channel for correlation analysis
-:type imgchannel1: int
+:type imgchannel1: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
 :param mskchannel2: second channel for correlation analysis
-:type mskchannel2: int
+:type mskchannel2: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
 :param save_h5: whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
-:type save_h5: bool
+:type save_h5: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param overwrite: whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
-:type overwrite: bool</p>
+:type overwrite: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><strong>corrc</strong> (<em>ndarray (indcells.size)</em>) – channel cross-correlation</p></li>
-<li><p><strong>feature_list</strong> (<em>string array (nfeatures)</em>) – description of cell features, optional</p></li>
+<li><p><strong>corrc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span> <span class="pre">(indcells.size)</span></code>) – channel cross-correlation</p></li>
+<li><p><strong>feature_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">string</span> <span class="pre">array</span> <span class="pre">(nfeatures)</span></code>) – description of cell features, optional</p></li>
 </ul>
 </p>
 </dd>
@@ -314,28 +368,28 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-name descname"><span class="pre">get_cell_compartment_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indcells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmskchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_disjoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">erosion_footprint1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">erosion_footprint2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combined_and_disjoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_sum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_ztransform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_compartment_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_compartment_ratio" title="Permalink to this definition"></a></dt>
 <dd><p>Get cell features using skimage’s regionprops, passing a custom function tuple for measurement
 :param indcells: array of cell indices from which to calculate features
-:type indcells: int ndarray
+:type indcells: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">ndarray</span></code>
 :param imgchannel: channel for intensity image for feature calc
-:type imgchannel: int
+:type imgchannel: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
 :param mskchannel1: first channel for single-cell labels for intensity calc, the numerator in ratio
-:type mskchannel1: int
+:type mskchannel1: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
 :param mskchannel2: second channel for single-cell labels for intensity calc, the denominator in ratio. Overlap with mskchannel1 will be removed
-:type mskchannel2: int
+:type mskchannel2: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
 :param combined_and_disjoint: combine masks 1 and 2, then dilate mask 2, erode mask 1, then remove mask 1 from mask 2
-:type combined_and_disjoint: bool
+:type combined_and_disjoint: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param erosion_footprint[12]: footprint of binary erosions to perform for each mask channel
-:type erosion_footprint[12]: ndarray
+:type erosion_footprint[12]: <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>
 :param inverse_ratio: whether to take inverse (e.g. switch to c/n from n/c)
-:type inverse_ratio: bool
+:type inverse_ratio: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param save_h5: whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
-:type save_h5: bool
+:type save_h5: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param overwrite: whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
-:type overwrite: bool</p>
+:type overwrite: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><strong>cratio</strong> (<em>ndarray (indcells.size)</em>) – compartment intensity ratio</p></li>
-<li><p><strong>feature_list</strong> (<em>string array (nfeatures)</em>) – description of cell features, optional</p></li>
+<li><p><strong>cratio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span> <span class="pre">(indcells.size)</span></code>) – compartment intensity ratio</p></li>
+<li><p><strong>feature_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">string</span> <span class="pre">array</span> <span class="pre">(nfeatures)</span></code>) – description of cell features, optional</p></li>
 </ul>
 </p>
 </dd>
@@ -350,19 +404,19 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ic</strong> (<em>int</em>) – cell ID or list of cell IDs</p></li>
-<li><p><strong>frametype</strong> (<em>str</em>) – Can be ‘boundingbox’ for a bounding box of the cell label, ‘neighborhood’ for the voronoi neighbors of the specified cell, or ‘connected’ for the full set of connected cells.</p></li>
-<li><p><strong>delete_background</strong> (<em>bool</em>) – Whether to set label and image pixels other than the single, neighborhood, or connected set to zero.</p></li>
-<li><p><strong>return_masks</strong> (<em>bool</em>) – Whether to return mask data along with image data</p></li>
-<li><p><strong>relabel_masks</strong> (<em>bool</em>) – Whether to relabel masks with movie cell indices</p></li>
-<li><p><strong>relabel_mskchannels</strong> (<em>array</em><em> or </em><em>list</em>) – List of channels to relabel</p></li>
-<li><p><strong>boundary_expansion</strong> (<em>ndim ndarray</em><em>, </em><em>int</em>) – Array to expand single-cell image in each direction</p></li>
+<li><p><strong>ic</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – cell ID or list of cell IDs</p></li>
+<li><p><strong>frametype</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Can be ‘boundingbox’ for a bounding box of the cell label, ‘neighborhood’ for the voronoi neighbors of the specified cell, or ‘connected’ for the full set of connected cells.</p></li>
+<li><p><strong>delete_background</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to set label and image pixels other than the single, neighborhood, or connected set to zero.</p></li>
+<li><p><strong>return_masks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to return mask data along with image data</p></li>
+<li><p><strong>relabel_masks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to relabel masks with movie cell indices</p></li>
+<li><p><strong>relabel_mskchannels</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of channels to relabel</p></li>
+<li><p><strong>boundary_expansion</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndim</span> <span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Array to expand single-cell image in each direction</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>imgc</strong> (<em>ndarray, float</em>) – cell image data</p></li>
-<li><p><strong>mskc</strong> (<em>ndarray, int</em>) – cell mask data, optional if return_masks=True</p></li>
+<li><p><strong>imgc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – cell image data</p></li>
+<li><p><strong>mskc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – cell mask data, optional if return_masks=True</p></li>
 </ul>
 </p>
 </dd>
@@ -374,34 +428,34 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-name descname"><span class="pre">get_cell_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indcells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_fmask_for_intensity_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmskchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mask_for_intensity_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_contact_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_feature_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_features" title="Permalink to this definition"></a></dt>
 <dd><p>Get cell features using skimage’s regionprops, passing a custom function tuple for measurement
 :param function_tuple: Function should take regionmask, intensity as input and output a scalar or array of features, compatible with skimage regionprops
-:type function_tuple: single function or tuple of functions
+:type function_tuple: <code class="xref py py-class docutils literal notranslate"><span class="pre">single</span> <span class="pre">function</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">functions</span></code>
 :param indcells: array of cell indices from which to calculate features
-:type indcells: int ndarray
+:type indcells: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">ndarray</span></code>
 :param imgchannel: channel for intensity image for feature calc
-:type imgchannel: int
+:type imgchannel: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
 :param mskchannel: channel for single-cell labels for feature calc
-:type mskchannel: int
+:type mskchannel: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
 :param use_fmask_for_intensity_image: useful for environment featurization
-:type use_fmask_for_intensity_image: bool
+:type use_fmask_for_intensity_image: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param use_mask_for_intensity_image: whether to use get_mask_data rather than get_image_data for intensity image
-:type use_mask_for_intensity_image: bool
+:type use_mask_for_intensity_image: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param bordersize: number of pixels to erode foreground mask if use_fmask_for_intensity_image is True, or the radius to grow contact boundaries if apply_contact_transform is True
-:type bordersize: int
+:type bordersize: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
 :param apply_contact_transform: whether to apply contact transform to get a mask of segmentation contacts from the mask channel if use_mask_for_intensity_image is True
-:type apply_contact_transform: bool
+:type apply_contact_transform: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param return_feature_list: whether to return an array of strings describing features calculated
-:type return_feature_list: bool
+:type return_feature_list: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param save_h5: whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
-:type save_h5: bool
+:type save_h5: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param overwrite: whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
-:type overwrite: bool
+:type overwrite: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param concatenate_features: whether to add features to existing Xf and Xf_feature_list
-:type concatenate_features: bool</p>
+:type concatenate_features: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><strong>Xf</strong> (<em>ndarray (indcells.size,nfeatures)</em>) – features indexed by cells_indSet</p></li>
-<li><p><strong>feature_list</strong> (<em>string array (nfeatures)</em>) – description of cell features, optional</p></li>
+<li><p><strong>Xf</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span> <span class="pre">(indcells.size,nfeatures)</span></code>) – features indexed by cells_indSet</p></li>
+<li><p><strong>feature_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">string</span> <span class="pre">array</span> <span class="pre">(nfeatures)</span></code>) – description of cell features, optional</p></li>
 </ul>
 </p>
 </dd>
@@ -417,7 +471,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <dd class="field-odd"><p>True for success, False for error</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>bool</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -430,7 +484,42 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cell_positions">
 <span class="sig-name descname"><span class="pre">get_cell_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mskchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_positions" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Calculate the center of mass for cells in each frame of the mask channel and optionally save
+these positions to an HDF5 file. This method processes mask data to find cell positions across
+frames and can store these positions back into the HDF5 file associated with the Trajectory
+instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mskchannel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The index of the mask channel from which to calculate cell positions. Default is 0.</p></li>
+<li><p><strong>save_h5</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, the calculated cell positions will be saved to the HDF5 file specified by
+<cite>h5filename</cite>. Default is False.</p></li>
+<li><p><strong>overwrite</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True and <cite>save_h5</cite> is also True, existing data in the HDF5 file will be overwritten.
+Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array of cell positions calculated from the mask channel. The shape of the array is
+(number of cells, number of dimensions).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>RuntimeError</strong> – If the stack has not been transformed, indicated by <cite>tf_matrix_set</cite> not being set.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">traj</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="s1">&#39;path/to/your/hdf5file.h5&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">traj</span><span class="o">.</span><span class="n">get_stack_trans</span><span class="p">()</span>  <span class="c1"># Ensure transformation matrix is set</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">positions</span> <span class="o">=</span> <span class="n">traj</span><span class="o">.</span><span class="n">get_cell_positions</span><span class="p">(</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">save_h5</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">getting positions from mask channel 1, default mskchannel is 0</span>
+<span class="go">loading cells from frame 0</span>
+<span class="go">loading cells from frame 1</span>
+<span class="go">...</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cell_trajectory">
@@ -457,7 +546,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <dd class="field-odd"><p><strong>fmsk</strong> – foreground (cells) / background mask</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>ndarray, bool</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -471,7 +560,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <dd class="field-odd"><p>True if successful, False otherwise.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>bool</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -486,7 +575,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <dd class="field-odd"><p><strong>img</strong> – image data</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>ndarray</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -501,7 +590,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <dd class="field-odd"><p>True if successful, False otherwise.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>bool</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -526,7 +615,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <dd class="field-odd"><p><strong>img</strong> – image data</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>ndarray</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -536,18 +625,18 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-name descname"><span class="pre">get_motility_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indcells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_motility_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_motility_features" title="Permalink to this definition"></a></dt>
 <dd><p>Get single-cell and neighbor-averaged motility features
 :param indcells: array of cell indices from which to calculate features
-:type indcells: int ndarray
+:type indcells: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">ndarray</span></code>
 :param mskchannel: channel for cell labels
-:type mskchannel: int
+:type mskchannel: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>
 :param save_h5: whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
-:type save_h5: bool
+:type save_h5: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param overwrite: whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
-:type overwrite: bool</p>
+:type overwrite: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><strong>Xf_com</strong> (<em>ndarray ((indcells.size,nfeat_com))</em>) – motility features</p></li>
-<li><p><strong>feature_list</strong> (<em>string array (nfeat_com)</em>) – description of motility features, optional</p></li>
+<li><p><strong>Xf_com</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span> <span class="pre">((indcells.size,nfeat_com))</span></code>) – motility features</p></li>
+<li><p><strong>feature_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">string</span> <span class="pre">array</span> <span class="pre">(nfeat_com)</span></code>) – description of motility features, optional</p></li>
 </ul>
 </p>
 </dd>
@@ -574,27 +663,27 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-name descname"><span class="pre">get_stack_trans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mskchannel=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntrans=20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxt=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_function=&lt;function</span> <span class="pre">get_pairwise_distance_sum&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zscale=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_global=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**dist_function_keys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_stack_trans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_stack_trans" title="Permalink to this definition"></a></dt>
 <dd><p>Get translations over image stack using a brute force function optimization approach.
 :param mskchannel: Function should take regionmask, intensity as input and output a scalar or array of features, compatible with skimage regionprops
-:type mskchannel: mask channel for labels from which to obtain cell centers
+:type mskchannel: <code class="xref py py-class docutils literal notranslate"><span class="pre">mask</span> <span class="pre">channel</span> <span class="pre">for</span> <span class="pre">labels</span> <span class="pre">from</span> <span class="pre">which</span></code> to <code class="xref py py-class docutils literal notranslate"><span class="pre">obtain</span> <span class="pre">cell</span> <span class="pre">centers</span></code>
 :param ntrans: number of translations to try in each dimension
-:type ntrans: int or int ndarray
+:type ntrans: <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span> <span class="pre">ndarray</span></code>
 :param maxt: max translation in each dimension
-:type maxt: float or float ndarray
+:type maxt: <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span> <span class="pre">ndarray</span></code>
 :param dist_function: function to use for optimization. Should take centers0,centers1,tshift as input, and yield a score (lower is better)
-:type dist_function: function
+:type dist_function: <code class="xref py py-class docutils literal notranslate"><span class="pre">function</span></code>
 :param save_h5: whether to save transformation matrices to h5 file as /cell_data/tf_matrix_set
-:type save_h5: bool
+:type save_h5: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param overwrite: whether to overwrite existing data in h5 file
-:type overwrite: bool
+:type overwrite: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param do_global: whether to do a global alignment matching center of all masks prior to brute force grid search
-:type do_global: bool
+:type do_global: <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>
 :param dist_function_keys: will be passed to dist_function for optimization
-:type dist_function_keys: keywords</p>
+:type dist_function_keys: <code class="xref py py-class docutils literal notranslate"><span class="pre">keywords</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>tf_matrix_set</strong> – array of aligning global transformations between frames</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>ndarray (nframes,ndim+1,ndim+1)</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span> <span class="pre">(nframes,ndim+1,ndim+1)</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -624,18 +713,27 @@ A is 1, B is 2, not A or B is 0</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.load_from_h5">
 <span class="sig-name descname"><span class="pre">load_from_h5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.load_from_h5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.load_from_h5" title="Permalink to this definition"></a></dt>
-<dd><p>Read in records from h5 file path recursively.</p>
+<dd><p>Load data from a specified path within an HDF5 file. This method attempts to read records
+recursively from the given path in the HDF5 file specified by the <cite>h5filename</cite> attribute
+of the instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Base path in h5 file.</p>
+<dd class="field-odd"><p><strong>path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The base path in the HDF5 file from which to load data.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if successful, False otherwise.</p>
+<dd class="field-even"><p>Returns True if the data was successfully loaded, False otherwise.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">traj</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="s1">&#39;path/to/your/hdf5file.h5&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">traj</span><span class="o">.</span><span class="n">load_from_h5</span><span class="p">(</span><span class="s1">&#39;/data/group1&#39;</span><span class="p">)</span>
+<span class="go">loading path/to/your/hdf5file.h5</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -649,7 +747,7 @@ A is 1, B is 2, not A or B is 0</p>
 <dd class="field-odd"><p>True if successful, False otherwise.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>bool</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -657,10 +755,9 @@ A is 1, B is 2, not A or B is 0</p>
 </dd></dl>
 
 </section>
-<section id="celltraj-features">
-<h2>celltraj.features<a class="headerlink" href="#celltraj-features" title="Permalink to this heading"></a></h2>
-<p>Featurization functions for cell images.</p>
-<span class="target" id="module-celltraj.features"></span><dl class="py function">
+<section id="module-celltraj.features">
+<span id="celltraj-features"></span><h2>celltraj.features<a class="headerlink" href="#module-celltraj.features" title="Permalink to this heading"></a></h2>
+<dl class="py function">
 <dt class="sig sig-object py" id="celltraj.features.apply3d">
 <span class="sig-prename descclassname"><span class="pre">celltraj.features.</span></span><span class="sig-name descname"><span class="pre">apply3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">function2d_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/features.html#apply3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.features.apply3d" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -741,10 +838,9 @@ A is 1, B is 2, not A or B is 0</p>
 <dd></dd></dl>
 
 </section>
-<section id="celltraj-imageprep">
-<h2>celltraj.imageprep<a class="headerlink" href="#celltraj-imageprep" title="Permalink to this heading"></a></h2>
-<p>Image and mask processing tools.</p>
-<span class="target" id="module-celltraj.imageprep"></span><dl class="py function">
+<section id="module-celltraj.imageprep">
+<span id="celltraj-imageprep"></span><h2>celltraj.imageprep<a class="headerlink" href="#module-celltraj.imageprep" title="Permalink to this heading"></a></h2>
+<dl class="py function">
 <dt class="sig sig-object py" id="celltraj.imageprep.clean_labeled_mask">
 <span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">clean_labeled_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">masks_nuc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_borders</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_buffer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_holes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'largest'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#clean_labeled_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.clean_labeled_mask" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -1035,10 +1131,9 @@ snake: snake across whole image (left to right, right to left, left to right…)
 </dd></dl>
 
 </section>
-<section id="celltraj-model">
-<h2>celltraj.model<a class="headerlink" href="#celltraj-model" title="Permalink to this heading"></a></h2>
-<p>Modeling functions for single-cell trajectories.</p>
-<span class="target" id="module-celltraj.model"></span><dl class="py function">
+<section id="module-celltraj.model">
+<span id="celltraj-model"></span><h2>celltraj.model<a class="headerlink" href="#module-celltraj.model" title="Permalink to this heading"></a></h2>
+<dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.clean_clusters">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">clean_clusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clusters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#clean_clusters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.clean_clusters" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -1070,17 +1165,17 @@ snake: snake across whole image (left to right, right to left, left to right…)
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
-<li><p><strong>Y</strong> (<em>ndarray</em>) – observation matrix at t+1, samples x features</p></li>
-<li><p><strong>M</strong> (<em>ndarray</em>) – Mahalanobis scaling matrix, features x features</p></li>
-<li><p><strong>h</strong> (<em>ndarray</em>) – vector of sigma scalings for gaussian from get_kernel_sigmas</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix, samples x features</p></li>
+<li><p><strong>Y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix at t+1, samples x features</p></li>
+<li><p><strong>M</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Mahalanobis scaling matrix, features x features</p></li>
+<li><p><strong>h</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – vector of sigma scalings for gaussian from get_kernel_sigmas</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>k</strong> – Malanobis scaled kernel for X,Y</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray, samples x samples (float)</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">samples</span> <span class="pre">x</span> <span class="pre">samples</span> <span class="pre">(float)</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1092,16 +1187,16 @@ snake: snake across whole image (left to right, right to left, left to right…)
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
-<li><p><strong>M</strong> (<em>ndarray</em>) – Mahalanobis scaling matrix, features x features</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – bandwidth scaling factor</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix, samples x features</p></li>
+<li><p><strong>M</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Mahalanobis scaling matrix, features x features</p></li>
+<li><p><strong>s</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – bandwidth scaling factor</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>h</strong> – vector of sigmas to scale observations in kernel</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray, n_features (float)</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">n_features</span> <span class="pre">(float)</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1118,19 +1213,19 @@ snake: snake across whole image (left to right, right to left, left to right…)
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
-<li><p><strong>Y</strong> (<em>ndarray</em>) – observation matrix at t+1, samples x features</p></li>
-<li><p><strong>M</strong> (<em>ndarray</em>) – Mahalanobis scaling matrix, features x features</p></li>
-<li><p><strong>s</strong> (<em>float</em>) – kernel bandwidth scaling parameter</p></li>
-<li><p><strong>bta</strong> (<em>float</em>) – regularization parameter for linear solve</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix, samples x features</p></li>
+<li><p><strong>Y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix at t+1, samples x features</p></li>
+<li><p><strong>M</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Mahalanobis scaling matrix, features x features</p></li>
+<li><p><strong>s</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – kernel bandwidth scaling parameter</p></li>
+<li><p><strong>bta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – regularization parameter for linear solve</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>K</strong> (<em>ndarray</em>) – Koopman operator matrix, samples x samples (float)</p></li>
-<li><p><strong>Xi</strong> (<em>ndarray</em>) – Koopman left eigenvectors, samples x samples</p></li>
-<li><p><strong>Lam</strong> (<em>ndarray</em>) – Koopman eigenvalue matrix (diagonal), samples x samples</p></li>
-<li><p><strong>W</strong> (<em>ndarray</em>) – Koopman right eigenvectors, samples x samples</p></li>
+<li><p><strong>K</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman operator matrix, samples x samples (float)</p></li>
+<li><p><strong>Xi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman left eigenvectors, samples x samples</p></li>
+<li><p><strong>Lam</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenvalue matrix (diagonal), samples x samples</p></li>
+<li><p><strong>W</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman right eigenvectors, samples x samples</p></li>
 </ul>
 </p>
 </dd>
@@ -1144,18 +1239,18 @@ snake: snake across whole image (left to right, right to left, left to right…)
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<em>int</em>) – sample index for start point</p></li>
-<li><p><strong>steps</strong> (<em>int</em>) – number of steps of inference to perform</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
-<li><p><strong>V</strong> (<em>ndarray</em>) – Koopman modes of observables, must be calculated samples x samples</p></li>
-<li><p><strong>Lam</strong> (<em>ndarray</em>) – Koopman eigenvalues matrix (diagonal), samples x samples</p></li>
+<li><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – sample index for start point</p></li>
+<li><p><strong>steps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of steps of inference to perform</p></li>
+<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions, samples x samples</p></li>
+<li><p><strong>V</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman modes of observables, must be calculated samples x samples</p></li>
+<li><p><strong>Lam</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenvalues matrix (diagonal), samples x samples</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>X_pred</strong> – predicted trajectory steps x observables</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1167,18 +1262,18 @@ snake: snake across whole image (left to right, right to left, left to right…)
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<em>int</em>) – sample index for start point</p></li>
-<li><p><strong>steps</strong> (<em>int</em>) – number of steps of inference to perform</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
-<li><p><strong>V</strong> (<em>ndarray</em>) – Koopman modes of observables, must be calculated samples x samples</p></li>
-<li><p><strong>Lam</strong> (<em>ndarray</em>) – Koopman eigenvalues matrix (diagonal), samples x samples</p></li>
+<li><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – sample index for start point</p></li>
+<li><p><strong>steps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of steps of inference to perform</p></li>
+<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions, samples x samples</p></li>
+<li><p><strong>V</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman modes of observables, must be calculated samples x samples</p></li>
+<li><p><strong>Lam</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenvalues matrix (diagonal), samples x samples</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>X_pred</strong> – predicted trajectory steps x observables</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1190,17 +1285,17 @@ snake: snake across whole image (left to right, right to left, left to right…)
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>psi_X</strong> (<em>ndarray</em>) – kernel matrix, samples x samples</p></li>
-<li><p><strong>Xi</strong> (<em>ndarray</em>) – right eigenvectors of Koopman, samples x samples</p></li>
-<li><p><strong>W</strong> (<em>ndarray</em>) – left eigenvectors of Koopman, samples x samples</p></li>
-<li><p><strong>X</strong> (<em>ndarray</em>) – observation matrix, samples x features</p></li>
-<li><p><strong>X_obs</strong> (<em>ndarray</em><em>, </em><em>samples x observables</em>) – observables of interest in same time order as X, can be X or features of X</p></li>
+<li><p><strong>psi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – kernel matrix, samples x samples</p></li>
+<li><p><strong>Xi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – right eigenvectors of Koopman, samples x samples</p></li>
+<li><p><strong>W</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – left eigenvectors of Koopman, samples x samples</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix, samples x features</p></li>
+<li><p><strong>X_obs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">samples</span> <span class="pre">x</span> <span class="pre">observables</span></code>) – observables of interest in same time order as X, can be X or features of X</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions</p></li>
-<li><p><strong>V</strong> (<em>ndarray</em>) – Koopman modes of observables</p></li>
+<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions</p></li>
+<li><p><strong>V</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman modes of observables</p></li>
 </ul>
 </p>
 </dd>
@@ -1269,16 +1364,16 @@ snake: snake across whole image (left to right, right to left, left to right…)
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
-<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
+<li><p><strong>Mprev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">features</span> <span class="pre">x</span> <span class="pre">features</span></code>) – Koopman eigenfunctions</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – samples by features</p></li>
+<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions, samples x samples</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1290,16 +1385,16 @@ snake: snake across whole image (left to right, right to left, left to right…)
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
-<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
+<li><p><strong>Mprev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">features</span> <span class="pre">x</span> <span class="pre">features</span></code>) – Koopman eigenfunctions</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – samples by features</p></li>
+<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions, samples x samples</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1311,16 +1406,16 @@ snake: snake across whole image (left to right, right to left, left to right…)
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
-<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
+<li><p><strong>Mprev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">features</span> <span class="pre">x</span> <span class="pre">features</span></code>) – Koopman eigenfunctions</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – samples by features</p></li>
+<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions, samples x samples</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1332,25 +1427,24 @@ snake: snake across whole image (left to right, right to left, left to right…)
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Mprev</strong> (<em>ndarray</em><em>, </em><em>features x features</em>) – Koopman eigenfunctions</p></li>
-<li><p><strong>X</strong> (<em>ndarray</em>) – samples by features</p></li>
-<li><p><strong>phi_X</strong> (<em>ndarray</em>) – Koopman eigenfunctions, samples x samples</p></li>
+<li><p><strong>Mprev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">features</span> <span class="pre">x</span> <span class="pre">features</span></code>) – Koopman eigenfunctions</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – samples by features</p></li>
+<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions, samples x samples</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ndarray</p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
 </section>
-<section id="celltraj-translate">
-<h2>celltraj.translate<a class="headerlink" href="#celltraj-translate" title="Permalink to this heading"></a></h2>
-<p>Multi-domain translation functions between single-cell trajectory models and omics and others.</p>
-<span class="target" id="module-celltraj.translate"></span><dl class="py function">
+<section id="module-celltraj.translate">
+<span id="celltraj-translate"></span><h2>celltraj.translate<a class="headerlink" href="#module-celltraj.translate" title="Permalink to this heading"></a></h2>
+<dl class="py function">
 <dt class="sig sig-object py" id="celltraj.translate.get_null_correlations">
 <span class="sig-prename descclassname"><span class="pre">celltraj.translate.</span></span><span class="sig-name descname"><span class="pre">get_null_correlations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_fc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_fc_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_fc_predicted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrandom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/translate.html#get_null_correlations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.translate.get_null_correlations" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -1366,10 +1460,9 @@ snake: snake across whole image (left to right, right to left, left to right…)
 <dd></dd></dl>
 
 </section>
-<section id="celltraj-utilities">
-<h2>celltraj.utilities<a class="headerlink" href="#celltraj-utilities" title="Permalink to this heading"></a></h2>
-<p>Utility functions.</p>
-<span class="target" id="module-celltraj.utilities"></span><dl class="py function">
+<section id="module-celltraj.utilities">
+<span id="celltraj-utilities"></span><h2>celltraj.utilities<a class="headerlink" href="#module-celltraj.utilities" title="Permalink to this heading"></a></h2>
+<dl class="py function">
 <dt class="sig sig-object py" id="celltraj.utilities.colorbar">
 <span class="sig-prename descclassname"><span class="pre">celltraj.utilities.</span></span><span class="sig-name descname"><span class="pre">colorbar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mappable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/utilities.html#colorbar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.utilities.colorbar" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -1462,6 +1555,7 @@ snake: snake across whole image (left to right, right to left, left to right…)
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stubs/celltraj.trajectory.html" class="btn btn-neutral float-right" title="celltraj.trajectory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

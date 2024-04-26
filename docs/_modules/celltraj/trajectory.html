@@ -43,7 +43,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">celltraj</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
 </ul>
 
         </div>
@@ -111,7 +111,7 @@
 <span class="kn">import</span> <span class="nn">fipy</span>
 
 
-<div class="viewcode-block" id="Trajectory"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory">[docs]</a><span class="k">class</span> <span class="nc">Trajectory</span><span class="p">:</span>
+<div class="viewcode-block" id="Trajectory"><a class="viewcode-back" href="../../stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory">[docs]</a><span class="k">class</span> <span class="nc">Trajectory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A toolset for single-cell trajectory modeling. See:</span>
 <span class="sd">    </span>
@@ -135,13 +135,31 @@
 <span class="sd">    Biorxiv 10.1101/2021.10.07.463498, 2021.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">h5filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Trajectory.__init__"><a class="viewcode-back" href="../../stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">h5filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Work-in-progress init function. Set h5filename, and tries to read in metadata.</span>
-<span class="sd">        Todo</span>
-<span class="sd">        ----</span>
-<span class="sd">        - Also, comment all of these here. Right now most of them have comments throughout the code.</span>
-<span class="sd">        - Reorganize these attributes into some meaningful structure</span>
+<span class="sd">        Initialize a Trajectory object, optionally loading metadata from an HDF5 file.</span>
+
+<span class="sd">        This constructor sets the HDF5 filename and attempts to load metadata associated with the file.</span>
+<span class="sd">        If the file is present, it reads the metadata from a predefined group. Errors during metadata</span>
+<span class="sd">        loading are caught and logged. Future updates should include better commenting and organizational</span>
+<span class="sd">        improvements of class attributes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        h5filename : str, optional</span>
+<span class="sd">            The path to the HDF5 file from which to load the metadata. If not provided, the</span>
+<span class="sd">            instance will be initialized without loading metadata.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        TODO:</span>
+<span class="sd">        - Improve documentation of class attributes.</span>
+<span class="sd">        - Reorganize attributes into a more meaningful structure.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        loading path/to/your/hdf5file.h5</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">h5filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="o">=</span><span class="n">h5filename</span>
@@ -159,16 +177,30 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">h5filename</span><span class="si">}</span><span class="s1"> does not exist&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="o">=</span><span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="o">=</span><span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Trajectory.load_from_h5"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.load_from_h5">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_h5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Read in records from h5 file path recursively.</span>
+<span class="sd">        Load data from a specified path within an HDF5 file. This method attempts to read records</span>
+<span class="sd">        recursively from the given path in the HDF5 file specified by the `h5filename` attribute</span>
+<span class="sd">        of the instance. </span>
 
-<span class="sd">        :param path: Base path in h5 file.</span>
-<span class="sd">        :type path: str</span>
-<span class="sd">        :returns: True if successful, False otherwise.</span>
-<span class="sd">        :rtype: str</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str</span>
+<span class="sd">            The base path in the HDF5 file from which to load data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Returns True if the data was successfully loaded, False otherwise. </span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; traj.load_from_h5(&#39;/data/group1&#39;)</span>
+<span class="sd">        loading path/to/your/hdf5file.h5</span>
+<span class="sd">        True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="p">):</span>
@@ -1049,6 +1081,44 @@
         <span class="k">return</span> <span class="n">tf_matrix_set</span></div>
 
 <div class="viewcode-block" id="Trajectory.get_cell_positions"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_positions">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the center of mass for cells in each frame of the mask channel and optionally save </span>
+<span class="sd">        these positions to an HDF5 file. This method processes mask data to find cell positions across</span>
+<span class="sd">        frames and can store these positions back into the HDF5 file associated with the Trajectory </span>
+<span class="sd">        instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mskchannel : int, optional</span>
+<span class="sd">            The index of the mask channel from which to calculate cell positions. Default is 0.</span>
+<span class="sd">        save_h5 : bool, optional</span>
+<span class="sd">            If True, the calculated cell positions will be saved to the HDF5 file specified by</span>
+<span class="sd">            `h5filename`. Default is False.</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            If True and `save_h5` is also True, existing data in the HDF5 file will be overwritten.</span>
+<span class="sd">            Default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray</span>
+<span class="sd">            An array of cell positions calculated from the mask channel. The shape of the array is</span>
+<span class="sd">            (number of cells, number of dimensions).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If the stack has not been transformed, indicated by `tf_matrix_set` not being set.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; traj.get_stack_trans()  # Ensure transformation matrix is set</span>
+<span class="sd">        &gt;&gt;&gt; positions = traj.get_cell_positions(mskchannel=1, save_h5=True, overwrite=True)</span>
+<span class="sd">        getting positions from mask channel 1, default mskchannel is 0</span>
+<span class="sd">        loading cells from frame 0</span>
+<span class="sd">        loading cells from frame 1</span>
+<span class="sd">        ...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">mskchannel</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;getting positions from mask channel </span><span class="si">{</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">, default mskchannel is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;tf_matrix_set&#39;</span><span class="p">):</span>

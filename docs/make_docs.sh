@@ -1,8 +1,16 @@
 rm *.html
+rm -r _sources
+rm -r _static
+rm -r _modules
+rm -r doctrees
+rm -r build
+rm source/modules.rst
+rm source/celltraj.rst
+sphinx-apidoc -o ./source ../celltraj
 make clean
-make html
-rm -r stubs
+#make html
+sphinx-build -M html source/ build/ -a -j auto -n --keep-going
 cp -r build/html/* ./
+cp -r build/doctrees ./
 cp source/readme.rst ../
-cp -r build/html/stubs ./
 cp index.html ../
