@@ -22,6 +22,7 @@ dependencies:
  - pandas
  - dask
  - msmtools
+ - fipy
 
  - pip:
    - csaps
@@ -30,3 +31,4 @@ dependencies:
    - btrack
    - adjustText
    - cmapfile
+   - nanomesh
