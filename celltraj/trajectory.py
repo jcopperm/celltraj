@@ -31,9 +31,12 @@ from btrack.constants import BayesianUpdates
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
-import celltraj.utilities as utilities
-import celltraj.imageprep as imprep
-import celltraj.features as features
+#import celltraj.utilities as utilities
+#import celltraj.imageprep as imprep
+#import celltraj.features as features
+import utilities
+import imageprep as imprep
+import features
 from nanomesh import Mesher
 import fipy
 

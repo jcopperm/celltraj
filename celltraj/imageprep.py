@@ -23,7 +23,8 @@ from skimage import transform as tf
 from sklearn.linear_model import LinearRegression
 from scipy import ndimage
 from skimage.transform import resize,rescale
-import celltraj.utilities as utilities
+#import celltraj.utilities as utilities
+import utilities
 
 """
 Did I change it? A toolset for single-cell trajectory modeling and multidomain translation. See:

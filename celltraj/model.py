@@ -10,7 +10,8 @@ import umap
 from sklearn.cluster import KMeans
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components
-import celltraj.utilities as utilities
+#import celltraj.utilities as utilities
+import utilities
 
 """
 A toolset for single-cell trajectory data-driven modeling. See:
