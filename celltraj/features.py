@@ -6,8 +6,8 @@ import pandas
 import re
 import scipy
 import pyemma.coordinates as coor
-import celltraj.imageprep as imprep
-import celltraj.utilities as utilities
+import imageprep as imprep
+import utilities
 from adjustText import adjust_text
 import umap
 from sklearn.cluster import KMeans
