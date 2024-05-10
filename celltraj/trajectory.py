@@ -6,7 +6,6 @@ import subprocess
 import h5py
 from scipy.sparse import coo_matrix
 import matplotlib
-#matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import pyemma.coordinates as coor
 import pyemma.coordinates.clustering as clustering
@@ -31,9 +30,6 @@ from btrack.constants import BayesianUpdates
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
-#import celltraj.utilities as utilities
-#import celltraj.imageprep as imprep
-#import celltraj.features as features
 import utilities
 import imageprep as imprep
 import features
@@ -45,27 +41,22 @@ class Trajectory:
     """
     A toolset for single-cell trajectory modeling. See:
     
-    Danger
+    Warning
     -------
     This code, currently, should be considered as an untested pre-release version
     
-    Todo
-    ----
-    Refactor
-        In general, this class's methods generally handle data by holding state in the object.
-        The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.
-        The state being updated along the way is usually "helper" quantities.
-        I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --
-        one example of this might be setting them as properties, and then updating the value in state as part of that
-        accessor if necessary.
     References
-    --------
-    Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman. 
-    Morphodynamical cell-state description via live-cell imaging trajectory embedding. 
-    Biorxiv 10.1101/2021.10.07.463498, 2021.
+    ----------
+    Copperman, Jeremy, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman. 
+    "Morphodynamical cell state description via live-cell imaging trajectory embedding." 
+    Communications Biology 6, no. 1 (2023): 484.
+
+    Copperman, Jeremy, Ian C. Mclean, Sean M. Gross, Young Hwan Chang, Daniel M. Zuckerman, and Laura M. Heiser. 
+    "Single-cell morphodynamical trajectories enable prediction of gene expression accompanying cell state change." 
+    bioRxiv (2024): 2024-01.
     """
     
-    def __init__(self,h5filename=None):
+    def __init__(self,h5filename=None,data_list=None):
         """
         Initialize a Trajectory object, optionally loading metadata from an HDF5 file.
 
@@ -101,6 +92,10 @@ class Trajectory:
                     for key in metadata_dict:
                         setattr(self, key, metadata_dict[key])
                     f.close()
+                    self.get_image_shape()
+                    if data_list is not None:
+                        for data in data_list:
+                            self.load_from_h5(data)
                 except Exception as error:
                     print(f'error loading metadata from {h5filename}: {error}')
                     f.close()
@@ -134,7 +129,7 @@ class Trajectory:
         """
         if self.h5filename is not None:
             if os.path.isfile(self.h5filename):
-                print(f'loading {self.h5filename}')
+                print(f'loading {self.h5filename}:{path}')
                 f=h5py.File(self.h5filename,'r')
                 try:
                     datadict=utilities.recursively_load_dict_contents_from_group( f, path)
@@ -152,17 +147,33 @@ class Trajectory:
 
     def save_to_h5(self,path,attribute_list,overwrite=False):
         """
-        Save attributes from a text list to model h5 file, to path in h5 file, recursively.
+        Save specified attributes to an HDF5 file at the given path. This method saves attributes from 
+        the current instance to a specified location within the HDF5 file, creating or overwriting data
+        as necessary based on the `overwrite` parameter.
+
         Parameters
         ----------
-        path
-            Base path in h5 file.
-        attribute list
-            List of strings of attributes to save
+        path : str
+            The base path in the HDF5 file where attributes will be saved.
+        attribute_list : list of str
+            A list containing the names of attributes to save to the HDF5 file.
+        overwrite : bool, optional
+            If True, existing data at the specified path will be overwritten. Default is False.
+
         Returns
         -------
         bool
-            True if successful, False otherwise.
+            Returns True if the attributes were successfully saved, False otherwise, such as when the 
+            HDF5 file does not exist or attributes cannot be written.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        >>> traj.some_attribute = np.array([1, 2, 3])
+        >>> traj.save_to_h5('/data/', ['some_attribute'])
+        saving attributes ['some_attribute'] to /data/ in path/to/your/hdf5file.h5
+        saved some_attribute to path/to/your/hdf5file.h5/data/
+        True
         """
         if self.h5filename is not None:
             if os.path.isfile(self.h5filename):
@@ -193,13 +204,29 @@ class Trajectory:
 
     def get_frames(self):
         """
-        Look for images in /images/img_%d/image to get number of frames (nt), and count cells in /images/img_%d/mask, store as attributes numImages, maxFrame, ncells_total
-        Parameters
-        ----------
+        Scans an HDF5 file for image and mask datasets to determine the total number of frames,
+        images per frame, and the total number of cells across all frames. This method updates the 
+        instance with attributes for the number of images, the maximum frame index, and the total 
+        cell count. It handles multiple mask channels by requiring the `mskchannel` attribute to be 
+        set if more than one mask channel exists.
+
         Returns
         -------
         bool
-            True if successful, False otherwise.
+            Returns True if the frames were successfully scanned and the relevant attributes set.
+            Returns False if the HDF5 file is not set, no image data is found, or if there are 
+            multiple mask channels but `mskchannel` is not specified.
+
+        Raises
+        ------
+        AttributeError
+            If `mskchannel` needs to be specified but is not set when `nmaskchannel` is greater than zero.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        >>> success = traj.get_frames()
+        True
         """
         if self.h5filename is None:
             print('no h5filename attribute')
@@ -246,15 +273,48 @@ class Trajectory:
 
     def get_image_shape(self,n_frame=0):
         """
-        get image ([nz,]nx,ny,nchannels) and mask dimensions ([nz,]nx,ny,nmaskchannels), and store as attributes [nz,]nx,ny,ndim,nchannels,nmaskchannels
+        Determine the dimensions of the image and mask data from the HDF5 file at a specified frame
+        index and store these as attributes. This method retrieves the dimensions of both the image
+        and mask datasets, discerning whether the data includes channels or z-stacks, and updates the
+        object's attributes accordingly. Attributes updated include the number of dimensions (`ndim`), 
+        image axes layout (`axes`), image dimensions (`nx`, `ny`, `[nz]`), number of channels in the 
+        image and mask (`nchannels`, `nmaskchannels`), and the full image shape (`image_shape`).
+
         Parameters
         ----------
-        n_frame
-            
+        n_frame : int, optional
+            The frame index from which to retrieve the image and mask dimensions. Default is 0.
+
         Returns
         -------
         bool
-            True if successful, False otherwise.
+            Returns True if the dimensions were successfully retrieved and stored as attributes,
+            False otherwise, such as when the file is not found or an error occurs in reading data.
+
+        Attributes
+        ----------
+        axes : str
+            The layout of axes in the image data, e.g., 'xy', 'xyc', 'zxy', 'zxyc'.
+        nx : int
+            Width of the image in pixels.
+        ny : int
+            Height of the image in pixels.
+        nz : int, optional
+            Number of z-stacks in the image, if applicable.
+        image_shape : ndarray
+            Array representing the dimensions of the image.
+        nchannels : int
+            Number of channels in the image data.
+        nmaskchannels : int
+            Number of channels in the mask data.
+        ndim : int
+            Number of spatial dimensions in the image data.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        >>> success = traj.get_image_shape(1)
+        True
         """
         if self.h5filename is None:
             print('no h5filename attribute')
@@ -338,15 +398,27 @@ class Trajectory:
 
     def get_image_data(self,n_frame):
         """
-        Get image data from a frame
+        Retrieve the image data for a specified frame from the HDF5 file associated with this instance.
+        This method accesses the HDF5 file, navigates to the specific dataset for the given frame,
+        and extracts the image data.
+
         Parameters
         ----------
-        n_frame
-            frame number
+        n_frame : int
+            The frame number from which to retrieve image data.
+
         Returns
         -------
         img : ndarray
-            image data
+            The image data as a NumPy array. The shape and type of the array depend on the structure
+            of the image data in the HDF5 file (e.g., may include dimensions for channels or z-stacks).
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        >>> image_data = traj.get_image_data(5)
+        >>> image_data.shape
+        (1024, 1024, 3)  # Example shape, actual may vary.
         """
         with h5py.File(self.h5filename,'r') as f:
             dsetName = "/images/img_%d/image" % int(n_frame)
@@ -356,15 +428,27 @@ class Trajectory:
 
     def get_mask_data(self,n_frame):
         """
-        Get mask data from a frame
+        Retrieve the mask data for a specified frame from the HDF5 file associated with this instance.
+        This method accesses the HDF5 file, navigates to the specific dataset for the given frame,
+        and extracts the mask data.
+
         Parameters
         ----------
-        n_frame
-            frame number
+        n_frame : int
+            The frame number from which to retrieve mask data.
+
         Returns
         -------
-        img : ndarray
-            image data
+        msk : ndarray
+            The mask data as a NumPy array. The structure of the array will depend on the mask setup
+            in the HDF5 file, such as whether it includes dimensions for multiple channels or z-stacks.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        >>> mask_data = traj.get_mask_data(5)
+        >>> mask_data.shape
+        (1024, 1024, 2)  # Example shape, actual may vary.
         """
         with h5py.File(self.h5filename,'r') as f:
             dsetName = "/images/img_%d/mask" % int(n_frame)
@@ -374,15 +458,40 @@ class Trajectory:
 
     def get_fmask_data(self,n_frame,channel=None):
         """
-        Get foreground mask data for a frame, if self.fmskchannel is set will pull from mask data and be set from msk[...,fmskchannel]>0 (or default mskchannel if self.fmskchannel not set), or if self.fmsk_threshold is set, will be thresholded from self.fmsk_imgchannel or first imgchannel.
+        Retrieve the foreground mask data for a specific frame using different methods depending on 
+        the set attributes. This method determines the foreground mask either by selecting a specific 
+        mask channel (`fmskchannel`), by applying a threshold to an image channel (`fmsk_threshold` 
+        and `fmsk_imgchannel`), or directly from specified channels in the HDF5 file (`fmask_channels`).
+
         Parameters
         ----------
-        n_frame
-            frame number
+        n_frame : int
+            The frame number from which to retrieve the foreground mask data.
+        channel : int, optional
+            The specific channel to use when `fmask_channels` attribute is set. If not provided, the 
+            default 'foreground' channel is used if available.
+
         Returns
         -------
         fmsk : ndarray, bool
-            foreground (cells) / background mask
+            The foreground (cells) / background mask array, indicating cell locations as True and 
+            background as False.
+
+        Methods for Determining `fmsk`:
+        ------------------------------
+        1. If `fmskchannel` is set:
+        - The method uses the specified channel from the mask data (not fmask data).
+        2. If `fmsk_threshold` and `fmsk_imgchannel` are set:
+        - The method thresholds the image data at the specified channel using the given threshold.
+        3. If `fmask_channels` is set and the channel parameter is provided or a default is available:
+        - The method retrieves the mask from the specified or default channel in the `fmsk` dataset.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        >>> fmask_data = traj.get_fmask_data(5)
+        >>> fmask_data.shape
+        (1024, 1024)  # Example shape, actual may vary.
         """
         if hasattr(self,'fmskchannel'):
             print(f'getting foreground mask from {self.h5filename} mask channel {self.fmskchannel}')
@@ -412,23 +521,37 @@ class Trajectory:
 
     def get_cell_blocks(self,label):
         """
-        Get min max indices for each cell in mask. Note the order of output here determines cell indexing. Will return skimage convention of label (msk) integers in increasing order, which is re-indexed from 0.
+        Extracts bounding box information for each cell from a labeled mask image. This function
+        returns the minimum and maximum indices for each labeled cell, useful for operations such
+        as cropping around a cell or analyzing specific cell regions. The function supports both 
+        2D and 3D labeled images.
+
         Parameters
         ----------
-        msk
-            label image of cells
+        label : ndarray
+            A labeled image array where each unique non-zero integer represents a unique cell.
+
         Returns
         -------
         cellblocks : ndarray
-            Array of min max values for each cell, shape (label_max,image dim,2)
+            An array containing the bounding boxes for each cell. The array has shape 
+            (number_of_labels, number_of_dimensions, 2), where each cell's bounding box is
+            represented by [min_dim1, min_dim2, ..., max_dim1, max_dim2, ...].
+
+        Examples
+        --------
+        >>> label_image = np.array([[0, 0, 1, 1], [0, 2, 2, 1], [2, 2, 2, 0]])
+        >>> blocks = traj.get_cell_blocks(label_image)
+        >>> blocks.shape
+        (2, 2, 2)  # Example output shape for a 2D label image with two labels.
         """
         bbox_table=regionprops_table(label,intensity_image=None,properties=['label','bbox'])
         cblocks=np.zeros((np.max(label),label.ndim,2)).astype(int)
         if label.ndim==2:
             cblocks[:,0,0]=bbox_table['bbox-0']
             cblocks[:,1,0]=bbox_table['bbox-1']
-            cblocks[:,0,1]=bbox_table['bbox-3']
-            cblocks[:,1,1]=bbox_table['bbox-4']
+            cblocks[:,0,1]=bbox_table['bbox-2']
+            cblocks[:,1,1]=bbox_table['bbox-3']
         if label.ndim==3:
             cblocks[:,0,0]=bbox_table['bbox-0']
             cblocks[:,1,0]=bbox_table['bbox-1']
@@ -440,13 +563,51 @@ class Trajectory:
 
     def get_cell_index(self,verbose=False,save_h5=False,overwrite=False):
         """
-        Get indices and host frame for each cell in image stack, and for each cell saves arrays of infor including frame index (cells_frameSet, cells_imgfileSet, cells_indimgSet, note these are named differently because of previous compatibility with running multiple image stacks in the same trajectory object, [ncells_total]), index value in trajectory object (cells_indSet, [ncells_total]), and bounding box in image (cellblocks [ncells_total, ndim, 2]
+        Computes indices and corresponding frame information for each cell in an image stack, capturing
+        this data in several attributes. This method gathers extensive cell data across all frames,
+        including frame indices, image file indices, individual image indices, and bounding boxes
+        for each cell. This information is stored in corresponding attributes, facilitating further
+        analysis or reference.
+
         Parameters
         ----------
+        verbose : bool, optional
+            If True, prints detailed logging of the processing for each frame. Default is False.
+        save_h5 : bool, optional
+            If True, saves the computed data to an HDF5 file using the specified `mskchannel`. Default is False.
+        overwrite : bool, optional
+            If True and `save_h5` is True, existing data in the HDF5 file will be overwritten. Default is False.
+
         Returns
         -------
         bool
-            True for success, False for error
+            True if the computation and any specified data saving are successful, False if there is
+            an error due to missing prerequisites or during saving.
+
+        Attributes
+        ----------
+        cells_frameSet : ndarray
+            Array storing the frame index for each cell, shape (ncells_total,).
+        cells_imgfileSet : ndarray
+            Array storing the image file index for each cell, shape (ncells_total,).
+        cells_indSet : ndarray
+            Array storing a unique index for each cell in the trajectory, shape (ncells_total,).
+        cells_indimgSet : ndarray
+            Array storing the image-specific index for each cell, shape (ncells_total,).
+        cellblocks : ndarray
+            Array of bounding boxes for each cell, shape (ncells_total, ndim, 2).
+
+        Raises
+        ------
+        AttributeError
+            If necessary attributes (like `nmaskchannels`, `ncells_total`, `mskchannel`, `maxFrame`)
+            are not set prior to invoking this method.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        >>> success = traj.get_cell_index(verbose=True, save_h5=True, overwrite=True)
+        True
         """
         if not hasattr(self,'nmaskchannels'):
             sys.stdout.write('no image shape set: first call get_image_shape or set axes and nt,nz,ny,nx,nmaskchannels attributes\n')
@@ -498,32 +659,45 @@ class Trajectory:
         return True
 
     def get_cell_data(self,ic,frametype='boundingbox',boundary_expansion=None,return_masks=True,relabel_masks=True,relabel_mskchannels=None,delete_background=False):
-        """Get image and mask data for a specific cell.
-
-        Review options for pulling cell neighborhood data as well as the local cell data:
+        """
+        Retrieves image and mask data for specific cells based on various configuration options. 
+        This method can extract data for single cells, their neighborhoods, or connected cell groups, 
+        and offers options to expand the extraction region, relabel masks, and more.
 
         Parameters
         ----------
-        ic : int
-            cell ID or list of cell IDs
-        frametype : str
-            Can be 'boundingbox' for a bounding box of the cell label, 'neighborhood' for the voronoi neighbors of the specified cell, or 'connected' for the full set of connected cells.
-        delete_background : bool
-            Whether to set label and image pixels other than the single, neighborhood, or connected set to zero.
-        return_masks : bool
-            Whether to return mask data along with image data
-        relabel_masks : bool
-            Whether to relabel masks with movie cell indices
-        relabel_mskchannels : array or list
-            List of channels to relabel
-        boundary_expansion : ndim ndarray, int
-            Array to expand single-cell image in each direction
+        ic : int or list of int
+            Cell ID(s) for which to retrieve data. Can specify a single cell or a list of cells.
+        frametype : str, optional
+            Type of frame data to retrieve; options include 'boundingbox', 'neighborhood', or 'connected'.
+            Default is 'boundingbox'.
+        boundary_expansion : ndarray or int, optional
+            Array specifying how much to expand the bounding box around the cell in each dimension.
+        return_masks : bool, optional
+            Whether to return the mask data along with the image data. Default is True.
+        relabel_masks : bool, optional
+            Whether to relabel mask data with movie cell indices. Default is True.
+        relabel_mskchannels : array or list, optional
+            Specifies the mask channels to relabel. If not set, uses the default mask channel.
+        delete_background : bool, optional
+            If set to True, sets label and image pixels outside the specified cell set to zero. Default is False.
+
         Returns
         -------
-        imgc : ndarray, float
-            cell image data
-        mskc : ndarray, int
-            cell mask data, optional if return_masks=True
+        imgc : ndarray
+            The image data for the specified cell(s) as a NumPy array.
+        mskc : ndarray, optional
+            The mask data for the specified cell(s) as a NumPy array, returned if `return_masks` is True.
+
+        Raises
+        ------
+        ValueError
+            If cells from multiple frames are requested or necessary attributes are not set.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        >>> img_data, mask_data = traj.get_cell_data(5, frametype='boundingbox', boundary_expansion=5, return_masks=True)
         """
         n_frame=self.cells_indimgSet[ic]
         ic_msk=self.cells_indSet[ic] #cell index in labeled image
@@ -588,39 +762,53 @@ class Trajectory:
                 
     def get_cell_features(self,function_tuple,indcells=None,imgchannel=0,mskchannel=0,use_fmask_for_intensity_image=False,fmskchannel=None,use_mask_for_intensity_image=False,bordersize=10,apply_contact_transform=False,return_feature_list=False,save_h5=False,overwrite=False,concatenate_features=False):
         """
-        Get cell features using skimage's regionprops, passing a custom function tuple for measurement
+        Extracts complex cell features based on the specified custom functions and imaging data.
+        This method allows customization of the feature extraction process using region properties
+        from segmented cell data, with optional transformations like border erosion or contact 
+        transformations. Features can be based on intensity images, mask data, or specific 
+        transformations of these data.
+
         Parameters
         ----------
-        function_tuple : single function or tuple of functions
-            Function should take regionmask, intensity as input and output a scalar or array of features, compatible with skimage regionprops
-        indcells : int ndarray
-            array of cell indices from which to calculate features
-        imgchannel : int
-            channel for intensity image for feature calc
-        mskchannel : int
-            channel for single-cell labels for feature calc
-        use_fmask_for_intensity_image : bool
-            useful for environment featurization
-        use_mask_for_intensity_image : bool
-            whether to use get_mask_data rather than get_image_data for intensity image
-        bordersize : int
-            number of pixels to erode foreground mask if use_fmask_for_intensity_image is True, or the radius to grow contact boundaries if apply_contact_transform is True
-        apply_contact_transform : bool
-            whether to apply contact transform to get a mask of segmentation contacts from the mask channel if use_mask_for_intensity_image is True
-        return_feature_list : bool
-            whether to return an array of strings describing features calculated
-        save_h5 : bool
-            whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
-        overwrite : bool
-            whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
-        concatenate_features : bool
-            whether to add features to existing Xf and Xf_feature_list
+        function_tuple : callable or tuple of callables
+            Function(s) that take a mask and an intensity image as input and return a scalar
+            or array of features. These functions must be compatible with skimage's regionprops.
+        indcells : ndarray of int, optional
+            Array of cell indices for which to calculate features. If None, calculates for all cells.
+        imgchannel : int, optional
+            Index of the image channel used for intensity image feature calculation.
+        mskchannel : int, optional
+            Index of the mask channel used for single-cell label feature calculation.
+        use_fmask_for_intensity_image : bool, optional
+            If True, uses foreground mask data for intensity images.
+        fmskchannel : int, optional
+            Channel index for foreground mask data if used for intensity image.
+        use_mask_for_intensity_image : bool, optional
+            If True, uses mask data instead of image data for intensity measurements.
+        bordersize : int, optional
+            Pixel size for erosion of the foreground mask or growth radius for contact boundaries.
+        apply_contact_transform : bool, optional
+            If True, applies a contact transform to generate segmentation contacts from the mask data.
+        return_feature_list : bool, optional
+            If True, returns a list of strings describing the calculated features.
+        save_h5 : bool, optional
+            If True, saves the features and their descriptions to an HDF5 file.
+        overwrite : bool, optional
+            If True and save_h5 is also True, overwrites existing data in the HDF5 file.
+        concatenate_features : bool, optional
+            If True, adds the newly calculated features to existing features in the dataset.
+
         Returns
         -------
-        Xf : ndarray (indcells.size,nfeatures)
-            features indexed by cells_indSet
-        feature_list : string array (nfeatures)
-            description of cell features, optional
+        Xf : ndarray
+            Array of features indexed by cells. The shape is (number of cells, number of features).
+        feature_list : ndarray of str, optional
+            Array of strings describing each feature, returned if `return_feature_list` is True.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        >>> features, feature_descriptions = traj.get_cell_features(my_feature_funcs, return_feature_list=True)
         """
         feature_postpend=f'msk{mskchannel}img{imgchannel}'
         if use_fmask_for_intensity_image:
@@ -703,35 +891,55 @@ class Trajectory:
         else:
             return np.array(Xf)
 
-    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,fmskchannel=None,make_disjoint=True,erosion_footprint1=None,erosion_footprint2=None,combined_and_disjoint=False,intensity_sum=False,intensity_ztransform=False,noratio=False,inverse_ratio=False,save_h5=False,overwrite=False):
+    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,fmask_channel=None,make_disjoint=True,erosion_footprint1=None,erosion_footprint2=None,combined_and_disjoint=False,intensity_sum=False,intensity_ztransform=False,noratio=False,inverse_ratio=False,save_h5=False,overwrite=False):
         """
-        Get cell features using skimage's regionprops, passing a custom function tuple for measurement
+        Calculates the ratio of features between two cellular compartments, optionally adjusted for image
+        intensity and morphology transformations. This method allows for complex comparisons between different
+        mask channels or modified versions of these channels to derive cellular compartment ratios.
+
         Parameters
         ----------
-        indcells : int ndarray
-            array of cell indices from which to calculate features
-        imgchannel : int
-            channel for intensity image for feature calc
-        mskchannel1 : int
-            first channel for single-cell labels for intensity calc, the numerator in ratio
-        mskchannel2 : int
-            second channel for single-cell labels for intensity calc, the denominator in ratio. Overlap with mskchannel1 will be removed
-        combined_and_disjoint : bool
-            combine masks 1 and 2, then dilate mask 2, erode mask 1, then remove mask 1 from mask 2
-        erosion_footprint[12] : ndarray
-            footprint of binary erosions to perform for each mask channel
-        inverse_ratio : bool
-            whether to take inverse (e.g. switch to c/n from n/c)
-        save_h5 : bool
-            whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
-        overwrite : bool
-            whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
+        indcells : ndarray of int, optional
+            Indices of cells for which to calculate the feature ratios.
+        imgchannel : int, optional
+            Index of the image channel used for intensity measurements.
+        mskchannel1 : int, optional
+            Mask channel index for the numerator in the ratio calculation.
+        mskchannel2 : int, optional
+            Mask channel index for the denominator in the ratio calculation. Overlaps with mskchannel1 are removed.
+        fmask_channel : int, optional
+            Mask channel index used to adjust mskchannel2 if no separate mskchannel2 is provided.
+        make_disjoint : bool, optional
+            If True, ensures that masks from mskchannel1 and mskchannel2 do not overlap by adjusting mskchannel1.
+        erosion_footprint1 : ndarray, optional
+            Erosion footprint for the first mask, modifies the mask by eroding it before calculations.
+        erosion_footprint2 : ndarray, optional
+            Erosion footprint for the second mask, modifies the mask by eroding it before calculations.
+        combined_and_disjoint : bool, optional
+            If True, combines and then separates the masks to only include disjoint areas in calculations.
+        intensity_sum : bool, optional
+            If True, sums the intensity over the area rather than averaging it, before ratio calculation.
+        intensity_ztransform : bool, optional
+            If True, applies a z-transformation based on standard deviations and means stored in the object.
+        noratio : bool, optional
+            If True, returns only the numerator intensity mean without forming a ratio.
+        inverse_ratio : bool, optional
+            If True, calculates the inverse of the normal ratio.
+        save_h5 : bool, optional
+            If True, saves the calculated ratios to an HDF5 file.
+        overwrite : bool, optional
+            If True and save_h5 is also True, overwrites existing data in the HDF5 file.
+
         Returns
         -------
-        cratio : ndarray (indcells.size)
-            compartment intensity ratio
-        feature_list : string array (nfeatures)
-            description of cell features, optional
+        cratio : ndarray
+            Array of calculated compartment ratios for each specified cell.
+        feature_list : ndarray of str, optional
+            Descriptions of the cell features, returned if `return_feature_list` is set to True.
+
+        Examples
+        --------
+        >>> cratio = traj.get_cell_compartment_ratio(indcells=[1,2,3], imgchannel=0, mskchannel1=1, mskchannel2=2)
         """
         if imgchannel is None or mskchannel1 is None:
             print('set imgchannel, mskchannel1, and mskchannel2 keys')
@@ -758,11 +966,11 @@ class Trajectory:
                 if self.axes[-1]=='c':
                     img=img[...,imgchannel]
                 msk1=msk[...,mskchannel1]
-                if fmskchannel is None:
+                if fmask_channel is None:
                     msk2=msk[...,mskchannel2]
                 else:
                     fmsk=self.get_fmask_data(self.cells_indimgSet[ic])
-                    fmsk=fmsk[...,fmskchannel]
+                    fmsk=fmsk[...,fmask_channel]
                     msk2=msk1.copy()
                     msk2[np.logical_not(fmsk>0)]=0
                 if combined_and_disjoint:
@@ -809,27 +1017,36 @@ class Trajectory:
 
     def get_cell_channel_crosscorr(self,indcells=None,mskchannel=None,imgchannel1=None,imgchannel2=None,save_h5=False,overwrite=False):
         """
-        Get cross correlation between channels within cell labels
+        Computes the cross-correlation between two image channels within labeled cells, using masks defined by a specific mask channel. This method is particularly useful for analyzing the relationship between different signal channels at a cellular level.
+
         Parameters
         ----------
-        indcells : int ndarray
-            array of cell indices from which to calculate features
+        indcells : ndarray of int, optional
+            Indices of cells for which to calculate cross-correlations. If None, calculations are performed for all indexed cells.
         mskchannel : int
-            channel for cell labels
+            Mask channel used to define cellular regions.
         imgchannel1 : int
-            first channel for correlation analysis
-        mskchannel2 : int
-            second channel for correlation analysis
-        save_h5 : bool
-            whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
-        overwrite : bool
-            whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
+            First image channel for correlation analysis.
+        imgchannel2 : int
+            Second image channel for correlation analysis.
+        save_h5 : bool, optional
+            If True, saves the calculated cross-correlations to an HDF5 file under the specified directory and file names.
+        overwrite : bool, optional
+            If True and save_h5 is True, existing data in the HDF5 file will be overwritten.
+
         Returns
         -------
-        corrc : ndarray (indcells.size)
-            channel cross-correlation
-        feature_list : string array (nfeatures)
-            description of cell features, optional
+        corrc : ndarray
+            Array of cross-correlation coefficients for each cell. The length of the array corresponds to the number of cells specified by `indcells`.
+
+        Raises
+        ------
+        ValueError
+            If required parameters are not set or if no cell index is available, prompting the user to set necessary parameters or perform required prior steps.
+
+        Examples
+        --------
+        >>> corrc = traj.get_cell_channel_crosscorr(indcells=[1,2,3], mskchannel=0, imgchannel1=1, imgchannel2=2)
         """
         if mskchannel is None or imgchannel1 is None or imgchannel2 is None:
             print('set imgchannel, mskchannel1, and mskchannel2 keys')
@@ -870,23 +1087,40 @@ class Trajectory:
 
     def get_motility_features(self,indcells=None,mskchannel=None,save_h5=False,overwrite=False):
         """
-        Get single-cell and neighbor-averaged motility features
+        Extracts motility features for individual cells and their neighbors. This method calculates
+        both single-cell and neighbor-averaged motility characteristics, such as displacement and
+        interaction with neighboring cells, based on tracking data and cell label information.
+
         Parameters
         ----------
-        indcells : int ndarray
-            array of cell indices from which to calculate features
+        indcells : ndarray of int, optional
+            Indices of cells for which to calculate motility features. If None, features are calculated
+            for all cells in the dataset.
         mskchannel : int
-            channel for cell labels
-        save_h5 : bool
-            whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list
-        overwrite : bool
-            whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file
+            Mask channel used to define cell labels.
+        save_h5 : bool, optional
+            If True, saves the calculated motility features to an HDF5 file specified in the trajectory object.
+        overwrite : bool, optional
+            If True and save_h5 is True, overwrites existing data in the HDF5 file.
+
         Returns
         -------
-        Xf_com : ndarray ((indcells.size,nfeat_com))
-            motility features
-        feature_list : string array (nfeat_com)
-            description of motility features, optional
+        Xf_com : ndarray
+            An array of computed motility features for each specified cell. The array dimensions are
+            (number of cells, number of features).
+        feature_list : ndarray of str, optional
+            Descriptions of each motility feature computed. This is returned if `return_feature_list`
+            is set to True in the method call.
+
+        Raises
+        ------
+        ValueError
+            If required data such as mask channels or cell indices are not set, or if cell tracking has
+            not been performed prior to feature extraction.
+
+        Examples
+        --------
+        >>> motility_features = traj.get_motility_features(indcells=[1, 2, 3], mskchannel=0)
         """
         if mskchannel is None:
             print('set mskchannel')
@@ -937,32 +1171,44 @@ class Trajectory:
 
     def get_stack_trans(self,mskchannel=0,ntrans=20,maxt=10,dist_function=utilities.get_pairwise_distance_sum,zscale=None,save_h5=False,overwrite=False,do_global=False,**dist_function_keys):
         """
-        Get translations over image stack using a brute force function optimization approach.
+        Computes translations across an image stack using a brute force optimization method to align
+        cell centers from frame to frame. This method can apply both local and global alignment strategies
+        based on the distribution of cell centers.
+
         Parameters
         ----------
-        mskchannel : mask channel for labels from which to obtain cell centers
-            Function should take regionmask, intensity as input and output a scalar or array of features, compatible with skimage regionprops
-        ntrans : int or int ndarray
-            number of translations to try in each dimension
-        maxt : float or float ndarray
-            max translation in each dimension
+        mskchannel : int
+            Mask channel to use for extracting cell centers from labels.
+        ntrans : int or ndarray
+            Number of translations to try in each dimension during optimization.
+        maxt : float or ndarray
+            Maximum translation distance to consider in each dimension.
         dist_function : function
-            function to use for optimization. Should take centers0,centers1,tshift as input, and yield a score (lower is better)
-        save_h5 : bool
-            whether to save transformation matrices to h5 file as /cell_data/tf_matrix_set
-        overwrite : bool
-            whether to overwrite existing data in h5 file
-        do_global : bool
-            whether to do a global alignment matching center of all masks prior to brute force grid search
-        dist_function_keys : keywords
-            will be passed to dist_function for optimization
+            Optimization function that takes cell centers from two frames and a translation vector,
+            returning a score where lower values indicate better alignment.
+        zscale : float, optional
+            Scaling factor for the z-dimension to normalize it with x and y dimensions.
+        save_h5 : bool, optional
+            If True, saves the computed transformation matrices to an HDF5 file.
+        overwrite : bool, optional
+            If True and save_h5 is True, overwrites existing data in the HDF5 file.
+        do_global : bool, optional
+            If True, performs a global alignment using the center of mass of all masks prior to brute force optimization.
+        dist_function_keys : dict
+            Additional keyword arguments to pass to the dist_function.
+
         Returns
         -------
-        tf_matrix_set : ndarray (nframes,ndim+1,ndim+1)
-            array of aligning global transformations between frames
+        tf_matrix_set : ndarray
+            An array of shape (nframes, ndim+1, ndim+1) containing the transformation matrices for aligning
+            each frame to the first frame based on the computed translations.
+
+        Examples
+        --------
+        >>> transformations = traj.get_stack_trans(mskchannel=1, ntrans=10, maxt=5, do_global=False)
         """
         nframes=self.nt
-        tSet=np.zeros((nframes,3))
+        tSet=np.zeros((nframes,self.ndim))
         msk0=self.get_mask_data(0)
         if self.nmaskchannels>0:
             msk0=msk0[...,mskchannel]
@@ -1004,11 +1250,16 @@ class Trajectory:
         tf_matrix_set=np.zeros((nframes,self.ndim+1,self.ndim+1))
         for iS in range(nframes):
             tf_matrix_set[iS,:,:]=tf.EuclideanTransform(translation=tSet[iS,:],dimensionality=self.ndim).params
+        if self.ndim==2:
+            tf_matrix_set_pad,pad_dims=imprep.get_registration_expansions(tf_matrix_set,self.nx,self.ny)
+        if self.ndim==3:
+            tf_matrix_set_pad,pad_dims=imprep.get_registration_expansions(tf_matrix_set,self.nz,self.nx,self.ny)
         if save_h5:
-            self.tf_matrix_set=tf_matrix_set
-            attribute_list=['tf_matrix_set']
+            self.tf_matrix_set=tf_matrix_set_pad
+            self.pad_dims=pad_dims
+            attribute_list=['tf_matrix_set','pad_dims']
             self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
-        return tf_matrix_set
+        return tf_matrix_set_pad
 
     def get_cell_positions(self,mskchannel=0,save_h5=False,overwrite=False):
         """
@@ -1069,6 +1320,13 @@ class Trajectory:
                 cells_positionSet[indc_img,:]=centers
                 #centers[:,0]=centers[:,0]-self.imgSet_t[im,2]
                 #centers[:,1]=centers[:,1]-self.imgSet_t[im,1]
+                #if self.ndim==2: #trying old way 8may24
+                #    centers[:,0]=centers[:,0]-tSet[im,1]
+                #    centers[:,1]=centers[:,1]-tSet[im,0]
+                #if self.ndim==3: #trying old way 8may24
+                #    centers[:,0]=centers[:,0]-tSet[im,0]
+                #    centers[:,1]=centers[:,1]-tSet[im,2]
+                #    centers[:,2]=centers[:,2]-tSet[im,1]
                 centers=centers-tSet[im,:]
                 cells_x[indc_img,:]=centers
         if save_h5:
@@ -1079,16 +1337,63 @@ class Trajectory:
         return cells_x
 
     def get_lineage_btrack(self,mskchannel=0,distcut=5.,framewindow=6,visual_1cell=False,visual=False,max_search_radius=100,save_h5=False,overwrite=False):
+        """
+        Tracks cell lineages over an image stack using Bayesian tracking with visual confirmation options.
+        This method registers transformed masks and applies Bayesian tracking to link cell identities
+        across frames, storing the lineage information. 
+        Use of btrack software requires a cell_config.json file stored in the directory, see btrack documentation.
+
+        Parameters
+        ----------
+        mskchannel : int
+            Mask channel used to identify cell labels from which cell centers are extracted.
+        distcut : float
+            Maximum distance between cell centers in consecutive frames for cells to be considered the same.
+        framewindow : int
+            Number of frames over which to look for cell correspondences.
+        visual_1cell : bool
+            If True, displays visual tracking information for single cell matches during processing.
+        visual : bool
+            If True, displays visual tracking information for all cells during processing.
+        max_search_radius : int
+            The maximum search radius in pixels for linking objects between frames.
+        save_h5 : bool
+            If True, saves the lineage data (`linSet`) to an HDF5 file.
+        overwrite : bool
+            If True and save_h5 is True, overwrites existing data in the HDF5 file.
+
+        Returns
+        -------
+        linSet : list of ndarray
+            A list of arrays where each array corresponds to a frame and contains indices that map
+            each cell to its predecessor in the previous frame. Cells with no predecessor are marked
+            with -1. The data saved in `linSet` thus represents the lineage of each cell over the stack.
+
+        Raises
+        ------
+        AttributeError
+            If `tf_matrix_set` is not set, indicating that stack transformation matrices are required
+            for tracking but have not been calculated.
+
+        Examples
+        --------
+
+        >>> lineage_data = traj.get_lineage_btrack(mskchannel=1, visual=True)
+        """
         nimg=self.nt
         if not hasattr(self,'tf_matrix_set'):
             print('need to run get_stack_trans for image stack registration before tracking')
-        tf_matrix_set_pad,pad_dims=imprep.get_registration_expansions(self.tf_matrix_set,self.nz,self.nx,self.ny)
-        segmentation=np.zeros((nimg,*pad_dims)).astype(int)
+        #if self.ndim==3:
+        #    tf_matrix_set_pad,pad_dims=imprep.get_registration_expansions(self.tf_matrix_set,self.nz,self.nx,self.ny)
+        #if self.ndim==2:
+        #    tf_matrix_set_pad,pad_dims=imprep.get_registration_expansions(self.tf_matrix_set,self.nx,self.ny)
+        segmentation=np.zeros((nimg,*tuple(self.image_shape))).astype(int) #removed pad_dims here because incompatible with self.x, should fix
+        #segmentation=np.zeros((nimg,*self.pad_dims)).astype(int)
         for im in range(nimg):
             msk=self.get_mask_data(im)
             if self.nmaskchannels>0:
                 msk=msk[...,mskchannel]
-            mskT=imprep.transform_image(msk,self.tf_matrix_set[im,...],inverse_tform=True,pad_dims=pad_dims)
+            mskT=imprep.transform_image(msk,self.tf_matrix_set[im,...],inverse_tform=False,pad_dims=None) #changed from inverse_tform=True, 9may24
             segmentation[im,...]=mskT
             print('loading and translating mask '+str(im))
         linSet=[None]*nimg
@@ -1187,6 +1492,42 @@ class Trajectory:
         return linSet
 
     def get_lineage_mindist(self,distcut=5.,visual=False,save_h5=False,overwrite=False):
+        """
+        Tracks cell lineage based on the minimum distance between cells across consecutive frames.
+        This method assesses cell positions to establish lineage by identifying the nearest cell
+        in the subsequent frame within a specified distance threshold.
+
+        Parameters
+        ----------
+        distcut : float, optional
+            The maximum distance a cell can move between frames to be considered the same cell.
+            Cells moving a distance greater than this threshold will not be tracked from one frame to the next.
+        visual : bool, optional
+            If True, displays a visual representation of the tracking process for each frame, showing
+            the cells and their movements between frames.
+        save_h5 : bool, optional
+            If True, saves the lineage data (`linSet`) to an HDF5 file.
+        overwrite : bool, optional
+            If True and save_h5 is True, overwrites existing data in the HDF5 file.
+
+        Returns
+        -------
+        linSet : list of ndarray
+            A list where each entry corresponds to a frame and contains cell indices that map each cell
+            to its predecessor in the previous frame. Cells with no identifiable predecessor are marked with -1.
+            This list provides a complete lineage map of cells across all analyzed frames.
+
+        Raises
+        ------
+        AttributeError
+            If the cell positions (`x`) are not calculated prior to running this method, indicating that
+            `get_cell_positions` needs to be executed first.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/your/data.h5')
+        >>> lineage_data = traj.get_lineage_mindist(distcut=10, visual=True)
+        """
         nimg=self.nt
         if not hasattr(self,'x'):
             print('need to run get_cell_positions for cell locations')
@@ -1217,6 +1558,8 @@ class Trajectory:
             if visual:
                 msk1=self.get_mask_data(iS)[...,self.mskchannel]
                 msk0=self.get_mask_data(iS-1)[...,self.mskchannel]
+                msk1=imprep.transform_image(msk1,self.tf_matrix_set[iS,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
+                msk0=imprep.transform_image(msk0,self.tf_matrix_set[iS-1,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
                 if self.ndim==3:
                     vmsk1=np.max(msk1,axis=0)
                     vmsk0=np.max(msk0,axis=0)
@@ -1241,6 +1584,44 @@ class Trajectory:
         return linSet
 
     def get_cell_trajectory(self,cell_ind,n_hist=-1): #cell trajectory stepping backwards
+        """
+        Retrieves the trajectory of a specified cell across previous frames, tracing back from the current frame to
+        the point of its first appearance or until a specified number of history steps.
+
+        Parameters
+        ----------
+        cell_ind : int
+            The index of the cell for which to retrieve the trajectory.
+        n_hist : int, optional
+            The number of historical steps to trace back. If set to -1 (default), the function traces back
+            to the earliest frame in which the cell appears.
+
+        Returns
+        -------
+        cell_traj : ndarray
+            An array of cell indices representing the trajectory of the specified cell across the tracked frames.
+            The array is ordered from the earliest appearance to the current frame.
+
+        Raises
+        ------
+        IndexError
+            If the cell index provided is out of the bounds of the available data.
+        ValueError
+            If the provided cell index does not correspond to any tracked cell, possibly due to errors in lineage tracking.
+
+        Examples
+        --------
+        >>> cell_trajectory = traj.get_cell_trajectory(10)
+        >>> print(cell_trajectory)
+        [23, 45, 67, 89]  # Example output, actual values depend on cell tracking results.
+
+        Notes
+        -----
+        The trajectory is computed by accessing the lineage data (`linSet`), which must be computed beforehand
+        via methods such as `get_lineage_btrack`. Each index in the resulting trajectory corresponds to a
+        position in previous frames where the cell was identified, stepping backwards until the cell's first
+        detection or the limit of specified history steps.
+        """
         minframe=np.min(self.cells_indimgSet)
         if n_hist==-1:
             n_hist=int(self.cells_indimgSet[cell_ind]-minframe)
@@ -1276,6 +1657,36 @@ class Trajectory:
         return cell_traj
 
     def get_unique_trajectories(self,cell_inds=None,verbose=False,extra_depth=None):
+        """
+        Computes unique trajectories for a set of cells over multiple frames, minimizing redundancy by
+        ensuring that no two trajectories cover the same cell path beyond a specified overlap (extra_depth).
+
+        Parameters
+        ----------
+        cell_inds : array of int, optional
+            Array of cell indices for which to calculate trajectories. If None, calculates trajectories
+            for all cells.
+        verbose : bool, optional
+            If True, provides detailed logs during the trajectory calculation process.
+        extra_depth : int, optional
+            Specifies how many frames of overlap to allow between different trajectories. If not set,
+            uses the pre-set attribute 'trajl' minus one as the depth; if 'trajl' is not set, defaults to 0.
+
+        Notes
+        -----
+        - This method identifies unique trajectories by tracking each cell backward from its last appearance
+        to its first, recording the trajectory, and then ensuring subsequent trajectories do not retread
+        the same path beyond the allowed overlap specified by 'extra_depth'.
+
+        - Each trajectory is tracked until it either reaches the start of the dataset or an earlier part of
+        another trajectory within the allowed overlap.
+
+        - This function updates the instance's 'trajectories' attribute, storing each unique trajectory.
+
+        Examples
+        --------
+        >>> traj.get_unique_trajectories(verbose=True)
+        """
         if extra_depth is None:
             if hasattr(self,'trajl'):
                 extra_depth=self.trajl-1
@@ -1315,6 +1726,47 @@ class Trajectory:
         self.trajectories=trajectories
 
     def get_traj_segments(self,seg_length):
+        """
+        Divides each trajectory into multiple overlapping segments of a specified length. This method
+        is useful for analyzing sections of trajectories or for preparing data for machine learning
+        models that require fixed-size input.
+
+        Parameters
+        ----------
+        seg_length : int
+            The length of each segment to be extracted from the trajectories. Segments are created
+            by sliding a window of this length along each trajectory.
+
+        Returns
+        -------
+        traj_segSet : ndarray
+            A 2D array where each row represents a segment of a trajectory. The number of columns
+            in this array equals `seg_length`. Each segment includes consecutive cell indices
+            from the original trajectories.
+
+        Notes
+        -----
+        - This method requires that the `trajectories` attribute has been populated, typically by
+        a method that computes full trajectories such as `get_unique_trajectories`.
+
+        - Only trajectories that are at least as long as `seg_length` will contribute segments to
+        the output. Shorter trajectories are ignored.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/data.h5')
+        >>> traj.get_unique_trajectories()
+        >>> segments = traj.get_traj_segments(5)
+        >>> print(segments.shape)
+        (number of segments, 5)  # Example shape, actual values depend on trajectory lengths and seg_length.
+
+        Raises
+        ------
+        ValueError
+            If `seg_length` is larger than the length of any available trajectory, resulting in
+            no valid segments being produced.
+
+        """
         ntraj=len(self.trajectories)
         traj_segSet=np.zeros((0,seg_length)).astype(int)
         for itraj in range(ntraj):
@@ -1326,7 +1778,50 @@ class Trajectory:
                     traj_segSet=np.append(traj_segSet,traj_seg[np.newaxis,:],axis=0)
         return traj_segSet
 
-    def get_Xtraj_celltrajectory(self,cell_traj,Xtraj=None,traj=None): #traj and
+    def get_Xtraj_celltrajectory(self,cell_traj,Xtraj=None,traj=None):
+        """
+        Retrieves trajectory segments for a specific cell trajectory from a larger set of trajectory data. 
+        This method matches segments of the cell trajectory with those in a pre-computed set of trajectories
+        and extracts the corresponding features or data points.
+
+        Parameters
+        ----------
+        cell_traj : ndarray
+            An array containing indices of a cell's trajectory over time.
+        Xtraj : ndarray, optional
+            The trajectory feature matrix from which to extract data. If not provided, the method uses 
+            the instance's attribute `Xtraj`.
+        traj : ndarray, optional
+            A matrix of precomputed trajectories used for matching against `cell_traj`. If not provided, 
+            the method uses the instance's attribute `traj`.
+
+        Returns
+        -------
+        xt : ndarray
+            A subset of `Xtraj` corresponding to the segments of `cell_traj` that match segments in `traj`.
+        inds_traj : ndarray
+            Indices within `traj` where matches were found, indicating which rows in `Xtraj` were selected.
+
+        Raises
+        ------
+        ValueError
+            If the length of `cell_traj` is less than the length used for trajectories in `traj` (`trajl`),
+            making it impossible to match any trajectory segments.
+
+        Examples
+        --------
+        >>> traj.get_unique_trajectories()
+        >>> cell_trajectory = traj.get_cell_trajectory(10)
+        >>> features, indices = traj.get_Xtraj_celltrajectory(cell_trajectory)
+
+        Notes
+        -----
+        - The method requires `trajl`, the length of the trajectory segments, to be set either as a class 
+        attribute or passed explicitly. This length determines how the segments are compared for matching.
+        - This function is particularly useful for analyzing time-series data or features extracted from 
+        trajectories, allowing for detailed analysis specific to a single cell's path through time.
+
+        """
         if traj is None:
             traj=self.traj
         if Xtraj is None:
@@ -1346,7 +1841,46 @@ class Trajectory:
                 inds_traj=np.append(inds_traj,indt)
         return xt,inds_traj.astype(int)
 
-    def get_trajectory_steps(self,inds=None,traj=None,Xtraj=None,get_trajectories=True,nlag=1): #traj and Xtraj should be indexed same
+    def get_trajectory_steps(self,inds=None,traj=None,Xtraj=None,get_trajectories=True,nlag=1): 
+        """
+        Extracts sequential steps from cell trajectories and retrieves corresponding features from a feature matrix.
+        This method is useful for analyses that require step-wise comparison of trajectories, such as
+        calculating changes or transitions over time.
+
+        Parameters
+        ----------
+        inds : array of int, optional
+            Indices of cells for which to get trajectory steps. If None, processes all cells.
+        traj : ndarray, optional
+            The trajectory data matrix. If None, uses the instance's `traj` attribute.
+        Xtraj : ndarray, optional
+            The feature data matrix corresponding to trajectories. If None, uses the instance's `Xtraj` attribute.
+        get_trajectories : bool, optional
+            If True, computes unique trajectories for the specified indices before processing steps.
+        nlag : int, optional
+            The lag between steps in a trajectory to consider. A value of 1 means consecutive steps.
+
+        Notes
+        -----
+        - The method assumes that the trajectory and feature data matrices (`traj` and `Xtraj`, respectively)
+        are indexed in the same way.
+        - This function can optionally calculate unique trajectories before extracting steps, making it
+        versatile for both freshly calculated and pre-computed trajectory datasets.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/data.h5')
+        >>> traj.get_trajectory_steps(get_trajectories=True, nlag=2)
+        # This will compute unique trajectories for all cells and then extract every second step.
+
+        Raises
+        ------
+        IndexError
+            If any index in `inds` is out of bounds of the available data.
+        ValueError
+            If `traj` or `Xtraj` data matrices are not set and not provided as arguments.
+
+        """
         if inds is None:
             inds=np.arange(self.cells_indSet.size).astype(int)
         if get_trajectories:
@@ -1384,8 +1918,52 @@ class Trajectory:
 
     def get_trajAB_segments(self,xt,stateA=None,stateB=None,clusters=None,states=None,distcutA=None,distcutB=None):
         """
-        Takes real or assigned trajectories as input and returns indices in A (only stateA defined), or between A and B (stateA and stateB defined).
-        A is 1, B is 2, not A or B is 0
+        Identifies segments within trajectories that transition between specified states, A and B. This method
+        can be used to analyze transitions or dwell times in specific states within a trajectory dataset.
+
+        Parameters
+        ----------
+        xt : ndarray
+            An array representing trajectories, either as direct state assignments or continuous data.
+        stateA : int or array-like, optional
+            The state or states considered as 'A'. Transitions from this state are analyzed.
+        stateB : int or array-like, optional
+            The state or states considered as 'B'. If defined, transitions from state A to state B are analyzed.
+        clusters : object, optional
+            A clustering object with an 'assign' method that can be used to discretize continuous trajectory data into states.
+        states : ndarray, optional
+            An array defining all possible states. Used to map states in 'xt' if it contains direct state assignments.
+        distcutA : float, optional
+            The distance cutoff for determining membership in state A if 'xt' is continuous.
+        distcutB : float, optional
+            The distance cutoff for determining membership in state B if 'xt' is continuous and 'stateB' is defined.
+
+        Returns
+        -------
+        slices : list of slice
+            A list of slice objects representing the indices of 'xt' where transitions between specified states occur.
+            If only 'stateA' is specified, returns segments where the trajectory is in state A.
+
+        Raises
+        ------
+        ValueError
+            If required parameters for defining states or transitions are not provided or if the provided
+            parameters are incompatible (e.g., 'distcutA' without a corresponding 'stateA').
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/data.h5')
+        >>> xt = np.random.rand(100, 2)  # Example continuous trajectory data
+        >>> clusters = KMeans(n_clusters=3).fit(xt)  # Example clustering model
+        >>> segments = traj.get_trajAB_segments(xt, stateA=0, stateB=1, clusters=clusters)
+        # Analyze transitions from state 0 to state 1 using cluster assignments
+
+        Notes
+        -----
+        - If 'xt' contains direct state assignments, 'states' must be provided to map these to actual state values.
+        - For continuous data, 'clusters' or distance cutoffs ('distcutA', 'distcutB') must be used to define states.
+        - This function is useful for analyzing kinetic data where transitions between states are of interest.
+
         """
         nt=xt.shape[0]
         inds_xt=np.ma.masked_array(np.arange(nt).astype(int))
@@ -1459,6 +2037,44 @@ class Trajectory:
             return slices
 
     def get_pair_rdf(self,cell_indsA=None,cell_indsB=None,rbins=None,nr=50,rmax=500):
+        """
+        Calculates the radial distribution function (RDF) between two sets of cells, identifying the
+        frequency of cell-cell distances within specified radial bins. This method is commonly used
+        in statistical physics and materials science to study the spatial distribution of particles.
+
+        Parameters
+        ----------
+        cell_indsA : array of int, optional
+            Indices of the first set of cells. If None, considers all cells.
+        cell_indsB : array of int, optional
+            Indices of the second set of cells. If None, uses the same indices as `cell_indsA`.
+        rbins : ndarray, optional
+            Array of radial bins for calculating RDF. If None, bins are generated linearly from nearly 0 to `rmax`.
+        nr : int, optional
+            Number of radial bins if `rbins` is not specified. Default is 50.
+        rmax : float, optional
+            Maximum radius for the radial bins if `rbins` is not specified. Default is 500 units.
+
+        Returns
+        -------
+        rbins : ndarray
+            The radial bins used for the RDF calculation, adjusted to remove the zero point and ensure proper binning.
+        paircorrx : ndarray
+            RDF values corresponding to each radial bin, normalized to the total number of pairs and the bin volumes.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/data.h5')
+        >>> rbins, rdf = traj.get_pair_rdf(cell_indsA=[1, 2, 3], cell_indsB=[4, 5, 6], nr=100, rmax=200)
+        # This will calculate the RDF between two specified sets of cells with 100 radial bins up to a maximum radius of 200.
+
+        Notes
+        -----
+        - The RDF gives a normalized measure of how often pairs of points (cells) appear at certain distances from each other,
+        compared to what would be expected for a completely random distribution at the same density.
+        - This function is useful for examining the spatial organization and clustering behavior of cells in tissues or cultures.
+
+        """
         if cell_indsA is None:
             cell_indsA=np.arange(self.cells_indSet.shape[0]).astype(int)
         if cell_indsB is None:
@@ -1494,10 +2110,46 @@ class Trajectory:
         paircorrx=paircorrx*V/nc
         return rbins,paircorrx
 
-    def get_cell_neighborhood(self,indcell):
-        return indcells,intersurfaces
-
     def get_alpha(self,i1,i2):
+        """
+        Calculates the alignment measure, alpha, between two cells identified by their indices. This
+        measure reflects how the movement direction of one cell relates to the direction of the vector
+        connecting the two cells, essentially quantifying the relative motion along the axis of separation.
+
+        Parameters
+        ----------
+        i1 : int
+            Index of the first cell.
+        i2 : int
+            Index of the second cell.
+
+        Returns
+        -------
+        alpha : float
+            The alignment measure between the two cells. This value ranges from -1 to 1, where 1 indicates
+            that the cells are moving directly towards each other, -1 indicates they are moving directly
+            away from each other, and 0 indicates orthogonal movement directions. Returns NaN if the calculation
+            fails (e.g., due to division by zero when normalizing zero-length vectors).
+
+        Raises
+        ------
+        Exception
+            If an error occurs during the trajectory retrieval or normalization process, likely due to missing
+            data or incorrect indices.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/data.h5')
+        >>> alignment = traj.get_alpha(10, 15)
+        # This computes the alignment measure between cells at index 10 and 15 based on their last movements.
+
+        Notes
+        -----
+        - The function computes the movement vectors of both cells from their previous positions in their
+        respective trajectories and uses these vectors to determine their alignment relative to the vector
+        connecting the two cells at their current positions.
+
+        """
         try:
             ip1=self.get_cell_trajectory(i1,n_hist=1)[-2]
             ip2=self.get_cell_trajectory(i2,n_hist=1)[-2]
@@ -1514,6 +2166,45 @@ class Trajectory:
         return alpha
 
     def get_beta(self,i1,i2):
+        """
+        Calculates the cosine of the angle (beta) between the movement directions of two cells. This measure
+        quantifies the directional similarity or alignment between two moving cells, with values ranging
+        from -1 to 1.
+
+        Parameters
+        ----------
+        i1 : int
+            Index of the first cell.
+        i2 : int
+            Index of the second cell.
+
+        Returns
+        -------
+        beta : float
+            The cosine of the angle between the movement vectors of the two cells, indicating their
+            directional alignment. A value of 1 means the cells are moving in exactly the same direction,
+            -1 means they are moving in exactly opposite directions, and 0 indicates orthogonal movement
+            directions. Returns NaN if the calculation fails, typically due to a division by zero when 
+            attempting to normalize zero-length vectors.
+
+        Raises
+        ------
+        Exception
+            If an error occurs during the trajectory retrieval or normalization process, likely due to missing
+            data or incorrect indices.
+
+        Examples
+        --------
+        >>> alignment = traj.get_beta(10, 15)
+        # This computes the directional alignment between cells at index 10 and 15 based on their last movements.
+
+        Notes
+        -----
+        - The function calculates movement vectors for both cells from their positions at the last two time points
+        in their trajectories. It then computes the cosine of the angle between these vectors as the beta value,
+        providing an indication of how parallel their movements are.
+
+        """
         try:
             ip1=self.get_cell_trajectory(i1,n_hist=1)[-2]
             ip2=self.get_cell_trajectory(i2,n_hist=1)[-2]
@@ -1527,6 +2218,40 @@ class Trajectory:
         return beta
 
     def get_dx(self,i1):
+        """
+        Calculates the displacement vector of a cell between its current position and its previous position in the
+        trajectory. This vector represents the movement of the cell between two consecutive time points.
+
+        Parameters
+        ----------
+        i1 : int
+            Index of the cell for which to calculate the displacement.
+
+        Returns
+        -------
+        dx1 : ndarray
+            A vector representing the displacement of the cell. The vector is given in the coordinate space
+            of the cell positions. If the calculation fails (e.g., due to missing data), returns a vector
+            of NaNs.
+
+        Raises
+        ------
+        Exception
+            If an error occurs during the trajectory retrieval or calculation, typically due to missing
+            data or incorrect indices.
+
+        Examples
+        --------
+        >>> displacement = traj.get_dx(10)
+        # This calculates the displacement vector for the cell at index 10 between its current and previous positions.
+
+        Notes
+        -----
+        - The method attempts to retrieve the last position from the cell's trajectory using `get_cell_trajectory`.
+        If the cell's trajectory does not have a previous position or the data is missing, the displacement
+        vector will contain NaN values to indicate the failure of the calculation.
+
+        """
         try:
             ip1=self.get_cell_trajectory(i1,n_hist=1)[-2]
             dx1=self.x[i1,:]-self.x[ip1,:]
@@ -1534,45 +2259,54 @@ class Trajectory:
             dx1=np.ones(2)*np.nan
         return dx1
 
-    def feat_comdx(self,indcell,bmsk=None,bunch_clusters=None):
-        if self.get_cell_trajectory(indcell,n_hist=1).size>1:
-            indcells,intersurfaces=self.get_cell_neighborhood(indcell,bmsk=bmsk,bunch_clusters=bunch_clusters)
-            alphaSet=np.zeros(indcells.size)
-            betaSet=np.zeros(indcells.size)
-            for ic in range(indcells.size):
-                alphaSet[ic]=self.get_alpha(indcell,indcells[ic])
-                betaSet[ic]=self.get_beta(indcell,indcells[ic])
-            intersurfaces=intersurfaces/np.nansum(intersurfaces)
-            comdx=np.zeros(3)
-            comdx[0]=np.linalg.norm(self.get_dx(indcell))
-            comdx[1]=np.nansum(np.multiply(intersurfaces,alphaSet))
-            comdx[2]=np.nansum(np.multiply(intersurfaces,betaSet))
-        else:
-            comdx=np.ones(3)*np.nan
-        return comdx
-
-    def get_comdx_features(self,cell_inds=None):
-        nfeat_com=3
-        if cell_inds is None:
-            cell_inds=np.arange(self.x.shape[0]).astype(int)
-        Xf_com=np.ones((self.x.shape[0],nfeat_com))*np.nan
-        traj_pairSet=self.get_traj_segments(2)
-        indimgs=np.unique(self.cells_indimgSet[cell_inds])
-        for im in indimgs:
-            fmsk=self.fmskSet[im,:,:]
-            bmsk=self.get_cell_bunches(fmsk,bunchcut=1.0)
-            bunch_clusters=self.get_bunch_clusters(bmsk,t=self.imgSet_t[im,:])
-            sys.stdout.write('extracting motility features from image '+str(im)+' of '+str(indimgs.size)+'\n')
-            cell_inds_img=np.where(self.cells_indimgSet[cell_inds]==im)[0]
-            indcells,indcomm_cindimg,indcomm_ctraj=np.intersect1d(cell_inds[cell_inds_img],traj_pairSet[:,1],return_indices=True)
-            xSet=self.x[traj_pairSet[indcomm_ctraj,1],:]
-            for ic in indcomm_ctraj:
-                indcell=traj_pairSet[ic,1]
-                comdx=self.feat_comdx(indcell,bmsk=bmsk,bunch_clusters=bunch_clusters)
-                Xf_com[indcell,:]=comdx
-        self.Xf_com=Xf_com
-
     def get_secreted_ligand_density(self,frame,mskchannel=0,scale=2.,npad=None,indz_bm=0,secretion_rate=1.0,D=None,flipz=False,visual=False):
+        """
+        Simulates the diffusion of secreted ligands from cells, providing a spatial distribution of ligand density across a specified frame. 
+        The simulation considers specified boundary conditions and secretion rates to model the ligand concentration in the vicinity of cells.
+
+        Parameters
+        ----------
+        frame : int
+            The frame index from which image and mask data are extracted.
+        mskchannel : int, optional
+            The channel of the mask that identifies the cells.
+        scale : float, optional
+            The scaling factor for the resolution of the simulation. Default is 2.0.
+        npad : array-like, optional
+            Padding to add around the simulation area to avoid edge effects. Defaults to [0, 0, 0] if None.
+        indz_bm : int, optional
+            The index of the bottom-most slice to consider in the z-dimension.
+        secretion_rate : float or array-like, optional
+            The rate at which ligands are secreted by the cells. Can be a single value or an array specifying different rates for different cells.
+        D : float, optional
+            Diffusion coefficient. If not specified, it is calculated based on the pixel size and z-scaling.
+        flipz : bool, optional
+            If True, flips the z-dimension of the image and mask data, useful for certain imaging orientations.
+        visual : bool, optional
+            If True, displays visualizations of the simulation process and results.
+
+        Returns
+        -------
+        vdist : ndarray
+            A 3D array representing the volumetric distribution of the ligand density around cells in the specified frame.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/data.h5')
+        >>> ligand_density = traj.get_secreted_ligand_density(frame=10, mskchannel=1, scale=1.5, secretion_rate=0.5, D=15)
+        # This will simulate and return the ligand density around cells in frame 10 with specified parameters.
+
+        Raises
+        ------
+        ValueError
+            If any of the provided indices or parameters are out of the expected range or if there is a mismatch in array dimensions.
+
+        Notes
+        -----
+        - The method performs a complex series of image processing steps including scaling, padding, flipping, and 3D mesh generation.
+        - It uses finite element methods to solve diffusion equations over the generated mesh, constrained by the cellular boundaries and secretion rates.
+
+        """
         if npad is None:
             npad=np.array([0,0,0])
         if D is None:
@@ -1646,6 +2380,52 @@ class Trajectory:
         return vdist
 
     def get_signal_contributions(self,S,time_lag=0,x_pos=None,rmax=5.,R=None,zscale=None,rescale_z=False):
+        """
+        Computes the spatial contributions of signaling between cells over a specified time lag. This method
+        averages signals from nearby cells, weighted inversely by their distances, to assess local signaling interactions.
+
+        Parameters
+        ----------
+        S : ndarray
+            A binary array indicating the signaling status of cells (1 for active, 0 for inactive).
+        time_lag : int, optional
+            The time lag over which to assess signal contributions, defaulting to 0 for immediate interactions.
+        x_pos : ndarray, optional
+            Positions of cells. If None, the positions are taken from the instance's `x` attribute.
+        rmax : float, optional
+            The maximum radius within which to consider signal contributions from neighboring cells, default is 5.
+        R : float, optional
+            Normalization radius, typically set to the average cell diameter; defaults to the instance’s `cellpose_diam`.
+        zscale : float, optional
+            The scaling factor for the z-dimension, used if `rescale_z` is True.
+        rescale_z : bool, optional
+            If True, scales the z-coordinates of positions by `zscale`.
+
+        Returns
+        -------
+        S_r : ndarray
+            An array where each element is the averaged spatial signal contribution received by each cell, normalized
+            by distance and weighted by the signaling status of neighboring cells.
+
+        Examples
+        --------
+        >>> traj = Trajectory('path/to/data.h5')
+        >>> S = np.random.randint(0, 2, size=traj.cells_indSet.size)
+        >>> signal_contributions = traj.get_signal_contributions(S, time_lag=1, rmax=10, R=15)
+        # This computes the signal contributions for each cell, considering interactions within a radius of 10 units.
+
+        Notes
+        -----
+        - This method is useful for understanding the influence of cell-cell interactions within a defined spatial range
+        and can be particularly insightful in dynamic cellular environments where signaling is a key factor.
+        - The distances are normalized by the cell radius `R` to provide a relative measure of proximity, and the contributions
+        are weighted by the inverse of these normalized distances.
+
+        Raises
+        ------
+        ValueError
+            If necessary parameters are missing or incorrectly formatted.
+        """
         #S needs to be indexed so S[cell_inds] gives the correct binary signal, same with x_pos
         if x_pos is None:
             x_pos=self.x

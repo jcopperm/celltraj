@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>celltraj.trajectory &mdash; celltraj 0.1.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -79,7 +81,6 @@
 <span class="kn">import</span> <span class="nn">h5py</span>
 <span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">coo_matrix</span>
 <span class="kn">import</span> <span class="nn">matplotlib</span>
-<span class="c1">#matplotlib.use(&#39;TkAgg&#39;)</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">pyemma.coordinates</span> <span class="k">as</span> <span class="nn">coor</span>
 <span class="kn">import</span> <span class="nn">pyemma.coordinates.clustering</span> <span class="k">as</span> <span class="nn">clustering</span>
@@ -104,38 +105,37 @@
 <span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
 <span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
-<span class="kn">import</span> <span class="nn">celltraj.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
-<span class="kn">import</span> <span class="nn">celltraj.imageprep</span> <span class="k">as</span> <span class="nn">imprep</span>
-<span class="kn">import</span> <span class="nn">celltraj.features</span> <span class="k">as</span> <span class="nn">features</span>
+<span class="kn">import</span> <span class="nn">utilities</span>
+<span class="kn">import</span> <span class="nn">imageprep</span> <span class="k">as</span> <span class="nn">imprep</span>
+<span class="kn">import</span> <span class="nn">features</span>
 <span class="kn">from</span> <span class="nn">nanomesh</span> <span class="kn">import</span> <span class="n">Mesher</span>
 <span class="kn">import</span> <span class="nn">fipy</span>
 
 
-<div class="viewcode-block" id="Trajectory"><a class="viewcode-back" href="../../stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory">[docs]</a><span class="k">class</span> <span class="nc">Trajectory</span><span class="p">:</span>
+<div class="viewcode-block" id="Trajectory">
+<a class="viewcode-back" href="../../stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory">[docs]</a>
+<span class="k">class</span> <span class="nc">Trajectory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A toolset for single-cell trajectory modeling. See:</span>
 <span class="sd">    </span>
-<span class="sd">    Danger</span>
+<span class="sd">    Warning</span>
 <span class="sd">    -------</span>
 <span class="sd">    This code, currently, should be considered as an untested pre-release version</span>
 <span class="sd">    </span>
-<span class="sd">    Todo</span>
-<span class="sd">    ----</span>
-<span class="sd">    Refactor</span>
-<span class="sd">        In general, this class&#39;s methods generally handle data by holding state in the object.</span>
-<span class="sd">        The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.</span>
-<span class="sd">        The state being updated along the way is usually &quot;helper&quot; quantities.</span>
-<span class="sd">        I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --</span>
-<span class="sd">        one example of this might be setting them as properties, and then updating the value in state as part of that</span>
-<span class="sd">        accessor if necessary.</span>
 <span class="sd">    References</span>
-<span class="sd">    --------</span>
-<span class="sd">    Jeremy Copperman, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman. </span>
-<span class="sd">    Morphodynamical cell-state description via live-cell imaging trajectory embedding. </span>
-<span class="sd">    Biorxiv 10.1101/2021.10.07.463498, 2021.</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Copperman, Jeremy, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman. </span>
+<span class="sd">    &quot;Morphodynamical cell state description via live-cell imaging trajectory embedding.&quot; </span>
+<span class="sd">    Communications Biology 6, no. 1 (2023): 484.</span>
+
+<span class="sd">    Copperman, Jeremy, Ian C. Mclean, Sean M. Gross, Young Hwan Chang, Daniel M. Zuckerman, and Laura M. Heiser. </span>
+<span class="sd">    &quot;Single-cell morphodynamical trajectories enable prediction of gene expression accompanying cell state change.&quot; </span>
+<span class="sd">    bioRxiv (2024): 2024-01.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-<div class="viewcode-block" id="Trajectory.__init__"><a class="viewcode-back" href="../../stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">h5filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Trajectory.__init__">
+<a class="viewcode-back" href="../../stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">h5filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize a Trajectory object, optionally loading metadata from an HDF5 file.</span>
 
@@ -179,7 +179,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="o">=</span><span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Trajectory.load_from_h5"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.load_from_h5">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_h5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.load_from_h5">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.load_from_h5">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_from_h5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load data from a specified path within an HDF5 file. This method attempts to read records</span>
 <span class="sd">        recursively from the given path in the HDF5 file specified by the `h5filename` attribute</span>
@@ -220,19 +223,38 @@
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="si">}</span><span class="s1"> does not exist&#39;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Trajectory.save_to_h5"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.save_to_h5">[docs]</a>    <span class="k">def</span> <span class="nf">save_to_h5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.save_to_h5">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.save_to_h5">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_to_h5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Save attributes from a text list to model h5 file, to path in h5 file, recursively.</span>
+<span class="sd">        Save specified attributes to an HDF5 file at the given path. This method saves attributes from </span>
+<span class="sd">        the current instance to a specified location within the HDF5 file, creating or overwriting data</span>
+<span class="sd">        as necessary based on the `overwrite` parameter.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        path</span>
-<span class="sd">            Base path in h5 file.</span>
-<span class="sd">        attribute list</span>
-<span class="sd">            List of strings of attributes to save</span>
+<span class="sd">        path : str</span>
+<span class="sd">            The base path in the HDF5 file where attributes will be saved.</span>
+<span class="sd">        attribute_list : list of str</span>
+<span class="sd">            A list containing the names of attributes to save to the HDF5 file.</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            If True, existing data at the specified path will be overwritten. Default is False.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
-<span class="sd">            True if successful, False otherwise.</span>
+<span class="sd">            Returns True if the attributes were successfully saved, False otherwise, such as when the </span>
+<span class="sd">            HDF5 file does not exist or attributes cannot be written.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; traj.some_attribute = np.array([1, 2, 3])</span>
+<span class="sd">        &gt;&gt;&gt; traj.save_to_h5(&#39;/data/&#39;, [&#39;some_attribute&#39;])</span>
+<span class="sd">        saving attributes [&#39;some_attribute&#39;] to /data/ in path/to/your/hdf5file.h5</span>
+<span class="sd">        saved some_attribute to path/to/your/hdf5file.h5/data/</span>
+<span class="sd">        True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="p">):</span>
@@ -261,15 +283,34 @@
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="si">}</span><span class="s1"> does not exist&#39;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_frames"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_frames">[docs]</a>    <span class="k">def</span> <span class="nf">get_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_frames">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_frames">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Look for images in /images/img_%d/image to get number of frames (nt), and count cells in /images/img_%d/mask, store as attributes numImages, maxFrame, ncells_total</span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+<span class="sd">        Scans an HDF5 file for image and mask datasets to determine the total number of frames,</span>
+<span class="sd">        images per frame, and the total number of cells across all frames. This method updates the </span>
+<span class="sd">        instance with attributes for the number of images, the maximum frame index, and the total </span>
+<span class="sd">        cell count. It handles multiple mask channels by requiring the `mskchannel` attribute to be </span>
+<span class="sd">        set if more than one mask channel exists.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
-<span class="sd">            True if successful, False otherwise.</span>
+<span class="sd">            Returns True if the frames were successfully scanned and the relevant attributes set.</span>
+<span class="sd">            Returns False if the HDF5 file is not set, no image data is found, or if there are </span>
+<span class="sd">            multiple mask channels but `mskchannel` is not specified.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If `mskchannel` needs to be specified but is not set when `nmaskchannel` is greater than zero.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; success = traj.get_frames()</span>
+<span class="sd">        True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;no h5filename attribute&#39;</span><span class="p">)</span>
@@ -314,17 +355,53 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ncells_total</span><span class="o">=</span><span class="n">ncells_total</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_image_shape"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_image_shape">[docs]</a>    <span class="k">def</span> <span class="nf">get_image_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_image_shape">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_image_shape">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_image_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        get image ([nz,]nx,ny,nchannels) and mask dimensions ([nz,]nx,ny,nmaskchannels), and store as attributes [nz,]nx,ny,ndim,nchannels,nmaskchannels</span>
+<span class="sd">        Determine the dimensions of the image and mask data from the HDF5 file at a specified frame</span>
+<span class="sd">        index and store these as attributes. This method retrieves the dimensions of both the image</span>
+<span class="sd">        and mask datasets, discerning whether the data includes channels or z-stacks, and updates the</span>
+<span class="sd">        object&#39;s attributes accordingly. Attributes updated include the number of dimensions (`ndim`), </span>
+<span class="sd">        image axes layout (`axes`), image dimensions (`nx`, `ny`, `[nz]`), number of channels in the </span>
+<span class="sd">        image and mask (`nchannels`, `nmaskchannels`), and the full image shape (`image_shape`).</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        n_frame</span>
-<span class="sd">            </span>
+<span class="sd">        n_frame : int, optional</span>
+<span class="sd">            The frame index from which to retrieve the image and mask dimensions. Default is 0.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
-<span class="sd">            True if successful, False otherwise.</span>
+<span class="sd">            Returns True if the dimensions were successfully retrieved and stored as attributes,</span>
+<span class="sd">            False otherwise, such as when the file is not found or an error occurs in reading data.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        axes : str</span>
+<span class="sd">            The layout of axes in the image data, e.g., &#39;xy&#39;, &#39;xyc&#39;, &#39;zxy&#39;, &#39;zxyc&#39;.</span>
+<span class="sd">        nx : int</span>
+<span class="sd">            Width of the image in pixels.</span>
+<span class="sd">        ny : int</span>
+<span class="sd">            Height of the image in pixels.</span>
+<span class="sd">        nz : int, optional</span>
+<span class="sd">            Number of z-stacks in the image, if applicable.</span>
+<span class="sd">        image_shape : ndarray</span>
+<span class="sd">            Array representing the dimensions of the image.</span>
+<span class="sd">        nchannels : int</span>
+<span class="sd">            Number of channels in the image data.</span>
+<span class="sd">        nmaskchannels : int</span>
+<span class="sd">            Number of channels in the mask data.</span>
+<span class="sd">        ndim : int</span>
+<span class="sd">            Number of spatial dimensions in the image data.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; success = traj.get_image_shape(1)</span>
+<span class="sd">        True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;no h5filename attribute&#39;</span><span class="p">)</span>
@@ -406,17 +483,32 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;error in </span><span class="si">{</span><span class="n">fileName</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_image_data"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_image_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_image_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_image_data">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_image_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_image_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get image data from a frame</span>
+<span class="sd">        Retrieve the image data for a specified frame from the HDF5 file associated with this instance.</span>
+<span class="sd">        This method accesses the HDF5 file, navigates to the specific dataset for the given frame,</span>
+<span class="sd">        and extracts the image data.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        n_frame</span>
-<span class="sd">            frame number</span>
+<span class="sd">        n_frame : int</span>
+<span class="sd">            The frame number from which to retrieve image data.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        img : ndarray</span>
-<span class="sd">            image data</span>
+<span class="sd">            The image data as a NumPy array. The shape and type of the array depend on the structure</span>
+<span class="sd">            of the image data in the HDF5 file (e.g., may include dimensions for channels or z-stacks).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; image_data = traj.get_image_data(5)</span>
+<span class="sd">        &gt;&gt;&gt; image_data.shape</span>
+<span class="sd">        (1024, 1024, 3)  # Example shape, actual may vary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">dsetName</span> <span class="o">=</span> <span class="s2">&quot;/images/img_</span><span class="si">%d</span><span class="s2">/image&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_frame</span><span class="p">)</span>
@@ -424,17 +516,32 @@
             <span class="n">img</span><span class="o">=</span><span class="n">dset</span><span class="p">[:]</span>
         <span class="k">return</span> <span class="n">img</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_mask_data"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_mask_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_mask_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_mask_data">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_mask_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_mask_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get mask data from a frame</span>
+<span class="sd">        Retrieve the mask data for a specified frame from the HDF5 file associated with this instance.</span>
+<span class="sd">        This method accesses the HDF5 file, navigates to the specific dataset for the given frame,</span>
+<span class="sd">        and extracts the mask data.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        n_frame</span>
-<span class="sd">            frame number</span>
+<span class="sd">        n_frame : int</span>
+<span class="sd">            The frame number from which to retrieve mask data.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        img : ndarray</span>
-<span class="sd">            image data</span>
+<span class="sd">        msk : ndarray</span>
+<span class="sd">            The mask data as a NumPy array. The structure of the array will depend on the mask setup</span>
+<span class="sd">            in the HDF5 file, such as whether it includes dimensions for multiple channels or z-stacks.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; mask_data = traj.get_mask_data(5)</span>
+<span class="sd">        &gt;&gt;&gt; mask_data.shape</span>
+<span class="sd">        (1024, 1024, 2)  # Example shape, actual may vary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">dsetName</span> <span class="o">=</span> <span class="s2">&quot;/images/img_</span><span class="si">%d</span><span class="s2">/mask&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_frame</span><span class="p">)</span>
@@ -442,17 +549,45 @@
             <span class="n">msk</span><span class="o">=</span><span class="n">dset</span><span class="p">[:]</span>
         <span class="k">return</span> <span class="n">msk</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_fmask_data"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_fmask_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_fmask_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">,</span><span class="n">channel</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_fmask_data">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_fmask_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_fmask_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">,</span><span class="n">channel</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get foreground mask data for a frame, if self.fmskchannel is set will pull from mask data and be set from msk[...,fmskchannel]&gt;0 (or default mskchannel if self.fmskchannel not set), or if self.fmsk_threshold is set, will be thresholded from self.fmsk_imgchannel or first imgchannel.</span>
+<span class="sd">        Retrieve the foreground mask data for a specific frame using different methods depending on </span>
+<span class="sd">        the set attributes. This method determines the foreground mask either by selecting a specific </span>
+<span class="sd">        mask channel (`fmskchannel`), by applying a threshold to an image channel (`fmsk_threshold` </span>
+<span class="sd">        and `fmsk_imgchannel`), or directly from specified channels in the HDF5 file (`fmask_channels`).</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        n_frame</span>
-<span class="sd">            frame number</span>
+<span class="sd">        n_frame : int</span>
+<span class="sd">            The frame number from which to retrieve the foreground mask data.</span>
+<span class="sd">        channel : int, optional</span>
+<span class="sd">            The specific channel to use when `fmask_channels` attribute is set. If not provided, the </span>
+<span class="sd">            default &#39;foreground&#39; channel is used if available.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        fmsk : ndarray, bool</span>
-<span class="sd">            foreground (cells) / background mask</span>
+<span class="sd">            The foreground (cells) / background mask array, indicating cell locations as True and </span>
+<span class="sd">            background as False.</span>
+
+<span class="sd">        Methods for Determining `fmsk`:</span>
+<span class="sd">        ------------------------------</span>
+<span class="sd">        1. If `fmskchannel` is set:</span>
+<span class="sd">        - The method uses the specified channel from the mask data (not fmask data).</span>
+<span class="sd">        2. If `fmsk_threshold` and `fmsk_imgchannel` are set:</span>
+<span class="sd">        - The method thresholds the image data at the specified channel using the given threshold.</span>
+<span class="sd">        3. If `fmask_channels` is set and the channel parameter is provided or a default is available:</span>
+<span class="sd">        - The method retrieves the mask from the specified or default channel in the `fmsk` dataset.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; fmask_data = traj.get_fmask_data(5)</span>
+<span class="sd">        &gt;&gt;&gt; fmask_data.shape</span>
+<span class="sd">        (1024, 1024)  # Example shape, actual may vary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;fmskchannel&#39;</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;getting foreground mask from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="si">}</span><span class="s1"> mask channel </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fmskchannel</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -480,17 +615,34 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;need to set attribute fmskchannel to pull from a mask channel, fmsk_threshold and fmsk_imgchannel to threshold an image channel for foreground masks, fmask_channels foreground and fmsk under image data in h5&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fmsk</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_cell_blocks"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">label</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_cell_blocks">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_blocks">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">label</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get min max indices for each cell in mask. Note the order of output here determines cell indexing. Will return skimage convention of label (msk) integers in increasing order, which is re-indexed from 0.</span>
+<span class="sd">        Extracts bounding box information for each cell from a labeled mask image. This function</span>
+<span class="sd">        returns the minimum and maximum indices for each labeled cell, useful for operations such</span>
+<span class="sd">        as cropping around a cell or analyzing specific cell regions. The function supports both </span>
+<span class="sd">        2D and 3D labeled images.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        msk</span>
-<span class="sd">            label image of cells</span>
+<span class="sd">        label : ndarray</span>
+<span class="sd">            A labeled image array where each unique non-zero integer represents a unique cell.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        cellblocks : ndarray</span>
-<span class="sd">            Array of min max values for each cell, shape (label_max,image dim,2)</span>
+<span class="sd">            An array containing the bounding boxes for each cell. The array has shape </span>
+<span class="sd">            (number_of_labels, number_of_dimensions, 2), where each cell&#39;s bounding box is</span>
+<span class="sd">            represented by [min_dim1, min_dim2, ..., max_dim1, max_dim2, ...].</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; label_image = np.array([[0, 0, 1, 1], [0, 2, 2, 1], [2, 2, 2, 0]])</span>
+<span class="sd">        &gt;&gt;&gt; blocks = traj.get_cell_blocks(label_image)</span>
+<span class="sd">        &gt;&gt;&gt; blocks.shape</span>
+<span class="sd">        (2, 2, 2)  # Example output shape for a 2D label image with two labels.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bbox_table</span><span class="o">=</span><span class="n">regionprops_table</span><span class="p">(</span><span class="n">label</span><span class="p">,</span><span class="n">intensity_image</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">properties</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">,</span><span class="s1">&#39;bbox&#39;</span><span class="p">])</span>
         <span class="n">cblocks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">label</span><span class="p">),</span><span class="n">label</span><span class="o">.</span><span class="n">ndim</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
@@ -508,15 +660,56 @@
             <span class="n">cblocks</span><span class="p">[:,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">bbox_table</span><span class="p">[</span><span class="s1">&#39;bbox-5&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">cblocks</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_cell_index"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_index">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_cell_index">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get indices and host frame for each cell in image stack, and for each cell saves arrays of infor including frame index (cells_frameSet, cells_imgfileSet, cells_indimgSet, note these are named differently because of previous compatibility with running multiple image stacks in the same trajectory object, [ncells_total]), index value in trajectory object (cells_indSet, [ncells_total]), and bounding box in image (cellblocks [ncells_total, ndim, 2]</span>
+<span class="sd">        Computes indices and corresponding frame information for each cell in an image stack, capturing</span>
+<span class="sd">        this data in several attributes. This method gathers extensive cell data across all frames,</span>
+<span class="sd">        including frame indices, image file indices, individual image indices, and bounding boxes</span>
+<span class="sd">        for each cell. This information is stored in corresponding attributes, facilitating further</span>
+<span class="sd">        analysis or reference.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        verbose : bool, optional</span>
+<span class="sd">            If True, prints detailed logging of the processing for each frame. Default is False.</span>
+<span class="sd">        save_h5 : bool, optional</span>
+<span class="sd">            If True, saves the computed data to an HDF5 file using the specified `mskchannel`. Default is False.</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            If True and `save_h5` is True, existing data in the HDF5 file will be overwritten. Default is False.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
-<span class="sd">            True for success, False for error</span>
+<span class="sd">            True if the computation and any specified data saving are successful, False if there is</span>
+<span class="sd">            an error due to missing prerequisites or during saving.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cells_frameSet : ndarray</span>
+<span class="sd">            Array storing the frame index for each cell, shape (ncells_total,).</span>
+<span class="sd">        cells_imgfileSet : ndarray</span>
+<span class="sd">            Array storing the image file index for each cell, shape (ncells_total,).</span>
+<span class="sd">        cells_indSet : ndarray</span>
+<span class="sd">            Array storing a unique index for each cell in the trajectory, shape (ncells_total,).</span>
+<span class="sd">        cells_indimgSet : ndarray</span>
+<span class="sd">            Array storing the image-specific index for each cell, shape (ncells_total,).</span>
+<span class="sd">        cellblocks : ndarray</span>
+<span class="sd">            Array of bounding boxes for each cell, shape (ncells_total, ndim, 2).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If necessary attributes (like `nmaskchannels`, `ncells_total`, `mskchannel`, `maxFrame`)</span>
+<span class="sd">            are not set prior to invoking this method.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; success = traj.get_cell_index(verbose=True, save_h5=True, overwrite=True)</span>
+<span class="sd">        True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;nmaskchannels&#39;</span><span class="p">):</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;no image shape set: first call get_image_shape or set axes and nt,nz,ny,nx,nmaskchannels attributes</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -567,33 +760,49 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_to_h5</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/cell_data_m</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_cell_data"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ic</span><span class="p">,</span><span class="n">frametype</span><span class="o">=</span><span class="s1">&#39;boundingbox&#39;</span><span class="p">,</span><span class="n">boundary_expansion</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">return_masks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">relabel_masks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">relabel_mskchannels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">delete_background</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get image and mask data for a specific cell.</span>
 
-<span class="sd">        Review options for pulling cell neighborhood data as well as the local cell data:</span>
+<div class="viewcode-block" id="Trajectory.get_cell_data">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ic</span><span class="p">,</span><span class="n">frametype</span><span class="o">=</span><span class="s1">&#39;boundingbox&#39;</span><span class="p">,</span><span class="n">boundary_expansion</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">return_masks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">relabel_masks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">relabel_mskchannels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">delete_background</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves image and mask data for specific cells based on various configuration options. </span>
+<span class="sd">        This method can extract data for single cells, their neighborhoods, or connected cell groups, </span>
+<span class="sd">        and offers options to expand the extraction region, relabel masks, and more.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ic : int</span>
-<span class="sd">            cell ID or list of cell IDs</span>
-<span class="sd">        frametype : str</span>
-<span class="sd">            Can be &#39;boundingbox&#39; for a bounding box of the cell label, &#39;neighborhood&#39; for the voronoi neighbors of the specified cell, or &#39;connected&#39; for the full set of connected cells.</span>
-<span class="sd">        delete_background : bool</span>
-<span class="sd">            Whether to set label and image pixels other than the single, neighborhood, or connected set to zero.</span>
-<span class="sd">        return_masks : bool</span>
-<span class="sd">            Whether to return mask data along with image data</span>
-<span class="sd">        relabel_masks : bool</span>
-<span class="sd">            Whether to relabel masks with movie cell indices</span>
-<span class="sd">        relabel_mskchannels : array or list</span>
-<span class="sd">            List of channels to relabel</span>
-<span class="sd">        boundary_expansion : ndim ndarray, int</span>
-<span class="sd">            Array to expand single-cell image in each direction</span>
+<span class="sd">        ic : int or list of int</span>
+<span class="sd">            Cell ID(s) for which to retrieve data. Can specify a single cell or a list of cells.</span>
+<span class="sd">        frametype : str, optional</span>
+<span class="sd">            Type of frame data to retrieve; options include &#39;boundingbox&#39;, &#39;neighborhood&#39;, or &#39;connected&#39;.</span>
+<span class="sd">            Default is &#39;boundingbox&#39;.</span>
+<span class="sd">        boundary_expansion : ndarray or int, optional</span>
+<span class="sd">            Array specifying how much to expand the bounding box around the cell in each dimension.</span>
+<span class="sd">        return_masks : bool, optional</span>
+<span class="sd">            Whether to return the mask data along with the image data. Default is True.</span>
+<span class="sd">        relabel_masks : bool, optional</span>
+<span class="sd">            Whether to relabel mask data with movie cell indices. Default is True.</span>
+<span class="sd">        relabel_mskchannels : array or list, optional</span>
+<span class="sd">            Specifies the mask channels to relabel. If not set, uses the default mask channel.</span>
+<span class="sd">        delete_background : bool, optional</span>
+<span class="sd">            If set to True, sets label and image pixels outside the specified cell set to zero. Default is False.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        imgc : ndarray, float</span>
-<span class="sd">            cell image data</span>
-<span class="sd">        mskc : ndarray, int</span>
-<span class="sd">            cell mask data, optional if return_masks=True</span>
+<span class="sd">        imgc : ndarray</span>
+<span class="sd">            The image data for the specified cell(s) as a NumPy array.</span>
+<span class="sd">        mskc : ndarray, optional</span>
+<span class="sd">            The mask data for the specified cell(s) as a NumPy array, returned if `return_masks` is True.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If cells from multiple frames are requested or necessary attributes are not set.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; img_data, mask_data = traj.get_cell_data(5, frametype=&#39;boundingbox&#39;, boundary_expansion=5, return_masks=True)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n_frame</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indimgSet</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
         <span class="n">ic_msk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indSet</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span> <span class="c1">#cell index in labeled image</span>
@@ -655,42 +864,59 @@
             <span class="k">return</span> <span class="n">imgc</span><span class="p">,</span> <span class="n">mskc</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">imgc</span></div>
+
                 
-<div class="viewcode-block" id="Trajectory.get_cell_features"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">function_tuple</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">use_fmask_for_intensity_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fmskchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">use_mask_for_intensity_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">apply_contact_transform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">return_feature_list</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">concatenate_features</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Trajectory.get_cell_features">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_features">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">function_tuple</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">use_fmask_for_intensity_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fmskchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">use_mask_for_intensity_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">apply_contact_transform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">return_feature_list</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">concatenate_features</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get cell features using skimage&#39;s regionprops, passing a custom function tuple for measurement</span>
+<span class="sd">        Extracts complex cell features based on the specified custom functions and imaging data.</span>
+<span class="sd">        This method allows customization of the feature extraction process using region properties</span>
+<span class="sd">        from segmented cell data, with optional transformations like border erosion or contact </span>
+<span class="sd">        transformations. Features can be based on intensity images, mask data, or specific </span>
+<span class="sd">        transformations of these data.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        function_tuple : single function or tuple of functions</span>
-<span class="sd">            Function should take regionmask, intensity as input and output a scalar or array of features, compatible with skimage regionprops</span>
-<span class="sd">        indcells : int ndarray</span>
-<span class="sd">            array of cell indices from which to calculate features</span>
-<span class="sd">        imgchannel : int</span>
-<span class="sd">            channel for intensity image for feature calc</span>
-<span class="sd">        mskchannel : int</span>
-<span class="sd">            channel for single-cell labels for feature calc</span>
-<span class="sd">        use_fmask_for_intensity_image : bool</span>
-<span class="sd">            useful for environment featurization</span>
-<span class="sd">        use_mask_for_intensity_image : bool</span>
-<span class="sd">            whether to use get_mask_data rather than get_image_data for intensity image</span>
-<span class="sd">        bordersize : int</span>
-<span class="sd">            number of pixels to erode foreground mask if use_fmask_for_intensity_image is True, or the radius to grow contact boundaries if apply_contact_transform is True</span>
-<span class="sd">        apply_contact_transform : bool</span>
-<span class="sd">            whether to apply contact transform to get a mask of segmentation contacts from the mask channel if use_mask_for_intensity_image is True</span>
-<span class="sd">        return_feature_list : bool</span>
-<span class="sd">            whether to return an array of strings describing features calculated</span>
-<span class="sd">        save_h5 : bool</span>
-<span class="sd">            whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list</span>
-<span class="sd">        overwrite : bool</span>
-<span class="sd">            whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file</span>
-<span class="sd">        concatenate_features : bool</span>
-<span class="sd">            whether to add features to existing Xf and Xf_feature_list</span>
+<span class="sd">        function_tuple : callable or tuple of callables</span>
+<span class="sd">            Function(s) that take a mask and an intensity image as input and return a scalar</span>
+<span class="sd">            or array of features. These functions must be compatible with skimage&#39;s regionprops.</span>
+<span class="sd">        indcells : ndarray of int, optional</span>
+<span class="sd">            Array of cell indices for which to calculate features. If None, calculates for all cells.</span>
+<span class="sd">        imgchannel : int, optional</span>
+<span class="sd">            Index of the image channel used for intensity image feature calculation.</span>
+<span class="sd">        mskchannel : int, optional</span>
+<span class="sd">            Index of the mask channel used for single-cell label feature calculation.</span>
+<span class="sd">        use_fmask_for_intensity_image : bool, optional</span>
+<span class="sd">            If True, uses foreground mask data for intensity images.</span>
+<span class="sd">        fmskchannel : int, optional</span>
+<span class="sd">            Channel index for foreground mask data if used for intensity image.</span>
+<span class="sd">        use_mask_for_intensity_image : bool, optional</span>
+<span class="sd">            If True, uses mask data instead of image data for intensity measurements.</span>
+<span class="sd">        bordersize : int, optional</span>
+<span class="sd">            Pixel size for erosion of the foreground mask or growth radius for contact boundaries.</span>
+<span class="sd">        apply_contact_transform : bool, optional</span>
+<span class="sd">            If True, applies a contact transform to generate segmentation contacts from the mask data.</span>
+<span class="sd">        return_feature_list : bool, optional</span>
+<span class="sd">            If True, returns a list of strings describing the calculated features.</span>
+<span class="sd">        save_h5 : bool, optional</span>
+<span class="sd">            If True, saves the features and their descriptions to an HDF5 file.</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            If True and save_h5 is also True, overwrites existing data in the HDF5 file.</span>
+<span class="sd">        concatenate_features : bool, optional</span>
+<span class="sd">            If True, adds the newly calculated features to existing features in the dataset.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Xf : ndarray (indcells.size,nfeatures)</span>
-<span class="sd">            features indexed by cells_indSet</span>
-<span class="sd">        feature_list : string array (nfeatures)</span>
-<span class="sd">            description of cell features, optional</span>
+<span class="sd">        Xf : ndarray</span>
+<span class="sd">            Array of features indexed by cells. The shape is (number of cells, number of features).</span>
+<span class="sd">        feature_list : ndarray of str, optional</span>
+<span class="sd">            Array of strings describing each feature, returned if `return_feature_list` is True.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; features, feature_descriptions = traj.get_cell_features(my_feature_funcs, return_feature_list=True)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">feature_postpend</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;msk</span><span class="si">{</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">img</span><span class="si">{</span><span class="n">imgchannel</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="k">if</span> <span class="n">use_fmask_for_intensity_image</span><span class="p">:</span>
@@ -773,35 +999,58 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Xf</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_cell_compartment_ratio"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_compartment_ratio">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_compartment_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fmskchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">make_disjoint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">erosion_footprint1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">erosion_footprint2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">combined_and_disjoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">intensity_sum</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">intensity_ztransform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">noratio</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">inverse_ratio</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_cell_compartment_ratio">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_compartment_ratio">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_compartment_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fmask_channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">make_disjoint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">erosion_footprint1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">erosion_footprint2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">combined_and_disjoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">intensity_sum</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">intensity_ztransform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">noratio</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">inverse_ratio</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get cell features using skimage&#39;s regionprops, passing a custom function tuple for measurement</span>
+<span class="sd">        Calculates the ratio of features between two cellular compartments, optionally adjusted for image</span>
+<span class="sd">        intensity and morphology transformations. This method allows for complex comparisons between different</span>
+<span class="sd">        mask channels or modified versions of these channels to derive cellular compartment ratios.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        indcells : int ndarray</span>
-<span class="sd">            array of cell indices from which to calculate features</span>
-<span class="sd">        imgchannel : int</span>
-<span class="sd">            channel for intensity image for feature calc</span>
-<span class="sd">        mskchannel1 : int</span>
-<span class="sd">            first channel for single-cell labels for intensity calc, the numerator in ratio</span>
-<span class="sd">        mskchannel2 : int</span>
-<span class="sd">            second channel for single-cell labels for intensity calc, the denominator in ratio. Overlap with mskchannel1 will be removed</span>
-<span class="sd">        combined_and_disjoint : bool</span>
-<span class="sd">            combine masks 1 and 2, then dilate mask 2, erode mask 1, then remove mask 1 from mask 2</span>
-<span class="sd">        erosion_footprint[12] : ndarray</span>
-<span class="sd">            footprint of binary erosions to perform for each mask channel</span>
-<span class="sd">        inverse_ratio : bool</span>
-<span class="sd">            whether to take inverse (e.g. switch to c/n from n/c)</span>
-<span class="sd">        save_h5 : bool</span>
-<span class="sd">            whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list</span>
-<span class="sd">        overwrite : bool</span>
-<span class="sd">            whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file</span>
+<span class="sd">        indcells : ndarray of int, optional</span>
+<span class="sd">            Indices of cells for which to calculate the feature ratios.</span>
+<span class="sd">        imgchannel : int, optional</span>
+<span class="sd">            Index of the image channel used for intensity measurements.</span>
+<span class="sd">        mskchannel1 : int, optional</span>
+<span class="sd">            Mask channel index for the numerator in the ratio calculation.</span>
+<span class="sd">        mskchannel2 : int, optional</span>
+<span class="sd">            Mask channel index for the denominator in the ratio calculation. Overlaps with mskchannel1 are removed.</span>
+<span class="sd">        fmask_channel : int, optional</span>
+<span class="sd">            Mask channel index used to adjust mskchannel2 if no separate mskchannel2 is provided.</span>
+<span class="sd">        make_disjoint : bool, optional</span>
+<span class="sd">            If True, ensures that masks from mskchannel1 and mskchannel2 do not overlap by adjusting mskchannel1.</span>
+<span class="sd">        erosion_footprint1 : ndarray, optional</span>
+<span class="sd">            Erosion footprint for the first mask, modifies the mask by eroding it before calculations.</span>
+<span class="sd">        erosion_footprint2 : ndarray, optional</span>
+<span class="sd">            Erosion footprint for the second mask, modifies the mask by eroding it before calculations.</span>
+<span class="sd">        combined_and_disjoint : bool, optional</span>
+<span class="sd">            If True, combines and then separates the masks to only include disjoint areas in calculations.</span>
+<span class="sd">        intensity_sum : bool, optional</span>
+<span class="sd">            If True, sums the intensity over the area rather than averaging it, before ratio calculation.</span>
+<span class="sd">        intensity_ztransform : bool, optional</span>
+<span class="sd">            If True, applies a z-transformation based on standard deviations and means stored in the object.</span>
+<span class="sd">        noratio : bool, optional</span>
+<span class="sd">            If True, returns only the numerator intensity mean without forming a ratio.</span>
+<span class="sd">        inverse_ratio : bool, optional</span>
+<span class="sd">            If True, calculates the inverse of the normal ratio.</span>
+<span class="sd">        save_h5 : bool, optional</span>
+<span class="sd">            If True, saves the calculated ratios to an HDF5 file.</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            If True and save_h5 is also True, overwrites existing data in the HDF5 file.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        cratio : ndarray (indcells.size)</span>
-<span class="sd">            compartment intensity ratio</span>
-<span class="sd">        feature_list : string array (nfeatures)</span>
-<span class="sd">            description of cell features, optional</span>
+<span class="sd">        cratio : ndarray</span>
+<span class="sd">            Array of calculated compartment ratios for each specified cell.</span>
+<span class="sd">        feature_list : ndarray of str, optional</span>
+<span class="sd">            Descriptions of the cell features, returned if `return_feature_list` is set to True.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; cratio = traj.get_cell_compartment_ratio(indcells=[1,2,3], imgchannel=0, mskchannel1=1, mskchannel2=2)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">imgchannel</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">mskchannel1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;set imgchannel, mskchannel1, and mskchannel2 keys&#39;</span><span class="p">)</span>
@@ -828,11 +1077,11 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;c&#39;</span><span class="p">:</span>
                     <span class="n">img</span><span class="o">=</span><span class="n">img</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">imgchannel</span><span class="p">]</span>
                 <span class="n">msk1</span><span class="o">=</span><span class="n">msk</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">mskchannel1</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">fmskchannel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">fmask_channel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">msk2</span><span class="o">=</span><span class="n">msk</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">mskchannel2</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">fmsk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_fmask_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indimgSet</span><span class="p">[</span><span class="n">ic</span><span class="p">])</span>
-                    <span class="n">fmsk</span><span class="o">=</span><span class="n">fmsk</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">fmskchannel</span><span class="p">]</span>
+                    <span class="n">fmsk</span><span class="o">=</span><span class="n">fmsk</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">fmask_channel</span><span class="p">]</span>
                     <span class="n">msk2</span><span class="o">=</span><span class="n">msk1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                     <span class="n">msk2</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">fmsk</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)]</span><span class="o">=</span><span class="mi">0</span>
                 <span class="k">if</span> <span class="n">combined_and_disjoint</span><span class="p">:</span>
@@ -877,29 +1126,41 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_to_h5</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/cell_data_m</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cratio</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_cell_channel_crosscorr"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_channel_crosscorr">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_channel_crosscorr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_cell_channel_crosscorr">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_channel_crosscorr">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_channel_crosscorr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get cross correlation between channels within cell labels</span>
+<span class="sd">        Computes the cross-correlation between two image channels within labeled cells, using masks defined by a specific mask channel. This method is particularly useful for analyzing the relationship between different signal channels at a cellular level.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        indcells : int ndarray</span>
-<span class="sd">            array of cell indices from which to calculate features</span>
+<span class="sd">        indcells : ndarray of int, optional</span>
+<span class="sd">            Indices of cells for which to calculate cross-correlations. If None, calculations are performed for all indexed cells.</span>
 <span class="sd">        mskchannel : int</span>
-<span class="sd">            channel for cell labels</span>
+<span class="sd">            Mask channel used to define cellular regions.</span>
 <span class="sd">        imgchannel1 : int</span>
-<span class="sd">            first channel for correlation analysis</span>
-<span class="sd">        mskchannel2 : int</span>
-<span class="sd">            second channel for correlation analysis</span>
-<span class="sd">        save_h5 : bool</span>
-<span class="sd">            whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list</span>
-<span class="sd">        overwrite : bool</span>
-<span class="sd">            whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file</span>
+<span class="sd">            First image channel for correlation analysis.</span>
+<span class="sd">        imgchannel2 : int</span>
+<span class="sd">            Second image channel for correlation analysis.</span>
+<span class="sd">        save_h5 : bool, optional</span>
+<span class="sd">            If True, saves the calculated cross-correlations to an HDF5 file under the specified directory and file names.</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            If True and save_h5 is True, existing data in the HDF5 file will be overwritten.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        corrc : ndarray (indcells.size)</span>
-<span class="sd">            channel cross-correlation</span>
-<span class="sd">        feature_list : string array (nfeatures)</span>
-<span class="sd">            description of cell features, optional</span>
+<span class="sd">        corrc : ndarray</span>
+<span class="sd">            Array of cross-correlation coefficients for each cell. The length of the array corresponds to the number of cells specified by `indcells`.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If required parameters are not set or if no cell index is available, prompting the user to set necessary parameters or perform required prior steps.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; corrc = traj.get_cell_channel_crosscorr(indcells=[1,2,3], mskchannel=0, imgchannel1=1, imgchannel2=2)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">mskchannel</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">imgchannel1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">imgchannel2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;set imgchannel, mskchannel1, and mskchannel2 keys&#39;</span><span class="p">)</span>
@@ -938,25 +1199,45 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_to_h5</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/cell_data_m</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">corrc</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_motility_features"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_motility_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_motility_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_motility_features">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_motility_features">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_motility_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get single-cell and neighbor-averaged motility features</span>
+<span class="sd">        Extracts motility features for individual cells and their neighbors. This method calculates</span>
+<span class="sd">        both single-cell and neighbor-averaged motility characteristics, such as displacement and</span>
+<span class="sd">        interaction with neighboring cells, based on tracking data and cell label information.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        indcells : int ndarray</span>
-<span class="sd">            array of cell indices from which to calculate features</span>
+<span class="sd">        indcells : ndarray of int, optional</span>
+<span class="sd">            Indices of cells for which to calculate motility features. If None, features are calculated</span>
+<span class="sd">            for all cells in the dataset.</span>
 <span class="sd">        mskchannel : int</span>
-<span class="sd">            channel for cell labels</span>
-<span class="sd">        save_h5 : bool</span>
-<span class="sd">            whether to save features to h5 file as /cell_data/Xf and descriptions as /cell_data/Xf_feature_list</span>
-<span class="sd">        overwrite : bool</span>
-<span class="sd">            whether to overwrite /cell_data/Xf and /cell_data/Xf_feature list in h5 file</span>
+<span class="sd">            Mask channel used to define cell labels.</span>
+<span class="sd">        save_h5 : bool, optional</span>
+<span class="sd">            If True, saves the calculated motility features to an HDF5 file specified in the trajectory object.</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            If True and save_h5 is True, overwrites existing data in the HDF5 file.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Xf_com : ndarray ((indcells.size,nfeat_com))</span>
-<span class="sd">            motility features</span>
-<span class="sd">        feature_list : string array (nfeat_com)</span>
-<span class="sd">            description of motility features, optional</span>
+<span class="sd">        Xf_com : ndarray</span>
+<span class="sd">            An array of computed motility features for each specified cell. The array dimensions are</span>
+<span class="sd">            (number of cells, number of features).</span>
+<span class="sd">        feature_list : ndarray of str, optional</span>
+<span class="sd">            Descriptions of each motility feature computed. This is returned if `return_feature_list`</span>
+<span class="sd">            is set to True in the method call.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If required data such as mask channels or cell indices are not set, or if cell tracking has</span>
+<span class="sd">            not been performed prior to feature extraction.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; motility_features = traj.get_motility_features(indcells=[1, 2, 3], mskchannel=0)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">mskchannel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;set mskchannel&#39;</span><span class="p">)</span>
@@ -1005,31 +1286,46 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_to_h5</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/cell_data_m</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Xf_com</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_stack_trans"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_stack_trans">[docs]</a>    <span class="k">def</span> <span class="nf">get_stack_trans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ntrans</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">maxt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">dist_function</span><span class="o">=</span><span class="n">utilities</span><span class="o">.</span><span class="n">get_pairwise_distance_sum</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">do_global</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="o">**</span><span class="n">dist_function_keys</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_stack_trans">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_stack_trans">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_stack_trans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ntrans</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">maxt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">dist_function</span><span class="o">=</span><span class="n">utilities</span><span class="o">.</span><span class="n">get_pairwise_distance_sum</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">do_global</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="o">**</span><span class="n">dist_function_keys</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get translations over image stack using a brute force function optimization approach.</span>
+<span class="sd">        Computes translations across an image stack using a brute force optimization method to align</span>
+<span class="sd">        cell centers from frame to frame. This method can apply both local and global alignment strategies</span>
+<span class="sd">        based on the distribution of cell centers.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        mskchannel : mask channel for labels from which to obtain cell centers</span>
-<span class="sd">            Function should take regionmask, intensity as input and output a scalar or array of features, compatible with skimage regionprops</span>
-<span class="sd">        ntrans : int or int ndarray</span>
-<span class="sd">            number of translations to try in each dimension</span>
-<span class="sd">        maxt : float or float ndarray</span>
-<span class="sd">            max translation in each dimension</span>
+<span class="sd">        mskchannel : int</span>
+<span class="sd">            Mask channel to use for extracting cell centers from labels.</span>
+<span class="sd">        ntrans : int or ndarray</span>
+<span class="sd">            Number of translations to try in each dimension during optimization.</span>
+<span class="sd">        maxt : float or ndarray</span>
+<span class="sd">            Maximum translation distance to consider in each dimension.</span>
 <span class="sd">        dist_function : function</span>
-<span class="sd">            function to use for optimization. Should take centers0,centers1,tshift as input, and yield a score (lower is better)</span>
-<span class="sd">        save_h5 : bool</span>
-<span class="sd">            whether to save transformation matrices to h5 file as /cell_data/tf_matrix_set</span>
-<span class="sd">        overwrite : bool</span>
-<span class="sd">            whether to overwrite existing data in h5 file</span>
-<span class="sd">        do_global : bool</span>
-<span class="sd">            whether to do a global alignment matching center of all masks prior to brute force grid search</span>
-<span class="sd">        dist_function_keys : keywords</span>
-<span class="sd">            will be passed to dist_function for optimization</span>
+<span class="sd">            Optimization function that takes cell centers from two frames and a translation vector,</span>
+<span class="sd">            returning a score where lower values indicate better alignment.</span>
+<span class="sd">        zscale : float, optional</span>
+<span class="sd">            Scaling factor for the z-dimension to normalize it with x and y dimensions.</span>
+<span class="sd">        save_h5 : bool, optional</span>
+<span class="sd">            If True, saves the computed transformation matrices to an HDF5 file.</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            If True and save_h5 is True, overwrites existing data in the HDF5 file.</span>
+<span class="sd">        do_global : bool, optional</span>
+<span class="sd">            If True, performs a global alignment using the center of mass of all masks prior to brute force optimization.</span>
+<span class="sd">        dist_function_keys : dict</span>
+<span class="sd">            Additional keyword arguments to pass to the dist_function.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        tf_matrix_set : ndarray (nframes,ndim+1,ndim+1)</span>
-<span class="sd">            array of aligning global transformations between frames</span>
+<span class="sd">        tf_matrix_set : ndarray</span>
+<span class="sd">            An array of shape (nframes, ndim+1, ndim+1) containing the transformation matrices for aligning</span>
+<span class="sd">            each frame to the first frame based on the computed translations.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; transformations = traj.get_stack_trans(mskchannel=1, ntrans=10, maxt=5, do_global=False)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nframes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nt</span>
         <span class="n">tSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nframes</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
@@ -1080,7 +1376,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_to_h5</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/cell_data_m</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tf_matrix_set</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_cell_positions"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_positions">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_cell_positions">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_positions">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the center of mass for cells in each frame of the mask channel and optionally save </span>
 <span class="sd">        these positions to an HDF5 file. This method processes mask data to find cell positions across</span>
@@ -1148,7 +1447,53 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_to_h5</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/cell_data_m</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cells_x</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_lineage_btrack"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_lineage_btrack">[docs]</a>    <span class="k">def</span> <span class="nf">get_lineage_btrack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">distcut</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span><span class="n">framewindow</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">visual_1cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">max_search_radius</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_lineage_btrack">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_lineage_btrack">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_lineage_btrack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">distcut</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span><span class="n">framewindow</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">visual_1cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">max_search_radius</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tracks cell lineages over an image stack using Bayesian tracking with visual confirmation options.</span>
+<span class="sd">        This method registers transformed masks and applies Bayesian tracking to link cell identities</span>
+<span class="sd">        across frames, storing the lineage information. </span>
+<span class="sd">        Use of btrack software requires a cell_config.json file stored in the directory, see btrack documentation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mskchannel : int</span>
+<span class="sd">            Mask channel used to identify cell labels from which cell centers are extracted.</span>
+<span class="sd">        distcut : float</span>
+<span class="sd">            Maximum distance between cell centers in consecutive frames for cells to be considered the same.</span>
+<span class="sd">        framewindow : int</span>
+<span class="sd">            Number of frames over which to look for cell correspondences.</span>
+<span class="sd">        visual_1cell : bool</span>
+<span class="sd">            If True, displays visual tracking information for single cell matches during processing.</span>
+<span class="sd">        visual : bool</span>
+<span class="sd">            If True, displays visual tracking information for all cells during processing.</span>
+<span class="sd">        max_search_radius : int</span>
+<span class="sd">            The maximum search radius in pixels for linking objects between frames.</span>
+<span class="sd">        save_h5 : bool</span>
+<span class="sd">            If True, saves the lineage data (`linSet`) to an HDF5 file.</span>
+<span class="sd">        overwrite : bool</span>
+<span class="sd">            If True and save_h5 is True, overwrites existing data in the HDF5 file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        linSet : list of ndarray</span>
+<span class="sd">            A list of arrays where each array corresponds to a frame and contains indices that map</span>
+<span class="sd">            each cell to its predecessor in the previous frame. Cells with no predecessor are marked</span>
+<span class="sd">            with -1. The data saved in `linSet` thus represents the lineage of each cell over the stack.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If `tf_matrix_set` is not set, indicating that stack transformation matrices are required</span>
+<span class="sd">            for tracking but have not been calculated.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        &gt;&gt;&gt; lineage_data = traj.get_lineage_btrack(mskchannel=1, visual=True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nimg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nt</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;tf_matrix_set&#39;</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;need to run get_stack_trans for image stack registration before tracking&#39;</span><span class="p">)</span>
@@ -1256,7 +1601,46 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_to_h5</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/cell_data_m</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">linSet</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_lineage_mindist"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_lineage_mindist">[docs]</a>    <span class="k">def</span> <span class="nf">get_lineage_mindist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">distcut</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_lineage_mindist">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_lineage_mindist">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_lineage_mindist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">distcut</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tracks cell lineage based on the minimum distance between cells across consecutive frames.</span>
+<span class="sd">        This method assesses cell positions to establish lineage by identifying the nearest cell</span>
+<span class="sd">        in the subsequent frame within a specified distance threshold.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        distcut : float, optional</span>
+<span class="sd">            The maximum distance a cell can move between frames to be considered the same cell.</span>
+<span class="sd">            Cells moving a distance greater than this threshold will not be tracked from one frame to the next.</span>
+<span class="sd">        visual : bool, optional</span>
+<span class="sd">            If True, displays a visual representation of the tracking process for each frame, showing</span>
+<span class="sd">            the cells and their movements between frames.</span>
+<span class="sd">        save_h5 : bool, optional</span>
+<span class="sd">            If True, saves the lineage data (`linSet`) to an HDF5 file.</span>
+<span class="sd">        overwrite : bool, optional</span>
+<span class="sd">            If True and save_h5 is True, overwrites existing data in the HDF5 file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        linSet : list of ndarray</span>
+<span class="sd">            A list where each entry corresponds to a frame and contains cell indices that map each cell</span>
+<span class="sd">            to its predecessor in the previous frame. Cells with no identifiable predecessor are marked with -1.</span>
+<span class="sd">            This list provides a complete lineage map of cells across all analyzed frames.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the cell positions (`x`) are not calculated prior to running this method, indicating that</span>
+<span class="sd">            `get_cell_positions` needs to be executed first.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/data.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; lineage_data = traj.get_lineage_mindist(distcut=10, visual=True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nimg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nt</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;x&#39;</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;need to run get_cell_positions for cell locations&#39;</span><span class="p">)</span>
@@ -1310,7 +1694,48 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">save_to_h5</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/cell_data_m</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">linSet</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_cell_trajectory"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_trajectory">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_ind</span><span class="p">,</span><span class="n">n_hist</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#cell trajectory stepping backwards</span>
+
+<div class="viewcode-block" id="Trajectory.get_cell_trajectory">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_trajectory">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_ind</span><span class="p">,</span><span class="n">n_hist</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#cell trajectory stepping backwards</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves the trajectory of a specified cell across previous frames, tracing back from the current frame to</span>
+<span class="sd">        the point of its first appearance or until a specified number of history steps.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cell_ind : int</span>
+<span class="sd">            The index of the cell for which to retrieve the trajectory.</span>
+<span class="sd">        n_hist : int, optional</span>
+<span class="sd">            The number of historical steps to trace back. If set to -1 (default), the function traces back</span>
+<span class="sd">            to the earliest frame in which the cell appears.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        cell_traj : ndarray</span>
+<span class="sd">            An array of cell indices representing the trajectory of the specified cell across the tracked frames.</span>
+<span class="sd">            The array is ordered from the earliest appearance to the current frame.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        IndexError</span>
+<span class="sd">            If the cell index provided is out of the bounds of the available data.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the provided cell index does not correspond to any tracked cell, possibly due to errors in lineage tracking.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; cell_trajectory = traj.get_cell_trajectory(10)</span>
+<span class="sd">        &gt;&gt;&gt; print(cell_trajectory)</span>
+<span class="sd">        [23, 45, 67, 89]  # Example output, actual values depend on cell tracking results.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The trajectory is computed by accessing the lineage data (`linSet`), which must be computed beforehand</span>
+<span class="sd">        via methods such as `get_lineage_btrack`. Each index in the resulting trajectory corresponds to a</span>
+<span class="sd">        position in previous frames where the cell was identified, stepping backwards until the cell&#39;s first</span>
+<span class="sd">        detection or the limit of specified history steps.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">minframe</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indimgSet</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">n_hist</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span>
             <span class="n">n_hist</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indimgSet</span><span class="p">[</span><span class="n">cell_ind</span><span class="p">]</span><span class="o">-</span><span class="n">minframe</span><span class="p">)</span>
@@ -1345,7 +1770,40 @@
         <span class="n">cell_traj</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">cell_ind_history</span><span class="p">[</span><span class="n">indtracked</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">cell_traj</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_unique_trajectories"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_unique_trajectories">[docs]</a>    <span class="k">def</span> <span class="nf">get_unique_trajectories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">extra_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_unique_trajectories">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_unique_trajectories">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_unique_trajectories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">extra_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes unique trajectories for a set of cells over multiple frames, minimizing redundancy by</span>
+<span class="sd">        ensuring that no two trajectories cover the same cell path beyond a specified overlap (extra_depth).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cell_inds : array of int, optional</span>
+<span class="sd">            Array of cell indices for which to calculate trajectories. If None, calculates trajectories</span>
+<span class="sd">            for all cells.</span>
+<span class="sd">        verbose : bool, optional</span>
+<span class="sd">            If True, provides detailed logs during the trajectory calculation process.</span>
+<span class="sd">        extra_depth : int, optional</span>
+<span class="sd">            Specifies how many frames of overlap to allow between different trajectories. If not set,</span>
+<span class="sd">            uses the pre-set attribute &#39;trajl&#39; minus one as the depth; if &#39;trajl&#39; is not set, defaults to 0.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - This method identifies unique trajectories by tracking each cell backward from its last appearance</span>
+<span class="sd">        to its first, recording the trajectory, and then ensuring subsequent trajectories do not retread</span>
+<span class="sd">        the same path beyond the allowed overlap specified by &#39;extra_depth&#39;.</span>
+
+<span class="sd">        - Each trajectory is tracked until it either reaches the start of the dataset or an earlier part of</span>
+<span class="sd">        another trajectory within the allowed overlap.</span>
+
+<span class="sd">        - This function updates the instance&#39;s &#39;trajectories&#39; attribute, storing each unique trajectory.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj.get_unique_trajectories(verbose=True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">extra_depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;trajl&#39;</span><span class="p">):</span>
                 <span class="n">extra_depth</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">trajl</span><span class="o">-</span><span class="mi">1</span>
@@ -1384,7 +1842,51 @@
                     <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;tracked cell &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">indc</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;, &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">cell_traj</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; tracks, &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">n_untracked</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; left</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trajectories</span><span class="o">=</span><span class="n">trajectories</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_traj_segments"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_traj_segments">[docs]</a>    <span class="k">def</span> <span class="nf">get_traj_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">seg_length</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_traj_segments">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_traj_segments">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_traj_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">seg_length</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Divides each trajectory into multiple overlapping segments of a specified length. This method</span>
+<span class="sd">        is useful for analyzing sections of trajectories or for preparing data for machine learning</span>
+<span class="sd">        models that require fixed-size input.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        seg_length : int</span>
+<span class="sd">            The length of each segment to be extracted from the trajectories. Segments are created</span>
+<span class="sd">            by sliding a window of this length along each trajectory.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        traj_segSet : ndarray</span>
+<span class="sd">            A 2D array where each row represents a segment of a trajectory. The number of columns</span>
+<span class="sd">            in this array equals `seg_length`. Each segment includes consecutive cell indices</span>
+<span class="sd">            from the original trajectories.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - This method requires that the `trajectories` attribute has been populated, typically by</span>
+<span class="sd">        a method that computes full trajectories such as `get_unique_trajectories`.</span>
+
+<span class="sd">        - Only trajectories that are at least as long as `seg_length` will contribute segments to</span>
+<span class="sd">        the output. Shorter trajectories are ignored.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/data.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; traj.get_unique_trajectories()</span>
+<span class="sd">        &gt;&gt;&gt; segments = traj.get_traj_segments(5)</span>
+<span class="sd">        &gt;&gt;&gt; print(segments.shape)</span>
+<span class="sd">        (number of segments, 5)  # Example shape, actual values depend on trajectory lengths and seg_length.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `seg_length` is larger than the length of any available trajectory, resulting in</span>
+<span class="sd">            no valid segments being produced.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ntraj</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trajectories</span><span class="p">)</span>
         <span class="n">traj_segSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="n">seg_length</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">itraj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntraj</span><span class="p">):</span>
@@ -1396,7 +1898,53 @@
                     <span class="n">traj_segSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">traj_segSet</span><span class="p">,</span><span class="n">traj_seg</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">traj_segSet</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_Xtraj_celltrajectory"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_Xtraj_celltrajectory">[docs]</a>    <span class="k">def</span> <span class="nf">get_Xtraj_celltrajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_traj</span><span class="p">,</span><span class="n">Xtraj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">traj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="c1">#traj and</span>
+
+<div class="viewcode-block" id="Trajectory.get_Xtraj_celltrajectory">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_Xtraj_celltrajectory">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_Xtraj_celltrajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_traj</span><span class="p">,</span><span class="n">Xtraj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">traj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieves trajectory segments for a specific cell trajectory from a larger set of trajectory data. </span>
+<span class="sd">        This method matches segments of the cell trajectory with those in a pre-computed set of trajectories</span>
+<span class="sd">        and extracts the corresponding features or data points.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cell_traj : ndarray</span>
+<span class="sd">            An array containing indices of a cell&#39;s trajectory over time.</span>
+<span class="sd">        Xtraj : ndarray, optional</span>
+<span class="sd">            The trajectory feature matrix from which to extract data. If not provided, the method uses </span>
+<span class="sd">            the instance&#39;s attribute `Xtraj`.</span>
+<span class="sd">        traj : ndarray, optional</span>
+<span class="sd">            A matrix of precomputed trajectories used for matching against `cell_traj`. If not provided, </span>
+<span class="sd">            the method uses the instance&#39;s attribute `traj`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xt : ndarray</span>
+<span class="sd">            A subset of `Xtraj` corresponding to the segments of `cell_traj` that match segments in `traj`.</span>
+<span class="sd">        inds_traj : ndarray</span>
+<span class="sd">            Indices within `traj` where matches were found, indicating which rows in `Xtraj` were selected.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the length of `cell_traj` is less than the length used for trajectories in `traj` (`trajl`),</span>
+<span class="sd">            making it impossible to match any trajectory segments.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj.get_unique_trajectories()</span>
+<span class="sd">        &gt;&gt;&gt; cell_trajectory = traj.get_cell_trajectory(10)</span>
+<span class="sd">        &gt;&gt;&gt; features, indices = traj.get_Xtraj_celltrajectory(cell_trajectory)</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - The method requires `trajl`, the length of the trajectory segments, to be set either as a class </span>
+<span class="sd">        attribute or passed explicitly. This length determines how the segments are compared for matching.</span>
+<span class="sd">        - This function is particularly useful for analyzing time-series data or features extracted from </span>
+<span class="sd">        trajectories, allowing for detailed analysis specific to a single cell&#39;s path through time.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">traj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">traj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">traj</span>
         <span class="k">if</span> <span class="n">Xtraj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1416,7 +1964,49 @@
                 <span class="n">inds_traj</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inds_traj</span><span class="p">,</span><span class="n">indt</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">xt</span><span class="p">,</span><span class="n">inds_traj</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_trajectory_steps"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_trajectory_steps">[docs]</a>    <span class="k">def</span> <span class="nf">get_trajectory_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">traj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">Xtraj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">get_trajectories</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nlag</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#traj and Xtraj should be indexed same</span>
+
+<div class="viewcode-block" id="Trajectory.get_trajectory_steps">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_trajectory_steps">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_trajectory_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">traj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">Xtraj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">get_trajectories</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nlag</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span> 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extracts sequential steps from cell trajectories and retrieves corresponding features from a feature matrix.</span>
+<span class="sd">        This method is useful for analyses that require step-wise comparison of trajectories, such as</span>
+<span class="sd">        calculating changes or transitions over time.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inds : array of int, optional</span>
+<span class="sd">            Indices of cells for which to get trajectory steps. If None, processes all cells.</span>
+<span class="sd">        traj : ndarray, optional</span>
+<span class="sd">            The trajectory data matrix. If None, uses the instance&#39;s `traj` attribute.</span>
+<span class="sd">        Xtraj : ndarray, optional</span>
+<span class="sd">            The feature data matrix corresponding to trajectories. If None, uses the instance&#39;s `Xtraj` attribute.</span>
+<span class="sd">        get_trajectories : bool, optional</span>
+<span class="sd">            If True, computes unique trajectories for the specified indices before processing steps.</span>
+<span class="sd">        nlag : int, optional</span>
+<span class="sd">            The lag between steps in a trajectory to consider. A value of 1 means consecutive steps.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - The method assumes that the trajectory and feature data matrices (`traj` and `Xtraj`, respectively)</span>
+<span class="sd">        are indexed in the same way.</span>
+<span class="sd">        - This function can optionally calculate unique trajectories before extracting steps, making it</span>
+<span class="sd">        versatile for both freshly calculated and pre-computed trajectory datasets.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/data.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; traj.get_trajectory_steps(get_trajectories=True, nlag=2)</span>
+<span class="sd">        # This will compute unique trajectories for all cells and then extract every second step.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        IndexError</span>
+<span class="sd">            If any index in `inds` is out of bounds of the available data.</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If `traj` or `Xtraj` data matrices are not set and not provided as arguments.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indSet</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">get_trajectories</span><span class="p">:</span>
@@ -1452,10 +2042,57 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Xtraj1</span><span class="o">=</span><span class="n">x1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inds_trajp1</span><span class="o">=</span><span class="n">inds_trajp1</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_trajAB_segments"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_trajAB_segments">[docs]</a>    <span class="k">def</span> <span class="nf">get_trajAB_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">xt</span><span class="p">,</span><span class="n">stateA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">stateB</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">distcutA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">distcutB</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_trajAB_segments">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_trajAB_segments">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_trajAB_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">xt</span><span class="p">,</span><span class="n">stateA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">stateB</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">distcutA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">distcutB</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Takes real or assigned trajectories as input and returns indices in A (only stateA defined), or between A and B (stateA and stateB defined).</span>
-<span class="sd">        A is 1, B is 2, not A or B is 0</span>
+<span class="sd">        Identifies segments within trajectories that transition between specified states, A and B. This method</span>
+<span class="sd">        can be used to analyze transitions or dwell times in specific states within a trajectory dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xt : ndarray</span>
+<span class="sd">            An array representing trajectories, either as direct state assignments or continuous data.</span>
+<span class="sd">        stateA : int or array-like, optional</span>
+<span class="sd">            The state or states considered as &#39;A&#39;. Transitions from this state are analyzed.</span>
+<span class="sd">        stateB : int or array-like, optional</span>
+<span class="sd">            The state or states considered as &#39;B&#39;. If defined, transitions from state A to state B are analyzed.</span>
+<span class="sd">        clusters : object, optional</span>
+<span class="sd">            A clustering object with an &#39;assign&#39; method that can be used to discretize continuous trajectory data into states.</span>
+<span class="sd">        states : ndarray, optional</span>
+<span class="sd">            An array defining all possible states. Used to map states in &#39;xt&#39; if it contains direct state assignments.</span>
+<span class="sd">        distcutA : float, optional</span>
+<span class="sd">            The distance cutoff for determining membership in state A if &#39;xt&#39; is continuous.</span>
+<span class="sd">        distcutB : float, optional</span>
+<span class="sd">            The distance cutoff for determining membership in state B if &#39;xt&#39; is continuous and &#39;stateB&#39; is defined.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        slices : list of slice</span>
+<span class="sd">            A list of slice objects representing the indices of &#39;xt&#39; where transitions between specified states occur.</span>
+<span class="sd">            If only &#39;stateA&#39; is specified, returns segments where the trajectory is in state A.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If required parameters for defining states or transitions are not provided or if the provided</span>
+<span class="sd">            parameters are incompatible (e.g., &#39;distcutA&#39; without a corresponding &#39;stateA&#39;).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/data.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; xt = np.random.rand(100, 2)  # Example continuous trajectory data</span>
+<span class="sd">        &gt;&gt;&gt; clusters = KMeans(n_clusters=3).fit(xt)  # Example clustering model</span>
+<span class="sd">        &gt;&gt;&gt; segments = traj.get_trajAB_segments(xt, stateA=0, stateB=1, clusters=clusters)</span>
+<span class="sd">        # Analyze transitions from state 0 to state 1 using cluster assignments</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - If &#39;xt&#39; contains direct state assignments, &#39;states&#39; must be provided to map these to actual state values.</span>
+<span class="sd">        - For continuous data, &#39;clusters&#39; or distance cutoffs (&#39;distcutA&#39;, &#39;distcutB&#39;) must be used to define states.</span>
+<span class="sd">        - This function is useful for analyzing kinetic data where transitions between states are of interest.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nt</span><span class="o">=</span><span class="n">xt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">inds_xt</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
@@ -1528,7 +2165,48 @@
             <span class="n">slices</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">clump_masked</span><span class="p">(</span><span class="n">inds_xt</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">slices</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_pair_rdf"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_pair_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">get_pair_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_indsA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">cell_indsB</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nr</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_pair_rdf">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_pair_rdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_pair_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_indsA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">cell_indsB</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nr</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the radial distribution function (RDF) between two sets of cells, identifying the</span>
+<span class="sd">        frequency of cell-cell distances within specified radial bins. This method is commonly used</span>
+<span class="sd">        in statistical physics and materials science to study the spatial distribution of particles.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cell_indsA : array of int, optional</span>
+<span class="sd">            Indices of the first set of cells. If None, considers all cells.</span>
+<span class="sd">        cell_indsB : array of int, optional</span>
+<span class="sd">            Indices of the second set of cells. If None, uses the same indices as `cell_indsA`.</span>
+<span class="sd">        rbins : ndarray, optional</span>
+<span class="sd">            Array of radial bins for calculating RDF. If None, bins are generated linearly from nearly 0 to `rmax`.</span>
+<span class="sd">        nr : int, optional</span>
+<span class="sd">            Number of radial bins if `rbins` is not specified. Default is 50.</span>
+<span class="sd">        rmax : float, optional</span>
+<span class="sd">            Maximum radius for the radial bins if `rbins` is not specified. Default is 500 units.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        rbins : ndarray</span>
+<span class="sd">            The radial bins used for the RDF calculation, adjusted to remove the zero point and ensure proper binning.</span>
+<span class="sd">        paircorrx : ndarray</span>
+<span class="sd">            RDF values corresponding to each radial bin, normalized to the total number of pairs and the bin volumes.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/data.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; rbins, rdf = traj.get_pair_rdf(cell_indsA=[1, 2, 3], cell_indsB=[4, 5, 6], nr=100, rmax=200)</span>
+<span class="sd">        # This will calculate the RDF between two specified sets of cells with 100 radial bins up to a maximum radius of 200.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - The RDF gives a normalized measure of how often pairs of points (cells) appear at certain distances from each other,</span>
+<span class="sd">        compared to what would be expected for a completely random distribution at the same density.</span>
+<span class="sd">        - This function is useful for examining the spatial organization and clustering behavior of cells in tissues or cultures.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">cell_indsA</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cell_indsA</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indSet</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cell_indsB</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1564,10 +2242,49 @@
         <span class="n">paircorrx</span><span class="o">=</span><span class="n">paircorrx</span><span class="o">*</span><span class="n">V</span><span class="o">/</span><span class="n">nc</span>
         <span class="k">return</span> <span class="n">rbins</span><span class="p">,</span><span class="n">paircorrx</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_cell_neighborhood"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_neighborhood">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_neighborhood</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcell</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">indcells</span><span class="p">,</span><span class="n">intersurfaces</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_alpha"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_alpha">[docs]</a>    <span class="k">def</span> <span class="nf">get_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">):</span>
+<div class="viewcode-block" id="Trajectory.get_alpha">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_alpha">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the alignment measure, alpha, between two cells identified by their indices. This</span>
+<span class="sd">        measure reflects how the movement direction of one cell relates to the direction of the vector</span>
+<span class="sd">        connecting the two cells, essentially quantifying the relative motion along the axis of separation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        i1 : int</span>
+<span class="sd">            Index of the first cell.</span>
+<span class="sd">        i2 : int</span>
+<span class="sd">            Index of the second cell.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        alpha : float</span>
+<span class="sd">            The alignment measure between the two cells. This value ranges from -1 to 1, where 1 indicates</span>
+<span class="sd">            that the cells are moving directly towards each other, -1 indicates they are moving directly</span>
+<span class="sd">            away from each other, and 0 indicates orthogonal movement directions. Returns NaN if the calculation</span>
+<span class="sd">            fails (e.g., due to division by zero when normalizing zero-length vectors).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        Exception</span>
+<span class="sd">            If an error occurs during the trajectory retrieval or normalization process, likely due to missing</span>
+<span class="sd">            data or incorrect indices.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/data.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; alignment = traj.get_alpha(10, 15)</span>
+<span class="sd">        # This computes the alignment measure between cells at index 10 and 15 based on their last movements.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - The function computes the movement vectors of both cells from their previous positions in their</span>
+<span class="sd">        respective trajectories and uses these vectors to determine their alignment relative to the vector</span>
+<span class="sd">        connecting the two cells at their current positions.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">ip1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell_trajectory</span><span class="p">(</span><span class="n">i1</span><span class="p">,</span><span class="n">n_hist</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">ip2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell_trajectory</span><span class="p">(</span><span class="n">i2</span><span class="p">,</span><span class="n">n_hist</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
@@ -1583,7 +2300,49 @@
             <span class="n">alpha</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="k">return</span> <span class="n">alpha</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_beta"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_beta">[docs]</a>    <span class="k">def</span> <span class="nf">get_beta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_beta">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_beta">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_beta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the cosine of the angle (beta) between the movement directions of two cells. This measure</span>
+<span class="sd">        quantifies the directional similarity or alignment between two moving cells, with values ranging</span>
+<span class="sd">        from -1 to 1.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        i1 : int</span>
+<span class="sd">            Index of the first cell.</span>
+<span class="sd">        i2 : int</span>
+<span class="sd">            Index of the second cell.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        beta : float</span>
+<span class="sd">            The cosine of the angle between the movement vectors of the two cells, indicating their</span>
+<span class="sd">            directional alignment. A value of 1 means the cells are moving in exactly the same direction,</span>
+<span class="sd">            -1 means they are moving in exactly opposite directions, and 0 indicates orthogonal movement</span>
+<span class="sd">            directions. Returns NaN if the calculation fails, typically due to a division by zero when </span>
+<span class="sd">            attempting to normalize zero-length vectors.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        Exception</span>
+<span class="sd">            If an error occurs during the trajectory retrieval or normalization process, likely due to missing</span>
+<span class="sd">            data or incorrect indices.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; alignment = traj.get_beta(10, 15)</span>
+<span class="sd">        # This computes the directional alignment between cells at index 10 and 15 based on their last movements.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - The function calculates movement vectors for both cells from their positions at the last two time points</span>
+<span class="sd">        in their trajectories. It then computes the cosine of the angle between these vectors as the beta value,</span>
+<span class="sd">        providing an indication of how parallel their movements are.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">ip1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell_trajectory</span><span class="p">(</span><span class="n">i1</span><span class="p">,</span><span class="n">n_hist</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">ip2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell_trajectory</span><span class="p">(</span><span class="n">i2</span><span class="p">,</span><span class="n">n_hist</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
@@ -1596,7 +2355,44 @@
             <span class="n">beta</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="k">return</span> <span class="n">beta</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_dx"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_dx">[docs]</a>    <span class="k">def</span> <span class="nf">get_dx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i1</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_dx">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_dx">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the displacement vector of a cell between its current position and its previous position in the</span>
+<span class="sd">        trajectory. This vector represents the movement of the cell between two consecutive time points.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        i1 : int</span>
+<span class="sd">            Index of the cell for which to calculate the displacement.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dx1 : ndarray</span>
+<span class="sd">            A vector representing the displacement of the cell. The vector is given in the coordinate space</span>
+<span class="sd">            of the cell positions. If the calculation fails (e.g., due to missing data), returns a vector</span>
+<span class="sd">            of NaNs.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        Exception</span>
+<span class="sd">            If an error occurs during the trajectory retrieval or calculation, typically due to missing</span>
+<span class="sd">            data or incorrect indices.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; displacement = traj.get_dx(10)</span>
+<span class="sd">        # This calculates the displacement vector for the cell at index 10 between its current and previous positions.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - The method attempts to retrieve the last position from the cell&#39;s trajectory using `get_cell_trajectory`.</span>
+<span class="sd">        If the cell&#39;s trajectory does not have a previous position or the data is missing, the displacement</span>
+<span class="sd">        vector will contain NaN values to indicate the failure of the calculation.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">ip1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell_trajectory</span><span class="p">(</span><span class="n">i1</span><span class="p">,</span><span class="n">n_hist</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">dx1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i1</span><span class="p">,:]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">ip1</span><span class="p">,:]</span>
@@ -1604,45 +2400,57 @@
             <span class="n">dx1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="k">return</span> <span class="n">dx1</span></div>
 
-<div class="viewcode-block" id="Trajectory.feat_comdx"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.feat_comdx">[docs]</a>    <span class="k">def</span> <span class="nf">feat_comdx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcell</span><span class="p">,</span><span class="n">bmsk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">bunch_clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cell_trajectory</span><span class="p">(</span><span class="n">indcell</span><span class="p">,</span><span class="n">n_hist</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
-            <span class="n">indcells</span><span class="p">,</span><span class="n">intersurfaces</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell_neighborhood</span><span class="p">(</span><span class="n">indcell</span><span class="p">,</span><span class="n">bmsk</span><span class="o">=</span><span class="n">bmsk</span><span class="p">,</span><span class="n">bunch_clusters</span><span class="o">=</span><span class="n">bunch_clusters</span><span class="p">)</span>
-            <span class="n">alphaSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">indcells</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-            <span class="n">betaSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">indcells</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">indcells</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
-                <span class="n">alphaSet</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_alpha</span><span class="p">(</span><span class="n">indcell</span><span class="p">,</span><span class="n">indcells</span><span class="p">[</span><span class="n">ic</span><span class="p">])</span>
-                <span class="n">betaSet</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_beta</span><span class="p">(</span><span class="n">indcell</span><span class="p">,</span><span class="n">indcells</span><span class="p">[</span><span class="n">ic</span><span class="p">])</span>
-            <span class="n">intersurfaces</span><span class="o">=</span><span class="n">intersurfaces</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">intersurfaces</span><span class="p">)</span>
-            <span class="n">comdx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-            <span class="n">comdx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dx</span><span class="p">(</span><span class="n">indcell</span><span class="p">))</span>
-            <span class="n">comdx</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">intersurfaces</span><span class="p">,</span><span class="n">alphaSet</span><span class="p">))</span>
-            <span class="n">comdx</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">intersurfaces</span><span class="p">,</span><span class="n">betaSet</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">comdx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-        <span class="k">return</span> <span class="n">comdx</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_comdx_features"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_comdx_features">[docs]</a>    <span class="k">def</span> <span class="nf">get_comdx_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">nfeat_com</span><span class="o">=</span><span class="mi">3</span>
-        <span class="k">if</span> <span class="n">cell_inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cell_inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="n">Xf_com</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">nfeat_com</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-        <span class="n">traj_pairSet</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_traj_segments</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">indimgs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indimgSet</span><span class="p">[</span><span class="n">cell_inds</span><span class="p">])</span>
-        <span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="n">indimgs</span><span class="p">:</span>
-            <span class="n">fmsk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fmskSet</span><span class="p">[</span><span class="n">im</span><span class="p">,:,:]</span>
-            <span class="n">bmsk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell_bunches</span><span class="p">(</span><span class="n">fmsk</span><span class="p">,</span><span class="n">bunchcut</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-            <span class="n">bunch_clusters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_bunch_clusters</span><span class="p">(</span><span class="n">bmsk</span><span class="p">,</span><span class="n">t</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">imgSet_t</span><span class="p">[</span><span class="n">im</span><span class="p">,:])</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;extracting motility features from image &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">im</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; of &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">indimgs</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">cell_inds_img</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indimgSet</span><span class="p">[</span><span class="n">cell_inds</span><span class="p">]</span><span class="o">==</span><span class="n">im</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">indcells</span><span class="p">,</span><span class="n">indcomm_cindimg</span><span class="p">,</span><span class="n">indcomm_ctraj</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">cell_inds</span><span class="p">[</span><span class="n">cell_inds_img</span><span class="p">],</span><span class="n">traj_pairSet</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">return_indices</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">xSet</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">traj_pairSet</span><span class="p">[</span><span class="n">indcomm_ctraj</span><span class="p">,</span><span class="mi">1</span><span class="p">],:]</span>
-            <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="n">indcomm_ctraj</span><span class="p">:</span>
-                <span class="n">indcell</span><span class="o">=</span><span class="n">traj_pairSet</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
-                <span class="n">comdx</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feat_comdx</span><span class="p">(</span><span class="n">indcell</span><span class="p">,</span><span class="n">bmsk</span><span class="o">=</span><span class="n">bmsk</span><span class="p">,</span><span class="n">bunch_clusters</span><span class="o">=</span><span class="n">bunch_clusters</span><span class="p">)</span>
-                <span class="n">Xf_com</span><span class="p">[</span><span class="n">indcell</span><span class="p">,:]</span><span class="o">=</span><span class="n">comdx</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Xf_com</span><span class="o">=</span><span class="n">Xf_com</span></div>
+<div class="viewcode-block" id="Trajectory.get_secreted_ligand_density">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_secreted_ligand_density">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_secreted_ligand_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span><span class="n">npad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">indz_bm</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">secretion_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">flipz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Simulates the diffusion of secreted ligands from cells, providing a spatial distribution of ligand density across a specified frame. </span>
+<span class="sd">        The simulation considers specified boundary conditions and secretion rates to model the ligand concentration in the vicinity of cells.</span>
 
-<div class="viewcode-block" id="Trajectory.get_secreted_ligand_density"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_secreted_ligand_density">[docs]</a>    <span class="k">def</span> <span class="nf">get_secreted_ligand_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span><span class="n">npad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">indz_bm</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">secretion_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">flipz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frame : int</span>
+<span class="sd">            The frame index from which image and mask data are extracted.</span>
+<span class="sd">        mskchannel : int, optional</span>
+<span class="sd">            The channel of the mask that identifies the cells.</span>
+<span class="sd">        scale : float, optional</span>
+<span class="sd">            The scaling factor for the resolution of the simulation. Default is 2.0.</span>
+<span class="sd">        npad : array-like, optional</span>
+<span class="sd">            Padding to add around the simulation area to avoid edge effects. Defaults to [0, 0, 0] if None.</span>
+<span class="sd">        indz_bm : int, optional</span>
+<span class="sd">            The index of the bottom-most slice to consider in the z-dimension.</span>
+<span class="sd">        secretion_rate : float or array-like, optional</span>
+<span class="sd">            The rate at which ligands are secreted by the cells. Can be a single value or an array specifying different rates for different cells.</span>
+<span class="sd">        D : float, optional</span>
+<span class="sd">            Diffusion coefficient. If not specified, it is calculated based on the pixel size and z-scaling.</span>
+<span class="sd">        flipz : bool, optional</span>
+<span class="sd">            If True, flips the z-dimension of the image and mask data, useful for certain imaging orientations.</span>
+<span class="sd">        visual : bool, optional</span>
+<span class="sd">            If True, displays visualizations of the simulation process and results.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        vdist : ndarray</span>
+<span class="sd">            A 3D array representing the volumetric distribution of the ligand density around cells in the specified frame.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/data.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; ligand_density = traj.get_secreted_ligand_density(frame=10, mskchannel=1, scale=1.5, secretion_rate=0.5, D=15)</span>
+<span class="sd">        # This will simulate and return the ligand density around cells in frame 10 with specified parameters.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If any of the provided indices or parameters are out of the expected range or if there is a mismatch in array dimensions.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - The method performs a complex series of image processing steps including scaling, padding, flipping, and 3D mesh generation.</span>
+<span class="sd">        - It uses finite element methods to solve diffusion equations over the generated mesh, constrained by the cellular boundaries and secretion rates.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">npad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">npad</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">D</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1715,7 +2523,56 @@
             <span class="n">msk</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">vdist</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">vdist</span></div>
 
-<div class="viewcode-block" id="Trajectory.get_signal_contributions"><a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_signal_contributions">[docs]</a>    <span class="k">def</span> <span class="nf">get_signal_contributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">S</span><span class="p">,</span><span class="n">time_lag</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">x_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rescale_z</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Trajectory.get_signal_contributions">
+<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_signal_contributions">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_signal_contributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">S</span><span class="p">,</span><span class="n">time_lag</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">x_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rescale_z</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the spatial contributions of signaling between cells over a specified time lag. This method</span>
+<span class="sd">        averages signals from nearby cells, weighted inversely by their distances, to assess local signaling interactions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        S : ndarray</span>
+<span class="sd">            A binary array indicating the signaling status of cells (1 for active, 0 for inactive).</span>
+<span class="sd">        time_lag : int, optional</span>
+<span class="sd">            The time lag over which to assess signal contributions, defaulting to 0 for immediate interactions.</span>
+<span class="sd">        x_pos : ndarray, optional</span>
+<span class="sd">            Positions of cells. If None, the positions are taken from the instance&#39;s `x` attribute.</span>
+<span class="sd">        rmax : float, optional</span>
+<span class="sd">            The maximum radius within which to consider signal contributions from neighboring cells, default is 5.</span>
+<span class="sd">        R : float, optional</span>
+<span class="sd">            Normalization radius, typically set to the average cell diameter; defaults to the instance’s `cellpose_diam`.</span>
+<span class="sd">        zscale : float, optional</span>
+<span class="sd">            The scaling factor for the z-dimension, used if `rescale_z` is True.</span>
+<span class="sd">        rescale_z : bool, optional</span>
+<span class="sd">            If True, scales the z-coordinates of positions by `zscale`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        S_r : ndarray</span>
+<span class="sd">            An array where each element is the averaged spatial signal contribution received by each cell, normalized</span>
+<span class="sd">            by distance and weighted by the signaling status of neighboring cells.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/data.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; S = np.random.randint(0, 2, size=traj.cells_indSet.size)</span>
+<span class="sd">        &gt;&gt;&gt; signal_contributions = traj.get_signal_contributions(S, time_lag=1, rmax=10, R=15)</span>
+<span class="sd">        # This computes the signal contributions for each cell, considering interactions within a radius of 10 units.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - This method is useful for understanding the influence of cell-cell interactions within a defined spatial range</span>
+<span class="sd">        and can be particularly insightful in dynamic cellular environments where signaling is a key factor.</span>
+<span class="sd">        - The distances are normalized by the cell radius `R` to provide a relative measure of proximity, and the contributions</span>
+<span class="sd">        are weighted by the inverse of these normalized distances.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If necessary parameters are missing or incorrectly formatted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1">#S needs to be indexed so S[cell_inds] gives the correct binary signal, same with x_pos</span>
         <span class="k">if</span> <span class="n">x_pos</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">x_pos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span>
@@ -1743,7 +2600,9 @@
                 <span class="n">d_r</span><span class="o">=</span><span class="n">dmatr</span><span class="p">[</span><span class="n">j</span><span class="p">,:]</span>
                 <span class="n">inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">d_r</span><span class="o">&gt;</span><span class="mf">0.</span><span class="p">,</span><span class="n">d_r</span><span class="o">&lt;</span><span class="n">rmax</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">S_r</span><span class="p">[</span><span class="n">indcomm_ctraj1</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">S2</span><span class="p">[</span><span class="n">inds</span><span class="p">],</span><span class="n">d_r</span><span class="p">[</span><span class="n">inds</span><span class="p">]))</span>
-        <span class="k">return</span> <span class="n">S_r</span></div></div>
+        <span class="k">return</span> <span class="n">S_r</span></div>
+</div>
+
 </pre></div>
 
            </div>

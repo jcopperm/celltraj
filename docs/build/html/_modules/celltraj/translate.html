@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>celltraj.translate &mdash; celltraj 0.1.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -114,7 +116,9 @@
 <span class="c1">#    - Reorganize these attributes into some meaningful structure</span>
 <span class="c1">#    &quot;&quot;&quot;a</span>
 
-<div class="viewcode-block" id="get_predictedFC"><a class="viewcode-back" href="../../api.html#celltraj.translate.get_predictedFC">[docs]</a><span class="k">def</span> <span class="nf">get_predictedFC</span><span class="p">(</span><span class="n">state_probs</span><span class="p">,</span><span class="n">statesFC</span><span class="p">):</span>
+<div class="viewcode-block" id="get_predictedFC">
+<a class="viewcode-back" href="../../api.html#celltraj.translate.get_predictedFC">[docs]</a>
+<span class="k">def</span> <span class="nf">get_predictedFC</span><span class="p">(</span><span class="n">state_probs</span><span class="p">,</span><span class="n">statesFC</span><span class="p">):</span>
     <span class="n">ntr</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">n</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">nG</span><span class="o">=</span><span class="n">statesFC</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -124,7 +128,10 @@
         <span class="n">x_FC_predicted</span><span class="p">[</span><span class="n">itr</span><span class="p">,:]</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">statep</span><span class="p">,(</span><span class="n">nG</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">statesFC</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">x_FC_predicted</span></div>
 
-<div class="viewcode-block" id="get_state_decomposition"><a class="viewcode-back" href="../../api.html#celltraj.translate.get_state_decomposition">[docs]</a><span class="k">def</span> <span class="nf">get_state_decomposition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x_fc</span><span class="p">,</span><span class="n">state_probs</span><span class="p">,</span><span class="n">npermutations</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">inds_tm_training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">gene_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_state_decomposition">
+<a class="viewcode-back" href="../../api.html#celltraj.translate.get_state_decomposition">[docs]</a>
+<span class="k">def</span> <span class="nf">get_state_decomposition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x_fc</span><span class="p">,</span><span class="n">state_probs</span><span class="p">,</span><span class="n">npermutations</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">inds_tm_training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">gene_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">n</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">ntr</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">nG</span><span class="o">=</span><span class="n">x_fc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -176,7 +183,10 @@
         <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">save_file</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">x_fc_states</span></div>
 
-<div class="viewcode-block" id="get_null_correlations"><a class="viewcode-back" href="../../api.html#celltraj.translate.get_null_correlations">[docs]</a><span class="k">def</span> <span class="nf">get_null_correlations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x_fc</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">,</span><span class="n">x_fc_predicted</span><span class="p">,</span><span class="n">nrandom</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_null_correlations">
+<a class="viewcode-back" href="../../api.html#celltraj.translate.get_null_correlations">[docs]</a>
+<span class="k">def</span> <span class="nf">get_null_correlations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x_fc</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">,</span><span class="n">x_fc_predicted</span><span class="p">,</span><span class="n">nrandom</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">n</span><span class="o">=</span><span class="n">x_fc_states</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">ntr</span><span class="o">=</span><span class="n">x_fc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">nrandom</span><span class="o">=</span><span class="mi">500</span>
@@ -205,6 +215,7 @@
                 <span class="k">if</span> <span class="n">save_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">save_file</span><span class="p">,</span><span class="n">corrSet_rand</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">corrSet_pred</span><span class="p">,</span> <span class="n">corrSet_rand</span><span class="p">,</span> <span class="n">corrSet_predrand</span></div>
+
 </pre></div>
 
            </div>

@@ -127,7 +127,7 @@ def featBoundary(regionmask, intensity):
             xf=np.array(xf)
             xf=np.nanmean(xf,axis=0)
         elif regionmask.ndim==2:
-            xf = features.boundaryFFT(regionmask)
+            xf = boundaryFFT(regionmask)
     else:
         xf = np.zeros(15)
     return xf
@@ -144,7 +144,7 @@ def featNucBoundary(regionmask, intensity):
             xf=np.array(xf)
             xf=np.nanmean(xf,axis=0)
         elif regionmask.ndim==2:
-            xf = features.boundaryFFT(intensity)
+            xf = boundaryFFT(intensity)
     else:
         xf = np.ones(15)*np.nan
     return xf

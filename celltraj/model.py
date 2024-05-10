@@ -360,8 +360,10 @@ def get_kernel_sigmas(X,M,s=.05,vector_sigma=True):
             h=s*np.power(np.std(scipy.spatial.distance.cdist(XM,XM,metric='euclidean'),axis=0),2) #to square, changed 6nov23 matching unit test
         return h.astype('float64')
     else:
-        XX=np.sqrt(np.power(np.real(XM),2)+np.power(np.imag(XM),2))
-        h = s*np.std(scipy.spatial.distance.pdist(XX,metric='euclidean'))**2
+        #XX=np.sqrt(np.power(np.real(XM),2)+np.power(np.imag(XM),2))
+        #h=s*np.power(np.median(utilities.get_dmat(XM,XM)),2) #to square, changed 6nov23 matching unit test
+        #h = s*np.std(scipy.spatial.distance.pdist(XX,metric='euclidean'))**2
+        h = s*np.sqrt(np.sum(np.var(XM))) #changed per DA rec 2may24
         return h
 
 def get_gaussianKernelM(X,Y,M,h):

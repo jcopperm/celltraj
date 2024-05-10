@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>celltraj.imageprep &mdash; celltraj 0.1.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -96,7 +98,8 @@
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
 <span class="kn">from</span> <span class="nn">skimage.transform</span> <span class="kn">import</span> <span class="n">resize</span><span class="p">,</span><span class="n">rescale</span>
-<span class="kn">import</span> <span class="nn">celltraj.utilities</span> <span class="k">as</span> <span class="nn">utilities</span>
+<span class="c1">#import celltraj.utilities as utilities</span>
+<span class="kn">import</span> <span class="nn">utilities</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Did I change it? A toolset for single-cell trajectory modeling and multidomain translation. See:</span>
@@ -121,7 +124,9 @@
 <span class="sd">Manuscript in preparation.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="list_images"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.list_images">[docs]</a><span class="k">def</span> <span class="nf">list_images</span><span class="p">(</span><span class="n">imagespecifier</span><span class="p">):</span>
+<div class="viewcode-block" id="list_images">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.list_images">[docs]</a>
+<span class="k">def</span> <span class="nf">list_images</span><span class="p">(</span><span class="n">imagespecifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;list images in a directory matching a pattern..</span>
 
 <span class="sd">    :param imagepath: directory :param filespecifier pattern to match for image files</span>
@@ -137,7 +142,10 @@
     <span class="n">fileList</span><span class="o">=</span><span class="n">fileList</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">fileList</span></div>
 
-<div class="viewcode-block" id="organize_filelist_fov"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.organize_filelist_fov">[docs]</a><span class="k">def</span> <span class="nf">organize_filelist_fov</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">fov_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fov_len</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+
+<div class="viewcode-block" id="organize_filelist_fov">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.organize_filelist_fov">[docs]</a>
+<span class="k">def</span> <span class="nf">organize_filelist_fov</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">fov_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fov_len</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Organize imagefiles in a list to field of view.</span>
 
 <span class="sd">    :param filelist: list of image files :param fov_pos: string position of fov specifier :param fov_len: length of fov speficier</span>
@@ -165,7 +173,10 @@
         <span class="n">filelist_sorted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filelist</span><span class="p">[</span><span class="n">indfovs</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
     <span class="k">return</span> <span class="n">filelist_sorted</span></div>
 
-<div class="viewcode-block" id="organize_filelist_time"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.organize_filelist_time">[docs]</a><span class="k">def</span> <span class="nf">organize_filelist_time</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">time_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="organize_filelist_time">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.organize_filelist_time">[docs]</a>
+<span class="k">def</span> <span class="nf">organize_filelist_time</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">time_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Organize imagefiles in a list to timestamp ??d??h??m.</span>
 
 <span class="sd">    :param filelist: list of image files</span>
@@ -190,7 +201,10 @@
         <span class="n">filelist_sorted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filelist</span><span class="p">[</span><span class="n">indtimes</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
     <span class="k">return</span> <span class="n">filelist_sorted</span></div>
 
-<div class="viewcode-block" id="znorm"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.znorm">[docs]</a><span class="k">def</span> <span class="nf">znorm</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+
+<div class="viewcode-block" id="znorm">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.znorm">[docs]</a>
+<span class="k">def</span> <span class="nf">znorm</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Variance normalization (z-norm) of an array or image)..</span>
 
 <span class="sd">    :param img: array or image</span>
@@ -201,7 +215,10 @@
     <span class="n">img</span><span class="o">=</span><span class="p">(</span><span class="n">img</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">img</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">img</span></div>
 
-<div class="viewcode-block" id="histogram_stretch"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.histogram_stretch">[docs]</a><span class="k">def</span> <span class="nf">histogram_stretch</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">lp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">hp</span><span class="o">=</span><span class="mi">99</span><span class="p">):</span>
+
+<div class="viewcode-block" id="histogram_stretch">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.histogram_stretch">[docs]</a>
+<span class="k">def</span> <span class="nf">histogram_stretch</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">lp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">hp</span><span class="o">=</span><span class="mi">99</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Histogram stretch of an array or image for normalization..</span>
 
 <span class="sd">    :param img: array or image</span>
@@ -213,7 +230,10 @@
     <span class="n">img</span><span class="o">=</span><span class="p">(</span><span class="n">img</span><span class="o">-</span><span class="n">plow</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">phigh</span><span class="o">-</span><span class="n">plow</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">img</span></div>
 
-<div class="viewcode-block" id="get_images"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_images">[docs]</a><span class="k">def</span> <span class="nf">get_images</span><span class="p">(</span><span class="n">filelist</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_images">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_images">[docs]</a>
+<span class="k">def</span> <span class="nf">get_images</span><span class="p">(</span><span class="n">filelist</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get images from list of files.</span>
 
 <span class="sd">    :param filelist: list of image files</span>
@@ -224,7 +244,10 @@
     <span class="n">imgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">skimage</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filelist</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">imgs</span></div>
 
-<div class="viewcode-block" id="get_tile_order"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_tile_order">[docs]</a><span class="k">def</span> <span class="nf">get_tile_order</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">,</span><span class="n">snake</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_tile_order">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_tile_order">[docs]</a>
+<span class="k">def</span> <span class="nf">get_tile_order</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">,</span><span class="n">snake</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct ordering for to put together image tiles compatible with incell microscope.</span>
 <span class="sd">    :param nrows: number of rows ncols: number of columns </span>
 <span class="sd">    snake: snake across whole image (left to right, right to left, left to right...)</span>
@@ -239,7 +262,10 @@
                 <span class="n">image_inds</span><span class="p">[</span><span class="n">rowv</span><span class="p">,:]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">image_inds</span><span class="p">[</span><span class="n">rowv</span><span class="p">,:])</span>
     <span class="k">return</span> <span class="n">image_inds</span></div>
 
-<div class="viewcode-block" id="get_slide_image"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_slide_image">[docs]</a><span class="k">def</span> <span class="nf">get_slide_image</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">nrows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">image_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">foverlap</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">histnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_slide_image">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_slide_image">[docs]</a>
+<span class="k">def</span> <span class="nf">get_slide_image</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">nrows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">image_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">foverlap</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">histnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct slide image from a set of tiles (fields of view). </span>
 <span class="sd">    Ordering from (get_tile_order).</span>
 <span class="sd">    :param imgs: list of images nrows: number of rows, default assumes a square tiling (64 images = 8 rows x 8 cols) </span>
@@ -275,7 +301,10 @@
         <span class="n">ws_img</span><span class="p">[</span><span class="n">lv</span><span class="p">:</span><span class="n">uv</span><span class="p">,</span><span class="n">lh</span><span class="p">:</span><span class="n">uh</span><span class="p">]</span><span class="o">=</span><span class="n">img</span>
     <span class="k">return</span> <span class="n">ws_img</span></div>
 
-<div class="viewcode-block" id="load_ilastik"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.load_ilastik">[docs]</a><span class="k">def</span> <span class="nf">load_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">):</span>
+
+<div class="viewcode-block" id="load_ilastik">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.load_ilastik">[docs]</a>
+<span class="k">def</span> <span class="nf">load_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load ilastik prediction (pixel classification) from h5 file format.</span>
 <span class="sd">    :param file_ilastik: filename</span>
 <span class="sd">    :type file_ilastik: string</span>
@@ -288,7 +317,10 @@
     <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">pmask</span></div>
 
-<div class="viewcode-block" id="get_mask_2channel_ilastik"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_mask_2channel_ilastik">[docs]</a><span class="k">def</span> <span class="nf">get_mask_2channel_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">growthcycles</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_mask_2channel_ilastik">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_mask_2channel_ilastik">[docs]</a>
+<span class="k">def</span> <span class="nf">get_mask_2channel_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">growthcycles</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
     <span class="n">pmask</span><span class="o">=</span><span class="n">load_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">)</span>
     <span class="n">msk_fore</span><span class="o">=</span><span class="n">pmask</span><span class="p">[:,:,</span><span class="n">fore_channel</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">holefill_area</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
@@ -302,7 +334,10 @@
            <span class="n">msk_fore</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span><span class="n">msk_fore</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">msk_fore</span></div>
 
-<div class="viewcode-block" id="get_masks"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_masks">[docs]</a><span class="k">def</span> <span class="nf">get_masks</span><span class="p">(</span><span class="n">masklist</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">growthcycles</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_masks">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_masks">[docs]</a>
+<span class="k">def</span> <span class="nf">get_masks</span><span class="p">(</span><span class="n">masklist</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">growthcycles</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
     <span class="n">nF</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">masklist</span><span class="p">)</span>
     <span class="n">masks</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">nF</span>
     <span class="k">for</span> <span class="n">iF</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nF</span><span class="p">):</span>
@@ -312,13 +347,19 @@
         <span class="n">masks</span><span class="p">[</span><span class="n">iF</span><span class="p">]</span><span class="o">=</span><span class="n">msk</span>
     <span class="k">return</span> <span class="n">masks</span></div>
 
-<div class="viewcode-block" id="local_threshold"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.local_threshold">[docs]</a><span class="k">def</span> <span class="nf">local_threshold</span><span class="p">(</span><span class="n">imgr</span><span class="p">,</span><span class="n">block_size</span><span class="o">=</span><span class="mi">51</span><span class="p">,</span><span class="n">z_std</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+
+<div class="viewcode-block" id="local_threshold">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.local_threshold">[docs]</a>
+<span class="k">def</span> <span class="nf">local_threshold</span><span class="p">(</span><span class="n">imgr</span><span class="p">,</span><span class="n">block_size</span><span class="o">=</span><span class="mi">51</span><span class="p">,</span><span class="n">z_std</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
     <span class="n">nuc_thresh</span><span class="o">=</span><span class="n">z_std</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">imgr</span><span class="p">)</span>
     <span class="n">local_thresh</span> <span class="o">=</span> <span class="n">threshold_local</span><span class="p">(</span><span class="n">imgr</span><span class="p">,</span> <span class="n">block_size</span><span class="p">,</span> <span class="n">offset</span><span class="o">=-</span><span class="n">nuc_thresh</span><span class="p">)</span>
     <span class="n">b_imgr</span> <span class="o">=</span> <span class="n">imgr</span> <span class="o">&gt;</span> <span class="n">local_thresh</span>
     <span class="k">return</span> <span class="n">b_imgr</span></div>
 
-<div class="viewcode-block" id="get_labeled_mask"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_labeled_mask">[docs]</a><span class="k">def</span> <span class="nf">get_labeled_mask</span><span class="p">(</span><span class="n">b_imgr</span><span class="p">,</span><span class="n">imgM</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">apply_watershed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">dist_footprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_labeled_mask">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_labeled_mask">[docs]</a>
+<span class="k">def</span> <span class="nf">get_labeled_mask</span><span class="p">(</span><span class="n">b_imgr</span><span class="p">,</span><span class="n">imgM</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">apply_watershed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">dist_footprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">imgM</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span>
     <span class="k">else</span><span class="p">:</span>
@@ -345,7 +386,10 @@
         <span class="n">masks_nuc</span> <span class="o">=</span> <span class="n">watershed</span><span class="p">(</span><span class="o">-</span><span class="n">d_imgr</span><span class="p">,</span> <span class="n">markers</span><span class="o">=</span><span class="n">markers_nuc</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">b_imgr</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">masks_nuc</span></div>
 
-<div class="viewcode-block" id="clean_labeled_mask"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.clean_labeled_mask">[docs]</a><span class="k">def</span> <span class="nf">clean_labeled_mask</span><span class="p">(</span><span class="n">masks_nuc</span><span class="p">,</span><span class="n">remove_borders</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">remove_padding</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">edge_buffer</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">minsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">selection</span><span class="o">=</span><span class="s1">&#39;largest&#39;</span><span class="p">,</span><span class="n">test_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">test_cut</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+
+<div class="viewcode-block" id="clean_labeled_mask">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.clean_labeled_mask">[docs]</a>
+<span class="k">def</span> <span class="nf">clean_labeled_mask</span><span class="p">(</span><span class="n">masks_nuc</span><span class="p">,</span><span class="n">remove_borders</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">remove_padding</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">edge_buffer</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">minsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">selection</span><span class="o">=</span><span class="s1">&#39;largest&#39;</span><span class="p">,</span><span class="n">test_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">test_cut</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
     <span class="n">ndim</span><span class="o">=</span><span class="n">masks_nuc</span><span class="o">.</span><span class="n">ndim</span>
     <span class="k">if</span> <span class="n">minsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">minsize</span><span class="o">=</span><span class="mi">0</span>
@@ -411,7 +455,10 @@
                         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;cell &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ic</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; has not enough value in test map: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">test_sum</span><span class="p">))</span>    
     <span class="k">return</span> <span class="n">masks_nuc_clean</span></div>
 
-<div class="viewcode-block" id="get_label_largestcc"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_label_largestcc">[docs]</a><span class="k">def</span> <span class="nf">get_label_largestcc</span><span class="p">(</span><span class="n">label</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_label_largestcc">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_label_largestcc">[docs]</a>
+<span class="k">def</span> <span class="nf">get_label_largestcc</span><span class="p">(</span><span class="n">label</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">labels_clean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">label</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">label</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">]:</span>
         <span class="n">mskc</span> <span class="o">=</span> <span class="n">label</span><span class="o">==</span><span class="n">ic</span>
@@ -428,7 +475,10 @@
             <span class="n">labels_clean</span><span class="p">[</span><span class="n">indc</span><span class="p">]</span><span class="o">=</span><span class="n">ic</span>
     <span class="k">return</span> <span class="n">labels_clean</span></div>
 
-<div class="viewcode-block" id="get_feature_map"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_feature_map">[docs]</a><span class="k">def</span> <span class="nf">get_feature_map</span><span class="p">(</span><span class="n">features</span><span class="p">,</span><span class="n">labels</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_feature_map">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_feature_map">[docs]</a>
+<span class="k">def</span> <span class="nf">get_feature_map</span><span class="p">(</span><span class="n">features</span><span class="p">,</span><span class="n">labels</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">features</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;feature size needs to match labels&#39;</span><span class="p">)</span>
     <span class="n">fmap</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
@@ -438,7 +488,10 @@
         <span class="n">fmap</span><span class="p">[</span><span class="n">indc</span><span class="p">]</span><span class="o">=</span><span class="n">features</span><span class="p">[</span><span class="n">ic</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">fmap</span></div>
 
-<div class="viewcode-block" id="get_voronoi_masks_fromcenters"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_voronoi_masks_fromcenters">[docs]</a><span class="k">def</span> <span class="nf">get_voronoi_masks_fromcenters</span><span class="p">(</span><span class="n">nuc_centers</span><span class="p">,</span><span class="n">imgM</span><span class="p">,</span><span class="n">selection</span><span class="o">=</span><span class="s1">&#39;closest&#39;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_voronoi_masks_fromcenters">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_voronoi_masks_fromcenters">[docs]</a>
+<span class="k">def</span> <span class="nf">get_voronoi_masks_fromcenters</span><span class="p">(</span><span class="n">nuc_centers</span><span class="p">,</span><span class="n">imgM</span><span class="p">,</span><span class="n">selection</span><span class="o">=</span><span class="s1">&#39;closest&#39;</span><span class="p">):</span>
     <span class="n">indBackground</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">imgM</span><span class="p">))</span>
     <span class="n">nuc_clusters</span><span class="o">=</span><span class="n">pyemma</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="n">AssignCenters</span><span class="p">(</span><span class="n">nuc_centers</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">imgM</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
@@ -472,11 +525,17 @@
             <span class="n">masks_cyto</span><span class="p">[</span><span class="n">indc</span><span class="p">]</span><span class="o">=</span><span class="n">ic</span>
     <span class="k">return</span> <span class="n">masks_cyto</span></div>
 
-<div class="viewcode-block" id="make_odd"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.make_odd">[docs]</a><span class="k">def</span> <span class="nf">make_odd</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+
+<div class="viewcode-block" id="make_odd">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.make_odd">[docs]</a>
+<span class="k">def</span> <span class="nf">make_odd</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
      <span class="n">x</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
      <span class="k">return</span> <span class="n">x</span></div>
 
-<div class="viewcode-block" id="get_intensity_centers"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_intensity_centers">[docs]</a><span class="k">def</span> <span class="nf">get_intensity_centers</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">msk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">footprint_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">smooth_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pad_zeros</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_intensity_centers">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_intensity_centers">[docs]</a>
+<span class="k">def</span> <span class="nf">get_intensity_centers</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">msk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">footprint_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">smooth_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pad_zeros</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">msk</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">msk</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">footprint_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -509,7 +568,10 @@
         <span class="n">local_maxi</span><span class="o">=</span><span class="n">local_maxi</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">footprint_shape</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">local_maxi</span></div>
 
-<div class="viewcode-block" id="save_for_viewing"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.save_for_viewing">[docs]</a><span class="k">def</span> <span class="nf">save_for_viewing</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">fname</span><span class="p">,</span><span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="save_for_viewing">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.save_for_viewing">[docs]</a>
+<span class="k">def</span> <span class="nf">save_for_viewing</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">fname</span><span class="p">,</span><span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">data_object</span><span class="o">=</span><span class="p">[</span><span class="n">data</span><span class="p">,</span><span class="n">metadata</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">overwrite</span><span class="p">:</span>
         <span class="n">objFileHandler</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;wb&#39;</span><span class="p">)</span>
@@ -526,7 +588,10 @@
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;file may exist, use overwrite=True&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="load_for_viewing"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.load_for_viewing">[docs]</a><span class="k">def</span> <span class="nf">load_for_viewing</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+
+<div class="viewcode-block" id="load_for_viewing">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.load_for_viewing">[docs]</a>
+<span class="k">def</span> <span class="nf">load_for_viewing</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">objFileHandler</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span>
         <span class="n">datalist</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">states_object</span><span class="p">)</span>
@@ -536,7 +601,10 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;load fail&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="get_voronoi_masks"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_voronoi_masks">[docs]</a><span class="k">def</span> <span class="nf">get_voronoi_masks</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">imgM</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_voronoi_masks">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_voronoi_masks">[docs]</a>
+<span class="k">def</span> <span class="nf">get_voronoi_masks</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">imgM</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">imgM</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;no foreground mask provided (imgM), using entire image&#39;</span><span class="p">)</span>
         <span class="n">imgM</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span>
@@ -565,7 +633,10 @@
         <span class="n">masks_cyto</span><span class="p">[</span><span class="n">indc</span><span class="p">]</span><span class="o">=</span><span class="n">ic</span>
     <span class="k">return</span> <span class="n">masks_cyto</span></div>
 
-<div class="viewcode-block" id="get_cyto_minus_nuc_labels"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_cyto_minus_nuc_labels">[docs]</a><span class="k">def</span> <span class="nf">get_cyto_minus_nuc_labels</span><span class="p">(</span><span class="n">labels_cyto</span><span class="p">,</span><span class="n">labels_nuc</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_cyto_minus_nuc_labels">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_cyto_minus_nuc_labels">[docs]</a>
+<span class="k">def</span> <span class="nf">get_cyto_minus_nuc_labels</span><span class="p">(</span><span class="n">labels_cyto</span><span class="p">,</span><span class="n">labels_nuc</span><span class="p">):</span>
     <span class="n">labels_cyto_new</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">labels_cyto</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labels_nuc</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">mskc_cyto</span><span class="o">=</span><span class="n">labels_cyto</span><span class="o">==</span><span class="n">ic</span>
@@ -580,7 +651,10 @@
     <span class="n">labels_cyto_new</span><span class="p">[</span><span class="n">ind_nuc</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
     <span class="k">return</span> <span class="n">labels_cyto_new</span></div>
 
-<div class="viewcode-block" id="get_cell_intensities"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_cell_intensities">[docs]</a><span class="k">def</span> <span class="nf">get_cell_intensities</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">labels</span><span class="p">,</span><span class="n">averaging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">is_3D</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_cell_intensities">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_cell_intensities">[docs]</a>
+<span class="k">def</span> <span class="nf">get_cell_intensities</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">labels</span><span class="p">,</span><span class="n">averaging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">is_3D</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">ncells</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
     <span class="n">cell_intensities</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ncells</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_3D</span> <span class="ow">and</span> <span class="n">img</span><span class="o">.</span><span class="n">ndim</span><span class="o">&gt;</span><span class="mi">2</span><span class="p">:</span>
@@ -611,7 +685,10 @@
                 <span class="n">cell_intensities</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="n">indcell</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">cell_intensities</span></div>
 
-<div class="viewcode-block" id="get_registrations"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_registrations">[docs]</a><span class="k">def</span> <span class="nf">get_registrations</span><span class="p">(</span><span class="n">imgs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_registrations">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_registrations">[docs]</a>
+<span class="k">def</span> <span class="nf">get_registrations</span><span class="p">(</span><span class="n">imgs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply pystackreg to get registrations along image stack</span>
 <span class="sd">    :param imgs: images (Z,X,Y), registration along Z</span>
 <span class="sd">    :type imgs: ndarray</span>
@@ -631,7 +708,10 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;frame &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">iframe</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39; transx: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">tSet</span><span class="p">[</span><span class="n">iframe</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39; transy: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">tSet</span><span class="p">[</span><span class="n">iframe</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">tSet</span> <span class="c1">#stack translations</span></div>
 
-<div class="viewcode-block" id="get_tf_matrix_2d"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_tf_matrix_2d">[docs]</a><span class="k">def</span> <span class="nf">get_tf_matrix_2d</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">img</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_tf_matrix_2d">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_tf_matrix_2d">[docs]</a>
+<span class="k">def</span> <span class="nf">get_tf_matrix_2d</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">img</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
     <span class="n">nx</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">ny</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">centerx</span><span class="o">=</span><span class="n">nx</span><span class="o">/</span><span class="mi">2</span>
@@ -648,7 +728,10 @@
     <span class="n">tmatrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="mf">1.0</span>
     <span class="k">return</span> <span class="n">tmatrix</span></div>
 
-<div class="viewcode-block" id="transform_image"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.transform_image">[docs]</a><span class="k">def</span> <span class="nf">transform_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">tf_matrix</span><span class="p">,</span><span class="n">inverse_tform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">pad_dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">ndimage_args</span><span class="p">):</span>
+
+<div class="viewcode-block" id="transform_image">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.transform_image">[docs]</a>
+<span class="k">def</span> <span class="nf">transform_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">tf_matrix</span><span class="p">,</span><span class="n">inverse_tform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">pad_dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">ndimage_args</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">tf_matrix</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span> <span class="ow">or</span> <span class="n">tf_matrix</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
         <span class="k">pass</span>
     <span class="k">else</span><span class="p">:</span>
@@ -675,7 +758,10 @@
     <span class="n">img_tf</span><span class="o">=</span><span class="n">img_tf</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">img_tf</span></div>
 
-<div class="viewcode-block" id="pad_image"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.pad_image">[docs]</a><span class="k">def</span> <span class="nf">pad_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="o">*</span><span class="n">maxdims</span><span class="p">,</span><span class="n">padvalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+<div class="viewcode-block" id="pad_image">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.pad_image">[docs]</a>
+<span class="k">def</span> <span class="nf">pad_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="o">*</span><span class="n">maxdims</span><span class="p">,</span><span class="n">padvalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="c1">#print(maxdims)</span>
     <span class="n">ndim</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">maxdims</span><span class="p">)</span>
     <span class="n">img_ndim</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">ndim</span>
@@ -693,7 +779,10 @@
         <span class="n">img</span><span class="o">=</span><span class="n">img</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">maxdims</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">0</span><span class="p">:</span><span class="n">maxdims</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">0</span><span class="p">:</span><span class="n">maxdims</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
     <span class="k">return</span> <span class="n">img</span></div>
 
-<div class="viewcode-block" id="get_registration_expansions"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_registration_expansions">[docs]</a><span class="k">def</span> <span class="nf">get_registration_expansions</span><span class="p">(</span><span class="n">tf_matrix_set</span><span class="p">,</span><span class="o">*</span><span class="n">imgdims</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_registration_expansions">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_registration_expansions">[docs]</a>
+<span class="k">def</span> <span class="nf">get_registration_expansions</span><span class="p">(</span><span class="n">tf_matrix_set</span><span class="p">,</span><span class="o">*</span><span class="n">imgdims</span><span class="p">):</span>
     <span class="n">tSet</span><span class="o">=</span><span class="n">tf_matrix_set</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">][:,</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">tSet</span><span class="o">=</span><span class="n">tSet</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">tSet</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">max_trans</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">tSet</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -711,7 +800,10 @@
     <span class="n">tf_matrix_set</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">][:,</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">tSet</span>
     <span class="k">return</span> <span class="n">tf_matrix_set</span><span class="p">,</span><span class="n">pad_dims</span></div>
 
-<div class="viewcode-block" id="expand_registered_images"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.expand_registered_images">[docs]</a><span class="k">def</span> <span class="nf">expand_registered_images</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">tSet</span><span class="p">):</span>
+
+<div class="viewcode-block" id="expand_registered_images">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.expand_registered_images">[docs]</a>
+<span class="k">def</span> <span class="nf">expand_registered_images</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">tSet</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply transformations to a stack of images and expand images so they align</span>
 <span class="sd">    :param imgs: images (Z,X,Y), registration along Z tSet: transformations for each image (angle, x-trans, y-trans)</span>
 <span class="sd">    :type imgs: ndarray or list of images (each image same size) tSet: ndarray (NZ, 3)</span>
@@ -741,7 +833,10 @@
         <span class="n">imgst</span><span class="p">[</span><span class="n">iS</span><span class="p">,:,:]</span><span class="o">=</span><span class="n">img</span>
     <span class="k">return</span> <span class="n">imgst</span></div>
 
-<div class="viewcode-block" id="create_h5"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.create_h5">[docs]</a><span class="k">def</span> <span class="nf">create_h5</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">dic</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="create_h5">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.create_h5">[docs]</a>
+<span class="k">def</span> <span class="nf">create_h5</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">dic</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1"> already exists!&#39;</span><span class="p">)</span>
@@ -758,7 +853,10 @@
         <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">return</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="save_frame_h5"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.save_frame_h5">[docs]</a><span class="k">def</span> <span class="nf">save_frame_h5</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">img</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">msks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fmsk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">timestamp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="save_frame_h5">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.save_frame_h5">[docs]</a>
+<span class="k">def</span> <span class="nf">save_frame_h5</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">img</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">msks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fmsk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">timestamp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">iS</span><span class="o">=</span><span class="n">frame</span>
     <span class="k">if</span> <span class="n">timestamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">timestamp</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
@@ -821,21 +919,30 @@
                 <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;    ...overwritten</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="get_cell_centers"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_cell_centers">[docs]</a><span class="k">def</span> <span class="nf">get_cell_centers</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_cell_centers">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_cell_centers">[docs]</a>
+<span class="k">def</span> <span class="nf">get_cell_centers</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">labels</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
         <span class="n">centers</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ndimage</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span><span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">centers</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">centers</span></div>
 
-<div class="viewcode-block" id="get_nndist_sum"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_nndist_sum">[docs]</a><span class="k">def</span> <span class="nf">get_nndist_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">tshift</span><span class="p">,</span><span class="n">centers1</span><span class="p">,</span><span class="n">centers2</span><span class="p">,</span><span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_nndist_sum">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_nndist_sum">[docs]</a>
+<span class="k">def</span> <span class="nf">get_nndist_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">tshift</span><span class="p">,</span><span class="n">centers1</span><span class="p">,</span><span class="n">centers2</span><span class="p">,</span><span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">rcut</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Setting distance cutoff to infinite. Consider using a distance cutoff of the size of the diagonal of the image to vastly speed up calculation.&#39;</span><span class="p">)</span>
     <span class="n">inds_tshift</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dmat</span><span class="p">([</span><span class="n">centers1</span><span class="p">[</span><span class="n">ind1</span><span class="p">,:]</span><span class="o">+</span><span class="n">tshift</span><span class="p">],</span><span class="n">centers2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;</span><span class="n">rcut</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">nnd</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dmat</span><span class="p">(</span><span class="n">centers1</span><span class="o">+</span><span class="n">tshift</span><span class="p">,</span><span class="n">centers2</span><span class="p">[</span><span class="n">inds_tshift</span><span class="p">,:])</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_dmat</span><span class="p">(</span><span class="n">centers2</span><span class="p">[</span><span class="n">inds_tshift</span><span class="p">,:],</span><span class="n">centers1</span><span class="o">+</span><span class="n">tshift</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">nnd</span></div>
 
-<div class="viewcode-block" id="get_pair_rdf_fromcenters"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_pair_rdf_fromcenters">[docs]</a><span class="k">def</span> <span class="nf">get_pair_rdf_fromcenters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">centers</span><span class="p">,</span><span class="n">rbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nr</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_pair_rdf_fromcenters">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_pair_rdf_fromcenters">[docs]</a>
+<span class="k">def</span> <span class="nf">get_pair_rdf_fromcenters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">centers</span><span class="p">,</span><span class="n">rbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nr</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">rbins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">rbins</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1.e-6</span><span class="p">,</span><span class="n">rmax</span><span class="p">,</span><span class="n">nr</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">rbins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
@@ -859,7 +966,10 @@
     <span class="n">paircorrx</span><span class="o">=</span><span class="n">paircorrx</span><span class="o">*</span><span class="n">V</span><span class="o">/</span><span class="n">nc</span>
     <span class="k">return</span> <span class="n">rbins</span><span class="p">,</span><span class="n">paircorrx</span></div>
 
-<div class="viewcode-block" id="dist_to_contact"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.dist_to_contact">[docs]</a><span class="k">def</span> <span class="nf">dist_to_contact</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">r0</span><span class="p">,</span><span class="n">d0</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
+
+<div class="viewcode-block" id="dist_to_contact">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.dist_to_contact">[docs]</a>
+<span class="k">def</span> <span class="nf">dist_to_contact</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">r0</span><span class="p">,</span><span class="n">d0</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">r</span><span class="o">&lt;</span><span class="n">d0</span><span class="p">:</span>
             <span class="n">c</span><span class="o">=</span><span class="mf">1.</span>
@@ -875,7 +985,10 @@
         <span class="n">c</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">n</span><span class="p">)),(</span><span class="mi">1</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">m</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">c</span></div>
 
-<div class="viewcode-block" id="get_contactsum_dev"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_contactsum_dev">[docs]</a><span class="k">def</span> <span class="nf">get_contactsum_dev</span><span class="p">(</span><span class="n">centers1</span><span class="p">,</span><span class="n">centers2</span><span class="p">,</span><span class="n">img2</span><span class="p">,</span><span class="n">rp1</span><span class="p">,</span><span class="n">nt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">savefile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_contactsum_dev">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.get_contactsum_dev">[docs]</a>
+<span class="k">def</span> <span class="nf">get_contactsum_dev</span><span class="p">(</span><span class="n">centers1</span><span class="p">,</span><span class="n">centers2</span><span class="p">,</span><span class="n">img2</span><span class="p">,</span><span class="n">rp1</span><span class="p">,</span><span class="n">nt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">savefile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">nt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">nt</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">img2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">20</span><span class="p">)</span>
     <span class="n">txSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">img2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">nt</span><span class="p">)</span>
@@ -910,11 +1023,15 @@
         <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">savefile</span><span class="p">,</span><span class="n">nncs_dev</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">nncs_dev</span></div>
 
-<div class="viewcode-block" id="crop_image"><a class="viewcode-back" href="../../api.html#celltraj.imageprep.crop_image">[docs]</a><span class="k">def</span> <span class="nf">crop_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">tshift</span><span class="p">,</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="p">):</span>
+
+<div class="viewcode-block" id="crop_image">
+<a class="viewcode-back" href="../../api.html#celltraj.imageprep.crop_image">[docs]</a>
+<span class="k">def</span> <span class="nf">crop_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">tshift</span><span class="p">,</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="p">):</span>
     <span class="n">img_cropped</span><span class="o">=</span><span class="n">img</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">tshift</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span><span class="nb">int</span><span class="p">(</span><span class="n">tshift</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="n">nx</span><span class="p">,:]</span>
     <span class="n">img_cropped</span><span class="o">=</span><span class="n">img_cropped</span><span class="p">[:,</span><span class="nb">int</span><span class="p">(</span><span class="n">tshift</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span><span class="nb">int</span><span class="p">(</span><span class="n">tshift</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="n">ny</span><span class="p">]</span>
     <span class="n">img_cropped</span><span class="o">=</span><span class="n">resize</span><span class="p">(</span><span class="n">img_cropped</span><span class="p">,(</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="p">),</span><span class="n">anti_aliasing</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">img_cropped</span></div>
+
 
 
 </pre></div>

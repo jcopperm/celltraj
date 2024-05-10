@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>celltraj.celltraj_1apr21 &mdash; celltraj 0.1.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -100,10 +102,14 @@
 <span class="kn">import</span> <span class="nn">numpy.matlib</span>
 
 
-<div class="viewcode-block" id="cellTraj"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj">[docs]</a><span class="k">class</span> <span class="nc">cellTraj</span><span class="p">:</span>
+<div class="viewcode-block" id="cellTraj">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj">[docs]</a>
+<span class="k">class</span> <span class="nc">cellTraj</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Some cell trajectory analysis and embedding tools.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="cellTraj.initialize"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileSpecifier</span><span class="p">,</span> <span class="n">modelName</span><span class="p">):</span>
+<div class="viewcode-block" id="cellTraj.initialize">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.initialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileSpecifier</span><span class="p">,</span> <span class="n">modelName</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">modelName</span> <span class="o">=</span> <span class="n">modelName</span>
         <span class="n">pCommand</span> <span class="o">=</span> <span class="s2">&quot;ls &quot;</span> <span class="o">+</span> <span class="n">fileSpecifier</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">pCommand</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -123,7 +129,10 @@
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;problem getting images </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">imagesExist</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_image_data"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_image_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_image_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_frame</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_image_data">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_image_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_image_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_frame</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_frame</span> <span class="o">=</span> <span class="n">n_frame</span>
         <span class="n">nF</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nF</span>
         <span class="n">timeList</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
@@ -168,7 +177,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">timeList</span> <span class="o">=</span> <span class="n">timeList</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">imgfileList</span> <span class="o">=</span> <span class="n">imgfileList</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_fmask_data"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_fmask_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_fmask_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_frame</span><span class="p">):</span>  <span class="c1"># get foreground masks</span>
+
+<div class="viewcode-block" id="cellTraj.get_fmask_data">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_fmask_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_fmask_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_frame</span><span class="p">):</span>  <span class="c1"># get foreground masks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_frame</span> <span class="o">=</span> <span class="n">n_frame</span>
         <span class="n">nF</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nF</span>
         <span class="n">fmsks</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nF</span>
@@ -195,7 +207,10 @@
             <span class="n">fmsks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">fmsks</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fmsks</span> <span class="o">=</span> <span class="n">fmsks</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_frames"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_frames">[docs]</a>    <span class="k">def</span> <span class="nf">get_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_frames">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_frames">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">numFiles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="n">numImages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="n">frameList</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
@@ -225,7 +240,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">numImages</span> <span class="o">=</span> <span class="n">numImages</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maxFrame</span> <span class="o">=</span> <span class="n">numImages</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_cell_blocks"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cell_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msk</span><span class="p">,</span> <span class="n">minsize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_cell_blocks">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cell_blocks">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msk</span><span class="p">,</span> <span class="n">minsize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="n">ncells</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">msk</span><span class="p">))</span>
         <span class="n">cellblocks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ncells</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgdim</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
         <span class="n">indgood</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
@@ -242,7 +260,10 @@
         <span class="n">cellblocks</span> <span class="o">=</span> <span class="n">cellblocks</span><span class="p">[</span><span class="n">indgood</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
         <span class="k">return</span> <span class="n">cellblocks</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.show_cells_from_image"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.show_cells_from_image">[docs]</a>    <span class="k">def</span> <span class="nf">show_cells_from_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">msk</span><span class="p">,</span> <span class="n">cellblocks</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.show_cells_from_image">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.show_cells_from_image">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_cells_from_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">msk</span><span class="p">,</span> <span class="n">cellblocks</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visual</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgdim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
             <span class="n">ncells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">msk</span><span class="p">)</span>
@@ -263,7 +284,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;not in visual mode...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_imageSet"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_imageSet">[docs]</a>    <span class="k">def</span> <span class="nf">get_imageSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_frame</span><span class="p">,</span> <span class="n">end_frame</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_imageSet">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_imageSet">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_imageSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_frame</span><span class="p">,</span> <span class="n">end_frame</span><span class="p">):</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;getting images frame: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_frame</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_image_data</span><span class="p">(</span><span class="n">start_frame</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">imgSet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -286,7 +310,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">imgfileSet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgfileSet</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frameSet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frameSet</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_fmaskSet"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_fmaskSet">[docs]</a>    <span class="k">def</span> <span class="nf">get_fmaskSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_frame</span><span class="p">,</span> <span class="n">end_frame</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_fmaskSet">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_fmaskSet">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_fmaskSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_frame</span><span class="p">,</span> <span class="n">end_frame</span><span class="p">):</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
             <span class="s2">&quot;getting foreground masks frame: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_frame</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;...</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="p">)</span>
@@ -297,7 +324,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">get_fmask_data</span><span class="p">(</span><span class="n">iS</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fmskSet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fmskSet</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmsks</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_imageSet_trans"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_imageSet_trans">[docs]</a>    <span class="k">def</span> <span class="nf">get_imageSet_trans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_imageSet_trans">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_imageSet_trans">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_imageSet_trans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">nimg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgfileSet</span><span class="o">.</span><span class="n">size</span>
         <span class="n">tSet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nimg</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
         <span class="n">stack_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imgfileSet</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
@@ -328,7 +358,10 @@
                 <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">imgSet_t</span> <span class="o">=</span> <span class="n">tSet</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_cell_data"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cell_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_cell_data">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cell_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;imgSet&quot;</span><span class="p">):</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
                 <span class="s2">&quot;no image set: first call get_imageSet(start_frame,end_frame)</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -372,7 +405,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cells_indimgSet</span> <span class="o">=</span> <span class="n">cells_indimgSet</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cells_timeSet</span> <span class="o">=</span> <span class="n">cells_timeSet</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_cell_images"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cell_images">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_cell_images">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cell_images">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">indcells</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">indcells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indSet</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;imgSet_t&quot;</span><span class="p">):</span>
@@ -461,7 +497,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cells_positionSet</span> <span class="o">=</span> <span class="n">cells_positionSet</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">cells_x</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_cellborder_images"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cellborder_images">[docs]</a>    <span class="k">def</span> <span class="nf">get_cellborder_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bordersize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_cellborder_images">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cellborder_images">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cellborder_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bordersize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="n">nx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgSet</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">ny</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgSet</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">indcells</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -537,7 +576,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cellborder_fmsks</span> <span class="o">=</span> <span class="n">cellborder_fmsks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cellborder_inds</span> <span class="o">=</span> <span class="n">indcells</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_lineage_mindist"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_lineage_mindist">[docs]</a>    <span class="k">def</span> <span class="nf">get_lineage_mindist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distcut</span><span class="o">=</span><span class="mf">65.0</span><span class="p">,</span> <span class="n">pathto</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_lineage_mindist">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_lineage_mindist">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_lineage_mindist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distcut</span><span class="o">=</span><span class="mf">65.0</span><span class="p">,</span> <span class="n">pathto</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">nimg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgfileSet</span><span class="o">.</span><span class="n">size</span>
         <span class="n">linSet</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">nimg</span>
         <span class="n">stack_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imgfileSet</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
@@ -674,7 +716,10 @@
                         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">linSet</span> <span class="o">=</span> <span class="n">linSet</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_lineage_bunch_overlap"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_lineage_bunch_overlap">[docs]</a>    <span class="k">def</span> <span class="nf">get_lineage_bunch_overlap</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.get_lineage_bunch_overlap">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_lineage_bunch_overlap">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_lineage_bunch_overlap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">distcut</span><span class="o">=</span><span class="mf">45.0</span><span class="p">,</span>
         <span class="n">distcutb</span><span class="o">=</span><span class="mf">300.0</span><span class="p">,</span>
@@ -1123,7 +1168,10 @@
                 <span class="n">linSet</span><span class="p">[</span><span class="n">inds</span><span class="p">[</span><span class="n">im</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">lin1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">linSet</span> <span class="o">=</span> <span class="n">linSet</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_cell_trajectory"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cell_trajectory">[docs]</a>    <span class="k">def</span> <span class="nf">get_cell_trajectory</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.get_cell_trajectory">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cell_trajectory">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cell_trajectory</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cell_ind</span><span class="p">,</span> <span class="n">n_hist</span><span class="o">=-</span><span class="mi">1</span>
     <span class="p">):</span>  <span class="c1"># cell trajectory stepping backwards</span>
         <span class="n">ind_imgfile</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imgfileSet</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_imgfileSet</span><span class="p">[</span><span class="n">cell_ind</span><span class="p">]])</span>
@@ -1181,7 +1229,10 @@
         <span class="n">cell_traj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">cell_ind_history</span><span class="p">[</span><span class="n">indtracked</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">cell_traj</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_all_trajectories"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_all_trajectories">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_trajectories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_all_trajectories">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_all_trajectories">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_all_trajectories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cell_inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cell_inds_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indSet</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1210,7 +1261,10 @@
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trajectories</span> <span class="o">=</span> <span class="n">trajectories</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_unique_trajectories"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_unique_trajectories">[docs]</a>    <span class="k">def</span> <span class="nf">get_unique_trajectories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_unique_trajectories">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_unique_trajectories">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_unique_trajectories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cell_inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cell_inds_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_indSet</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1266,7 +1320,10 @@
                     <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trajectories</span> <span class="o">=</span> <span class="n">trajectories</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_dx_tcf"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dx_tcf">[docs]</a>    <span class="k">def</span> <span class="nf">get_dx_tcf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trajectories</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_dx_tcf">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dx_tcf">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dx_tcf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trajectories</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">trajectories</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">trajectories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trajectories</span>
         <span class="n">ntraj</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">trajectories</span><span class="p">)</span>
@@ -1292,7 +1349,10 @@
             <span class="n">dxcorr</span><span class="p">[</span><span class="n">it</span><span class="p">]</span> <span class="o">=</span> <span class="n">dxcorr</span><span class="p">[</span><span class="n">it</span><span class="p">]</span> <span class="o">/</span> <span class="n">tnorm</span><span class="p">[</span><span class="n">it</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">dxcorr</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_pair_rdf"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_pair_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">get_pair_rdf</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.get_pair_rdf">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_pair_rdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_pair_rdf</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cell_indsA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cell_indsB</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mi">500</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">cell_indsA</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1329,7 +1389,10 @@
         <span class="n">paircorrx</span> <span class="o">=</span> <span class="n">paircorrx</span> <span class="o">*</span> <span class="n">V</span> <span class="o">/</span> <span class="n">nc</span>
         <span class="k">return</span> <span class="n">rbins</span><span class="p">,</span> <span class="n">paircorrx</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_pair_cluster_rdf"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_pair_cluster_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">get_pair_cluster_rdf</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.get_pair_cluster_rdf">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_pair_cluster_rdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_pair_cluster_rdf</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cell_indsA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cell_indsB</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mi">500</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">cell_indsA</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1372,7 +1435,10 @@
         <span class="n">paircorrx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">clustercellsr</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">allcellsr</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">rbins</span><span class="p">,</span> <span class="n">paircorrx</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_dx_rdf"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dx_rdf">[docs]</a>    <span class="k">def</span> <span class="nf">get_dx_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_dx_rdf">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dx_rdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dx_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cell_inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cell_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">rbins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1412,7 +1478,10 @@
             <span class="n">paircorrdx</span><span class="p">[</span><span class="n">ir</span><span class="p">]</span> <span class="o">=</span> <span class="n">paircorrdx</span><span class="p">[</span><span class="n">ir</span><span class="p">]</span> <span class="o">/</span> <span class="n">norm</span><span class="p">[</span><span class="n">ir</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">rbins</span><span class="p">,</span> <span class="n">paircorrdx</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_dx_theta"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dx_theta">[docs]</a>    <span class="k">def</span> <span class="nf">get_dx_theta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nth</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">100.0</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_dx_theta">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dx_theta">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dx_theta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nth</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">100.0</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cell_inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cell_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">thbins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1455,7 +1524,10 @@
         <span class="n">paircosth</span> <span class="o">=</span> <span class="n">paircosth</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">paircosth</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">thbins</span><span class="p">,</span> <span class="n">paircosth</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_dx_alpha"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dx_alpha">[docs]</a>    <span class="k">def</span> <span class="nf">get_dx_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nth</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">40.0</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_dx_alpha">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dx_alpha">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dx_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">thbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nth</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">40.0</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">cell_inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cell_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">thbins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1500,7 +1572,10 @@
         <span class="n">paircosth</span> <span class="o">=</span> <span class="n">paircosth</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">paircosth</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">thbins</span><span class="p">,</span> <span class="n">paircosth</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_traj_segments"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_traj_segments">[docs]</a>    <span class="k">def</span> <span class="nf">get_traj_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seg_length</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_traj_segments">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_traj_segments">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_traj_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seg_length</span><span class="p">):</span>
         <span class="n">ntraj</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trajectories</span><span class="p">)</span>
         <span class="n">traj_segSet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">seg_length</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">itraj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntraj</span><span class="p">):</span>
@@ -1514,7 +1589,10 @@
                     <span class="p">)</span>
         <span class="k">return</span> <span class="n">traj_segSet</span></div>
 
-<div class="viewcode-block" id="cellTraj.show_cells"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.show_cells">[docs]</a>    <span class="k">def</span> <span class="nf">show_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.show_cells">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.show_cells">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visual</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">imgdim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;cells_imgs&quot;</span><span class="p">):</span>
@@ -1547,7 +1625,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;not in visual mode...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.prepare_cell_images"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.prepare_cell_images">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_cell_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">znormalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.prepare_cell_images">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.prepare_cell_images">[docs]</a>
+    <span class="k">def</span> <span class="nf">prepare_cell_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">znormalize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">ncells</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_imgs</span><span class="p">)</span>
         <span class="n">cellSizes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ncells</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncells</span><span class="p">):</span>
@@ -1606,7 +1687,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">maxedge</span> <span class="o">=</span> <span class="n">maxedge</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ncells</span> <span class="o">=</span> <span class="n">ncells</span></div>
 
-<div class="viewcode-block" id="cellTraj.prepare_cell_features"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.prepare_cell_features">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_cell_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.prepare_cell_features">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.prepare_cell_features">[docs]</a>
+    <span class="k">def</span> <span class="nf">prepare_cell_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">Xf</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncells</span>
         <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ncells</span><span class="p">):</span>
             <span class="n">x1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span> <span class="p">:]</span>
@@ -1639,7 +1723,10 @@
                 <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Xf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Xf</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.show_image_pair"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.show_image_pair">[docs]</a>    <span class="k">def</span> <span class="nf">show_image_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">,</span> <span class="n">msk1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">msk2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.show_image_pair">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.show_image_pair">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_image_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">,</span> <span class="n">msk1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">msk2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">img1</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">img1</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
             <span class="n">img1</span> <span class="o">=</span> <span class="n">img1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
@@ -1670,7 +1757,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;not in visual mode...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_dmatRT_row"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dmatRT_row">[docs]</a>    <span class="k">def</span> <span class="nf">get_dmatRT_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_dmatRT_row">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dmatRT_row">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dmatRT_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">rows</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
             <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ncells</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">dmat_chunk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ncells</span><span class="p">)</span>
@@ -1686,7 +1776,10 @@
                 <span class="n">dmat_chunk</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">save_dmat_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">dmat_chunk</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_dmatF_row"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dmatF_row">[docs]</a>    <span class="k">def</span> <span class="nf">get_dmatF_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_dmatF_row">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dmatF_row">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_dmatF_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">rows</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
             <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ncells</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
@@ -1695,13 +1788,19 @@
                 <span class="n">dmat_chunk</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Xf</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">Xf</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span> <span class="p">:])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">save_dmat_row</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">dmat_chunk</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.save_all"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.save_all">[docs]</a>    <span class="k">def</span> <span class="nf">save_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.save_all">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.save_all">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">objFile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelName</span> <span class="o">+</span> <span class="s2">&quot;.obj&quot;</span>
         <span class="n">objFileHandler</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">objFile</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
         <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objFileHandler</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
         <span class="n">objFileHandler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="cellTraj.save_dmat_row"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.save_dmat_row">[docs]</a>    <span class="k">def</span> <span class="nf">save_dmat_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">dmat_row</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.save_dmat_row">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.save_dmat_row">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_dmat_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">dmat_row</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modelName</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
         <span class="n">dsetName</span> <span class="o">=</span> <span class="s2">&quot;/distance_matrix/row_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
         <span class="n">e</span> <span class="o">=</span> <span class="n">dsetName</span> <span class="ow">in</span> <span class="n">f</span>
@@ -1718,7 +1817,10 @@
                 <span class="n">dset</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">dmat_row</span>
         <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="cellTraj.assemble_dmat"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.assemble_dmat">[docs]</a>    <span class="k">def</span> <span class="nf">assemble_dmat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmetrize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.assemble_dmat">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.assemble_dmat">[docs]</a>
+    <span class="k">def</span> <span class="nf">assemble_dmat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symmetrize</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modelName</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
         <span class="n">dmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ncells</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncells</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ncells</span><span class="p">):</span>
@@ -1729,7 +1831,10 @@
             <span class="n">dmat</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">dmat</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">dmat</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dmat</span> <span class="o">=</span> <span class="n">dmat</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_scaled_sigma"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_scaled_sigma">[docs]</a>    <span class="k">def</span> <span class="nf">get_scaled_sigma</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.get_scaled_sigma">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_scaled_sigma">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_scaled_sigma</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">neps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>  <span class="c1"># see Coifman, Shkolnisky, Sigworth, Singer, IEEE Transactions on Image Processing, 2008</span>
         <span class="n">dmat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dmat</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -1777,7 +1882,10 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;$\log{\sigma}$&quot;</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;$\log{\sum{\exp{-d^2/2\sigma}}}$&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_embedding"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_embedding">[docs]</a>    <span class="k">def</span> <span class="nf">get_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nN</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_embedding">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_embedding">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nN</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">sigma</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaled_sigma</span>
         <span class="k">if</span> <span class="n">k</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1815,7 +1923,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Xd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">Xd</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dmap_evals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">dmap_evals</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.prune_embedding"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.prune_embedding">[docs]</a>    <span class="k">def</span> <span class="nf">prune_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">nd</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nN</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.prune_embedding">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.prune_embedding">[docs]</a>
+    <span class="k">def</span> <span class="nf">prune_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">nd</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nN</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">nout</span> <span class="o">=</span> <span class="mi">1000</span>
         <span class="n">indsp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visual</span><span class="p">:</span>
@@ -1844,7 +1955,10 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Xd</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">Xd</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_trajectory_embedding"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_trajectory_embedding">[docs]</a>    <span class="k">def</span> <span class="nf">get_trajectory_embedding</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.get_trajectory_embedding">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_trajectory_embedding">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_trajectory_embedding</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">trajl</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">get_trajectories</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">neigen</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rcut</span><span class="o">=</span><span class="mf">5.0</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1867,7 +1981,10 @@
             <span class="n">neigen</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scaled_dim</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Xtraj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Xd</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">neigen</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_trajectory_steps"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_trajectory_steps">[docs]</a>    <span class="k">def</span> <span class="nf">get_trajectory_steps</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.get_trajectory_steps">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_trajectory_steps">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_trajectory_steps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">traj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Xtraj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">get_trajectories</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">):</span>  <span class="c1"># traj and Xtraj should be indexed same</span>
         <span class="k">if</span> <span class="n">inds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1903,7 +2020,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Xtraj1</span> <span class="o">=</span> <span class="n">x1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inds_trajp1</span> <span class="o">=</span> <span class="n">inds_trajp1</span></div>
 
-<div class="viewcode-block" id="cellTraj.cluster_trajectories"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.cluster_trajectories">[docs]</a>    <span class="k">def</span> <span class="nf">cluster_trajectories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_clusters</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.cluster_trajectories">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.cluster_trajectories">[docs]</a>
+    <span class="k">def</span> <span class="nf">cluster_trajectories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_clusters</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Xtraj</span>
         <span class="n">clusters</span> <span class="o">=</span> <span class="n">coor</span><span class="o">.</span><span class="n">cluster_kmeans</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">)</span>
@@ -1911,7 +2031,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_clusterst</span> <span class="o">=</span> <span class="n">n_clusters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indclusterst</span> <span class="o">=</span> <span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_transition_matrix"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_transition_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_transition_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_transition_matrix">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_transition_matrix">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_transition_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">clusters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">clusters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clusterst</span>
         <span class="n">n_clusters</span> <span class="o">=</span> <span class="n">clusters</span><span class="o">.</span><span class="n">clustercenters</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1929,7 +2052,10 @@
                 <span class="n">Mt</span><span class="p">[</span><span class="n">iR</span><span class="p">,</span> <span class="n">iR</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Mt</span> <span class="o">=</span> <span class="n">Mt</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_path_entropy_2point"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_path_entropy_2point">[docs]</a>    <span class="k">def</span> <span class="nf">get_path_entropy_2point</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.get_path_entropy_2point">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_path_entropy_2point">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_path_entropy_2point</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Mt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">clusters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1964,7 +2090,10 @@
             <span class="n">entp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="k">return</span> <span class="n">entp</span></div>
 
-<div class="viewcode-block" id="cellTraj.plot_embedding"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.plot_embedding">[docs]</a>    <span class="k">def</span> <span class="nf">plot_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.plot_embedding">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.plot_embedding">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visual</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">colors</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span>
@@ -1989,7 +2118,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Not in visual mode.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.explore_2D_nn"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.explore_2D_nn">[docs]</a>    <span class="k">def</span> <span class="nf">explore_2D_nn</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.explore_2D_nn">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.explore_2D_nn">[docs]</a>
+    <span class="k">def</span> <span class="nf">explore_2D_nn</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">dm1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dm2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pathto</span><span class="o">=</span><span class="s2">&quot;./&quot;</span><span class="p">,</span> <span class="n">nvis</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">coordlabel</span><span class="o">=</span><span class="s2">&quot;coord&quot;</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visual</span><span class="p">:</span>
@@ -2040,7 +2172,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Not in visual mode</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.explore_2D_img"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.explore_2D_img">[docs]</a>    <span class="k">def</span> <span class="nf">explore_2D_img</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.explore_2D_img">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.explore_2D_img">[docs]</a>
+    <span class="k">def</span> <span class="nf">explore_2D_img</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">cell_traj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dm1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dm2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pathto</span><span class="o">=</span><span class="s2">&quot;./&quot;</span><span class="p">,</span> <span class="n">coordlabel</span><span class="o">=</span><span class="s2">&quot;coord&quot;</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visual</span><span class="p">:</span>
@@ -2126,7 +2261,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Not in visual mode</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.explore_2D_celltraj"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.explore_2D_celltraj">[docs]</a>    <span class="k">def</span> <span class="nf">explore_2D_celltraj</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.explore_2D_celltraj">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.explore_2D_celltraj">[docs]</a>
+    <span class="k">def</span> <span class="nf">explore_2D_celltraj</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x</span><span class="p">,</span>
         <span class="n">traj</span><span class="p">,</span>
@@ -2247,7 +2385,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Not in visual mode</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.explore_2D_celltraj_nn"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.explore_2D_celltraj_nn">[docs]</a>    <span class="k">def</span> <span class="nf">explore_2D_celltraj_nn</span><span class="p">(</span>
+
+<div class="viewcode-block" id="cellTraj.explore_2D_celltraj_nn">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.explore_2D_celltraj_nn">[docs]</a>
+    <span class="k">def</span> <span class="nf">explore_2D_celltraj_nn</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">x</span><span class="p">,</span>
         <span class="n">traj</span><span class="p">,</span>
@@ -2349,7 +2490,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Not in visual mode</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_pca"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_pca">[docs]</a>    <span class="k">def</span> <span class="nf">get_pca</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">var_cutoff</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_pca">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_pca">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_pca</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">var_cutoff</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
         <span class="n">pca</span> <span class="o">=</span> <span class="n">coor</span><span class="o">.</span><span class="n">pca</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Xf</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">var_cutoff</span><span class="o">=</span><span class="n">var_cutoff</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">0</span>
         <span class="p">)</span>
@@ -2357,12 +2501,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pca</span> <span class="o">=</span> <span class="n">pca</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Xpca</span> <span class="o">=</span> <span class="n">x</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_pca_fromdata"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_pca_fromdata">[docs]</a>    <span class="k">def</span> <span class="nf">get_pca_fromdata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">var_cutoff</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_pca_fromdata">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_pca_fromdata">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_pca_fromdata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">var_cutoff</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
         <span class="n">pca</span> <span class="o">=</span> <span class="n">coor</span><span class="o">.</span><span class="n">pca</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">var_cutoff</span><span class="o">=</span><span class="n">var_cutoff</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">get_output</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">pca</span></div>
 
-<div class="viewcode-block" id="cellTraj.cluster_cells"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.cluster_cells">[docs]</a>    <span class="k">def</span> <span class="nf">cluster_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_clusters</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.cluster_cells">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.cluster_cells">[docs]</a>
+    <span class="k">def</span> <span class="nf">cluster_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_clusters</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span> <span class="o">=</span> <span class="n">n_clusters</span>
         <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Xpca</span>
@@ -2373,7 +2523,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">clusterFile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelName</span> <span class="o">+</span> <span class="s2">&quot;_nc&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clusterFile</span><span class="p">,</span> <span class="n">save_streaming_chain</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.plot_pca"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.plot_pca">[docs]</a>    <span class="k">def</span> <span class="nf">plot_pca</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nd</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.plot_pca">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.plot_pca">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_pca</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nd</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visual</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">colors</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span>
@@ -2398,7 +2551,10 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
                 <span class="nb">id</span> <span class="o">=</span> <span class="nb">id</span> <span class="o">+</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="cellTraj.pad_image"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.pad_image">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.pad_image">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.pad_image">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">pad_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">maxedge</span><span class="p">):</span>
         <span class="n">npad_lx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">maxedge</span> <span class="o">-</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
         <span class="n">npad_ly</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">maxedge</span> <span class="o">-</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
@@ -2411,7 +2567,10 @@
         <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">maxedge</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="n">maxedge</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">img</span></div>
 
-<div class="viewcode-block" id="cellTraj.align_image"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.align_image">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.align_image">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.align_image">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">align_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">msk</span><span class="p">):</span>
         <span class="n">img0</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="c1"># img=np.abs(img)</span>
@@ -2448,7 +2607,10 @@
         <span class="n">imga</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">warp</span><span class="p">(</span><span class="n">img0</span><span class="p">,</span> <span class="n">tform</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">imga</span><span class="p">,</span> <span class="n">mska</span></div>
 
-<div class="viewcode-block" id="cellTraj.transform_image"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.transform_image">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.transform_image">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.transform_image">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">transform_image</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">x1</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x1</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
@@ -2476,14 +2638,20 @@
         <span class="n">x1rt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">warp</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">tform</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">x1rt</span></div>
 
-<div class="viewcode-block" id="cellTraj.dist"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.dist">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.dist">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.dist">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="n">img1</span><span class="p">,</span> <span class="n">img2</span><span class="p">):</span>
         <span class="c1"># img1=img1.astype(float).flatten()</span>
         <span class="c1"># img2=img2.astype(float).flatten()</span>
         <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">((</span><span class="n">img1</span> <span class="o">-</span> <span class="n">img2</span><span class="p">),</span> <span class="mi">2</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">dist</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_dmat"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dmat">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.get_dmat">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_dmat">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_dmat</span><span class="p">(</span>
         <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>  <span class="c1"># adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)</span>
@@ -2503,7 +2671,10 @@
             <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span> <span class="n">x2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.afft"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.afft">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.afft">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.afft">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">afft</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
@@ -2511,12 +2682,18 @@
         <span class="n">fimg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft2</span><span class="p">(</span><span class="n">img</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">fimg</span></div>
 
-<div class="viewcode-block" id="cellTraj.znorm"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.znorm">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.znorm">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.znorm">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">znorm</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">z</span></div>
 
-<div class="viewcode-block" id="cellTraj.dist_with_masks"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.dist_with_masks">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.dist_with_masks">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.dist_with_masks">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">dist_with_masks</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">):</span>
         <span class="n">cm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">)</span>
         <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
@@ -2524,7 +2701,10 @@
         <span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">dist</span></div>
 
-<div class="viewcode-block" id="cellTraj.featZernike"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.featZernike">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.featZernike">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.featZernike">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">featZernike</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
@@ -2535,7 +2715,10 @@
             <span class="n">degree</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">mahotas</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">zernike_moments</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">img</span><span class="p">),</span> <span class="n">radius</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="n">degree</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.featHaralick"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.featHaralick">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.featHaralick">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.featHaralick">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">featHaralick</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">img</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
@@ -2547,7 +2730,10 @@
         <span class="n">imgn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">levels</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mahotas</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">haralick</span><span class="p">(</span><span class="n">imgn</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="cellTraj.featBoundary"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.featBoundary">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.featBoundary">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.featBoundary">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">featBoundary</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span> <span class="n">ncomp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nth</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">msk</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">msk</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
@@ -2585,7 +2771,10 @@
         <span class="n">rtha</span> <span class="o">=</span> <span class="n">rtha</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rtha</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">rtha</span></div>
 
-<div class="viewcode-block" id="cellTraj.featBoundaryCB"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.featBoundaryCB">[docs]</a>    <span class="k">def</span> <span class="nf">featBoundaryCB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msk</span><span class="p">,</span> <span class="n">fmsk</span><span class="p">,</span> <span class="n">ncomp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nth</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.featBoundaryCB">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.featBoundaryCB">[docs]</a>
+    <span class="k">def</span> <span class="nf">featBoundaryCB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msk</span><span class="p">,</span> <span class="n">fmsk</span><span class="p">,</span> <span class="n">ncomp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nth</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">msk</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">msk</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
             <span class="n">msk</span> <span class="o">=</span> <span class="n">msk</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
@@ -2632,7 +2821,10 @@
         <span class="n">rtha</span> <span class="o">=</span> <span class="n">rtha</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">nth</span><span class="p">)</span>  <span class="c1"># we do want the scale for boundary fraction</span>
         <span class="k">return</span> <span class="n">rtha</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_pair_distRT"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_pair_distRT">[docs]</a>    <span class="k">def</span> <span class="nf">get_pair_distRT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_pair_distRT">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_pair_distRT">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_pair_distRT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">args</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">x1</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x1</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
@@ -2668,7 +2860,10 @@
         <span class="c1"># dist=self.dist(x1.flatten(),x2.flatten())</span>
         <span class="k">return</span> <span class="n">dist</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_minRT"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_minRT">[docs]</a>    <span class="k">def</span> <span class="nf">get_minRT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">nth</span><span class="o">=</span><span class="mi">37</span><span class="p">,</span> <span class="n">dth</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mi">80</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_minRT">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_minRT">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_minRT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">nth</span><span class="o">=</span><span class="mi">37</span><span class="p">,</span> <span class="n">dth</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mi">80</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">nth</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">nth</span> <span class="o">=</span> <span class="n">nth</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># should be zero in the set!</span>
         <span class="n">thSet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">dth</span><span class="p">,</span> <span class="n">dth</span><span class="p">,</span> <span class="n">nth</span><span class="p">)</span>
@@ -2684,7 +2879,10 @@
         <span class="c1"># dist=self.get_pair_distRT(t,x1,x2,m1,m2)</span>
         <span class="k">return</span> <span class="n">t</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_stack_trans"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_stack_trans">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.get_stack_trans">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_stack_trans">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_stack_trans</span><span class="p">(</span><span class="n">imgs</span><span class="p">):</span>
         <span class="n">sr</span> <span class="o">=</span> <span class="n">StackReg</span><span class="p">(</span><span class="n">StackReg</span><span class="o">.</span><span class="n">TRANSLATION</span><span class="p">)</span>
         <span class="n">tmats</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">register_stack</span><span class="p">(</span><span class="n">img1</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="s2">&quot;previous&quot;</span><span class="p">)</span>
@@ -2704,7 +2902,10 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">tSet</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_borders"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_borders">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.get_borders">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_borders">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_borders</span><span class="p">(</span><span class="n">msk</span><span class="p">):</span>
         <span class="n">cellborders</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">msk</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">msk</span><span class="p">))):</span>
@@ -2713,7 +2914,10 @@
             <span class="n">cellborders</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">cellborders</span><span class="p">,</span> <span class="n">cborder</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cellborders</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_cc_cs_border"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cc_cs_border">[docs]</a>    <span class="k">def</span> <span class="nf">get_cc_cs_border</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mskcell</span><span class="p">,</span> <span class="n">fmskcell</span><span class="p">,</span> <span class="n">bordersize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+
+<div class="viewcode-block" id="cellTraj.get_cc_cs_border">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cc_cs_border">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cc_cs_border</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mskcell</span><span class="p">,</span> <span class="n">fmskcell</span><span class="p">,</span> <span class="n">bordersize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="n">border</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_borders</span><span class="p">(</span><span class="n">mskcell</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
         <span class="n">bordercoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">border</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
         <span class="n">nb</span> <span class="o">=</span> <span class="n">bordercoords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -2745,7 +2949,10 @@
         <span class="n">csborder</span> <span class="o">=</span> <span class="n">csborder</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ccborder</span><span class="p">,</span> <span class="n">csborder</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_border_profile"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_border_profile">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.get_border_profile">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_border_profile">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_border_profile</span><span class="p">(</span><span class="n">imgcell</span><span class="p">,</span> <span class="n">mskcell</span><span class="p">,</span> <span class="n">fmskcell</span><span class="p">,</span> <span class="n">bordersize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="n">cc_profile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">bordersize</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">cs_profile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">bordersize</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
@@ -2781,7 +2988,10 @@
             <span class="n">cs_profile</span><span class="p">[</span><span class="n">icm</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">imgcell</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">csborderm</span><span class="p">)])</span>
         <span class="k">return</span> <span class="n">cbins</span><span class="p">,</span> <span class="n">cc_profile</span><span class="p">,</span> <span class="n">cs_profile</span></div>
 
-<div class="viewcode-block" id="cellTraj.seq_in_seq"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.seq_in_seq">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.seq_in_seq">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.seq_in_seq">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">seq_in_seq</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">full</span><span class="p">):</span>
         <span class="n">f</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">repr</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">full</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">repr</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">sub</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
@@ -2789,7 +2999,10 @@
         <span class="p">)</span>  <span class="c1"># return f.find(s) #&lt;-- not reliable for finding indices in all cases</span>
         <span class="k">return</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">f</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_cell_bunches"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cell_bunches">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.get_cell_bunches">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_cell_bunches">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_cell_bunches</span><span class="p">(</span><span class="n">fmsk</span><span class="p">,</span> <span class="n">bunchcut</span><span class="o">=</span><span class="mf">100.0</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">):</span>
         <span class="n">bunches</span><span class="p">,</span> <span class="n">nr0</span> <span class="o">=</span> <span class="n">mahotas</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">fmsk</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="nb">bool</span><span class="p">))</span>
         <span class="n">bunch_sizes</span> <span class="o">=</span> <span class="n">mahotas</span><span class="o">.</span><span class="n">labeled</span><span class="o">.</span><span class="n">labeled_size</span><span class="p">(</span><span class="n">bunches</span><span class="p">)</span>
@@ -2802,7 +3015,10 @@
             <span class="n">iib</span> <span class="o">=</span> <span class="n">iib</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">bmsk</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_clean_mask"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_clean_mask">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.get_clean_mask">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_clean_mask">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_clean_mask</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span> <span class="n">minsize</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
         <span class="n">cmsk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">msk</span><span class="p">)</span>
         <span class="n">indc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">msk</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">msk</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)])</span>
@@ -2814,7 +3030,10 @@
                 <span class="n">iic</span> <span class="o">=</span> <span class="n">iic</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">cmsk</span></div>
 
-<div class="viewcode-block" id="cellTraj.get_bunch_clusters"><a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_bunch_clusters">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="cellTraj.get_bunch_clusters">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.celltraj_1apr21.cellTraj.get_bunch_clusters">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_bunch_clusters</span><span class="p">(</span>
         <span class="n">bmsk</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
     <span class="p">):</span>  <span class="c1"># relative untranslated positions in image</span>
@@ -2830,7 +3049,9 @@
         <span class="n">bunch_clusters</span> <span class="o">=</span> <span class="n">coor</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="n">AssignCenters</span><span class="p">(</span>
             <span class="n">cbSet</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="mi">0</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">bunch_clusters</span></div></div>
+        <span class="k">return</span> <span class="n">bunch_clusters</span></div>
+</div>
+
 </pre></div>
 
            </div>
