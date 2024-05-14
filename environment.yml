@@ -23,6 +23,7 @@ dependencies:
  - dask
  - msmtools
  - fipy
+ - pot
 
  - pip:
    - csaps

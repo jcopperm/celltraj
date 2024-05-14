@@ -45,7 +45,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">celltraj</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
 </ul>
 
         </div>
@@ -117,7 +117,7 @@
 <span class="c1">#    &quot;&quot;&quot;a</span>
 
 <div class="viewcode-block" id="get_predictedFC">
-<a class="viewcode-back" href="../../api.html#celltraj.translate.get_predictedFC">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.translate.get_predictedFC">[docs]</a>
 <span class="k">def</span> <span class="nf">get_predictedFC</span><span class="p">(</span><span class="n">state_probs</span><span class="p">,</span><span class="n">statesFC</span><span class="p">):</span>
     <span class="n">ntr</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">n</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -130,7 +130,7 @@
 
 
 <div class="viewcode-block" id="get_state_decomposition">
-<a class="viewcode-back" href="../../api.html#celltraj.translate.get_state_decomposition">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.translate.get_state_decomposition">[docs]</a>
 <span class="k">def</span> <span class="nf">get_state_decomposition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x_fc</span><span class="p">,</span><span class="n">state_probs</span><span class="p">,</span><span class="n">npermutations</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">inds_tm_training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">gene_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">n</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">ntr</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -185,7 +185,7 @@
 
 
 <div class="viewcode-block" id="get_null_correlations">
-<a class="viewcode-back" href="../../api.html#celltraj.translate.get_null_correlations">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.translate.get_null_correlations">[docs]</a>
 <span class="k">def</span> <span class="nf">get_null_correlations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x_fc</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">,</span><span class="n">x_fc_predicted</span><span class="p">,</span><span class="n">nrandom</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">n</span><span class="o">=</span><span class="n">x_fc_states</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">ntr</span><span class="o">=</span><span class="n">x_fc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>

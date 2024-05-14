@@ -58,18 +58,23 @@ class Trajectory:
     
     def __init__(self,h5filename=None,data_list=None):
         """
-        Initialize a Trajectory object, optionally loading metadata from an HDF5 file.
+        Initializes a Trajectory object, optionally loading metadata and additional data from an HDF5 file.
 
         This constructor sets the HDF5 filename and attempts to load metadata associated with the file.
-        If the file is present, it reads the metadata from a predefined group. Errors during metadata
-        loading are caught and logged. Future updates should include better commenting and organizational
-        improvements of class attributes.
+        If the file is present, it reads the metadata from a predefined group. If `data_list` is provided,
+        it will also attempt to load additional data specified in the list from the HDF5 file. Errors during
+        metadata or data loading are caught and logged. Future updates should include better commenting and
+        organizational improvements of class attributes.
 
         Parameters
         ----------
         h5filename : str, optional
             The path to the HDF5 file from which to load the metadata. If not provided, the
             instance will be initialized without loading metadata.
+        data_list : list of str, optional
+            A list of data group paths within the HDF5 file to be loaded along with the metadata. Each
+            entry in the list should specify a path to a dataset or group within the HDF5 file that
+            contains data relevant to the trajectory analysis.
 
         Notes
         -----
@@ -80,6 +85,11 @@ class Trajectory:
         Examples
         --------
         >>> traj = Trajectory('path/to/your/hdf5file.h5')
+        loading path/to/your/hdf5file.h5
+
+        If an HDF5 file and data list are provided:
+        >>> data_groups = ['/group1/data', '/group2/data']
+        >>> traj = Trajectory('path/to/your/hdf5file.h5', data_list=data_groups)
         loading path/to/your/hdf5file.h5
         """
         if h5filename is not None:
@@ -514,7 +524,10 @@ class Trajectory:
                 dsetName = "/images/img_%d/fmsk" % int(n_frame)
                 dset=f[dsetName]
                 msk=dset[:]
-                fmsk=msk[...,foreground_fmskchannel]
+                if msk.ndim>self.ndim:
+                    fmsk=msk[...,foreground_fmskchannel]
+                else:
+                    fmsk=msk
         else:
             print(f'need to set attribute fmskchannel to pull from a mask channel, fmsk_threshold and fmsk_imgchannel to threshold an image channel for foreground masks, fmask_channels foreground and fmsk under image data in h5')
         return fmsk
@@ -737,6 +750,7 @@ class Trajectory:
             imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
             mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
         if relabel_masks and return_masks:
+            mskc=mskc.astype(np.int32) #when relabeling, global indices are used, which can be much bigger
             if self.nmaskchannels>0:
                 if relabel_mskchannels is None:
                     relabel_mskchannels=[self.mskchannel]
@@ -1085,7 +1099,7 @@ class Trajectory:
             self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return corrc
 
-    def get_motility_features(self,indcells=None,mskchannel=None,save_h5=False,overwrite=False):
+    def get_motility_features(self,indcells=None,mskchannel=None,radius=None,save_h5=False,overwrite=False):
         """
         Extracts motility features for individual cells and their neighbors. This method calculates
         both single-cell and neighbor-averaged motility characteristics, such as displacement and
@@ -1098,6 +1112,8 @@ class Trajectory:
             for all cells in the dataset.
         mskchannel : int
             Mask channel used to define cell labels.
+        radius : int, optional
+            Size of morphological expansion in pixels to find neighboring cells.
         save_h5 : bool, optional
             If True, saves the calculated motility features to an HDF5 file specified in the trajectory object.
         overwrite : bool, optional
@@ -1146,8 +1162,8 @@ class Trajectory:
                 img,msk=self.get_cell_data(indcells_frame,boundary_expansion=3*self.image_shape,return_masks=True,relabel_masks=True,relabel_mskchannels=[mskchannel])
                 if self.axes[-1]=='c':
                     msk=msk[...,mskchannel]
-                beta_map=features.apply3d(msk,features.get_neighbor_feature_map,dtype=np.float64,neighbor_function=self.get_beta)
-                alpha_map=features.apply3d(msk,features.get_neighbor_feature_map,dtype=np.float64,neighbor_function=self.get_alpha)
+                beta_map=features.apply3d(msk,features.get_neighbor_feature_map,radius=radius,dtype=np.float64,neighbor_function=self.get_beta)
+                alpha_map=features.apply3d(msk,features.get_neighbor_feature_map,radius=radius,dtype=np.float64,neighbor_function=self.get_alpha)
                 if n_frame==self.cells_frameSet[0]: #can't do motility for 0th frame
                     props_beta={"label":np.arange(indcells_frame.size),"meanIntensity":np.ones(indcells_frame.size)*np.nan}
                     props_alpha={"label":np.arange(indcells_frame.size),"meanIntensity":np.ones(indcells_frame.size)*np.nan}
@@ -1166,7 +1182,7 @@ class Trajectory:
         if save_h5:
             setattr(self,feature_name,Xf_com)
             attribute_list=[feature_name]
-            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
+            self.save_to_h5(f'/cell_data_m{mskchannel}/',attribute_list,overwrite=overwrite)
         return Xf_com
 
     def get_stack_trans(self,mskchannel=0,ntrans=20,maxt=10,dist_function=utilities.get_pairwise_distance_sum,zscale=None,save_h5=False,overwrite=False,do_global=False,**dist_function_keys):
@@ -1677,10 +1693,8 @@ class Trajectory:
         - This method identifies unique trajectories by tracking each cell backward from its last appearance
         to its first, recording the trajectory, and then ensuring subsequent trajectories do not retread
         the same path beyond the allowed overlap specified by 'extra_depth'.
-
         - Each trajectory is tracked until it either reaches the start of the dataset or an earlier part of
         another trajectory within the allowed overlap.
-
         - This function updates the instance's 'trajectories' attribute, storing each unique trajectory.
 
         Examples
@@ -1748,7 +1762,6 @@ class Trajectory:
         -----
         - This method requires that the `trajectories` attribute has been populated, typically by
         a method that computes full trajectories such as `get_unique_trajectories`.
-
         - Only trajectories that are at least as long as `seg_length` will contribute segments to
         the output. Shorter trajectories are ignored.
 

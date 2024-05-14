@@ -10,32 +10,47 @@ import umap
 from sklearn.cluster import KMeans
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components
-#import celltraj.utilities as utilities
 import utilities
 
-"""
-A toolset for single-cell trajectory data-driven modeling. See:
-
-Danger
--------
-This code, currently, should be considered as an untested pre-release version
-
-Todo
-----
-Refactor
-    In general, this class's methods generally handle data by holding state in the object.
-    The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.
-    The state being updated along the way is usually "helper" quantities.
-    I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --
-    one example of this might be setting them as properties, and then updating the value in state as part of that
-    accessor if necessary.
-References
---------
-Jeremy Copperman, Ian McLean, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
-Morphodynamical and gene expression trajectories of cell state change..
-Manuscript in preparation.
-"""
 def get_transition_matrix(x0,x1,clusters):
+    """
+    Calculate the transition matrix from the cluster assignments of two consecutive time points.
+
+    This function computes a transition matrix that represents the probabilities of transitions
+    between clusters from one state (x0) to the next (x1). Each element of the matrix indicates
+    the probability of a cell transitioning from a cluster at time t (represented by x0) to another
+    cluster at time t+1 (represented by x1).
+
+    Parameters
+    ----------
+    x0 : ndarray
+        The dataset representing the state of each cell at time t, where each row is a cell and
+        its columns are features (e.g., gene expression levels, morphological features).
+    x1 : ndarray
+        The dataset representing the state of each cell at time t+1, with the same structure as x0.
+    clusters : object
+        A clustering object which must have a `clustercenters` attribute representing the centers
+        of each cluster and an `assign` method to assign each instance in x0 and x1 to a cluster.
+        This object typically comes from a clustering library or a custom implementation that supports
+        these functionalities.
+
+    Returns
+    -------
+    ndarray
+        A 2D numpy array where element (i, j) represents the probability of transitioning from
+        cluster i at time t to cluster j at time t+1.
+
+    Examples
+    --------
+    >>> from sklearn.cluster import KMeans
+    >>> x0 = np.random.rand(100, 5)
+    >>> x1 = np.random.rand(100, 5)
+    >>> clusters = KMeans(n_clusters=5)
+    >>> clusters.fit(np.vstack((x0, x1)))  # Fitting on the combined dataset
+    >>> transition_matrix = get_transition_matrix(x0, x1, clusters)
+    >>> print(transition_matrix.shape)
+    (5, 5)
+    """
     n_clusters=clusters.clustercenters.shape[0]
     indc0=clusters.assign(x0)
     indc1=clusters.assign(x1)
@@ -52,6 +67,46 @@ def get_transition_matrix(x0,x1,clusters):
     return Mt
 
 def get_transition_matrix_CG(x0,x1,clusters,states):
+    """
+    Calculate the coarse-grained transition matrix from the cluster assignments of two consecutive
+    time points, considering predefined states.
+
+    This function constructs a transition matrix based on states defined by cluster assignments
+    in x0 and x1. It counts transitions between these states to calculate probabilities,
+    allowing for analysis of more abstracted dynamics than direct cluster-to-cluster transitions.
+
+    Parameters
+    ----------
+    x0 : ndarray
+        The dataset representing the state of each cell at time t, where each row is a cell and
+        its columns are features (e.g., gene expression levels, morphological features).
+    x1 : ndarray
+        The dataset representing the state of each cell at time t+1, with the same structure as x0.
+    clusters : object
+        A clustering object with `clustercenters` attribute representing the centers of each cluster
+        and an `assign` method to map instances in x0 and x1 to a cluster index.
+    states : ndarray
+        An array where each element is a state assignment for the corresponding cluster index, providing
+        a mapping from cluster index to a higher-level state.
+
+    Returns
+    -------
+    ndarray
+        A 2D numpy array where element (i, j) represents the probability of transitioning from
+        state i at time t to state j at time t+1.
+
+    Examples
+    --------
+    >>> from sklearn.cluster import KMeans
+    >>> x0 = np.random.rand(100, 5)
+    >>> x1 = np.random.rand(100, 5)
+    >>> clusters = KMeans(n_clusters=5)
+    >>> clusters.fit(np.vstack((x0, x1)))  # Fitting on the combined dataset
+    >>> states = np.array([0, 1, 2, 2, 1])  # Coarse-graining clusters into states
+    >>> transition_matrix = get_transition_matrix_CG(x0, x1, clusters, states)
+    >>> print(transition_matrix.shape)
+    (3, 3)  # Assuming states are labeled from 0 to 2
+    """
     n_clusters=clusters.clustercenters.shape[0]
     n_states=np.max(states)+1
     indc0=states[clusters.assign(x0)]
@@ -69,6 +124,39 @@ def get_transition_matrix_CG(x0,x1,clusters,states):
     return Mt
 
 def clean_clusters(clusters,P):
+    """
+    Clean clusters by removing isolated clusters based on connectivity in a transition probability matrix.
+
+    This function identifies the largest connected component in the cluster transition graph
+    and retains only the clusters that are part of this component. This is used to filter out clusters
+    that are not well connected to the main body of data, potentially representing outliers or noise.
+
+    Parameters
+    ----------
+    clusters : object
+        A clustering object with an attribute `clustercenters` which is an ndarray where each row
+        represents the center of a cluster.
+    P : ndarray
+        A transition probability matrix where P[i, j] represents the probability of transitioning
+        from cluster i to cluster j.
+
+    Returns
+    -------
+    object
+        A clustering object similar to the input but with cluster centers filtered to only include
+        those in the largest connected component of the transition graph.
+
+    Examples
+    --------
+    >>> from sklearn.cluster import KMeans
+    >>> from scipy.sparse import csr_matrix
+    >>> x = np.random.rand(100, 5)
+    >>> clusters = KMeans(n_clusters=10).fit(x)
+    >>> P = (np.random.rand(10, 10) > 0.8).astype(float)  # Random transition matrix
+    >>> cleaned_clusters = clean_clusters(clusters, P)
+    >>> print(cleaned_clusters.clustercenters.shape)
+    (n, 5)  # Where n is the number of clusters in the largest connected component
+    """
     centers=clusters.clustercenters.copy()
     graph = csr_matrix(P>0.)
     n_components, labels = connected_components(csgraph=graph, directed=False, return_labels=True)

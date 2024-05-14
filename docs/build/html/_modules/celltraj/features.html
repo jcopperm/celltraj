@@ -45,7 +45,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">celltraj</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
 </ul>
 
         </div>
@@ -97,38 +97,155 @@
 <span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
 <span class="n">np</span><span class="o">.</span><span class="n">matlib</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">matlib</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Featurizer for single-cell trajectory modeling. See:</span>
-
-<span class="sd">Danger</span>
-<span class="sd">-------</span>
-<span class="sd">This code, currently, should be considered as an untested pre-release version</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <div class="viewcode-block" id="featSize">
-<a class="viewcode-back" href="../../api.html#celltraj.features.featSize">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.featSize">[docs]</a>
 <span class="k">def</span> <span class="nf">featSize</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the size of a region specified by a mask.</span>
+
+<span class="sd">    This function computes the total number of pixels (or voxels) within a region defined by a non-zero mask. </span>
+<span class="sd">    The intensity parameter is included for compatibility with skimage&#39;s regionprops, which requires this </span>
+<span class="sd">    parameter signature even if it&#39;s not used in the computation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    regionmask : ndarray</span>
+<span class="sd">        A binary mask where non-zero values indicate the region of interest.</span>
+<span class="sd">    intensity : ndarray</span>
+<span class="sd">        The intensity image; not used in this function but required for consistency with </span>
+<span class="sd">        regionprops function signatures.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    size : int</span>
+<span class="sd">        The total count of non-zero pixels in the regionmask, representing the size of the region.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; regionmask = np.array([[0, 1, 1], [0, 1, 0], [0, 0, 0]])</span>
+<span class="sd">    &gt;&gt;&gt; intensity = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])  # Example intensity array (not used)</span>
+<span class="sd">    &gt;&gt;&gt; size = featSize(regionmask, intensity)</span>
+<span class="sd">    &gt;&gt;&gt; print(size)</span>
+<span class="sd">    3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">regionmask</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">size</span></div>
 
 
 <div class="viewcode-block" id="meanIntensity">
-<a class="viewcode-back" href="../../api.html#celltraj.features.meanIntensity">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.meanIntensity">[docs]</a>
 <span class="k">def</span> <span class="nf">meanIntensity</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the mean intensity of a specified region in an image, based on a given mask.</span>
+
+<span class="sd">    This function computes the mean value of pixel intensities within the area defined by the mask, where</span>
+<span class="sd">    the mask contains non-zero values indicating the region of interest. The function handles regions without</span>
+<span class="sd">    valid pixels (i.e., all zero mask or masked pixels) by returning NaN for those cases.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    regionmask : ndarray</span>
+<span class="sd">        A binary mask where non-zero values delineate the region of interest over which the mean intensity is calculated.</span>
+<span class="sd">    intensity : ndarray</span>
+<span class="sd">        The intensity image where each pixel&#39;s value represents its intensity, typically derived from grayscale or other types of imaging.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mean_intensity : float</span>
+<span class="sd">        The average intensity across all pixels within the region defined by `regionmask`. Returns NaN if the mask does not cover any valid pixels.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; regionmask = np.array([[0, 1, 1], [0, 1, 0], [0, 0, 0]])</span>
+<span class="sd">    &gt;&gt;&gt; intensity = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])  # Example intensity array</span>
+<span class="sd">    &gt;&gt;&gt; mean_intensity = meanIntensity(regionmask, intensity)</span>
+<span class="sd">    &gt;&gt;&gt; print(mean_intensity)</span>
+<span class="sd">    4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">mean_intensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">intensity</span><span class="p">[</span><span class="n">regionmask</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">mean_intensity</span></div>
 
 
 <div class="viewcode-block" id="totalIntensity">
-<a class="viewcode-back" href="../../api.html#celltraj.features.totalIntensity">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.totalIntensity">[docs]</a>
 <span class="k">def</span> <span class="nf">totalIntensity</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the total intensity of a specified region within an image, using a mask to define the region.</span>
+
+<span class="sd">    This function sums the intensities of all pixels that fall within the region of interest specified by the mask.</span>
+<span class="sd">    Pixels in the mask with non-zero values are considered part of the region. It is robust against NaN values in</span>
+<span class="sd">    the intensity array, ignoring them in the sum.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    regionmask : ndarray</span>
+<span class="sd">        A binary or boolean mask where non-zero or True values indicate the pixels to be included in the total intensity calculation.</span>
+<span class="sd">    intensity : ndarray</span>
+<span class="sd">        An array of the same shape as `regionmask` containing intensity values for each pixel.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    total_intensity : float</span>
+<span class="sd">        The sum of the intensities of the pixels identified by `regionmask`. If all relevant pixels are NaN, returns 0.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; regionmask = np.array([[0, 1, 1], [0, 1, 0], [0, 0, 0]])</span>
+<span class="sd">    &gt;&gt;&gt; intensity = np.array([[1, 2, 3], [4, np.nan, 6], [7, 8, 9]])  # Example intensity array</span>
+<span class="sd">    &gt;&gt;&gt; total_intensity = totalIntensity(regionmask, intensity)</span>
+<span class="sd">    &gt;&gt;&gt; print(total_intensity)</span>
+<span class="sd">    2.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">total_intensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">intensity</span><span class="p">[</span><span class="n">regionmask</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">total_intensity</span></div>
 
 
 <div class="viewcode-block" id="featZernike">
-<a class="viewcode-back" href="../../api.html#celltraj.features.featZernike">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.featZernike">[docs]</a>
 <span class="k">def</span> <span class="nf">featZernike</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the Zernike moments for a specified region within an image, quantifying the region&#39;s shape and texture.</span>
+<span class="sd">    This method uses Zernike polynomials to create a set of features that are invariant to rotation, making them</span>
+<span class="sd">    particularly useful for shape analysis in image processing tasks.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    regionmask : ndarray</span>
+<span class="sd">        A binary mask where non-zero values define the region of interest. The function computes Zernike moments</span>
+<span class="sd">        for this specified region.</span>
+<span class="sd">    intensity : ndarray</span>
+<span class="sd">        An intensity image corresponding to `regionmask`. The function calculates moments based on the intensities</span>
+<span class="sd">        within the region defined by `regionmask`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xf : ndarray</span>
+<span class="sd">        An array of computed Zernike moments. If `regionmask` is 3-dimensional, returns the mean of Zernike moments</span>
+<span class="sd">        calculated for each slice. If `regionmask` is 2-dimensional, returns the Zernike moments for that single slice.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; regionmask = np.zeros((100, 100), dtype=bool)</span>
+<span class="sd">    &gt;&gt;&gt; regionmask[30:70, 30:70] = True  # Defining a square region</span>
+<span class="sd">    &gt;&gt;&gt; intensity = np.random.rand(100, 100)</span>
+<span class="sd">    &gt;&gt;&gt; zernike_features = featZernike(regionmask, intensity)</span>
+<span class="sd">    &gt;&gt;&gt; print(zernike_features.shape)</span>
+<span class="sd">    (91,)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Zernike moments are calculated using a radius determined by the average dimensions of the `regionmask`.</span>
+<span class="sd">    - The intensity values outside the regionmask are set to zero, and the intensities within the region are normalized</span>
+<span class="sd">      before calculation to improve accuracy.</span>
+<span class="sd">    - This function is useful for characterizing the morphological features of cellular structures or other similar</span>
+<span class="sd">      objects in biomedical images.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the `regionmask` and `intensity` arrays do not match in dimensions.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">degree</span><span class="o">=</span><span class="mi">12</span>
     <span class="n">radius</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">regionmask</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">intensity</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">regionmask</span><span class="p">)]</span><span class="o">=</span><span class="mf">0.</span>
@@ -145,8 +262,47 @@
 
 
 <div class="viewcode-block" id="featHaralick">
-<a class="viewcode-back" href="../../api.html#celltraj.features.featHaralick">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.featHaralick">[docs]</a>
 <span class="k">def</span> <span class="nf">featHaralick</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes Haralick texture features for a specified region within an image, offering a statistical</span>
+<span class="sd">    view of texture based on the image&#39;s gray-level co-occurrence matrix (GLCM).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    regionmask : ndarray</span>
+<span class="sd">        A binary mask where non-zero values define the region of interest for feature calculation.</span>
+<span class="sd">    intensity : ndarray</span>
+<span class="sd">        The intensity image corresponding to `regionmask`. Texture features are calculated from this image</span>
+<span class="sd">        within the boundaries defined by `regionmask`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xf : ndarray</span>
+<span class="sd">        An array of computed Haralick features. If `regionmask` is 3-dimensional, returns the mean of the features</span>
+<span class="sd">        calculated for each slice. If `regionmask` is 2-dimensional, returns the Haralick features for that single slice.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; regionmask = np.zeros((100, 100), dtype=bool)</span>
+<span class="sd">    &gt;&gt;&gt; regionmask[30:70, 30:70] = True  # Defining a square region</span>
+<span class="sd">    &gt;&gt;&gt; intensity = np.random.rand(100, 100)</span>
+<span class="sd">    &gt;&gt;&gt; haralick_features = featHaralick(regionmask, intensity)</span>
+<span class="sd">    &gt;&gt;&gt; print(haralick_features.shape)</span>
+<span class="sd">    (13,)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Haralick features are calculated using Mahotas library functions based on the GLCM of the image.</span>
+<span class="sd">    - The intensity image is quantized into several levels which are then used to compute the GLCM.</span>
+<span class="sd">    - Feature 5 (sum average) is normalized by dividing by the number of quantization levels to match the scale of other features.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the `regionmask` and `intensity` arrays do not match in dimensions or if other processing errors occur.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">nlevels</span><span class="o">=</span><span class="mi">21</span>
     <span class="n">levels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="n">nlevels</span><span class="p">)</span>
     <span class="n">levels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">levels</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
@@ -170,8 +326,53 @@
 
 
 <div class="viewcode-block" id="boundaryFFT">
-<a class="viewcode-back" href="../../api.html#celltraj.features.boundaryFFT">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.boundaryFFT">[docs]</a>
 <span class="k">def</span> <span class="nf">boundaryFFT</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">ncomp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nth</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the normalized Fast Fourier Transform (FFT) of the boundary of a mask. The boundary is first</span>
+<span class="sd">    represented in polar coordinates (radius as a function of angle), and the FFT is used to capture the</span>
+<span class="sd">    frequency components of this boundary representation, providing a spectral description of the shape.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    msk : ndarray</span>
+<span class="sd">        A binary mask where the non-zero region defines the shape whose boundary will be analyzed.</span>
+<span class="sd">    ncomp : int, optional</span>
+<span class="sd">        The number of Fourier components to return. Default is 15.</span>
+<span class="sd">    center : array-like, optional</span>
+<span class="sd">        The center of the mask from which radial distances are measured. If None, the geometric center</span>
+<span class="sd">        of the mask is used.</span>
+<span class="sd">    nth : int, optional</span>
+<span class="sd">        The number of points to interpolate along the boundary before computing the FFT. More points</span>
+<span class="sd">        can improve the smoothness of the interpolation. Default is 256.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    rtha : ndarray</span>
+<span class="sd">        An array of the first `ncomp` normalized magnitudes of the Fourier components of the boundary.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    Exception</span>
+<span class="sd">        If there is an error in computing the Fourier transform, possibly due to issues with the boundary</span>
+<span class="sd">        extraction or interpolation.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; msk = np.zeros((100, 100))</span>
+<span class="sd">    &gt;&gt;&gt; msk[30:70, 30:70] = 1  # Define a square region</span>
+<span class="sd">    &gt;&gt;&gt; fft_components = boundaryFFT(msk)</span>
+<span class="sd">    &gt;&gt;&gt; print(fft_components.shape)</span>
+<span class="sd">    (15,)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function first identifies the boundary pixels of the mask using image processing techniques.</span>
+<span class="sd">    - It then converts these boundary coordinates into polar coordinates centered around `center`.</span>
+<span class="sd">    - After sorting and unique filtering of angular coordinates, it interpolates the radial distance as</span>
+<span class="sd">      a function of angle and computes the FFT, returning the normalized magnitudes of its components.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">msk</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
         <span class="n">nx</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">msk</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
         <span class="n">msk</span><span class="o">=</span><span class="n">msk</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span><span class="n">nx</span><span class="p">)</span>
@@ -211,8 +412,50 @@
 
 
 <div class="viewcode-block" id="featBoundary">
-<a class="viewcode-back" href="../../api.html#celltraj.features.featBoundary">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.featBoundary">[docs]</a>
 <span class="k">def</span> <span class="nf">featBoundary</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates boundary-based Fourier Transform features for specified regions within an image.</span>
+<span class="sd">    This function applies a Fourier Transform to the boundaries of regions defined by `regionmask`</span>
+<span class="sd">    to capture the shape characteristics in the frequency domain.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    regionmask : ndarray</span>
+<span class="sd">        A binary mask where non-zero values indicate the region of interest whose boundary is analyzed.</span>
+<span class="sd">        The mask can be either 2D or 3D.</span>
+<span class="sd">    intensity : ndarray</span>
+<span class="sd">        The intensity image corresponding to `regionmask`. This parameter is currently not used in the</span>
+<span class="sd">        function but is included for compatibility with other feature extraction functions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xf : ndarray</span>
+<span class="sd">        An array of Fourier Transform features of the boundary. If the regionmask is 3D, the function</span>
+<span class="sd">        returns the mean of the Fourier Transform features computed across all slices.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; regionmask = np.zeros((100, 100), dtype=bool)</span>
+<span class="sd">    &gt;&gt;&gt; regionmask[30:70, 30:70] = True  # Define a square region</span>
+<span class="sd">    &gt;&gt;&gt; intensity = np.random.rand(100, 100)  # Not used in this function</span>
+<span class="sd">    &gt;&gt;&gt; boundary_features = featBoundary(regionmask, intensity)</span>
+<span class="sd">    &gt;&gt;&gt; print(boundary_features.shape)</span>
+<span class="sd">    (15,)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function computes boundary features by first extracting the boundary of the masked region using</span>
+<span class="sd">      image processing techniques and then applying a Fourier Transform to describe the shape in the</span>
+<span class="sd">      frequency domain.</span>
+<span class="sd">    - If no valid region is found in `regionmask` (i.e., all values are zero), the function returns an array</span>
+<span class="sd">      of zeros with a length defined by the number of components used in the `boundaryFFT` function.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the `regionmask` is empty or does not contain any regions to process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">regionmask</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">regionmask</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
             <span class="n">xf</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">regionmask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -222,15 +465,53 @@
             <span class="n">xf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xf</span><span class="p">)</span>
             <span class="n">xf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">xf</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">regionmask</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
-            <span class="n">xf</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">boundaryFFT</span><span class="p">(</span><span class="n">regionmask</span><span class="p">)</span>
+            <span class="n">xf</span> <span class="o">=</span> <span class="n">boundaryFFT</span><span class="p">(</span><span class="n">regionmask</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">xf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">xf</span></div>
 
 
 <div class="viewcode-block" id="featNucBoundary">
-<a class="viewcode-back" href="../../api.html#celltraj.features.featNucBoundary">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.featNucBoundary">[docs]</a>
 <span class="k">def</span> <span class="nf">featNucBoundary</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes Fourier Transform features from the boundaries of a specified region within an intensity image. </span>
+<span class="sd">    This function is primarily used to analyze the structural properties of nuclear boundaries in biological </span>
+<span class="sd">    imaging data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    regionmask : ndarray</span>
+<span class="sd">        A binary mask indicating the presence of nuclear regions. The mask can be 2D or 3D.</span>
+<span class="sd">    intensity : ndarray</span>
+<span class="sd">        The intensity image corresponding to `regionmask`, which is binarized within the function to </span>
+<span class="sd">        delineate boundaries more clearly.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xf : ndarray</span>
+<span class="sd">        An array containing Fourier Transform features derived from the boundary of the specified region. </span>
+<span class="sd">        If no valid region or intensity is detected, an array of NaNs is returned.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; regionmask = np.zeros((100, 100), dtype=bool)</span>
+<span class="sd">    &gt;&gt;&gt; regionmask[40:60, 40:60] = True  # Define a square region</span>
+<span class="sd">    &gt;&gt;&gt; intensity = np.random.rand(100, 100)  # Random intensity image</span>
+<span class="sd">    &gt;&gt;&gt; features = featNucBoundary(regionmask, intensity)</span>
+<span class="sd">    &gt;&gt;&gt; print(features.shape)</span>
+<span class="sd">    (15,)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If the regionmask is 3D and contains multiple slices, the function calculates the Fourier Transform features for</span>
+<span class="sd">      slices with non-zero intensity, then averages these features across the active slices.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `regionmask` and `intensity` do not have the same dimensions or if they are neither 2D nor 3D arrays.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">intensity</span><span class="o">=</span><span class="n">intensity</span><span class="o">&gt;</span><span class="mi">0</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">regionmask</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">intensity</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">regionmask</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
@@ -242,15 +523,61 @@
             <span class="n">xf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xf</span><span class="p">)</span>
             <span class="n">xf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">xf</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">regionmask</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
-            <span class="n">xf</span> <span class="o">=</span> <span class="n">features</span><span class="o">.</span><span class="n">boundaryFFT</span><span class="p">(</span><span class="n">intensity</span><span class="p">)</span>
+            <span class="n">xf</span> <span class="o">=</span> <span class="n">boundaryFFT</span><span class="p">(</span><span class="n">intensity</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">xf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
     <span class="k">return</span> <span class="n">xf</span></div>
 
 
 <div class="viewcode-block" id="get_cc_cs_border">
-<a class="viewcode-back" href="../../api.html#celltraj.features.get_cc_cs_border">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.get_cc_cs_border">[docs]</a>
 <span class="k">def</span> <span class="nf">get_cc_cs_border</span><span class="p">(</span><span class="n">mskcell</span><span class="p">,</span><span class="n">fmskcell</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identifies core-cell (cc) and cell-surrounding (cs) borders within a given cell mask by applying</span>
+<span class="sd">    morphological operations and boundary detection.</span>
+
+<span class="sd">    This function defines two regions within a cell mask: the core-cell border, which is far enough from the</span>
+<span class="sd">    background to be considered central, and the cell-surrounding border, which is close to the background.</span>
+<span class="sd">    Morphological erosion and dilation are used to refine these borders.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mskcell : ndarray</span>
+<span class="sd">        A binary mask indicating the presence of cells.</span>
+<span class="sd">    fmskcell : ndarray</span>
+<span class="sd">        A binary mask indicating foreground regions likely to include cells; this mask is modified by</span>
+<span class="sd">        morphological operations to define borders.</span>
+<span class="sd">    bordersize : int, optional</span>
+<span class="sd">        The size of the border around cell regions to consider in the analysis. Default is 10.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ccborder : ndarray</span>
+<span class="sd">        A binary mask where `1` indicates core-cell borders.</span>
+<span class="sd">    csborder : ndarray</span>
+<span class="sd">        A binary mask where `1` indicates cell-surrounding borders.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; mskcell = np.zeros((100, 100), dtype=bool)</span>
+<span class="sd">    &gt;&gt;&gt; mskcell[30:70, 30:70] = True</span>
+<span class="sd">    &gt;&gt;&gt; fmskcell = np.zeros_like(mskcell)</span>
+<span class="sd">    &gt;&gt;&gt; fmskcell[35:65, 35:65] = True</span>
+<span class="sd">    &gt;&gt;&gt; ccborder, csborder = get_cc_cs_border(mskcell, fmskcell, bordersize=5)</span>
+<span class="sd">    &gt;&gt;&gt; print(ccborder.sum(), csborder.sum())</span>
+<span class="sd">    (900, 100)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function first finds the boundaries of the `mskcell` using the inner boundary mode.</span>
+<span class="sd">    - It then applies sequential erosion and dilation to `fmskcell` to adjust the extent of the foreground mask.</span>
+<span class="sd">    - Distances from the boundaries to the background are calculated to segregate core-cell and cell-surrounding regions.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the input masks are not of the same shape or if other processing errors occur.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1">#border=skimage.segmentation.find_boundaries(mskcell,mode=&#39;inner&#39;)</span>
     <span class="n">border</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">segmentation</span><span class="o">.</span><span class="n">find_boundaries</span><span class="p">(</span><span class="n">imprep</span><span class="o">.</span><span class="n">pad_image</span><span class="p">(</span><span class="n">mskcell</span><span class="p">,</span><span class="n">mskcell</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span><span class="n">mskcell</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="n">mskcell</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="n">mskcell</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">bordercoords</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">border</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
@@ -283,8 +610,58 @@
 
 
 <div class="viewcode-block" id="boundaryCB_FFT">
-<a class="viewcode-back" href="../../api.html#celltraj.features.boundaryCB_FFT">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.boundaryCB_FFT">[docs]</a>
 <span class="k">def</span> <span class="nf">boundaryCB_FFT</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">fmsk</span><span class="p">,</span><span class="n">ncomp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nth</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Fourier Transform of boundary data for a mask distinguishing between core-cell</span>
+<span class="sd">    and cell-surrounding regions, encoding the shape information in frequency space.</span>
+
+<span class="sd">    This function identifies boundaries within a mask and differentiates between core-cell (cc) and</span>
+<span class="sd">    cell-surrounding (cs) regions. It then calculates the Fourier Transform of these boundary</span>
+<span class="sd">    classifications relative to a center, capturing the spatial distribution of core and surrounding</span>
+<span class="sd">    areas.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    msk : ndarray</span>
+<span class="sd">        A binary mask where the non-zero region defines the cells.</span>
+<span class="sd">    fmsk : ndarray</span>
+<span class="sd">        A foreground mask, used to define foreground regions for identifying core and surrounding cell regions.</span>
+<span class="sd">    ncomp : int, optional</span>
+<span class="sd">        Number of components to return from the Fourier Transform (default is 15).</span>
+<span class="sd">    center : array-like, optional</span>
+<span class="sd">        The center of the image from which to calculate radial coordinates. If None, it defaults to the image center.</span>
+<span class="sd">    nth : int, optional</span>
+<span class="sd">        Number of angular steps to interpolate over the [0, 2π] interval, default is 256.</span>
+<span class="sd">    bordersize : int, optional</span>
+<span class="sd">        The size of the border around cells to consider for differentiation between core and surrounding areas, default is 1.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    rtha : ndarray</span>
+<span class="sd">        An array containing the first `ncomp` normalized magnitudes of the Fourier components of the boundary data.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; msk = np.zeros((100, 100), dtype=bool)</span>
+<span class="sd">    &gt;&gt;&gt; msk[30:70, 30:70] = True</span>
+<span class="sd">    &gt;&gt;&gt; fmsk = np.zeros_like(msk)</span>
+<span class="sd">    &gt;&gt;&gt; fmsk[35:65, 35:65] = True</span>
+<span class="sd">    &gt;&gt;&gt; fft_result = boundaryCB_FFT(msk, fmsk)</span>
+<span class="sd">    &gt;&gt;&gt; print(fft_result.shape)</span>
+<span class="sd">    (15,)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function first distinguishes between core-cell and cell-surrounding regions using morphological operations.</span>
+<span class="sd">    - It then maps these regions onto a polar coordinate system centered on `center` and computes the FFT of this radial</span>
+<span class="sd">      binary function, which describes the presence of core-cell versus cell-surrounding regions as a function of angle.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    Exception</span>
+<span class="sd">        If there is an error during processing, possibly due to issues with input data shapes or computation failures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">msk</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
             <span class="n">nx</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">msk</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
@@ -332,8 +709,47 @@
 
 
 <div class="viewcode-block" id="featBoundaryCB">
-<a class="viewcode-back" href="../../api.html#celltraj.features.featBoundaryCB">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.featBoundaryCB">[docs]</a>
 <span class="k">def</span> <span class="nf">featBoundaryCB</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes boundary-based Fourier Transform features for a region mask distinguishing between core-cell</span>
+<span class="sd">    and surrounding areas by using intensity to define active regions. This function applies a binary erosion</span>
+<span class="sd">    to the region mask to refine the core region and then calculates the Fourier Transform features based on</span>
+<span class="sd">    the refined mask and intensity data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    regionmask : ndarray</span>
+<span class="sd">        A binary mask indicating the presence of cells. This mask is eroded to focus more on the core region of cells.</span>
+<span class="sd">    intensity : ndarray</span>
+<span class="sd">        An intensity image where non-zero values indicate active regions. This is used to distinguish between</span>
+<span class="sd">        core-cell and surrounding areas.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xf : ndarray</span>
+<span class="sd">        An array containing the Fourier Transform features of the boundary data between core and surrounding</span>
+<span class="sd">        regions. If the input `regionmask` is 3D, the function returns the mean of features computed across</span>
+<span class="sd">        all slices.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; regionmask = np.zeros((100, 100), dtype=bool)</span>
+<span class="sd">    &gt;&gt;&gt; regionmask[30:70, 30:70] = True</span>
+<span class="sd">    &gt;&gt;&gt; intensity = np.random.randint(0, 2, (100, 100))</span>
+<span class="sd">    &gt;&gt;&gt; boundary_features = featBoundaryCB(regionmask, intensity)</span>
+<span class="sd">    &gt;&gt;&gt; print(boundary_features.shape)</span>
+<span class="sd">    (15,)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function first applies a binary erosion to the `regionmask` to slightly reduce the region size, aiming</span>
+<span class="sd">      to focus more on the core regions.</span>
+<span class="sd">    - It then uses these regions along with intensity data to calculate Fourier Transform features that describe</span>
+<span class="sd">      the spatial relationship between core-cell areas and their surrounding based on intensity.</span>
+<span class="sd">    - Visualization commands within the function (commented out) can be enabled for debugging or understanding</span>
+<span class="sd">      the process by visual inspection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">regionmask</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span><span class="n">regionmask</span><span class="p">)</span>
     <span class="c1">#plt.clf();plt.imshow(np.max(intensity,axis=0));plt.contour(np.max(regionmask,axis=0),colors=&#39;red&#39;);plt.pause(2)</span>
     <span class="n">intensity</span><span class="o">=</span><span class="n">intensity</span><span class="o">&gt;</span><span class="mi">0</span>
@@ -352,8 +768,49 @@
 
 
 <div class="viewcode-block" id="apply3d">
-<a class="viewcode-back" href="../../api.html#celltraj.features.apply3d">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.apply3d">[docs]</a>
 <span class="k">def</span> <span class="nf">apply3d</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">function2d</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">function2d_args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies a 2D function across each slice of a 3D image stack or directly to a 2D image, allowing for</span>
+<span class="sd">    specific operations like filtering or transformation to be uniformly applied across all spatial slices.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    img : ndarray</span>
+<span class="sd">        The input image which can be either 2D or 3D. If the image is 3D, the function is applied slice by slice.</span>
+<span class="sd">    function2d : callable</span>
+<span class="sd">        A function that is applied to each 2D slice of the image. This function must accept an image as its</span>
+<span class="sd">        first argument and can accept additional named arguments.</span>
+<span class="sd">    dtype : data-type, optional</span>
+<span class="sd">        The desired data-type for the output image. If None, the dtype of `img` is used. Specifying a dtype can be</span>
+<span class="sd">        useful for managing memory or computational requirements.</span>
+<span class="sd">    **function2d_args : dict</span>
+<span class="sd">        Additional keyword arguments to pass to `function2d`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    img_processed : ndarray</span>
+<span class="sd">        The image resulting from the application of `function2d` to each slice of `img` or directly to `img` if it is 2D.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; img = np.random.rand(5, 100, 100)  # Example 3D image</span>
+<span class="sd">    &gt;&gt;&gt; result = apply3d(img, np.mean, axis=0)  # Apply np.mean across axis 0 of each 2D slice</span>
+<span class="sd">    &gt;&gt;&gt; print(result.shape)</span>
+<span class="sd">    (5, 100)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function is particularly useful for processing 3D data where an operation is intended to be</span>
+<span class="sd">      repeated across each 2D section. For example, applying edge detection or blurring slice-by-slice.</span>
+<span class="sd">    - The performance of this function depends on the complexity of `function2d` and the size of the image.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `img` is not 2D or 3D, or if `function2d` cannot be applied as specified.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">img_processed</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -367,8 +824,56 @@
 
 
 <div class="viewcode-block" id="get_contact_boundaries">
-<a class="viewcode-back" href="../../api.html#celltraj.features.get_contact_boundaries">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.get_contact_boundaries">[docs]</a>
 <span class="k">def</span> <span class="nf">get_contact_boundaries</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">boundary_only</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identifies contact boundaries within labeled regions, highlighting the edges where different labels meet.</span>
+<span class="sd">    This function can apply a dilation operation to expand the regions before comparing them, which helps in</span>
+<span class="sd">    identifying contact areas even if they are not immediately adjacent.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    labels : ndarray</span>
+<span class="sd">        A labeled image where each unique integer (non-zero) represents a distinct region.</span>
+<span class="sd">    radius : int, optional</span>
+<span class="sd">        The radius of the structuring element used for dilation, which can expand the boundaries of the labels</span>
+<span class="sd">        to identify near-contact areas. Default is 10.</span>
+<span class="sd">    boundary_only : bool, optional</span>
+<span class="sd">        If True, the function will return only the boundaries of the contact areas. If False, it will return</span>
+<span class="sd">        the entire area affected by the dilation process where contacts occur. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    msk_contact : ndarray</span>
+<span class="sd">        A binary mask indicating the areas where different labels are in contact. If `boundary_only` is True,</span>
+<span class="sd">        this mask will only cover the actual boundaries; otherwise, it covers the dilated areas where contacts</span>
+<span class="sd">        occur.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; labels = np.array([[1, 1, 0, 2, 2],</span>
+<span class="sd">                           [1, 1, 0, 2, 2],</span>
+<span class="sd">                           [1, 1, 0, 0, 0],</span>
+<span class="sd">                           [0, 3, 3, 3, 0]])</span>
+<span class="sd">    &gt;&gt;&gt; contact_msk = get_contact_boundaries(labels, radius=1, boundary_only=True)</span>
+<span class="sd">    &gt;&gt;&gt; print(contact_msk)</span>
+<span class="sd">    [[False False False False False]</span>
+<span class="sd">     [False False False False False]</span>
+<span class="sd">     [False False  True  True False]</span>
+<span class="sd">     [False  True  True  True  True]]</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function is particularly useful in cell imaging where identifying the boundaries between cells</span>
+<span class="sd">      can help in analyzing cell interactions and morphology.</span>
+<span class="sd">    - The dilation process helps to identify contacts even if cells (or other labeled regions) are not</span>
+<span class="sd">      physically touching but are within a close proximity defined by `radius`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `labels` is not a 2D or 3D ndarray.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">boundary_only</span><span class="p">:</span>
         <span class="n">boundary</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">segmentation</span><span class="o">.</span><span class="n">find_boundaries</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
@@ -388,8 +893,55 @@
 
 
 <div class="viewcode-block" id="get_contact_labels">
-<a class="viewcode-back" href="../../api.html#celltraj.features.get_contact_labels">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.get_contact_labels">[docs]</a>
 <span class="k">def</span> <span class="nf">get_contact_labels</span><span class="p">(</span><span class="n">labels0</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Identifies and returns labels that are in contact with each label in a segmented image. This function</span>
+<span class="sd">    uses morphological dilation to find neighboring regions and constructs a mask that indicates the labels</span>
+<span class="sd">    which each region is in contact with.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    labels0 : ndarray</span>
+<span class="sd">        A labeled image where each unique positive integer represents a different segmented region.</span>
+<span class="sd">    radius : int, optional</span>
+<span class="sd">        The radius of the structuring element used for dilation. This determines how far out from the original</span>
+<span class="sd">        label&#39;s boundaries the function will look to identify contacts. Default is 10.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    contact_labels : ndarray</span>
+<span class="sd">        An image of the same shape as `labels0` where each pixel in a contact region contains the label of the</span>
+<span class="sd">        neighboring region it is in contact with. Pixels not in contact with different labels remain zero.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; labels = np.array([[1, 1, 0, 0, 2, 2],</span>
+<span class="sd">                           [1, 1, 1, 2, 2, 2],</span>
+<span class="sd">                           [1, 1, 0, 0, 2, 2],</span>
+<span class="sd">                           [0, 0, 0, 0, 0, 0],</span>
+<span class="sd">                           [3, 3, 3, 3, 4, 4],</span>
+<span class="sd">                           [3, 3, 3, 3, 4, 4]])</span>
+<span class="sd">    &gt;&gt;&gt; contact_labels = get_contact_labels(labels, radius=1)</span>
+<span class="sd">    &gt;&gt;&gt; print(contact_labels)</span>
+<span class="sd">    [[0 0 0 0 0 0]</span>
+<span class="sd">     [0 0 2 1 0 0]</span>
+<span class="sd">     [0 0 0 0 0 0]</span>
+<span class="sd">     [0 0 0 0 0 0]</span>
+<span class="sd">     [0 0 0 4 3 0]</span>
+<span class="sd">     [0 0 0 4 3 0]]</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function uses dilation to expand each label&#39;s area and then checks for overlaps with other labels.</span>
+<span class="sd">    - It works for both 2D and 3D images.</span>
+<span class="sd">    - The resulting contact_labels map only shows where different labels meet; the rest of the area remains zero.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `labels0` is not 2D or 3D, or if there are issues with dilation or label matching.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">labels0</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
         <span class="n">footprint</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">labels0</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
@@ -419,10 +971,47 @@
 
 
 <div class="viewcode-block" id="get_neighbor_feature_map">
-<a class="viewcode-back" href="../../api.html#celltraj.features.get_neighbor_feature_map">[docs]</a>
-<span class="k">def</span> <span class="nf">get_neighbor_feature_map</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">neighbor_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">contact_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span><span class="o">**</span><span class="n">neighbor_function_args</span><span class="p">):</span>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.get_neighbor_feature_map">[docs]</a>
+<span class="k">def</span> <span class="nf">get_neighbor_feature_map</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">neighbor_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">contact_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span><span class="o">**</span><span class="n">neighbor_function_args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Constructs a map where each cell&#39;s pixels are annotated with a feature value that quantifies some aspect of</span>
+<span class="sd">    its relationship with neighboring cells. This is typically used in image analysis to evaluate how cells or</span>
+<span class="sd">    segments interact with each other based on defined criteria.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    labels : ndarray</span>
+<span class="sd">        A labeled image where each unique positive integer represents a distinct region or cell.</span>
+<span class="sd">    neighbor_function : callable</span>
+<span class="sd">        A function that computes a feature value given two labels. This function should accept at least two arguments,</span>
+<span class="sd">        the labels of two neighboring regions, and return a scalar value that quantifies some aspect of their relationship.</span>
+<span class="sd">    contact_labels : ndarray, optional</span>
+<span class="sd">        A precomputed array the same shape as `labels` where each cell in a contact region contains the label of the</span>
+<span class="sd">        neighboring region it is in contact with. If None, it will be computed within this function using `get_contact_labels`.</span>
+<span class="sd">    dtype : data-type, optional</span>
+<span class="sd">        The desired data-type for the output feature map. Default is np.float64.</span>
+<span class="sd">    **neighbor_function_args : dict</span>
+<span class="sd">        Additional keyword arguments to pass to `neighbor_function`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    neighbor_feature_map : ndarray</span>
+<span class="sd">        An image of the same shape as `labels` where each pixel in a contact region is annotated with the feature value</span>
+<span class="sd">        computed by `neighbor_function`.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - `neighbor_function` should be chosen based on the specific analysis required, e.g., calculating the distance,</span>
+<span class="sd">      overlap, or other relational metrics between neighboring regions.</span>
+<span class="sd">    - If `contact_labels` is not provided, the function calculates it internally, which may increase computational time.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `labels` does not have at least one dimension or if `neighbor_function` is not provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">contact_labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">contact_labels</span><span class="o">=</span><span class="n">get_contact_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">contact_labels</span><span class="o">=</span><span class="n">get_contact_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">neighbor_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;provide contact function&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">1</span>
@@ -442,8 +1031,38 @@
 
 
 <div class="viewcode-block" id="get_pca_fromdata">
-<a class="viewcode-back" href="../../api.html#celltraj.features.get_pca_fromdata">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.features.get_pca_fromdata">[docs]</a>
 <span class="k">def</span> <span class="nf">get_pca_fromdata</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">var_cutoff</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper for sklearn Principal Component Analysis (PCA) on the provided dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : array-like, shape (n_samples, n_features)</span>
+<span class="sd">        The data matrix on which to perform PCA. Each row corresponds to a sample, and each column corresponds to a feature.</span>
+<span class="sd">    dim : int, optional</span>
+<span class="sd">        The specific number of principal components to retain. If -1, `dim` is ignored and `var_cutoff` is used instead.</span>
+<span class="sd">    var_cutoff : float, optional</span>
+<span class="sd">        The proportion of variance to retain. If `dim` is not -1, this parameter is ignored, and `dim` components are kept.</span>
+<span class="sd">        Otherwise, the number of components is chosen to retain the specified variance proportion.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Xpca : ndarray</span>
+<span class="sd">        The transformed data in the principal component space.</span>
+<span class="sd">    pca : PCA object</span>
+<span class="sd">        The PCA object from sklearn that contains the variance and principal component information.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If `var_cutoff` is used and set to less than 1, PCA selects the minimum number of principal components such that</span>
+<span class="sd">      at least the specified variance proportion is retained.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `var_cutoff` is not between 0 and 1, or if `dim` is less than -1 or more than the number of features in the data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">var_cutoff</span><span class="p">)</span> <span class="c1">#n_components specifies the number of principal components to extract from the covariance matrix</span>
     <span class="n">pca</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="c1">#builds the covariance matrix and &quot;fits&quot; the principal components</span>
     <span class="n">Xpca</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="c1">#transforms the data into the pca representation</span>

@@ -45,7 +45,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">celltraj</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
 </ul>
 
         </div>
@@ -101,7 +101,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="get_cdist">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.get_cdist">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.get_cdist">[docs]</a>
 <span class="k">def</span> <span class="nf">get_cdist</span><span class="p">(</span><span class="n">prob1</span><span class="p">):</span>
     <span class="n">prob1</span><span class="o">=</span><span class="n">prob1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">prob1</span><span class="p">)</span>
     <span class="n">prob1</span><span class="o">=</span><span class="n">prob1</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
@@ -113,7 +113,7 @@
 
 
 <div class="viewcode-block" id="get_cdist2d">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.get_cdist2d">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.get_cdist2d">[docs]</a>
 <span class="k">def</span> <span class="nf">get_cdist2d</span><span class="p">(</span><span class="n">prob1</span><span class="p">):</span>
     <span class="n">nx</span><span class="o">=</span><span class="n">prob1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span><span class="n">ny</span><span class="o">=</span><span class="n">prob1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">prob1</span><span class="o">=</span><span class="n">prob1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">prob1</span><span class="p">)</span>
@@ -127,7 +127,7 @@
 
 
 <div class="viewcode-block" id="colorbar">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.colorbar">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.colorbar">[docs]</a>
 <span class="k">def</span> <span class="nf">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1</span> <span class="kn">import</span> <span class="n">make_axes_locatable</span>
     <span class="c1">#import matplotlib.pyplot as plt</span>
@@ -142,7 +142,7 @@
 
 
 <div class="viewcode-block" id="get_linear_coef">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.get_linear_coef">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.get_linear_coef">[docs]</a>
 <span class="k">def</span> <span class="nf">get_linear_coef</span><span class="p">(</span><span class="n">counts0</span><span class="p">,</span><span class="n">countsA</span><span class="p">,</span><span class="n">countsB</span><span class="p">,</span><span class="n">countsAB</span><span class="p">):</span>
     <span class="n">regress_linear</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">(</span><span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">regress_linear</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">countsA</span><span class="p">,</span><span class="n">countsB</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">countsAB</span><span class="p">)</span>
@@ -150,7 +150,7 @@
 
 
 <div class="viewcode-block" id="get_linear_batch_normalization">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.get_linear_batch_normalization">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.get_linear_batch_normalization">[docs]</a>
 <span class="k">def</span> <span class="nf">get_linear_batch_normalization</span><span class="p">(</span><span class="n">feat0_all</span><span class="p">,</span><span class="n">feat1_all</span><span class="p">,</span><span class="n">nbins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">return_coef</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">stdcut</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span> <span class="c1">#fit linear normalization feat1=a*feat0+b from histogram</span>
     <span class="n">feat1</span><span class="o">=</span><span class="n">feat1_all</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">feat1_all</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">feat1_all</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">feat1_all</span><span class="p">))</span><span class="o">&lt;</span><span class="n">stdcut</span><span class="p">]</span>
     <span class="n">feat0</span><span class="o">=</span><span class="n">feat0_all</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">feat0_all</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">feat0_all</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">nanstd</span><span class="p">(</span><span class="n">feat0_all</span><span class="p">))</span><span class="o">&lt;</span><span class="n">stdcut</span><span class="p">]</span>
@@ -180,19 +180,19 @@
 
 
 <div class="viewcode-block" id="save_dict_to_h5">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.save_dict_to_h5">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.save_dict_to_h5">[docs]</a>
 <span class="k">def</span> <span class="nf">save_dict_to_h5</span><span class="p">(</span><span class="n">dic</span><span class="p">,</span> <span class="n">h5file</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
     <span class="n">recursively_save_dict_contents_to_group</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">dic</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="load_dict_from_h5">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.load_dict_from_h5">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.load_dict_from_h5">[docs]</a>
 <span class="k">def</span> <span class="nf">load_dict_from_h5</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">recursively_load_dict_contents_from_group</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="recursively_save_dict_contents_to_group">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.recursively_save_dict_contents_to_group">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.recursively_save_dict_contents_to_group">[docs]</a>
 <span class="k">def</span> <span class="nf">recursively_save_dict_contents_to_group</span><span class="p">(</span> <span class="n">h5file</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">dic</span><span class="p">):</span>
     <span class="c1"># argument type checking</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dic</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -262,7 +262,7 @@
 <span class="c1">#    return ans            </span>
 
 <div class="viewcode-block" id="recursively_load_dict_contents_from_group">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.recursively_load_dict_contents_from_group">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.recursively_load_dict_contents_from_group">[docs]</a>
 <span class="k">def</span> <span class="nf">recursively_load_dict_contents_from_group</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
     <span class="n">ans</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">h5file</span><span class="p">[</span><span class="n">path</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -283,7 +283,7 @@
 
 
 <div class="viewcode-block" id="get_cell_centers">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.get_cell_centers">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.get_cell_centers">[docs]</a>
 <span class="k">def</span> <span class="nf">get_cell_centers</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">labels</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
         <span class="n">centers</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ndimage</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span><span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)))</span>
@@ -293,7 +293,7 @@
 
 
 <div class="viewcode-block" id="dist">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.dist">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.dist">[docs]</a>
 <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="n">img1</span><span class="p">,</span><span class="n">img2</span><span class="p">):</span>
     <span class="c1">#img1=img1.astype(float).flatten()</span>
     <span class="c1">#img2=img2.astype(float).flatten()</span>
@@ -302,7 +302,7 @@
 
 
 <div class="viewcode-block" id="get_dmat_vectorized">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.get_dmat_vectorized">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.get_dmat_vectorized">[docs]</a>
 <span class="k">def</span> <span class="nf">get_dmat_vectorized</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="c1">#adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)</span>
     <span class="n">x1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span> <span class="c1">#default from Fung folks is D x N</span>
     <span class="k">if</span> <span class="n">x2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -322,7 +322,7 @@
 
 
 <div class="viewcode-block" id="get_dmat">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.get_dmat">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.get_dmat">[docs]</a>
 <span class="k">def</span> <span class="nf">get_dmat</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplex</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
         <span class="n">x1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">x1</span><span class="p">)),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -336,7 +336,7 @@
 
 
 <div class="viewcode-block" id="dist_to_contact">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.dist_to_contact">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.dist_to_contact">[docs]</a>
 <span class="k">def</span> <span class="nf">dist_to_contact</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">r0</span><span class="p">,</span><span class="n">d0</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">r</span><span class="o">&lt;</span><span class="n">d0</span><span class="p">:</span>
@@ -355,7 +355,7 @@
 
 
 <div class="viewcode-block" id="get_pairwise_distance_sum">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.get_pairwise_distance_sum">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.get_pairwise_distance_sum">[docs]</a>
 <span class="k">def</span> <span class="nf">get_pairwise_distance_sum</span><span class="p">(</span><span class="n">tshift</span><span class="p">,</span><span class="n">centers1</span><span class="p">,</span><span class="n">centers2</span><span class="p">,</span><span class="n">contact_transform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">r0</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span><span class="n">d0</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
     <span class="n">max_dev</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">centers1</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">centers1</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
     <span class="n">inside_max_dev</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">centers2</span><span class="o">&gt;</span><span class="n">tshift</span><span class="o">-</span><span class="n">max_dev</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">centers2</span><span class="o">&lt;</span><span class="n">tshift</span><span class="o">+</span><span class="n">max_dev</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
@@ -375,7 +375,7 @@
 
 
 <div class="viewcode-block" id="get_tshift">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.get_tshift">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.get_tshift">[docs]</a>
 <span class="k">def</span> <span class="nf">get_tshift</span><span class="p">(</span><span class="n">centers1</span><span class="p">,</span><span class="n">centers2</span><span class="p">,</span><span class="n">dist_function</span><span class="p">,</span><span class="n">ntrans</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">maxt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="o">**</span><span class="n">dist_function_keys</span><span class="p">):</span>
     <span class="n">ndim</span><span class="o">=</span><span class="n">centers1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ntrans</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span><span class="nb">tuple</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
@@ -409,7 +409,7 @@
 
 
 <div class="viewcode-block" id="get_meshfunc_average">
-<a class="viewcode-back" href="../../api.html#celltraj.utilities.get_meshfunc_average">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.utilities.get_meshfunc_average">[docs]</a>
 <span class="k">def</span> <span class="nf">get_meshfunc_average</span><span class="p">(</span><span class="n">faceValues</span><span class="p">,</span><span class="n">faceCenters</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
     <span class="n">vdist1</span><span class="p">,</span><span class="n">edges</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">histogramdd</span><span class="p">(</span><span class="n">faceCenters</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span><span class="n">weights</span><span class="o">=</span><span class="n">faceValues</span><span class="p">)</span>
     <span class="n">norm1</span><span class="p">,</span><span class="n">edges</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">histogramdd</span><span class="p">(</span><span class="n">faceCenters</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="n">edges</span><span class="p">)</span>

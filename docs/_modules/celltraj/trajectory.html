@@ -45,7 +45,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">celltraj</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
 </ul>
 
         </div>
@@ -113,7 +113,7 @@
 
 
 <div class="viewcode-block" id="Trajectory">
-<a class="viewcode-back" href="../../stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory">[docs]</a>
 <span class="k">class</span> <span class="nc">Trajectory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A toolset for single-cell trajectory modeling. See:</span>
@@ -134,21 +134,26 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     
 <div class="viewcode-block" id="Trajectory.__init__">
-<a class="viewcode-back" href="../../stubs/celltraj.trajectory.Trajectory.html#celltraj.trajectory.Trajectory.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">h5filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">h5filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">data_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize a Trajectory object, optionally loading metadata from an HDF5 file.</span>
+<span class="sd">        Initializes a Trajectory object, optionally loading metadata and additional data from an HDF5 file.</span>
 
 <span class="sd">        This constructor sets the HDF5 filename and attempts to load metadata associated with the file.</span>
-<span class="sd">        If the file is present, it reads the metadata from a predefined group. Errors during metadata</span>
-<span class="sd">        loading are caught and logged. Future updates should include better commenting and organizational</span>
-<span class="sd">        improvements of class attributes.</span>
+<span class="sd">        If the file is present, it reads the metadata from a predefined group. If `data_list` is provided,</span>
+<span class="sd">        it will also attempt to load additional data specified in the list from the HDF5 file. Errors during</span>
+<span class="sd">        metadata or data loading are caught and logged. Future updates should include better commenting and</span>
+<span class="sd">        organizational improvements of class attributes.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        h5filename : str, optional</span>
 <span class="sd">            The path to the HDF5 file from which to load the metadata. If not provided, the</span>
 <span class="sd">            instance will be initialized without loading metadata.</span>
+<span class="sd">        data_list : list of str, optional</span>
+<span class="sd">            A list of data group paths within the HDF5 file to be loaded along with the metadata. Each</span>
+<span class="sd">            entry in the list should specify a path to a dataset or group within the HDF5 file that</span>
+<span class="sd">            contains data relevant to the trajectory analysis.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -159,6 +164,11 @@
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;)</span>
+<span class="sd">        loading path/to/your/hdf5file.h5</span>
+
+<span class="sd">        If an HDF5 file and data list are provided:</span>
+<span class="sd">        &gt;&gt;&gt; data_groups = [&#39;/group1/data&#39;, &#39;/group2/data&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; traj = Trajectory(&#39;path/to/your/hdf5file.h5&#39;, data_list=data_groups)</span>
 <span class="sd">        loading path/to/your/hdf5file.h5</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">h5filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -171,6 +181,10 @@
                     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">metadata_dict</span><span class="p">:</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">metadata_dict</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_image_shape</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">data_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">data_list</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_h5</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;error loading metadata from </span><span class="si">{</span><span class="n">h5filename</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -181,7 +195,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.load_from_h5">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.load_from_h5">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.load_from_h5">[docs]</a>
     <span class="k">def</span> <span class="nf">load_from_h5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load data from a specified path within an HDF5 file. This method attempts to read records</span>
@@ -207,7 +221,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;loading </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;loading </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="n">f</span><span class="o">=</span><span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h5filename</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">datadict</span><span class="o">=</span><span class="n">utilities</span><span class="o">.</span><span class="n">recursively_load_dict_contents_from_group</span><span class="p">(</span> <span class="n">f</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
@@ -225,7 +239,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.save_to_h5">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.save_to_h5">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.save_to_h5">[docs]</a>
     <span class="k">def</span> <span class="nf">save_to_h5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save specified attributes to an HDF5 file at the given path. This method saves attributes from </span>
@@ -285,7 +299,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_frames">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_frames">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_frames">[docs]</a>
     <span class="k">def</span> <span class="nf">get_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Scans an HDF5 file for image and mask datasets to determine the total number of frames,</span>
@@ -357,7 +371,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_image_shape">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_image_shape">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_image_shape">[docs]</a>
     <span class="k">def</span> <span class="nf">get_image_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determine the dimensions of the image and mask data from the HDF5 file at a specified frame</span>
@@ -485,7 +499,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_image_data">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_image_data">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_image_data">[docs]</a>
     <span class="k">def</span> <span class="nf">get_image_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve the image data for a specified frame from the HDF5 file associated with this instance.</span>
@@ -518,7 +532,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_mask_data">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_mask_data">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_mask_data">[docs]</a>
     <span class="k">def</span> <span class="nf">get_mask_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve the mask data for a specified frame from the HDF5 file associated with this instance.</span>
@@ -551,7 +565,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_fmask_data">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_fmask_data">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_fmask_data">[docs]</a>
     <span class="k">def</span> <span class="nf">get_fmask_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n_frame</span><span class="p">,</span><span class="n">channel</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve the foreground mask data for a specific frame using different methods depending on </span>
@@ -610,14 +624,17 @@
                 <span class="n">dsetName</span> <span class="o">=</span> <span class="s2">&quot;/images/img_</span><span class="si">%d</span><span class="s2">/fmsk&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_frame</span><span class="p">)</span>
                 <span class="n">dset</span><span class="o">=</span><span class="n">f</span><span class="p">[</span><span class="n">dsetName</span><span class="p">]</span>
                 <span class="n">msk</span><span class="o">=</span><span class="n">dset</span><span class="p">[:]</span>
-                <span class="n">fmsk</span><span class="o">=</span><span class="n">msk</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">foreground_fmskchannel</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">msk</span><span class="o">.</span><span class="n">ndim</span><span class="o">&gt;</span><span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="p">:</span>
+                    <span class="n">fmsk</span><span class="o">=</span><span class="n">msk</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">foreground_fmskchannel</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fmsk</span><span class="o">=</span><span class="n">msk</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;need to set attribute fmskchannel to pull from a mask channel, fmsk_threshold and fmsk_imgchannel to threshold an image channel for foreground masks, fmask_channels foreground and fmsk under image data in h5&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fmsk</span></div>
 
 
 <div class="viewcode-block" id="Trajectory.get_cell_blocks">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_blocks">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_cell_blocks">[docs]</a>
     <span class="k">def</span> <span class="nf">get_cell_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">label</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extracts bounding box information for each cell from a labeled mask image. This function</span>
@@ -649,8 +666,8 @@
         <span class="k">if</span> <span class="n">label</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
             <span class="n">cblocks</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">bbox_table</span><span class="p">[</span><span class="s1">&#39;bbox-0&#39;</span><span class="p">]</span>
             <span class="n">cblocks</span><span class="p">[:,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">bbox_table</span><span class="p">[</span><span class="s1">&#39;bbox-1&#39;</span><span class="p">]</span>
-            <span class="n">cblocks</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">bbox_table</span><span class="p">[</span><span class="s1">&#39;bbox-3&#39;</span><span class="p">]</span>
-            <span class="n">cblocks</span><span class="p">[:,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">bbox_table</span><span class="p">[</span><span class="s1">&#39;bbox-4&#39;</span><span class="p">]</span>
+            <span class="n">cblocks</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">bbox_table</span><span class="p">[</span><span class="s1">&#39;bbox-2&#39;</span><span class="p">]</span>
+            <span class="n">cblocks</span><span class="p">[:,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="n">bbox_table</span><span class="p">[</span><span class="s1">&#39;bbox-3&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">label</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
             <span class="n">cblocks</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">bbox_table</span><span class="p">[</span><span class="s1">&#39;bbox-0&#39;</span><span class="p">]</span>
             <span class="n">cblocks</span><span class="p">[:,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">bbox_table</span><span class="p">[</span><span class="s1">&#39;bbox-1&#39;</span><span class="p">]</span>
@@ -662,7 +679,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_cell_index">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_index">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_cell_index">[docs]</a>
     <span class="k">def</span> <span class="nf">get_cell_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes indices and corresponding frame information for each cell in an image stack, capturing</span>
@@ -762,7 +779,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_cell_data">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_data">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_cell_data">[docs]</a>
     <span class="k">def</span> <span class="nf">get_cell_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ic</span><span class="p">,</span><span class="n">frametype</span><span class="o">=</span><span class="s1">&#39;boundingbox&#39;</span><span class="p">,</span><span class="n">boundary_expansion</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">return_masks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">relabel_masks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">relabel_mskchannels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">delete_background</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieves image and mask data for specific cells based on various configuration options. </span>
@@ -842,6 +859,7 @@
             <span class="n">imgc</span><span class="o">=</span><span class="n">img</span><span class="p">[</span><span class="n">cblock</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]:</span><span class="n">cblock</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">cblock</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]:</span><span class="n">cblock</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="o">...</span><span class="p">]</span>
             <span class="n">mskc</span><span class="o">=</span><span class="n">msk</span><span class="p">[</span><span class="n">cblock</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]:</span><span class="n">cblock</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">cblock</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]:</span><span class="n">cblock</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="o">...</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">relabel_masks</span> <span class="ow">and</span> <span class="n">return_masks</span><span class="p">:</span>
+            <span class="n">mskc</span><span class="o">=</span><span class="n">mskc</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="c1">#when relabeling, global indices are used, which can be much bigger</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmaskchannels</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">relabel_mskchannels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">relabel_mskchannels</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="p">]</span>
@@ -867,7 +885,7 @@
 
                 
 <div class="viewcode-block" id="Trajectory.get_cell_features">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_features">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_cell_features">[docs]</a>
     <span class="k">def</span> <span class="nf">get_cell_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">function_tuple</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">use_fmask_for_intensity_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fmskchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">use_mask_for_intensity_image</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">apply_contact_transform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">return_feature_list</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">concatenate_features</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extracts complex cell features based on the specified custom functions and imaging data.</span>
@@ -1001,7 +1019,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_cell_compartment_ratio">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_compartment_ratio">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_cell_compartment_ratio">[docs]</a>
     <span class="k">def</span> <span class="nf">get_cell_compartment_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fmask_channel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">make_disjoint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">erosion_footprint1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">erosion_footprint2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">combined_and_disjoint</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">intensity_sum</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">intensity_ztransform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">noratio</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">inverse_ratio</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the ratio of features between two cellular compartments, optionally adjusted for image</span>
@@ -1128,7 +1146,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_cell_channel_crosscorr">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_channel_crosscorr">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_cell_channel_crosscorr">[docs]</a>
     <span class="k">def</span> <span class="nf">get_cell_channel_crosscorr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">imgchannel2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the cross-correlation between two image channels within labeled cells, using masks defined by a specific mask channel. This method is particularly useful for analyzing the relationship between different signal channels at a cellular level.</span>
@@ -1201,8 +1219,8 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_motility_features">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_motility_features">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_motility_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_motility_features">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_motility_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">indcells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extracts motility features for individual cells and their neighbors. This method calculates</span>
 <span class="sd">        both single-cell and neighbor-averaged motility characteristics, such as displacement and</span>
@@ -1215,6 +1233,8 @@
 <span class="sd">            for all cells in the dataset.</span>
 <span class="sd">        mskchannel : int</span>
 <span class="sd">            Mask channel used to define cell labels.</span>
+<span class="sd">        radius : int, optional</span>
+<span class="sd">            Size of morphological expansion in pixels to find neighboring cells.</span>
 <span class="sd">        save_h5 : bool, optional</span>
 <span class="sd">            If True, saves the calculated motility features to an HDF5 file specified in the trajectory object.</span>
 <span class="sd">        overwrite : bool, optional</span>
@@ -1263,8 +1283,8 @@
                 <span class="n">img</span><span class="p">,</span><span class="n">msk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cell_data</span><span class="p">(</span><span class="n">indcells_frame</span><span class="p">,</span><span class="n">boundary_expansion</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">,</span><span class="n">return_masks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">relabel_masks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">relabel_mskchannels</span><span class="o">=</span><span class="p">[</span><span class="n">mskchannel</span><span class="p">])</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;c&#39;</span><span class="p">:</span>
                     <span class="n">msk</span><span class="o">=</span><span class="n">msk</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">mskchannel</span><span class="p">]</span>
-                <span class="n">beta_map</span><span class="o">=</span><span class="n">features</span><span class="o">.</span><span class="n">apply3d</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">features</span><span class="o">.</span><span class="n">get_neighbor_feature_map</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span><span class="n">neighbor_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_beta</span><span class="p">)</span>
-                <span class="n">alpha_map</span><span class="o">=</span><span class="n">features</span><span class="o">.</span><span class="n">apply3d</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">features</span><span class="o">.</span><span class="n">get_neighbor_feature_map</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span><span class="n">neighbor_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_alpha</span><span class="p">)</span>
+                <span class="n">beta_map</span><span class="o">=</span><span class="n">features</span><span class="o">.</span><span class="n">apply3d</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">features</span><span class="o">.</span><span class="n">get_neighbor_feature_map</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span><span class="n">neighbor_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_beta</span><span class="p">)</span>
+                <span class="n">alpha_map</span><span class="o">=</span><span class="n">features</span><span class="o">.</span><span class="n">apply3d</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">features</span><span class="o">.</span><span class="n">get_neighbor_feature_map</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span><span class="n">neighbor_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_alpha</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">n_frame</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">cells_frameSet</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="c1">#can&#39;t do motility for 0th frame</span>
                     <span class="n">props_beta</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">indcells_frame</span><span class="o">.</span><span class="n">size</span><span class="p">),</span><span class="s2">&quot;meanIntensity&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">indcells_frame</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">}</span>
                     <span class="n">props_alpha</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">indcells_frame</span><span class="o">.</span><span class="n">size</span><span class="p">),</span><span class="s2">&quot;meanIntensity&quot;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">indcells_frame</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">}</span>
@@ -1283,12 +1303,12 @@
         <span class="k">if</span> <span class="n">save_h5</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">feature_name</span><span class="p">,</span><span class="n">Xf_com</span><span class="p">)</span>
             <span class="n">attribute_list</span><span class="o">=</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">save_to_h5</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/cell_data_m</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_to_h5</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/cell_data_m</span><span class="si">{</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Xf_com</span></div>
 
 
 <div class="viewcode-block" id="Trajectory.get_stack_trans">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_stack_trans">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_stack_trans">[docs]</a>
     <span class="k">def</span> <span class="nf">get_stack_trans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ntrans</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">maxt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">dist_function</span><span class="o">=</span><span class="n">utilities</span><span class="o">.</span><span class="n">get_pairwise_distance_sum</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">do_global</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="o">**</span><span class="n">dist_function_keys</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes translations across an image stack using a brute force optimization method to align</span>
@@ -1328,7 +1348,7 @@
 <span class="sd">        &gt;&gt;&gt; transformations = traj.get_stack_trans(mskchannel=1, ntrans=10, maxt=5, do_global=False)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nframes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nt</span>
-        <span class="n">tSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nframes</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">tSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nframes</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
         <span class="n">msk0</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mask_data</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmaskchannels</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
             <span class="n">msk0</span><span class="o">=</span><span class="n">msk0</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">mskchannel</span><span class="p">]</span>
@@ -1370,15 +1390,20 @@
         <span class="n">tf_matrix_set</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nframes</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">iS</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nframes</span><span class="p">):</span>
             <span class="n">tf_matrix_set</span><span class="p">[</span><span class="n">iS</span><span class="p">,:,:]</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">EuclideanTransform</span><span class="p">(</span><span class="n">translation</span><span class="o">=</span><span class="n">tSet</span><span class="p">[</span><span class="n">iS</span><span class="p">,:],</span><span class="n">dimensionality</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="p">)</span><span class="o">.</span><span class="n">params</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+            <span class="n">tf_matrix_set_pad</span><span class="p">,</span><span class="n">pad_dims</span><span class="o">=</span><span class="n">imprep</span><span class="o">.</span><span class="n">get_registration_expansions</span><span class="p">(</span><span class="n">tf_matrix_set</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">nx</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ny</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+            <span class="n">tf_matrix_set_pad</span><span class="p">,</span><span class="n">pad_dims</span><span class="o">=</span><span class="n">imprep</span><span class="o">.</span><span class="n">get_registration_expansions</span><span class="p">(</span><span class="n">tf_matrix_set</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">nz</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">nx</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ny</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">save_h5</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">tf_matrix_set</span><span class="o">=</span><span class="n">tf_matrix_set</span>
-            <span class="n">attribute_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tf_matrix_set&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tf_matrix_set</span><span class="o">=</span><span class="n">tf_matrix_set_pad</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pad_dims</span><span class="o">=</span><span class="n">pad_dims</span>
+            <span class="n">attribute_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tf_matrix_set&#39;</span><span class="p">,</span><span class="s1">&#39;pad_dims&#39;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">save_to_h5</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/cell_data_m</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="si">}</span><span class="s1">/&#39;</span><span class="p">,</span><span class="n">attribute_list</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">tf_matrix_set</span></div>
+        <span class="k">return</span> <span class="n">tf_matrix_set_pad</span></div>
 
 
 <div class="viewcode-block" id="Trajectory.get_cell_positions">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_positions">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_cell_positions">[docs]</a>
     <span class="k">def</span> <span class="nf">get_cell_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate the center of mass for cells in each frame of the mask channel and optionally save </span>
@@ -1438,6 +1463,13 @@
                 <span class="n">cells_positionSet</span><span class="p">[</span><span class="n">indc_img</span><span class="p">,:]</span><span class="o">=</span><span class="n">centers</span>
                 <span class="c1">#centers[:,0]=centers[:,0]-self.imgSet_t[im,2]</span>
                 <span class="c1">#centers[:,1]=centers[:,1]-self.imgSet_t[im,1]</span>
+                <span class="c1">#if self.ndim==2: #trying old way 8may24</span>
+                <span class="c1">#    centers[:,0]=centers[:,0]-tSet[im,1]</span>
+                <span class="c1">#    centers[:,1]=centers[:,1]-tSet[im,0]</span>
+                <span class="c1">#if self.ndim==3: #trying old way 8may24</span>
+                <span class="c1">#    centers[:,0]=centers[:,0]-tSet[im,0]</span>
+                <span class="c1">#    centers[:,1]=centers[:,1]-tSet[im,2]</span>
+                <span class="c1">#    centers[:,2]=centers[:,2]-tSet[im,1]</span>
                 <span class="n">centers</span><span class="o">=</span><span class="n">centers</span><span class="o">-</span><span class="n">tSet</span><span class="p">[</span><span class="n">im</span><span class="p">,:]</span>
                 <span class="n">cells_x</span><span class="p">[</span><span class="n">indc_img</span><span class="p">,:]</span><span class="o">=</span><span class="n">centers</span>
         <span class="k">if</span> <span class="n">save_h5</span><span class="p">:</span>
@@ -1449,7 +1481,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_lineage_btrack">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_lineage_btrack">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_lineage_btrack">[docs]</a>
     <span class="k">def</span> <span class="nf">get_lineage_btrack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">distcut</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span><span class="n">framewindow</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">visual_1cell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">max_search_radius</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Tracks cell lineages over an image stack using Bayesian tracking with visual confirmation options.</span>
@@ -1497,13 +1529,17 @@
         <span class="n">nimg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nt</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;tf_matrix_set&#39;</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;need to run get_stack_trans for image stack registration before tracking&#39;</span><span class="p">)</span>
-        <span class="n">tf_matrix_set_pad</span><span class="p">,</span><span class="n">pad_dims</span><span class="o">=</span><span class="n">imprep</span><span class="o">.</span><span class="n">get_registration_expansions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tf_matrix_set</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">nz</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">nx</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">ny</span><span class="p">)</span>
-        <span class="n">segmentation</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nimg</span><span class="p">,</span><span class="o">*</span><span class="n">pad_dims</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="c1">#if self.ndim==3:</span>
+        <span class="c1">#    tf_matrix_set_pad,pad_dims=imprep.get_registration_expansions(self.tf_matrix_set,self.nz,self.nx,self.ny)</span>
+        <span class="c1">#if self.ndim==2:</span>
+        <span class="c1">#    tf_matrix_set_pad,pad_dims=imprep.get_registration_expansions(self.tf_matrix_set,self.nx,self.ny)</span>
+        <span class="n">segmentation</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nimg</span><span class="p">,</span><span class="o">*</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_shape</span><span class="p">)))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="c1">#removed pad_dims here because incompatible with self.x, should fix</span>
+        <span class="c1">#segmentation=np.zeros((nimg,*self.pad_dims)).astype(int)</span>
         <span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimg</span><span class="p">):</span>
             <span class="n">msk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mask_data</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmaskchannels</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
                 <span class="n">msk</span><span class="o">=</span><span class="n">msk</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">mskchannel</span><span class="p">]</span>
-            <span class="n">mskT</span><span class="o">=</span><span class="n">imprep</span><span class="o">.</span><span class="n">transform_image</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">tf_matrix_set</span><span class="p">[</span><span class="n">im</span><span class="p">,</span><span class="o">...</span><span class="p">],</span><span class="n">inverse_tform</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">pad_dims</span><span class="o">=</span><span class="n">pad_dims</span><span class="p">)</span>
+            <span class="n">mskT</span><span class="o">=</span><span class="n">imprep</span><span class="o">.</span><span class="n">transform_image</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">tf_matrix_set</span><span class="p">[</span><span class="n">im</span><span class="p">,</span><span class="o">...</span><span class="p">],</span><span class="n">inverse_tform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">pad_dims</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="c1">#changed from inverse_tform=True, 9may24</span>
             <span class="n">segmentation</span><span class="p">[</span><span class="n">im</span><span class="p">,</span><span class="o">...</span><span class="p">]</span><span class="o">=</span><span class="n">mskT</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;loading and translating mask &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">im</span><span class="p">))</span>
         <span class="n">linSet</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">nimg</span>
@@ -1603,7 +1639,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_lineage_mindist">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_lineage_mindist">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_lineage_mindist">[docs]</a>
     <span class="k">def</span> <span class="nf">get_lineage_mindist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">distcut</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">save_h5</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Tracks cell lineage based on the minimum distance between cells across consecutive frames.</span>
@@ -1671,6 +1707,8 @@
             <span class="k">if</span> <span class="n">visual</span><span class="p">:</span>
                 <span class="n">msk1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mask_data</span><span class="p">(</span><span class="n">iS</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="p">]</span>
                 <span class="n">msk0</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_mask_data</span><span class="p">(</span><span class="n">iS</span><span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">mskchannel</span><span class="p">]</span>
+                <span class="n">msk1</span><span class="o">=</span><span class="n">imprep</span><span class="o">.</span><span class="n">transform_image</span><span class="p">(</span><span class="n">msk1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">tf_matrix_set</span><span class="p">[</span><span class="n">iS</span><span class="p">,</span><span class="o">...</span><span class="p">],</span><span class="n">inverse_tform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">pad_dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pad_dims</span><span class="p">)</span> <span class="c1">#changed from inverse_tform=True, 9may24</span>
+                <span class="n">msk0</span><span class="o">=</span><span class="n">imprep</span><span class="o">.</span><span class="n">transform_image</span><span class="p">(</span><span class="n">msk0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">tf_matrix_set</span><span class="p">[</span><span class="n">iS</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">...</span><span class="p">],</span><span class="n">inverse_tform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">pad_dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pad_dims</span><span class="p">)</span> <span class="c1">#changed from inverse_tform=True, 9may24</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
                     <span class="n">vmsk1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">msk1</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                     <span class="n">vmsk0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">msk0</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -1696,7 +1734,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_cell_trajectory">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_cell_trajectory">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_cell_trajectory">[docs]</a>
     <span class="k">def</span> <span class="nf">get_cell_trajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_ind</span><span class="p">,</span><span class="n">n_hist</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#cell trajectory stepping backwards</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieves the trajectory of a specified cell across previous frames, tracing back from the current frame to</span>
@@ -1772,7 +1810,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_unique_trajectories">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_unique_trajectories">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_unique_trajectories">[docs]</a>
     <span class="k">def</span> <span class="nf">get_unique_trajectories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">extra_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes unique trajectories for a set of cells over multiple frames, minimizing redundancy by</span>
@@ -1794,10 +1832,8 @@
 <span class="sd">        - This method identifies unique trajectories by tracking each cell backward from its last appearance</span>
 <span class="sd">        to its first, recording the trajectory, and then ensuring subsequent trajectories do not retread</span>
 <span class="sd">        the same path beyond the allowed overlap specified by &#39;extra_depth&#39;.</span>
-
 <span class="sd">        - Each trajectory is tracked until it either reaches the start of the dataset or an earlier part of</span>
 <span class="sd">        another trajectory within the allowed overlap.</span>
-
 <span class="sd">        - This function updates the instance&#39;s &#39;trajectories&#39; attribute, storing each unique trajectory.</span>
 
 <span class="sd">        Examples</span>
@@ -1844,7 +1880,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_traj_segments">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_traj_segments">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_traj_segments">[docs]</a>
     <span class="k">def</span> <span class="nf">get_traj_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">seg_length</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Divides each trajectory into multiple overlapping segments of a specified length. This method</span>
@@ -1868,7 +1904,6 @@
 <span class="sd">        -----</span>
 <span class="sd">        - This method requires that the `trajectories` attribute has been populated, typically by</span>
 <span class="sd">        a method that computes full trajectories such as `get_unique_trajectories`.</span>
-
 <span class="sd">        - Only trajectories that are at least as long as `seg_length` will contribute segments to</span>
 <span class="sd">        the output. Shorter trajectories are ignored.</span>
 
@@ -1900,7 +1935,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_Xtraj_celltrajectory">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_Xtraj_celltrajectory">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_Xtraj_celltrajectory">[docs]</a>
     <span class="k">def</span> <span class="nf">get_Xtraj_celltrajectory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_traj</span><span class="p">,</span><span class="n">Xtraj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">traj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieves trajectory segments for a specific cell trajectory from a larger set of trajectory data. </span>
@@ -1966,7 +2001,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_trajectory_steps">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_trajectory_steps">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_trajectory_steps">[docs]</a>
     <span class="k">def</span> <span class="nf">get_trajectory_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">traj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">Xtraj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">get_trajectories</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nlag</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span> 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extracts sequential steps from cell trajectories and retrieves corresponding features from a feature matrix.</span>
@@ -2044,7 +2079,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_trajAB_segments">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_trajAB_segments">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_trajAB_segments">[docs]</a>
     <span class="k">def</span> <span class="nf">get_trajAB_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">xt</span><span class="p">,</span><span class="n">stateA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">stateB</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">distcutA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">distcutB</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Identifies segments within trajectories that transition between specified states, A and B. This method</span>
@@ -2167,7 +2202,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_pair_rdf">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_pair_rdf">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_pair_rdf">[docs]</a>
     <span class="k">def</span> <span class="nf">get_pair_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cell_indsA</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">cell_indsB</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nr</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the radial distribution function (RDF) between two sets of cells, identifying the</span>
@@ -2244,7 +2279,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_alpha">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_alpha">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_alpha">[docs]</a>
     <span class="k">def</span> <span class="nf">get_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the alignment measure, alpha, between two cells identified by their indices. This</span>
@@ -2302,7 +2337,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_beta">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_beta">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_beta">[docs]</a>
     <span class="k">def</span> <span class="nf">get_beta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i1</span><span class="p">,</span><span class="n">i2</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the cosine of the angle (beta) between the movement directions of two cells. This measure</span>
@@ -2357,7 +2392,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_dx">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_dx">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_dx">[docs]</a>
     <span class="k">def</span> <span class="nf">get_dx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the displacement vector of a cell between its current position and its previous position in the</span>
@@ -2402,7 +2437,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_secreted_ligand_density">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_secreted_ligand_density">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_secreted_ligand_density">[docs]</a>
     <span class="k">def</span> <span class="nf">get_secreted_ligand_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span><span class="n">npad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">indz_bm</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">secretion_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">flipz</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Simulates the diffusion of secreted ligands from cells, providing a spatial distribution of ligand density across a specified frame. </span>
@@ -2525,7 +2560,7 @@
 
 
 <div class="viewcode-block" id="Trajectory.get_signal_contributions">
-<a class="viewcode-back" href="../../api.html#celltraj.trajectory.Trajectory.get_signal_contributions">[docs]</a>
+<a class="viewcode-back" href="../../celltraj.html#celltraj.trajectory.Trajectory.get_signal_contributions">[docs]</a>
     <span class="k">def</span> <span class="nf">get_signal_contributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">S</span><span class="p">,</span><span class="n">time_lag</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">x_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rescale_z</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the spatial contributions of signaling between cells over a specified time lag. This method</span>
