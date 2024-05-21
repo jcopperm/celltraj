@@ -88,6 +88,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_secreted_ligand_density"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_secreted_ligand_density()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_signal_contributions"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_signal_contributions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_stack_trans"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_stack_trans()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_tcf"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_tcf()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_trajAB_segments"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_trajAB_segments()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_traj_segments"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_traj_segments()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_trajectory_steps"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_trajectory_steps()</span></code></a></li>
@@ -163,12 +164,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_H_eigs"><code class="docutils literal notranslate"><span class="pre">get_H_eigs()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_avdx_clusters"><code class="docutils literal notranslate"><span class="pre">get_avdx_clusters()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_committor"><code class="docutils literal notranslate"><span class="pre">get_committor()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_dmat"><code class="docutils literal notranslate"><span class="pre">get_dmat()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_gaussianKernelM"><code class="docutils literal notranslate"><span class="pre">get_gaussianKernelM()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_kernel_sigmas"><code class="docutils literal notranslate"><span class="pre">get_kernel_sigmas()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_kineticstates"><code class="docutils literal notranslate"><span class="pre">get_kineticstates()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_koopman_eig"><code class="docutils literal notranslate"><span class="pre">get_koopman_eig()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_koopman_inference"><code class="docutils literal notranslate"><span class="pre">get_koopman_inference()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_koopman_inference_multiple"><code class="docutils literal notranslate"><span class="pre">get_koopman_inference_multiple()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_koopman_modes"><code class="docutils literal notranslate"><span class="pre">get_koopman_modes()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_kscore"><code class="docutils literal notranslate"><span class="pre">get_kscore()</span></code></a></li>
@@ -180,8 +179,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_traj_ll_gmean"><code class="docutils literal notranslate"><span class="pre">get_traj_ll_gmean()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_transition_matrix"><code class="docutils literal notranslate"><span class="pre">get_transition_matrix()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.get_transition_matrix_CG"><code class="docutils literal notranslate"><span class="pre">get_transition_matrix_CG()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#celltraj.model.plot_dx_arrows"><code class="docutils literal notranslate"><span class="pre">plot_dx_arrows()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#celltraj.model.plot_eig"><code class="docutils literal notranslate"><span class="pre">plot_eig()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_J"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_J()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_J_old"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_J_old()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_flux"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_flux()</span></code></a></li>
@@ -1327,6 +1324,11 @@ each frame to the first frame based on the computed translations.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_tcf">
+<span class="sig-name descname"><span class="pre">get_tcf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajectories</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minlength</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_tcf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_tcf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_trajAB_segments">
 <span class="sig-name descname"><span class="pre">get_trajAB_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stateA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stateB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clusters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distcutA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distcutB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_trajAB_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_trajAB_segments" title="Link to this definition"></a></dt>
 <dd><p>Identifies segments within trajectories that transition between specified states, A and B. This method
@@ -1742,7 +1744,7 @@ of zeros with a length defined by the number of components used in the <cite>bou
 <dd><p>Computes boundary-based Fourier Transform features for a region mask distinguishing between core-cell
 and surrounding areas by using intensity to define active regions. This function applies a binary erosion
 to the region mask to refine the core region and then calculates the Fourier Transform features based on
-the refined mask and intensity data.</p>
+the refined mask and intensity data. Currently there is no way to pass parameters to the boundaryCB_FFT function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2099,7 +2101,7 @@ neighboring region it is in contact with. Pixels not in contact with different l
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.features.get_neighbor_feature_map">
-<span class="sig-prename descclassname"><span class="pre">celltraj.features.</span></span><span class="sig-name descname"><span class="pre">get_neighbor_feature_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor_function=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact_labels=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float64'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**neighbor_function_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/features.html#get_neighbor_feature_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.features.get_neighbor_feature_map" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">celltraj.features.</span></span><span class="sig-name descname"><span class="pre">get_neighbor_feature_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor_function=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contact_labels=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float64'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**neighbor_function_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/features.html#get_neighbor_feature_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.features.get_neighbor_feature_map" title="Link to this definition"></a></dt>
 <dd><p>Constructs a map where each cell’s pixels are annotated with a feature value that quantifies some aspect of
 its relationship with neighboring cells. This is typically used in image analysis to evaluate how cells or
 segments interact with each other based on defined criteria.</p>
@@ -3770,201 +3772,613 @@ those in the largest connected component of the transition graph.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_H_eigs">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_H_eigs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_H_eigs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_H_eigs" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the eigenvalues and eigenvectors of the Hermitian matrix formed from a given Markov transition matrix.</p>
+<p>The function constructs a Hermitian matrix, <cite>H</cite>, by symmetrizing the input matrix <cite>Mt</cite> and computes its eigenvalues
+and eigenvectors. The Hermitian matrix is constructed as H = 0.5 * (Mt + Mt.T) + 0.5j * (Mt - Mt.T), where <cite>Mt.T</cite>
+is the transpose of <cite>Mt</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Mt</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A square numpy array representing a Markov transition matrix from which the Hermitian matrix <cite>H</cite> is derived.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>w</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – An array of real eigenvalues of the Hermitian matrix, sorted in ascending order.</p></li>
+<li><p><strong>v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – An array of the corresponding eigenvectors, where each column corresponds to an eigenvalue in <cite>w</cite>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Mt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eigenvalues</span><span class="p">,</span> <span class="n">eigenvectors</span> <span class="o">=</span> <span class="n">get_H_eigs</span><span class="p">(</span><span class="n">Mt</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Eigenvalues:&quot;</span><span class="p">,</span> <span class="n">eigenvalues</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Eigenvectors:&quot;</span><span class="p">,</span> <span class="n">eigenvectors</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function is designed to work with stochastic matrices, such as those used in Markov models, providing an alternative matrix decomposition with real eigenvalues and unambiguous sorting of components.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_avdx_clusters">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_avdx_clusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_clusters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_avdx_clusters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_avdx_clusters" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the average directional changes between clusters weighted by transition probabilities, based on cluster embeddings and a transition matrix. The result captures the average directional movement expected from one cluster to another.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_clusters</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array containing the embedded coordinates of each cluster. Each row corresponds to a cluster and the columns to the coordinates in the reduced space.</p></li>
+<li><p><strong>Mt</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array (transition matrix) where each element (i, j) represents the probability of transitioning from cluster i to cluster j.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dx_clusters</strong> – A 2D array where each row represents a cluster and the columns contain the sum of weighted directional changes to all other clusters, indicating the net direction and magnitude of transitions for each cluster.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x_clusters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>  <span class="c1"># Example coordinates of clusters</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Mt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>  <span class="c1"># Example transition matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dx_clusters</span> <span class="o">=</span> <span class="n">get_avdx_clusters</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">,</span> <span class="n">Mt</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dx_clusters</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function is useful in analyzing the overall directional dynamics of a system where clusters represent different states or configurations, and the transition matrix describes the likelihood of transitions between these states.</p></li>
+<li><p>This function assumes the transition matrix is properly normalized such that each row sums to one.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_committor">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_committor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Tmatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indTargets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indSource</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_committor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_committor" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.get_dmat">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_dmat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_dmat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_dmat" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_committor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Tmatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indTargets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indSource</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_committor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_committor" title="Link to this definition"></a></dt>
+<dd><p>Computes the committor probabilities for a Markov state model, which represent the probability of reaching a set of target states before returning to any source state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Tmatrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array representing the transition probability matrix of the Markov state model, where <cite>Tmatrix[i, j]</cite> is the probability of transitioning from state <cite>i</cite> to state <cite>j</cite>.</p></li>
+<li><p><strong>indTargets</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code>) – An array of indices representing the target states, i.e., the states to which the committor probabilities are calculated.</p></li>
+<li><p><strong>indSource</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code>) – An array of indices representing the source states, which are treated as absorbing states for the calculation of committor probabilities.</p></li>
+<li><p><strong>conv</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The convergence threshold for the iterative solution of the committor probabilities. The iteration stops when the change in probabilities between successive iterations is below this threshold.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>q</strong> – An array of committor probabilities, where each entry <cite>q[i]</cite> gives the probability of reaching any of the target states before any of the source states, starting from state <cite>i</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Tmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">indTargets</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">indSource</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">committor_probabilities</span> <span class="o">=</span> <span class="n">get_committor</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">,</span> <span class="n">indTargets</span><span class="p">,</span> <span class="n">indSource</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">committor_probabilities</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function modifies the transition matrix to make the source states absorbing and sets the target states to have a committor probability of 1.</p></li>
+<li><p>The algorithm iteratively updates the committor probabilities until changes between iterations are less than the specified convergence threshold.</p></li>
+<li><p>It is essential that the transition matrix is stochastic, and the sum of probabilities from each state equals 1.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_gaussianKernelM">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_gaussianKernelM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_gaussianKernelM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_gaussianKernelM" title="Link to this definition"></a></dt>
-<dd><p>Get Malanobis scaled gaussian kernel from observation matrices X,Y</p>
+<dd><p>Computes a Gaussian kernel matrix scaled by a Mahalanobis distance between two observation matrices X and Y.
+Each element of the kernel matrix represents the Gaussian kernel between samples from X and Y with scaling
+matrix M and bandwidths h.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix, samples x features</p></li>
-<li><p><strong>Y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix at t+1, samples x features</p></li>
-<li><p><strong>M</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Mahalanobis scaling matrix, features x features</p></li>
-<li><p><strong>h</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – vector of sigma scalings for gaussian from get_kernel_sigmas</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Observation matrix at time t, where each row is a sample and each column is a feature.</p></li>
+<li><p><strong>Y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Observation matrix at time t+1, similar in structure to X.</p></li>
+<li><p><strong>M</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Mahalanobis scaling matrix, a square matrix of dimensions equal to the number of features in X and Y,
+used to scale the features for the distance calculation.</p></li>
+<li><p><strong>h</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A vector of sigma scalings for the Gaussian kernel, typically computed using <cite>get_kernel_sigmas</cite>. The
+length of h should match the number of features in X and Y.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>k</strong> – Malanobis scaled kernel for X,Y</p>
+<dd class="field-even"><p><strong>k</strong> – A matrix of dimensions (n_samples_X, n_samples_Y) where each element [i, j] is the Gaussian kernel
+value between the i-th sample of X and the j-th sample of Y, scaled according to M and h.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">samples</span> <span class="pre">x</span> <span class="pre">samples</span> <span class="pre">(float)</span></code></p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span> <span class="o">=</span> <span class="n">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(5, 6)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>The function applies a Mahalanobis transformation to X and Y before computing the Euclidean distance
+for the Gaussian kernel. This accounts for the correlation between different features and adjusts
+distances accordingly. This is particularly useful in multivariate data analysis where feature scaling
+and normalization are critical.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_kernel_sigmas">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_kernel_sigmas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_kernel_sigmas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_kernel_sigmas" title="Link to this definition"></a></dt>
-<dd><p>Get sigmas from observation matrix</p>
+<dd><p>Computes a vector of bandwidths (sigmas) for each feature in the observation matrix X,
+scaled by a Mahalanobis matrix M, which are used to scale observations in a kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix, samples x features</p></li>
-<li><p><strong>M</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Mahalanobis scaling matrix, features x features</p></li>
-<li><p><strong>s</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – bandwidth scaling factor</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Observation matrix where each row is a sample and each column is a feature.</p></li>
+<li><p><strong>M</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Mahalanobis scaling matrix, which is a square matrix of dimension equal to the number of features in X.</p></li>
+<li><p><strong>s</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Bandwidth scaling factor, by default 0.05.</p></li>
+<li><p><strong>vector_sigma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, returns a vector of sigmas for each feature; otherwise, returns a single sigma based on the aggregate statistics.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>h</strong> – vector of sigmas to scale observations in kernel</p>
+<dd class="field-even"><p><strong>h</strong> – If <cite>vector_sigma</cite> is True, returns an array of bandwidths (sigmas) for each feature, otherwise a single float value representing the overall bandwidth.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">n_features</span> <span class="pre">(float)</span></code></p>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sigmas</span> <span class="o">=</span> <span class="n">get_kernel_sigmas</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">sigmas</span><span class="p">)</span>
+<span class="go">[value1, value2]  # Example output; actual values will depend on input data and parameters.</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>The function utilizes the Mahalanobis distance to adjust the typical Euclidean distance measure, taking into account the covariance among different features, thus scaling the input features in a way that reflects their statistical properties.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_kineticstates">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_kineticstates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vkin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nstates_final</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nstates_initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pcut_final</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_nstates_initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_ninit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_kineticstates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_kineticstates" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.get_koopman_eig">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_eig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_eig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_eig" title="Link to this definition"></a></dt>
-<dd><p>Get linear matrix solution for Koopman operator from X,Y paired observation Y=F(X) with F the forward operator</p>
+<dd><p>Determines kinetic states from dynamical motifs using an iterative k-means clustering approach, aiming to find a specified number of states with sufficient representation.
+This function attempts to find a user-specified number of final kinetic states (<cite>nstates_final</cite>) by iteratively applying k-means clustering and increasing the number of clusters until the desired number of states with a probability above a certain threshold (<cite>pcut_final</cite>) is achieved or the maximum limit of states (<cite>max_states</cite>) is reached. It refines the clustering by merging less probable states into their nearest more probable states.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix, samples x features</p></li>
-<li><p><strong>Y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix at t+1, samples x features</p></li>
-<li><p><strong>M</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Mahalanobis scaling matrix, features x features</p></li>
-<li><p><strong>s</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – kernel bandwidth scaling parameter</p></li>
-<li><p><strong>bta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – regularization parameter for linear solve</p></li>
+<li><p><strong>vkin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array of dynamical motifs, where each row corresponds to a sample and columns correspond to features.</p></li>
+<li><p><strong>nstates_final</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The desired number of final states to achieve with sufficient sample representation.</p></li>
+<li><p><strong>nstates_initial</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The initial number of states to start clustering. If None, it is set equal to <cite>nstates_final</cite>.</p></li>
+<li><p><strong>pcut_final</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The probability cutoff to consider a state as sufficiently populated. States below this cutoff are considered sparsely populated and are merged.</p></li>
+<li><p><strong>seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Seed for random number generator for reproducibility of k-means clustering.</p></li>
+<li><p><strong>max_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The maximum number of states to try before stopping the clustering process.</p></li>
+<li><p><strong>return_nstates_initial</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, returns the number of initial states along with the state labels.</p></li>
+<li><p><strong>cluster_ninit</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The number of times the k-means algorithm will be run with different centroid seeds.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>K</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman operator matrix, samples x samples (float)</p></li>
-<li><p><strong>Xi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman left eigenvectors, samples x samples</p></li>
-<li><p><strong>Lam</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenvalue matrix (diagonal), samples x samples</p></li>
-<li><p><strong>W</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman right eigenvectors, samples x samples</p></li>
+<li><p><strong>stateSet</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – An array of state labels for each sample in <cite>vkin</cite>.</p></li>
+<li><p><strong>nstates_initial</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The initial number of states tried, returned only if <cite>return_nstates_initial</cite> is True.</p></li>
 </ul>
 </p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vkin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Randomly generated dynamical motifs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="n">get_kineticstates</span><span class="p">(</span><span class="n">vkin</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">pcut_final</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">max_states</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function ensures that all final states have a probability greater than <cite>pcut_final</cite> by merging underpopulated states into their nearest populated neighbors.</p></li>
+<li><p>The process is stochastic due to the initialization of k-means; thus, setting a seed can help in achieving reproducible results.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.get_koopman_inference">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_inference" title="Link to this definition"></a></dt>
-<dd><p>Get Koopman prediction of an observable</p>
+<dt class="sig sig-object py" id="celltraj.model.get_koopman_eig">
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_eig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi_Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_eig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_eig" title="Link to this definition"></a></dt>
+<dd><p>Computes the Koopman operator and its eigendecomposition, which describes the evolution of
+observables in a dynamical system. This method utilizes a kernel-based approach to approximate
+the forward map F(X) = Y using observations X and Y.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – sample index for start point</p></li>
-<li><p><strong>steps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of steps of inference to perform</p></li>
-<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions, samples x samples</p></li>
-<li><p><strong>V</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman modes of observables, must be calculated samples x samples</p></li>
-<li><p><strong>Lam</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenvalues matrix (diagonal), samples x samples</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Observation matrix at initial time, with samples as rows and features as columns.</p></li>
+<li><p><strong>Y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Observation matrix at a subsequent time, aligned with X.</p></li>
+<li><p><strong>M</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Mahalanobis scaling matrix for distance computation in feature space. If None, the identity matrix is used.</p></li>
+<li><p><strong>s</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Scaling factor for the bandwidth of the Gaussian kernel used in the computations.</p></li>
+<li><p><strong>bta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Regularization parameter for the least-squares solution to stabilize the inversion.</p></li>
+<li><p><strong>h</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Bandwidths for the Gaussian kernel. If None, they are computed internally using the scaling factor s.</p></li>
+<li><p><strong>psi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Precomputed Gaussian kernel matrix for X. If None, it is computed within the function.</p></li>
+<li><p><strong>psi_Y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Precomputed Gaussian kernel matrix for the transformation of X to Y. If None, it is computed within the function.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>X_pred</strong> – predicted trajectory steps x observables</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>K</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Approximated Koopman operator matrix, which is the linear transformation matrix in the lifted space.</p></li>
+<li><p><strong>Xi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Left eigenvectors of the Koopman operator.</p></li>
+<li><p><strong>Lam</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Eigenvalues (diagonal matrix) of the Koopman operator, representing the dynamics’ temporal evolution.</p></li>
+<li><p><strong>W</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Right eigenvectors of the Koopman operator.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span> <span class="o">=</span> <span class="n">X</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span><span class="p">,</span> <span class="n">Xi</span><span class="p">,</span> <span class="n">Lam</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">get_koopman_eig</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">bta</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>The computation involves:
+- Constructing kernel matrices for X and Y using a Gaussian kernel with Mahalanobis distance scaling.
+- Solving a regularized linear system to find the Koopman operator.
+- Performing eigendecomposition on the Koopman operator to extract its spectral properties, which reveal</p>
+<blockquote>
+<div><p>the dynamics of the underlying system.</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_koopman_inference_multiple">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_inference_multiple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">starts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmodes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_inference_multiple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_inference_multiple" title="Link to this definition"></a></dt>
-<dd><p>Get Koopman prediction of an observable</p>
+<dd><p>Predicts future states of observables using the Koopman operator framework over multiple starting indices and time steps.</p>
+<p>This function uses the precomputed Koopman eigenfunctions, modes, and eigenvalues to propagate an initial state
+through the dynamical system defined by the Koopman operator. The prediction considers a set of initial points
+and performs the evolution for a specified number of time steps.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – sample index for start point</p></li>
-<li><p><strong>steps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – number of steps of inference to perform</p></li>
-<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions, samples x samples</p></li>
-<li><p><strong>V</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman modes of observables, must be calculated samples x samples</p></li>
-<li><p><strong>Lam</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenvalues matrix (diagonal), samples x samples</p></li>
+<li><p><strong>starts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Array of indices specifying the starting points for the predictions. Shape should be (n_starts,).</p></li>
+<li><p><strong>steps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of future time steps to predict.</p></li>
+<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions, with shape (samples, samples).</p></li>
+<li><p><strong>V</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman modes of the observables, with shape (observables, samples).</p></li>
+<li><p><strong>Lam</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Diagonal matrix of Koopman eigenvalues, with shape (samples, samples).</p></li>
+<li><p><strong>nmodes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">array_like</span></code>, <em>optional</em>) – Number of modes to include in the prediction or indices of specific modes to use. Default is 2.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>X_pred</strong> – predicted trajectory steps x observables</p>
+<dd class="field-even"><p><strong>X_pred</strong> – Predicted values of the observables for each start index and each time step, with shape (n_starts, steps, observables).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">])</span>  <span class="c1"># Example starting indices</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">steps</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Predict 5 steps into the future</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">predictions</span> <span class="o">=</span> <span class="n">get_koopman_inference_multiple</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">phi_X</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">Lam</span><span class="p">,</span> <span class="n">nmodes</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">predictions</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(3, 5, number_of_observables)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function assumes that <cite>phi_X</cite>, <cite>V</cite>, and <cite>Lam</cite> are derived from the same Koopman analysis and are consistent in dimensions.</p></li>
+<li><p>The evolution is that of an ensemble of identical systems initiated from the same starting point.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_koopman_modes">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_koopman_modes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">psi_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_koopman_modes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_koopman_modes" title="Link to this definition"></a></dt>
-<dd><p>Get Koopman modes of an observable</p>
+<dd><p>Computes the Koopman modes for specified observables using the Koopman operator’s eigendecomposition.
+Koopman modes represent the spatial structures associated with the dynamics captured by the Koopman eigenfunctions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>psi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – kernel matrix, samples x samples</p></li>
-<li><p><strong>Xi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – right eigenvectors of Koopman, samples x samples</p></li>
-<li><p><strong>W</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – left eigenvectors of Koopman, samples x samples</p></li>
-<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – observation matrix, samples x features</p></li>
-<li><p><strong>X_obs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">samples</span> <span class="pre">x</span> <span class="pre">observables</span></code>) – observables of interest in same time order as X, can be X or features of X</p></li>
+<li><p><strong>psi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The kernel matrix corresponding to the data, usually derived from the Gaussian kernel of the observation matrix.
+Shape should be (samples, samples).</p></li>
+<li><p><strong>Xi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Right eigenvectors of the Koopman operator matrix. Shape should be (samples, samples).</p></li>
+<li><p><strong>W</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Left eigenvectors of the Koopman operator matrix. Shape should be (samples, samples).</p></li>
+<li><p><strong>X_obs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Observables of interest corresponding to the observations. These could be the same as the original
+observations or some function/feature of them. Shape should be (samples, observables).</p></li>
+<li><p><strong>bta</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Regularization parameter for the least-squares problem, default is 1.e-5.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions</p></li>
-<li><p><strong>V</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman modes of observables</p></li>
+<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions, computed as the product of the kernel matrix and the right eigenvectors.
+Shape is (samples, samples).</p></li>
+<li><p><strong>V</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman modes of the observables, indicating how each mode contributes to the observables.
+Shape is (observables, samples).</p></li>
 </ul>
 </p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">psi_X</span> <span class="o">=</span> <span class="n">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">K</span><span class="p">,</span> <span class="n">Xi</span><span class="p">,</span> <span class="n">Lam</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">get_koopman_eig</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phi_X</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">get_koopman_modes</span><span class="p">(</span><span class="n">psi_X</span><span class="p">,</span> <span class="n">Xi</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>The function solves a regularized linear system to stabilize the inversion when calculating the Koopman modes.
+The modes are useful for understanding complex dynamics in the data, capturing the essential patterns associated with changes in observables.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_kscore">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_kscore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_kscore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_kscore" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the k-score for a given transition matrix. The k-score measures the kinetic separability
+of states within the transition matrix, which is derived from the eigenvalues of the matrix. It
+provides an indication of how well-separated the dynamics of the system are, based on the time it
+takes to reach equilibrium from non-equilibrium states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Mt</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The transition matrix, which should be square and represent the probability of transitioning from
+one state to another.</p></li>
+<li><p><strong>eps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – A small threshold to determine the relevance of eigenvalues close to 1 (default is 1.e-3).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated k-score, which quantifies the kinetic separability of states in the transition matrix.
+If the eigenvalues are such that no significant non-equilibrium dynamics are detected, it returns <cite>np.nan</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The eigenvalues are used to calculate the time constants associated with the decay modes of the system.</p></li>
+</ul>
+<p>Only the modes with eigenvalues less than 1 and significantly different from 1 (as determined by <cite>eps</cite>)
+are considered.
+- Eigenvalues exactly equal to 1 correspond to steady-state or equilibrium conditions and are excluded
+from the k-score calculation.
+- A higher k-score indicates that the system has more slow modes and hence more kinetic separability.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Mt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">]])</span>  <span class="c1"># Example transition matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kscore</span> <span class="o">=</span> <span class="n">get_kscore</span><span class="p">(</span><span class="n">Mt</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;K-score: </span><span class="si">{</span><span class="n">kscore</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_landscape_coords_umap">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_landscape_coords_umap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vkin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_landscape_coords_umap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_landscape_coords_umap" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_landscape_coords_umap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vkin</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">embedding_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_landscape_coords_umap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_landscape_coords_umap" title="Link to this definition"></a></dt>
+<dd><p>Just a wrapper for UMAP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vkin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array where each row contains dynamical motifs or any other high-dimensional data. Each row is treated as an individual data point.</p></li>
+<li><p><strong>embedding_args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <em>optional</em>) – Additional keyword arguments to pass to the UMAP constructor, allowing customization of the UMAP behavior (e.g., <cite>n_neighbors</cite>, <cite>min_dist</cite>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>x_clusters</strong> – A 2D array with two columns, representing the 2D embedded coordinates of the input data obtained via UMAP.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x_clusters</span> <span class="o">=</span> <span class="n">get_landscape_coords_umap</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">min_dist</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>UMAP is a powerful method for embedding high-dimensional data into a lower-dimensional space, preserving both local and global structure of the data.</p></li>
+<li><p>The flexibility to specify additional parameters allows for tuning the algorithm based on specific dataset characteristics or analysis requirements.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_motifs">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_motifs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncomp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_motifs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_motifs" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Extracts and scales the last <cite>ncomp</cite> components of complex eigenvectors from a given set of eigenvectors, optionally weighted by given weights, eigenvalues can be used as weights for a kinetic scaling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array containing eigenvectors where each column represents an eigenvector. The array can be complex-valued.</p></li>
+<li><p><strong>ncomp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of components from the end of each eigenvector to process.</p></li>
+<li><p><strong>w</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – A 1D array of weights to scale the components of the eigenvectors. If not provided, the components are processed without scaling.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>vkin</strong> – A 2D array where each row represents the concatenated scaled real and imaginary parts of the last <cite>ncomp</cite> components of the eigenvectors from <cite>v</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="mi">2</span><span class="o">+</span><span class="mi">2</span><span class="n">j</span><span class="p">,</span> <span class="mi">3</span><span class="o">+</span><span class="mi">3</span><span class="n">j</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="o">+</span><span class="mi">4</span><span class="n">j</span><span class="p">,</span> <span class="mi">5</span><span class="o">+</span><span class="mi">5</span><span class="n">j</span><span class="p">,</span> <span class="mi">6</span><span class="o">+</span><span class="mi">6</span><span class="n">j</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ncomp</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">motifs</span> <span class="o">=</span> <span class="n">get_motifs</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ncomp</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">motifs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function is useful for to describe or classify a complex system based upon its dynamics as described by a stochastic matrix yielding H-eigs stored as columns in <cite>v</cite>.</p></li>
+</ul>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_path_entropy_2point">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_path_entropy_2point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Mt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clusters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_stays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_path_entropy_2point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_path_entropy_2point" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the entropy of transitions between states over a single step for a set of trajectories,
+using a given transition matrix. The entropy is calculated based on the negative logarithm of
+the transition probabilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array_like</span></code>) – The initial states of the trajectories.</p></li>
+<li><p><strong>x1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array_like</span></code>) – The final states of the trajectories after one transition.</p></li>
+<li><p><strong>Mt</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A square matrix representing the transition probabilities between states. The element <cite>Mt[i, j]</cite>
+is the probability of transitioning from state <cite>i</cite> to state <cite>j</cite>.</p></li>
+<li><p><strong>clusters</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Clustering</span> <span class="pre">object</span></code>, <em>optional</em>) – A clustering object (e.g., from scikit-learn) that can assign states to <cite>x0</cite> and <cite>x1</cite> data points.
+If <cite>None</cite>, <cite>x0</cite> and <cite>x1</cite> are assumed to be already in the form of state indices (default: <cite>None</cite>).</p></li>
+<li><p><strong>exclude_stays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If <cite>True</cite>, transitions where the state does not change (<cite>indc1[itraj] == indc0[itraj]</cite>) are excluded
+from the entropy calculation (default: <cite>False</cite>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated entropy value for the transitions in the trajectories. Returns <cite>np.nan</cite> if the calculation
+fails due to empty arrays or other errors.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <cite>x0</cite> and <cite>x1</cite> have different lengths, or if <cite>Mt</cite> is not a square matrix.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Mt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">entropy</span> <span class="o">=</span> <span class="n">get_path_entropy_2point</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">Mt</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculated entropy: </span><span class="si">{</span><span class="n">entropy</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function assumes that <cite>Mt</cite> is properly normalized such that each row sums to 1.</p></li>
+<li><p>Entropy is a measure of uncertainty or randomness. In this context, it quantifies the unpredictability</p></li>
+</ul>
+<p>in the transitions between states.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_path_ll_2point">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_path_ll_2point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_stays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_path_ll_2point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_path_ll_2point" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the log-likelihood of observing specific transitions between states over one step
+for a set of trajectories, using a provided transition matrix. The log-likelihood is computed
+as the logarithm of transition probabilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array_like</span></code>) – The initial states of the trajectories, assumed to be indices corresponding to the rows in the transition matrix.</p></li>
+<li><p><strong>x1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array_like</span></code>) – The final states of the trajectories after one transition, assumed to be indices corresponding to the columns in the transition matrix.</p></li>
+<li><p><strong>exclude_stays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, transitions where the state does not change (where <cite>indc1[itraj] == indc0[itraj]</cite>) are excluded
+from the log-likelihood calculation (default: False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The calculated log-likelihood value for the observed transitions in the trajectories. Returns <cite>np.nan</cite> if the calculation
+fails due to empty arrays or other errors.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <cite>x0</cite> and <cite>x1</cite> have different lengths or if the transition probabilities cannot be computed because
+    <cite>Mt</cite> is not correctly set in the scope of this function.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Mt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]])</span> <span class="c1"># Example transition matrix</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log_likelihood</span> <span class="o">=</span> <span class="n">get_path_ll_2point</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculated log likelihood: </span><span class="si">{</span><span class="n">log_likelihood</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function assumes that the transition matrix <cite>Mt</cite> is correctly normalized such that each row sums to 1.</p></li>
+<li><p>The log-likelihood measure provides insights into the predictability of the transitions, with higher values indicating</p></li>
+</ul>
+<p>more predictable transitions based on the model’s transition probabilities.
+- The function <cite>clusters.assign</cite> must be correctly defined to map data points <cite>x0</cite> and <cite>x1</cite> to state indices used in <cite>Mt</cite>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_steady_state_matrixpowers">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_steady_state_matrixpowers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Tmatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_steady_state_matrixpowers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_steady_state_matrixpowers" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Computes the steady-state distribution of a Markov chain by repeatedly multiplying the transition matrix by itself and averaging the rows until convergence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Tmatrix</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array representing the transition matrix of the Markov chain, where <cite>Tmatrix[i, j]</cite> is the probability of transitioning from state <cite>i</cite> to state <cite>j</cite>.</p></li>
+<li><p><strong>conv</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The convergence threshold for the iterative solution. The iteration stops when the change in the steady-state distribution between successive iterations is below this threshold.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>pSS</strong> – An array representing the steady-state distribution, where <cite>pSS[i]</cite> is the long-term probability of being in state <cite>i</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Tmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">steady_state_distribution</span> <span class="o">=</span> <span class="n">get_steady_state_matrixpowers</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">steady_state_distribution</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function uses a matrix power method, where the transition matrix is repeatedly squared to accelerate convergence to the steady state.</p></li>
+<li><p>The convergence is checked every 10 iterations, comparing the average of the resulting matrix’s rows to the average from the previous iteration.</p></li>
+<li><p>If the maximum number of iterations (<cite>max_iters</cite>) is reached without achieving the desired convergence, the last computed distribution is returned.</p></li>
+<li><p>Ensure that the transition matrix is stochastic (rows sum to 1) and ergodic to guarantee convergence.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If <cite>Tmatrix</cite> is not a square matrix or if any rows sum to more than 1.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_traj_ll_gmean">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">get_traj_ll_gmean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_stays</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#get_traj_ll_gmean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.get_traj_ll_gmean" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Calculates the geometric mean of the log-likelihoods for the transitions of trajectories based on
+their assignments to clusters and a transition matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xt</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – An array of trajectories’ data points or features from which states are derived.</p></li>
+<li><p><strong>exclude_stays</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, transitions where the state does not change (stays in the same state) are excluded
+from the calculation.</p></li>
+<li><p><strong>states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – An array indicating the state assignment for each data point in <cite>xt</cite>. If None, states are assumed
+to be a sequence from 0 to <cite>Mt.shape[0] - 1</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The geometric mean of the log-likelihoods of transitions between states. Returns <cite>np.nan</cite> if the
+calculation fails due to empty input arrays or other computational issues.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>IndexError</strong> – If the length of <cite>states</cite> does not match the expected size based on <cite>Mt</cite>.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The log-likelihood for each transition is taken from a Markov transition matrix <cite>Mt</cite>, which must</p></li>
+</ul>
+<p>be accessible within the method’s scope.
+- This function is particularly useful for analyzing the stability or persistence of states in
+Markovian models of dynamic systems.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Example trajectory data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>  <span class="c1"># Random state assignments</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">traj_ll_mean</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_traj_ll_gmean</span><span class="p">(</span><span class="n">xt</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Geometric mean of log-likelihoods: </span><span class="si">{</span><span class="n">traj_ll_mean</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.get_transition_matrix">
@@ -4050,34 +4464,35 @@ state i at time t to state j at time t+1.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.plot_dx_arrows">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">plot_dx_arrows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_clusters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx_clusters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#plot_dx_arrows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.plot_dx_arrows" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="celltraj.model.plot_eig">
-<span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">plot_eig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_clusters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncomp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#plot_eig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.plot_eig" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="celltraj.model.update_mahalanobis_matrix_J">
 <span class="sig-prename descclassname"><span class="pre">celltraj.model.</span></span><span class="sig-name descname"><span class="pre">update_mahalanobis_matrix_J</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Mprev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Xi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/model.html#update_mahalanobis_matrix_J"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.model.update_mahalanobis_matrix_J" title="Link to this definition"></a></dt>
-<dd><p>Update estimation of mahalanobis matrix for kernel tuning</p>
+<dd><p>Update the Mahalanobis matrix based on Koopman operator analysis, using the eigenfunctions
+and eigenvalues derived from the Koopman operator. This update aims to tune the kernel
+for better feature scaling in further analyses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>Mprev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">features</span> <span class="pre">x</span> <span class="pre">features</span></code>) – Koopman eigenfunctions</p></li>
-<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – samples by features</p></li>
-<li><p><strong>phi_X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Koopman eigenfunctions, samples x samples</p></li>
+<li><p><strong>Mprev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The previous Mahalanobis matrix, with shape (features, features), used for scaling the input data.</p></li>
+<li><p><strong>X</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – The observation matrix with shape (samples, features).</p></li>
+<li><p><strong>Xi</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Right eigenvectors of the Koopman operator, with shape (samples, samples).</p></li>
+<li><p><strong>V</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Left eigenvectors of the Koopman operator, with shape (samples, samples).</p></li>
+<li><p><strong>lam</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Eigenvalues of the Koopman operator, arranged in a diagonal matrix with shape (samples, samples).</p></li>
+<li><p><strong>h</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Vector of sigma scalings for the Gaussian kernel; if not provided, it will be computed inside the function.</p></li>
+<li><p><strong>s</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Scaling factor for kernel bandwidth, default is 0.05.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>M</strong> – updated mahalanobis matrix using Koopman eigenfunction gradients</p>
+<dd class="field-even"><p><strong>M</strong> – The updated Mahalanobis matrix, used for scaling the input data in the kernel.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>The function computes an updated Mahalanobis matrix by evaluating the gradients of the Koopman
+eigenfunctions. These gradients are used to compute fluxes in the eigenspace, which are then
+used to adjust the Mahalanobis matrix to ensure that the observed flux is isotropic in all
+dimensions.</p>
 </dd></dl>
 
 <dl class="py function">

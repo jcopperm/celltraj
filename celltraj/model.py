@@ -165,9 +165,55 @@ def clean_clusters(clusters,P):
     indcc=np.where(labels==icc)[0]
     centers=centers[indcc,:]
     clusters_clean=coor.clustering.AssignCenters(centers, metric='euclidean')
-    return clusters_clean
+    return indcc,clusters_clean
 
 def get_path_entropy_2point(x0,x1,Mt,clusters=None,exclude_stays=False):
+    """
+    Calculates the entropy of transitions between states over a single step for a set of trajectories,
+    using a given transition matrix. The entropy is calculated based on the negative logarithm of
+    the transition probabilities.
+
+    Parameters
+    ----------
+    x0 : array_like
+        The initial states of the trajectories.
+    x1 : array_like
+        The final states of the trajectories after one transition.
+    Mt : ndarray
+        A square matrix representing the transition probabilities between states. The element `Mt[i, j]`
+        is the probability of transitioning from state `i` to state `j`.
+    clusters : Clustering object, optional
+        A clustering object (e.g., from scikit-learn) that can assign states to `x0` and `x1` data points.
+        If `None`, `x0` and `x1` are assumed to be already in the form of state indices (default: `None`).
+    exclude_stays : bool, optional
+        If `True`, transitions where the state does not change (`indc1[itraj] == indc0[itraj]`) are excluded
+        from the entropy calculation (default: `False`).
+
+    Returns
+    -------
+    float
+        The calculated entropy value for the transitions in the trajectories. Returns `np.nan` if the calculation
+        fails due to empty arrays or other errors.
+
+    Raises
+    ------
+    ValueError
+        If `x0` and `x1` have different lengths, or if `Mt` is not a square matrix.
+
+    Examples
+    --------
+    >>> x0 = np.array([0, 1, 1, 2])
+    >>> x1 = np.array([1, 1, 2, 0])
+    >>> Mt = np.array([[0.1, 0.9, 0], [0.5, 0.5, 0], [0.3, 0, 0.7]])
+    >>> entropy = get_path_entropy_2point(x0, x1, Mt)
+    >>> print(f"Calculated entropy: {entropy:.2f}")
+
+    Notes
+    -----
+    - The function assumes that `Mt` is properly normalized such that each row sums to 1.
+    - Entropy is a measure of uncertainty or randomness. In this context, it quantifies the unpredictability
+    in the transitions between states.
+    """
     if clusters is not None:
         indc0=clusters.assign(x0)
         indc1=clusters.assign(x1)
@@ -196,6 +242,48 @@ def get_path_entropy_2point(x0,x1,Mt,clusters=None,exclude_stays=False):
     return entp
 
 def get_path_ll_2point(self,x0,x1,exclude_stays=False):
+    """
+    Calculates the log-likelihood of observing specific transitions between states over one step 
+    for a set of trajectories, using a provided transition matrix. The log-likelihood is computed 
+    as the logarithm of transition probabilities.
+
+    Parameters
+    ----------
+    x0 : array_like
+        The initial states of the trajectories, assumed to be indices corresponding to the rows in the transition matrix.
+    x1 : array_like
+        The final states of the trajectories after one transition, assumed to be indices corresponding to the columns in the transition matrix.
+    exclude_stays : bool, optional
+        If True, transitions where the state does not change (where `indc1[itraj] == indc0[itraj]`) are excluded
+        from the log-likelihood calculation (default: False).
+
+    Returns
+    -------
+    float
+        The calculated log-likelihood value for the observed transitions in the trajectories. Returns `np.nan` if the calculation
+        fails due to empty arrays or other errors.
+
+    Raises
+    ------
+    ValueError
+        If `x0` and `x1` have different lengths or if the transition probabilities cannot be computed because
+        `Mt` is not correctly set in the scope of this function.
+
+    Examples
+    --------
+    >>> x0 = np.array([0, 1, 1, 2])
+    >>> x1 = np.array([1, 1, 2, 0])
+    >>> Mt = np.array([[0.1, 0.9, 0], [0.5, 0.5, 0], [0.3, 0, 0.7]]) # Example transition matrix
+    >>> log_likelihood = get_path_ll_2point(x0, x1)
+    >>> print(f"Calculated log likelihood: {log_likelihood:.2f}")
+
+    Notes
+    -----
+    - The function assumes that the transition matrix `Mt` is correctly normalized such that each row sums to 1.
+    - The log-likelihood measure provides insights into the predictability of the transitions, with higher values indicating
+    more predictable transitions based on the model's transition probabilities.
+    - The function `clusters.assign` must be correctly defined to map data points `x0` and `x1` to state indices used in `Mt`.
+    """
     indc0=clusters.assign(x0)
     indc1=clusters.assign(x1)
     ll=0.0
@@ -220,6 +308,41 @@ def get_path_ll_2point(self,x0,x1,exclude_stays=False):
     return ll
 
 def get_kscore(Mt,eps=1.e-3): #,nw=10):
+    """
+    Calculates the k-score for a given transition matrix. The k-score measures the kinetic separability
+    of states within the transition matrix, which is derived from the eigenvalues of the matrix. It
+    provides an indication of how well-separated the dynamics of the system are, based on the time it
+    takes to reach equilibrium from non-equilibrium states.
+
+    Parameters
+    ----------
+    Mt : ndarray
+        The transition matrix, which should be square and represent the probability of transitioning from
+        one state to another.
+    eps : float, optional
+        A small threshold to determine the relevance of eigenvalues close to 1 (default is 1.e-3).
+
+    Returns
+    -------
+    float
+        The calculated k-score, which quantifies the kinetic separability of states in the transition matrix.
+        If the eigenvalues are such that no significant non-equilibrium dynamics are detected, it returns `np.nan`.
+
+    Notes
+    -----
+    - The eigenvalues are used to calculate the time constants associated with the decay modes of the system.
+    Only the modes with eigenvalues less than 1 and significantly different from 1 (as determined by `eps`)
+    are considered.
+    - Eigenvalues exactly equal to 1 correspond to steady-state or equilibrium conditions and are excluded
+    from the k-score calculation.
+    - A higher k-score indicates that the system has more slow modes and hence more kinetic separability.
+
+    Examples
+    --------
+    >>> Mt = np.array([[0.9, 0.1], [0.05, 0.95]])  # Example transition matrix
+    >>> kscore = get_kscore(Mt)
+    >>> print(f"K-score: {kscore:.2f}")
+    """
     indeye=np.where(np.eye(Mt.shape[0]))
     diag=Mt[indeye]
     indgood=np.where(diag<1.)[0]
@@ -239,6 +362,46 @@ def get_kscore(Mt,eps=1.e-3): #,nw=10):
     return kscore
 
 def get_traj_ll_gmean(self,xt,exclude_stays=False,states=None):
+    """
+    Calculates the geometric mean of the log-likelihoods for the transitions of trajectories based on
+    their assignments to clusters and a transition matrix.
+
+    Parameters
+    ----------
+    xt : ndarray
+        An array of trajectories' data points or features from which states are derived.
+    exclude_stays : bool, optional
+        If True, transitions where the state does not change (stays in the same state) are excluded
+        from the calculation.
+    states : ndarray, optional
+        An array indicating the state assignment for each data point in `xt`. If None, states are assumed
+        to be a sequence from 0 to `Mt.shape[0] - 1`.
+
+    Returns
+    -------
+    float
+        The geometric mean of the log-likelihoods of transitions between states. Returns `np.nan` if the
+        calculation fails due to empty input arrays or other computational issues.
+
+    Raises
+    ------
+    IndexError
+        If the length of `states` does not match the expected size based on `Mt`.
+
+    Notes
+    -----
+    - The log-likelihood for each transition is taken from a Markov transition matrix `Mt`, which must
+    be accessible within the method's scope.
+    - This function is particularly useful for analyzing the stability or persistence of states in
+    Markovian models of dynamic systems.
+
+    Examples
+    --------
+    >>> xt = np.random.rand(100, 10)  # Example trajectory data
+    >>> states = np.random.randint(0, 5, size=100)  # Random state assignments
+    >>> traj_ll_mean = model.get_traj_ll_gmean(xt, states=states)
+    >>> print(f"Geometric mean of log-likelihoods: {traj_ll_mean:.4f}")
+    """
     if states is None:
         states=np.arange(Mt.shape[0]).astype(int)
     x0=xt[0:-1]
@@ -268,6 +431,36 @@ def get_traj_ll_gmean(self,xt,exclude_stays=False,states=None):
 
 
 def get_H_eigs(Mt):
+    """
+    Calculates the eigenvalues and eigenvectors of the Hermitian matrix formed from a given Markov transition matrix.
+
+    The function constructs a Hermitian matrix, `H`, by symmetrizing the input matrix `Mt` and computes its eigenvalues
+    and eigenvectors. The Hermitian matrix is constructed as H = 0.5 * (Mt + Mt.T) + 0.5j * (Mt - Mt.T), where `Mt.T` 
+    is the transpose of `Mt`.
+
+    Parameters
+    ----------
+    Mt : ndarray
+        A square numpy array representing a Markov transition matrix from which the Hermitian matrix `H` is derived.
+
+    Returns
+    -------
+    w : ndarray
+        An array of real eigenvalues of the Hermitian matrix, sorted in ascending order.
+    v : ndarray
+        An array of the corresponding eigenvectors, where each column corresponds to an eigenvalue in `w`.
+
+    Examples
+    --------
+    >>> Mt = np.array([[0.8, 0.2], [0.4, 0.6]])
+    >>> eigenvalues, eigenvectors = get_H_eigs(Mt)
+    >>> print("Eigenvalues:", eigenvalues)
+    >>> print("Eigenvectors:", eigenvectors)
+
+    Notes
+    -----
+    - The function is designed to work with stochastic matrices, such as those used in Markov models, providing an alternative matrix decomposition with real eigenvalues and unambiguous sorting of components.
+    """
     H=.5*(Mt+np.transpose(Mt))+.5j*(Mt-np.transpose(Mt))
     w,v=np.linalg.eig(H)
     w=np.real(w)
@@ -277,22 +470,104 @@ def get_H_eigs(Mt):
     return w,v
 
 def get_motifs(v,ncomp,w=None):
+    """
+    Extracts and scales the last `ncomp` components of complex eigenvectors from a given set of eigenvectors, optionally weighted by given weights, eigenvalues can be used as weights for a kinetic scaling.
+
+    Parameters
+    ----------
+    v : ndarray
+        A 2D array containing eigenvectors where each column represents an eigenvector. The array can be complex-valued.
+    ncomp : int
+        The number of components from the end of each eigenvector to process.
+    w : ndarray, optional
+        A 1D array of weights to scale the components of the eigenvectors. If not provided, the components are processed without scaling.
+
+    Returns
+    -------
+    vkin : ndarray
+        A 2D array where each row represents the concatenated scaled real and imaginary parts of the last `ncomp` components of the eigenvectors from `v`.
+
+    Examples
+    --------
+    >>> v = np.array([[1+1j, 2+2j, 3+3j], [4+4j, 5+5j, 6+6j]])
+    >>> ncomp = 2
+    >>> weights = np.array([0.5, 1.5])
+    >>> motifs = get_motifs(v, ncomp, weights)
+    >>> print(motifs)
+
+    Notes
+    -----
+    - The function is useful for to describe or classify a complex system based upon its dynamics as described by a stochastic matrix yielding H-eigs stored as columns in `v`.
+    """
     if w is None:
-        vr=np.multiply(w[-ncomp:],np.real(v[:,-ncomp:]))
-        vi=np.multiply(w[-ncomp:],np.imag(v[:,-ncomp:]))
+        vr=np.real(v[:,-ncomp:])
+        vi=np.imag(v[:,-ncomp:])
     else:
         vr=np.multiply(w[-ncomp:],np.real(v[:,-ncomp:]))
         vi=np.multiply(w[-ncomp:],np.imag(v[:,-ncomp:]))
     vkin=np.append(vr,vi,axis=1)
     return vkin
 
-def get_landscape_coords_umap(vkin):
-    reducer=umap.UMAP(n_components=2)
+def get_landscape_coords_umap(vkin,**embedding_args):
+    """
+    Just a wrapper for UMAP.
+
+    Parameters
+    ----------
+    vkin : ndarray
+        A 2D array where each row contains dynamical motifs or any other high-dimensional data. Each row is treated as an individual data point.
+    embedding_args : dict, optional
+        Additional keyword arguments to pass to the UMAP constructor, allowing customization of the UMAP behavior (e.g., `n_neighbors`, `min_dist`).
+
+    Returns
+    -------
+    x_clusters : ndarray
+        A 2D array with two columns, representing the 2D embedded coordinates of the input data obtained via UMAP.
+
+    Examples
+    --------
+    >>> v = np.array([[1, 2], [3, 4], [5, 6]])
+    >>> x_clusters = get_landscape_coords_umap(v, min_dist=0.1)
+    >>> print(x_clusters)
+
+    Notes
+    -----
+    - UMAP is a powerful method for embedding high-dimensional data into a lower-dimensional space, preserving both local and global structure of the data.
+    - The flexibility to specify additional parameters allows for tuning the algorithm based on specific dataset characteristics or analysis requirements.
+    """
+    reducer=umap.UMAP(**embedding_args)
     trans = reducer.fit(vkin)
     x_clusters=trans.embedding_
     return x_clusters
 
 def get_avdx_clusters(x_clusters,Mt):
+    """
+    Calculates the average directional changes between clusters weighted by transition probabilities, based on cluster embeddings and a transition matrix. The result captures the average directional movement expected from one cluster to another.
+
+    Parameters
+    ----------
+    x_clusters : ndarray
+        A 2D array containing the embedded coordinates of each cluster. Each row corresponds to a cluster and the columns to the coordinates in the reduced space.
+    Mt : ndarray
+        A 2D array (transition matrix) where each element (i, j) represents the probability of transitioning from cluster i to cluster j.
+
+    Returns
+    -------
+    dx_clusters : ndarray
+        A 2D array where each row represents a cluster and the columns contain the sum of weighted directional changes to all other clusters, indicating the net direction and magnitude of transitions for each cluster.
+
+    Examples
+    --------
+    >>> x_clusters = np.array([[1, 2], [3, 4], [5, 6]])  # Example coordinates of clusters
+    >>> Mt = np.array([[0.1, 0.2, 0.7], [0.3, 0.4, 0.3], [0.2, 0.3, 0.5]])  # Example transition matrix
+    >>> dx_clusters = get_avdx_clusters(x_clusters, Mt)
+    >>> print(dx_clusters)
+
+    Notes
+    -----
+    - The function is useful in analyzing the overall directional dynamics of a system where clusters represent different states or configurations, and the transition matrix describes the likelihood of transitions between these states.
+    - This function assumes the transition matrix is properly normalized such that each row sums to one.
+    """
     n_clusters=Mt.shape[0]
     dxmatrix=np.zeros((n_clusters,n_clusters,2))
     for ii in range(n_clusters):
@@ -302,10 +577,54 @@ def get_avdx_clusters(x_clusters,Mt):
     return dx_clusters
 
 def get_kineticstates(vkin,nstates_final,nstates_initial=None,pcut_final=.01,seed=0,max_states=100,return_nstates_initial=False,cluster_ninit=10):
+    """
+    Determines kinetic states from dynamical motifs using an iterative k-means clustering approach, aiming to find a specified number of states with sufficient representation.
+    This function attempts to find a user-specified number of final kinetic states (`nstates_final`) by iteratively applying k-means clustering and increasing the number of clusters until the desired number of states with a probability above a certain threshold (`pcut_final`) is achieved or the maximum limit of states (`max_states`) is reached. It refines the clustering by merging less probable states into their nearest more probable states.
+
+    Parameters
+    ----------
+    vkin : ndarray
+        A 2D array of dynamical motifs, where each row corresponds to a sample and columns correspond to features.
+    nstates_final : int
+        The desired number of final states to achieve with sufficient sample representation.
+    nstates_initial : int, optional
+        The initial number of states to start clustering. If None, it is set equal to `nstates_final`.
+    pcut_final : float, optional
+        The probability cutoff to consider a state as sufficiently populated. States below this cutoff are considered sparsely populated and are merged.
+    seed : int, optional
+        Seed for random number generator for reproducibility of k-means clustering.
+    max_states : int, optional
+        The maximum number of states to try before stopping the clustering process.
+    return_nstates_initial : bool, optional
+        If True, returns the number of initial states along with the state labels.
+    cluster_ninit : int, optional
+        The number of times the k-means algorithm will be run with different centroid seeds.
+
+    Returns
+    -------
+    stateSet : ndarray
+        An array of state labels for each sample in `vkin`.
+    nstates_initial : int, optional
+        The initial number of states tried, returned only if `return_nstates_initial` is True.
+
+    Examples
+    --------
+    >>> vkin = np.random.rand(100, 10)  # Randomly generated dynamical motifs
+    >>> states = get_kineticstates(vkin, 5, seed=42, pcut_final=0.05, max_states=50)
+    >>> print(states)
+
+    Notes
+    -----
+    - The function ensures that all final states have a probability greater than `pcut_final` by merging underpopulated states into their nearest populated neighbors.
+    - The process is stochastic due to the initialization of k-means; thus, setting a seed can help in achieving reproducible results.
+    """
     if nstates_initial is None:
         nstates_initial=nstates_final
     nstates_good=0
     nstates=nstates_initial
+    if nstates>max_states:
+        print('Initial states higher than max states, exiting...')
+        return 1
     while nstates_good<nstates_final and nstates<max_states:
         clusters_v = KMeans(n_clusters=nstates,init='k-means++',n_init=cluster_ninit,max_iter=1000,random_state=seed)
         clusters_v.fit(vkin)
@@ -322,7 +641,7 @@ def get_kineticstates(vkin,nstates_final,nstates_initial=None,pcut_final=.01,see
     for i in states_plow:
         indstate=np.where(stateSet==i)[0]
         for imin in indstate:
-            dists=get_dmat(np.array([vkin[imin,:]]),vkin)[0] #closest in eig space
+            dists=utilities.get_dmat(np.array([vkin[imin,:]]),vkin)[0] #closest in eig space
             dists[indstate]=np.inf
             ireplace=np.argmin(dists)
             stateSet[imin]=stateSet[ireplace]
@@ -341,7 +660,41 @@ def get_kineticstates(vkin,nstates_final,nstates_initial=None,pcut_final=.01,see
     else:
         return stateSet
 
-def get_committor(Tmatrix,indTargets,indSource,conv=1.e-3):
+def get_committor(Tmatrix,indTargets,indSource,conv=1.e-3,verbose=False):
+    """
+    Computes the committor probabilities for a Markov state model, which represent the probability of reaching a set of target states before returning to any source state.
+
+    Parameters
+    ----------
+    Tmatrix : ndarray
+        A 2D array representing the transition probability matrix of the Markov state model, where `Tmatrix[i, j]` is the probability of transitioning from state `i` to state `j`.
+    indTargets : array-like
+        An array of indices representing the target states, i.e., the states to which the committor probabilities are calculated.
+    indSource : array-like
+        An array of indices representing the source states, which are treated as absorbing states for the calculation of committor probabilities.
+    conv : float, optional
+        The convergence threshold for the iterative solution of the committor probabilities. The iteration stops when the change in probabilities between successive iterations is below this threshold.
+
+    Returns
+    -------
+    q : ndarray
+        An array of committor probabilities, where each entry `q[i]` gives the probability of reaching any of the target states before any of the source states, starting from state `i`.
+
+    Examples
+    --------
+    >>> Tmatrix = np.array([[0.8, 0.2], [0.1, 0.9]])
+    >>> indTargets = [1]
+    >>> indSource = [0]
+    >>> committor_probabilities = get_committor(Tmatrix, indTargets, indSource)
+    >>> print(committor_probabilities)
+
+    Notes
+    -----
+    - This function modifies the transition matrix to make the source states absorbing and sets the target states to have a committor probability of 1.
+    - The algorithm iteratively updates the committor probabilities until changes between iterations are less than the specified convergence threshold.
+    - It is essential that the transition matrix is stochastic, and the sum of probabilities from each state equals 1.
+
+    """
     Mt=Tmatrix.copy()
     nBins=Tmatrix.shape[0]
     sinkBins=indSource #np.where(avBinPnoColor==0.0)
@@ -359,13 +712,48 @@ def get_committor(Tmatrix,indTargets,indSource,conv=1.e-3):
         q[indSource,0]=0.0
         q=np.matmul(Mt,q)
         dconv=np.sum(np.abs(qp-q))
-        print('convergence: '+str(dconv)+'\n')
+        if verbose:
+            print('convergence: '+str(dconv)+'\n')
         qp=q.copy()
     q[indTargets,0]=1.0
     q[indSource,0]=0.0
     return q
 
 def get_steady_state_matrixpowers(Tmatrix,conv=1.e-3):
+    """
+    Computes the steady-state distribution of a Markov chain by repeatedly multiplying the transition matrix by itself and averaging the rows until convergence.
+
+    Parameters
+    ----------
+    Tmatrix : ndarray
+        A 2D array representing the transition matrix of the Markov chain, where `Tmatrix[i, j]` is the probability of transitioning from state `i` to state `j`.
+    conv : float, optional
+        The convergence threshold for the iterative solution. The iteration stops when the change in the steady-state distribution between successive iterations is below this threshold.
+
+    Returns
+    -------
+    pSS : ndarray
+        An array representing the steady-state distribution, where `pSS[i]` is the long-term probability of being in state `i`.
+
+    Examples
+    --------
+    >>> Tmatrix = np.array([[0.1, 0.9], [0.5, 0.5]])
+    >>> steady_state_distribution = get_steady_state_matrixpowers(Tmatrix)
+    >>> print(steady_state_distribution)
+
+    Notes
+    -----
+    - This function uses a matrix power method, where the transition matrix is repeatedly squared to accelerate convergence to the steady state.
+    - The convergence is checked every 10 iterations, comparing the average of the resulting matrix's rows to the average from the previous iteration.
+    - If the maximum number of iterations (`max_iters`) is reached without achieving the desired convergence, the last computed distribution is returned.
+    - Ensure that the transition matrix is stochastic (rows sum to 1) and ergodic to guarantee convergence.
+
+    Raises
+    ------
+    ValueError
+        If `Tmatrix` is not a square matrix or if any rows sum to more than 1.
+
+    """
     max_iters=10000
     Mt=Tmatrix.copy()
     dconv=1.e100
@@ -383,61 +771,39 @@ def get_steady_state_matrixpowers(Tmatrix,conv=1.e-3):
             print('N='+str(N)+' dconv: '+str(dconv)+'\n')
     return pSS
 
-def plot_dx_arrows(x_clusters,dx_clusters):
-    plt.figure()
-    ax=plt.gca()
-    for ic in range(dx_clusters.shape[0]):
-        ax.arrow(x_clusters[ic,0],x_clusters[ic,1],dx_clusters[ic,0],dx_clusters[ic,1],head_width=.05,linewidth=.3,color='black',alpha=1.0)
-    plt.axis('equal')
-    plt.pause(1)
-
-def plot_eig(v,x_clusters,ncomp):
-    vr=np.real(v[:,-ncomp:])
-    vi=np.imag(v[:,-ncomp:])
-    va=np.abs(v[:,-ncomp:])
-    vth=np.arctan2(vr,vi)
-    plt.figure(figsize=(8,4))
-    for icomp in range(ncomp-1,0-1,-1): #range(ncomp):
-        plt.clf()
-        plt.subplot(1,2,1);plt.scatter(x_clusters[:,0],x_clusters[:,1],s=30,c=va[:,icomp],cmap=plt.cm.seismic)
-        plt.title('absolute value '+str(ncomp-icomp))
-        plt.subplot(1,2,2);plt.scatter(x_clusters[:,0],x_clusters[:,1],s=30,c=vth[:,icomp],cmap=plt.cm.seismic)
-        plt.title('theta '+str(ncomp-icomp))
-        plt.pause(1);
-
-def get_dmat(x1,x2=None): #adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)
-    x1=np.transpose(x1) #default from Fung folks is D x N
-    if x2 is None:
-        nX1 = x1.shape[1];
-        y = np.matlib.repmat(np.sum(np.power(x1,2),0),nX1,1)
-        y = y - np.matmul(np.transpose(x1),x1)
-        y = y + np.transpose(y);
-        y = np.abs( y + np.transpose(y) ) / 2. # Iron-out numerical wrinkles
-    else:
-        x2=np.transpose(x2)
-        nX1 = x1.shape[1]
-        nX2 = x2.shape[1]
-        y = np.matlib.repmat( np.expand_dims(np.sum( np.power(x1,2), 0 ),1), 1, nX2 )
-        y = y + np.matlib.repmat( np.sum( np.power(x2,2), 0 ), nX1, 1 )
-        y = y - 2 * np.matmul(np.transpose(x1),x2)
-    return np.sqrt(y)
-
 ####################################feature tuned kernel DMD a la aristoff########################
 def get_kernel_sigmas(X,M,s=.05,vector_sigma=True):
-    """Get sigmas from observation matrix
+    """
+    Computes a vector of bandwidths (sigmas) for each feature in the observation matrix X, 
+    scaled by a Mahalanobis matrix M, which are used to scale observations in a kernel.
 
     Parameters
     ----------
     X : ndarray
-        observation matrix, samples x features
+        Observation matrix where each row is a sample and each column is a feature.
     M : ndarray
-        Mahalanobis scaling matrix, features x features
-    s : float
-        bandwidth scaling factor
+        Mahalanobis scaling matrix, which is a square matrix of dimension equal to the number of features in X.
+    s : float, optional
+        Bandwidth scaling factor, by default 0.05.
+    vector_sigma : bool, optional
+        If True, returns a vector of sigmas for each feature; otherwise, returns a single sigma based on the aggregate statistics.
+
     Returns
     -------
-    h : ndarray, n_features (float)
-        vector of sigmas to scale observations in kernel
+    h : ndarray
+        If `vector_sigma` is True, returns an array of bandwidths (sigmas) for each feature, otherwise a single float value representing the overall bandwidth.
+
+    Examples
+    --------
+    >>> X = np.array([[1, 2], [3, 4], [5, 6]])
+    >>> M = np.eye(2)
+    >>> sigmas = get_kernel_sigmas(X, M)
+    >>> print(sigmas)
+    [value1, value2]  # Example output; actual values will depend on input data and parameters.
+
+    Notes
+    -----
+    The function utilizes the Mahalanobis distance to adjust the typical Euclidean distance measure, taking into account the covariance among different features, thus scaling the input features in a way that reflects their statistical properties.
     """
     XM=np.matmul(X,M)
     if vector_sigma:
@@ -455,22 +821,46 @@ def get_kernel_sigmas(X,M,s=.05,vector_sigma=True):
         return h
 
 def get_gaussianKernelM(X,Y,M,h):
-    """Get Malanobis scaled gaussian kernel from observation matrices X,Y
+    """
+    Computes a Gaussian kernel matrix scaled by a Mahalanobis distance between two observation matrices X and Y.
+    Each element of the kernel matrix represents the Gaussian kernel between samples from X and Y with scaling
+    matrix M and bandwidths h.
 
     Parameters
     ----------
     X : ndarray
-        observation matrix, samples x features
+        Observation matrix at time t, where each row is a sample and each column is a feature.
     Y : ndarray
-        observation matrix at t+1, samples x features
+        Observation matrix at time t+1, similar in structure to X.
     M : ndarray
-        Mahalanobis scaling matrix, features x features
+        Mahalanobis scaling matrix, a square matrix of dimensions equal to the number of features in X and Y,
+        used to scale the features for the distance calculation.
     h : ndarray
-        vector of sigma scalings for gaussian from get_kernel_sigmas
+        A vector of sigma scalings for the Gaussian kernel, typically computed using `get_kernel_sigmas`. The
+        length of h should match the number of features in X and Y.
+
     Returns
     -------
-    k : ndarray, samples x samples (float)
-        Malanobis scaled kernel for X,Y
+    k : ndarray
+        A matrix of dimensions (n_samples_X, n_samples_Y) where each element [i, j] is the Gaussian kernel
+        value between the i-th sample of X and the j-th sample of Y, scaled according to M and h.
+
+    Examples
+    --------
+    >>> X = np.random.rand(5, 3)
+    >>> Y = np.random.rand(6, 3)
+    >>> M = np.eye(3)
+    >>> h = np.array([1.0, 1.0, 1.0])
+    >>> K = get_gaussianKernelM(X, Y, M, h)
+    >>> print(K.shape)
+    (5, 6)
+
+    Notes
+    -----
+    The function applies a Mahalanobis transformation to X and Y before computing the Euclidean distance
+    for the Gaussian kernel. This accounts for the correlation between different features and adjusts
+    distances accordingly. This is particularly useful in multivariate data analysis where feature scaling
+    and normalization are critical.
     """
     XM=np.matmul(X,M)
     YM=np.matmul(Y,M)
@@ -482,30 +872,54 @@ def get_gaussianKernelM(X,Y,M,h):
     return k.astype('float64')
 
 def get_koopman_eig(X,Y,M=None,s=.05,bta=1.e-5,h=None,psi_X=None,psi_Y=None):
-    """Get linear matrix solution for Koopman operator from X,Y paired observation Y=F(X) with F the forward operator
+    """
+    Computes the Koopman operator and its eigendecomposition, which describes the evolution of 
+    observables in a dynamical system. This method utilizes a kernel-based approach to approximate
+    the forward map F(X) = Y using observations X and Y.
 
     Parameters
     ----------
     X : ndarray
-        observation matrix, samples x features
+        Observation matrix at initial time, with samples as rows and features as columns.
     Y : ndarray
-        observation matrix at t+1, samples x features
-    M : ndarray
-        Mahalanobis scaling matrix, features x features
-    s : float
-        kernel bandwidth scaling parameter
-    bta : float
-        regularization parameter for linear solve
+        Observation matrix at a subsequent time, aligned with X.
+    M : ndarray, optional
+        Mahalanobis scaling matrix for distance computation in feature space. If None, the identity matrix is used.
+    s : float, optional
+        Scaling factor for the bandwidth of the Gaussian kernel used in the computations.
+    bta : float, optional
+        Regularization parameter for the least-squares solution to stabilize the inversion.
+    h : ndarray, optional
+        Bandwidths for the Gaussian kernel. If None, they are computed internally using the scaling factor s.
+    psi_X : ndarray, optional
+        Precomputed Gaussian kernel matrix for X. If None, it is computed within the function.
+    psi_Y : ndarray, optional
+        Precomputed Gaussian kernel matrix for the transformation of X to Y. If None, it is computed within the function.
+
     Returns
     -------
     K : ndarray
-        Koopman operator matrix, samples x samples (float)
+        Approximated Koopman operator matrix, which is the linear transformation matrix in the lifted space.
     Xi : ndarray
-        Koopman left eigenvectors, samples x samples
+        Left eigenvectors of the Koopman operator.
     Lam : ndarray
-        Koopman eigenvalue matrix (diagonal), samples x samples
+        Eigenvalues (diagonal matrix) of the Koopman operator, representing the dynamics' temporal evolution.
     W : ndarray
-        Koopman right eigenvectors, samples x samples
+        Right eigenvectors of the Koopman operator.
+
+    Examples
+    --------
+    >>> X = np.random.normal(size=(100, 3))
+    >>> Y = X + 0.1 * np.random.normal(size=(100, 3))
+    >>> K, Xi, Lam, W = get_koopman_eig(X, Y, s=0.1, bta=1e-4)
+
+    Notes
+    -----
+    The computation involves:
+    - Constructing kernel matrices for X and Y using a Gaussian kernel with Mahalanobis distance scaling.
+    - Solving a regularized linear system to find the Koopman operator.
+    - Performing eigendecomposition on the Koopman operator to extract its spectral properties, which reveal
+      the dynamics of the underlying system.
     """
     nsamples=X.shape[0]
     if M is None:
@@ -531,26 +945,44 @@ def get_koopman_eig(X,Y,M=None,s=.05,bta=1.e-5,h=None,psi_X=None,psi_Y=None):
     return K,Xi,Lam,W
 
 def get_koopman_modes(psi_X,Xi,W,X_obs,bta=1.e-5):
-    """Get Koopman modes of an observable
+    """
+    Computes the Koopman modes for specified observables using the Koopman operator's eigendecomposition. 
+    Koopman modes represent the spatial structures associated with the dynamics captured by the Koopman eigenfunctions.
 
     Parameters
     ----------
     psi_X : ndarray
-        kernel matrix, samples x samples
+        The kernel matrix corresponding to the data, usually derived from the Gaussian kernel of the observation matrix.
+        Shape should be (samples, samples).
     Xi : ndarray
-        right eigenvectors of Koopman, samples x samples
+        Right eigenvectors of the Koopman operator matrix. Shape should be (samples, samples).
     W : ndarray
-        left eigenvectors of Koopman, samples x samples
-    X : ndarray
-        observation matrix, samples x features
-    X_obs : ndarray, samples x observables
-        observables of interest in same time order as X, can be X or features of X
+        Left eigenvectors of the Koopman operator matrix. Shape should be (samples, samples).
+    X_obs : ndarray
+        Observables of interest corresponding to the observations. These could be the same as the original
+        observations or some function/feature of them. Shape should be (samples, observables).
+    bta : float, optional
+        Regularization parameter for the least-squares problem, default is 1.e-5.
+
     Returns
     -------
     phi_X : ndarray
-        Koopman eigenfunctions
+        Koopman eigenfunctions, computed as the product of the kernel matrix and the right eigenvectors.
+        Shape is (samples, samples).
     V : ndarray
-        Koopman modes of observables
+        Koopman modes of the observables, indicating how each mode contributes to the observables.
+        Shape is (observables, samples).
+
+    Examples
+    --------
+    >>> psi_X = get_gaussianKernelM(X, X, M, h)
+    >>> K, Xi, Lam, W = get_koopman_eig(X, Y)
+    >>> phi_X, V = get_koopman_modes(psi_X, Xi, W, X)
+
+    Notes
+    -----
+    The function solves a regularized linear system to stabilize the inversion when calculating the Koopman modes.
+    The modes are useful for understanding complex dynamics in the data, capturing the essential patterns associated with changes in observables.
     """
     phi_X=np.matmul(psi_X,Xi)
     #B = np.matmul(np.linalg.pinv(psi_X.astype('float64')),X_obs) #change to ridge regression soon
@@ -561,62 +993,46 @@ def get_koopman_modes(psi_X,Xi,W,X_obs,bta=1.e-5):
     V = np.matmul(np.conj(B).T,(np.divide(W,np.conj(np.diag(np.matmul(np.conj(W).T,Xi))).T)))
     return phi_X,V
 
-def get_koopman_inference(start,steps,phi_X,V,Lam,nmodes=2):
-    """Get Koopman prediction of an observable
-
-    Parameters
-    ----------
-    start : int
-        sample index for start point
-    steps : int
-        number of steps of inference to perform
-    phi_X : ndarray
-        Koopman eigenfunctions, samples x samples
-    V : ndarray
-        Koopman modes of observables, must be calculated samples x samples
-    Lam : ndarray
-        Koopman eigenvalues matrix (diagonal), samples x samples
-    Returns
-    -------
-    X_pred : ndarray
-        predicted trajectory steps x observables
-    """
-    if not isinstance(nmodes, (list,tuple,np.ndarray)):
-        indmodes=np.arange(nmodes).astype(int)
-    else:
-        indmodes=nmodes
-        nmodes=indmodes.size
-    d = V.shape[0]
-    lam = Lam[indmodes,:]
-    lam = lam[:,indmodes]
-    D = np.eye(nmodes)
-    X_pred = np.zeros((steps,d)).astype('complex128')
-    for step in range(steps):
-        #X_pred[step,:] = np.matmul(np.matmul(phi_X[start,:],D),V)
-        lambdas=np.diag(D)
-        X_pred[step,:] = np.matmul(np.multiply(phi_X[start,:],lambdas)[np.newaxis,:],np.conj(V).T) #changed V to V.T to agree with DA notes 6nov23
-        D = np.matmul(D,lam)
-    return np.real(X_pred)
-
 def get_koopman_inference_multiple(starts,steps,phi_X,V,Lam,nmodes=2):
-    """Get Koopman prediction of an observable
+    """
+    Predicts future states of observables using the Koopman operator framework over multiple starting indices and time steps.
+
+    This function uses the precomputed Koopman eigenfunctions, modes, and eigenvalues to propagate an initial state
+    through the dynamical system defined by the Koopman operator. The prediction considers a set of initial points
+    and performs the evolution for a specified number of time steps.
 
     Parameters
     ----------
-    start : int
-        sample index for start point
+    starts : ndarray
+        Array of indices specifying the starting points for the predictions. Shape should be (n_starts,).
     steps : int
-        number of steps of inference to perform
+        Number of future time steps to predict.
     phi_X : ndarray
-        Koopman eigenfunctions, samples x samples
+        Koopman eigenfunctions, with shape (samples, samples).
     V : ndarray
-        Koopman modes of observables, must be calculated samples x samples
+        Koopman modes of the observables, with shape (observables, samples).
     Lam : ndarray
-        Koopman eigenvalues matrix (diagonal), samples x samples
+        Diagonal matrix of Koopman eigenvalues, with shape (samples, samples).
+    nmodes : int or array_like, optional
+        Number of modes to include in the prediction or indices of specific modes to use. Default is 2.
+
     Returns
     -------
     X_pred : ndarray
-        predicted trajectory steps x observables
+        Predicted values of the observables for each start index and each time step, with shape (n_starts, steps, observables).
+
+    Examples
+    --------
+    >>> starts = np.array([10, 20, 30])  # Example starting indices
+    >>> steps = 5  # Predict 5 steps into the future
+    >>> predictions = get_koopman_inference_multiple(starts, steps, phi_X, V, Lam, nmodes=3)
+    >>> print(predictions.shape)
+    (3, 5, number_of_observables)
+
+    Notes
+    -----
+    - The function assumes that `phi_X`, `V`, and `Lam` are derived from the same Koopman analysis and are consistent in dimensions.
+    - The evolution is that of an ensemble of identical systems initiated from the same starting point.
     """
     if not isinstance(nmodes, (list,tuple,np.ndarray)):
         indmodes=np.arange(nmodes).astype(int)
@@ -646,6 +1062,7 @@ def update_mahalanobis_matrix_grad(Mprev,X,phi_X,h=None,s=.05):
         samples by features
     phi_X : ndarray
         Koopman eigenfunctions, samples x samples
+
     Returns
     -------
     M : ndarray
@@ -692,6 +1109,7 @@ def update_mahalanobis_matrix_J_old(Mprev,X,phi_X,V,Lam,h=None,s=.05):
         samples by features
     phi_X : ndarray
         Koopman eigenfunctions, samples x samples
+
     Returns
     -------
     M : ndarray
@@ -736,20 +1154,39 @@ def update_mahalanobis_matrix_J_old(Mprev,X,phi_X,V,Lam,h=None,s=.05):
     return M
 
 def update_mahalanobis_matrix_J(Mprev,X,Xi,V,lam,h=None,s=.05): #updating per David's method 30oct23
-    """Update estimation of mahalanobis matrix for kernel tuning
+    """
+    Update the Mahalanobis matrix based on Koopman operator analysis, using the eigenfunctions
+    and eigenvalues derived from the Koopman operator. This update aims to tune the kernel 
+    for better feature scaling in further analyses.
 
     Parameters
-    ----------`
-    Mprev : ndarray, features x features
-        Koopman eigenfunctions
+    ----------
+    Mprev : ndarray
+        The previous Mahalanobis matrix, with shape (features, features), used for scaling the input data.
     X : ndarray
-        samples by features
-    phi_X : ndarray
-        Koopman eigenfunctions, samples x samples
+        The observation matrix with shape (samples, features).
+    Xi : ndarray
+        Right eigenvectors of the Koopman operator, with shape (samples, samples).
+    V : ndarray
+        Left eigenvectors of the Koopman operator, with shape (samples, samples).
+    lam : ndarray
+        Eigenvalues of the Koopman operator, arranged in a diagonal matrix with shape (samples, samples).
+    h : ndarray, optional
+        Vector of sigma scalings for the Gaussian kernel; if not provided, it will be computed inside the function.
+    s : float, optional
+        Scaling factor for kernel bandwidth, default is 0.05.
+
     Returns
     -------
     M : ndarray
-        updated mahalanobis matrix using Koopman eigenfunction gradients
+        The updated Mahalanobis matrix, used for scaling the input data in the kernel.
+
+    Notes
+    -----
+    The function computes an updated Mahalanobis matrix by evaluating the gradients of the Koopman
+    eigenfunctions. These gradients are used to compute fluxes in the eigenspace, which are then
+    used to adjust the Mahalanobis matrix to ensure that the observed flux is isotropic in all
+    dimensions.
     """
     #define gradient of Koopman eigenfunctions
     #dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)'.*Phi_x(:,efcn)));
@@ -794,6 +1231,7 @@ def update_mahalanobis_matrix_flux(Mprev,X,phi_X,V,Lam,h=None,s=.05):
         samples by features
     phi_X : ndarray
         Koopman eigenfunctions, samples x samples
+
     Returns
     -------
     M : ndarray

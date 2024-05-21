@@ -248,12 +248,58 @@
     <span class="n">indcc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labels</span><span class="o">==</span><span class="n">icc</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">centers</span><span class="o">=</span><span class="n">centers</span><span class="p">[</span><span class="n">indcc</span><span class="p">,:]</span>
     <span class="n">clusters_clean</span><span class="o">=</span><span class="n">coor</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="n">AssignCenters</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">clusters_clean</span></div>
+    <span class="k">return</span> <span class="n">indcc</span><span class="p">,</span><span class="n">clusters_clean</span></div>
 
 
 <div class="viewcode-block" id="get_path_entropy_2point">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_path_entropy_2point">[docs]</a>
 <span class="k">def</span> <span class="nf">get_path_entropy_2point</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">Mt</span><span class="p">,</span><span class="n">clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the entropy of transitions between states over a single step for a set of trajectories,</span>
+<span class="sd">    using a given transition matrix. The entropy is calculated based on the negative logarithm of</span>
+<span class="sd">    the transition probabilities.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x0 : array_like</span>
+<span class="sd">        The initial states of the trajectories.</span>
+<span class="sd">    x1 : array_like</span>
+<span class="sd">        The final states of the trajectories after one transition.</span>
+<span class="sd">    Mt : ndarray</span>
+<span class="sd">        A square matrix representing the transition probabilities between states. The element `Mt[i, j]`</span>
+<span class="sd">        is the probability of transitioning from state `i` to state `j`.</span>
+<span class="sd">    clusters : Clustering object, optional</span>
+<span class="sd">        A clustering object (e.g., from scikit-learn) that can assign states to `x0` and `x1` data points.</span>
+<span class="sd">        If `None`, `x0` and `x1` are assumed to be already in the form of state indices (default: `None`).</span>
+<span class="sd">    exclude_stays : bool, optional</span>
+<span class="sd">        If `True`, transitions where the state does not change (`indc1[itraj] == indc0[itraj]`) are excluded</span>
+<span class="sd">        from the entropy calculation (default: `False`).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The calculated entropy value for the transitions in the trajectories. Returns `np.nan` if the calculation</span>
+<span class="sd">        fails due to empty arrays or other errors.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `x0` and `x1` have different lengths, or if `Mt` is not a square matrix.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; x0 = np.array([0, 1, 1, 2])</span>
+<span class="sd">    &gt;&gt;&gt; x1 = np.array([1, 1, 2, 0])</span>
+<span class="sd">    &gt;&gt;&gt; Mt = np.array([[0.1, 0.9, 0], [0.5, 0.5, 0], [0.3, 0, 0.7]])</span>
+<span class="sd">    &gt;&gt;&gt; entropy = get_path_entropy_2point(x0, x1, Mt)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Calculated entropy: {entropy:.2f}&quot;)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function assumes that `Mt` is properly normalized such that each row sums to 1.</span>
+<span class="sd">    - Entropy is a measure of uncertainty or randomness. In this context, it quantifies the unpredictability</span>
+<span class="sd">    in the transitions between states.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">clusters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">indc0</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
         <span class="n">indc1</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span>
@@ -285,6 +331,48 @@
 <div class="viewcode-block" id="get_path_ll_2point">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_path_ll_2point">[docs]</a>
 <span class="k">def</span> <span class="nf">get_path_ll_2point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the log-likelihood of observing specific transitions between states over one step </span>
+<span class="sd">    for a set of trajectories, using a provided transition matrix. The log-likelihood is computed </span>
+<span class="sd">    as the logarithm of transition probabilities.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x0 : array_like</span>
+<span class="sd">        The initial states of the trajectories, assumed to be indices corresponding to the rows in the transition matrix.</span>
+<span class="sd">    x1 : array_like</span>
+<span class="sd">        The final states of the trajectories after one transition, assumed to be indices corresponding to the columns in the transition matrix.</span>
+<span class="sd">    exclude_stays : bool, optional</span>
+<span class="sd">        If True, transitions where the state does not change (where `indc1[itraj] == indc0[itraj]`) are excluded</span>
+<span class="sd">        from the log-likelihood calculation (default: False).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The calculated log-likelihood value for the observed transitions in the trajectories. Returns `np.nan` if the calculation</span>
+<span class="sd">        fails due to empty arrays or other errors.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `x0` and `x1` have different lengths or if the transition probabilities cannot be computed because</span>
+<span class="sd">        `Mt` is not correctly set in the scope of this function.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; x0 = np.array([0, 1, 1, 2])</span>
+<span class="sd">    &gt;&gt;&gt; x1 = np.array([1, 1, 2, 0])</span>
+<span class="sd">    &gt;&gt;&gt; Mt = np.array([[0.1, 0.9, 0], [0.5, 0.5, 0], [0.3, 0, 0.7]]) # Example transition matrix</span>
+<span class="sd">    &gt;&gt;&gt; log_likelihood = get_path_ll_2point(x0, x1)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Calculated log likelihood: {log_likelihood:.2f}&quot;)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function assumes that the transition matrix `Mt` is correctly normalized such that each row sums to 1.</span>
+<span class="sd">    - The log-likelihood measure provides insights into the predictability of the transitions, with higher values indicating</span>
+<span class="sd">    more predictable transitions based on the model&#39;s transition probabilities.</span>
+<span class="sd">    - The function `clusters.assign` must be correctly defined to map data points `x0` and `x1` to state indices used in `Mt`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">indc0</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
     <span class="n">indc1</span><span class="o">=</span><span class="n">clusters</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span>
     <span class="n">ll</span><span class="o">=</span><span class="mf">0.0</span>
@@ -312,6 +400,41 @@
 <div class="viewcode-block" id="get_kscore">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_kscore">[docs]</a>
 <span class="k">def</span> <span class="nf">get_kscore</span><span class="p">(</span><span class="n">Mt</span><span class="p">,</span><span class="n">eps</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span> <span class="c1">#,nw=10):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the k-score for a given transition matrix. The k-score measures the kinetic separability</span>
+<span class="sd">    of states within the transition matrix, which is derived from the eigenvalues of the matrix. It</span>
+<span class="sd">    provides an indication of how well-separated the dynamics of the system are, based on the time it</span>
+<span class="sd">    takes to reach equilibrium from non-equilibrium states.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Mt : ndarray</span>
+<span class="sd">        The transition matrix, which should be square and represent the probability of transitioning from</span>
+<span class="sd">        one state to another.</span>
+<span class="sd">    eps : float, optional</span>
+<span class="sd">        A small threshold to determine the relevance of eigenvalues close to 1 (default is 1.e-3).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The calculated k-score, which quantifies the kinetic separability of states in the transition matrix.</span>
+<span class="sd">        If the eigenvalues are such that no significant non-equilibrium dynamics are detected, it returns `np.nan`.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The eigenvalues are used to calculate the time constants associated with the decay modes of the system.</span>
+<span class="sd">    Only the modes with eigenvalues less than 1 and significantly different from 1 (as determined by `eps`)</span>
+<span class="sd">    are considered.</span>
+<span class="sd">    - Eigenvalues exactly equal to 1 correspond to steady-state or equilibrium conditions and are excluded</span>
+<span class="sd">    from the k-score calculation.</span>
+<span class="sd">    - A higher k-score indicates that the system has more slow modes and hence more kinetic separability.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; Mt = np.array([[0.9, 0.1], [0.05, 0.95]])  # Example transition matrix</span>
+<span class="sd">    &gt;&gt;&gt; kscore = get_kscore(Mt)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;K-score: {kscore:.2f}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">indeye</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">Mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
     <span class="n">diag</span><span class="o">=</span><span class="n">Mt</span><span class="p">[</span><span class="n">indeye</span><span class="p">]</span>
     <span class="n">indgood</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">diag</span><span class="o">&lt;</span><span class="mf">1.</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -334,6 +457,46 @@
 <div class="viewcode-block" id="get_traj_ll_gmean">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_traj_ll_gmean">[docs]</a>
 <span class="k">def</span> <span class="nf">get_traj_ll_gmean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">xt</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the geometric mean of the log-likelihoods for the transitions of trajectories based on</span>
+<span class="sd">    their assignments to clusters and a transition matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    xt : ndarray</span>
+<span class="sd">        An array of trajectories&#39; data points or features from which states are derived.</span>
+<span class="sd">    exclude_stays : bool, optional</span>
+<span class="sd">        If True, transitions where the state does not change (stays in the same state) are excluded</span>
+<span class="sd">        from the calculation.</span>
+<span class="sd">    states : ndarray, optional</span>
+<span class="sd">        An array indicating the state assignment for each data point in `xt`. If None, states are assumed</span>
+<span class="sd">        to be a sequence from 0 to `Mt.shape[0] - 1`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        The geometric mean of the log-likelihoods of transitions between states. Returns `np.nan` if the</span>
+<span class="sd">        calculation fails due to empty input arrays or other computational issues.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    IndexError</span>
+<span class="sd">        If the length of `states` does not match the expected size based on `Mt`.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The log-likelihood for each transition is taken from a Markov transition matrix `Mt`, which must</span>
+<span class="sd">    be accessible within the method&#39;s scope.</span>
+<span class="sd">    - This function is particularly useful for analyzing the stability or persistence of states in</span>
+<span class="sd">    Markovian models of dynamic systems.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; xt = np.random.rand(100, 10)  # Example trajectory data</span>
+<span class="sd">    &gt;&gt;&gt; states = np.random.randint(0, 5, size=100)  # Random state assignments</span>
+<span class="sd">    &gt;&gt;&gt; traj_ll_mean = model.get_traj_ll_gmean(xt, states=states)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Geometric mean of log-likelihoods: {traj_ll_mean:.4f}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">Mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">x0</span><span class="o">=</span><span class="n">xt</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -366,6 +529,36 @@
 <div class="viewcode-block" id="get_H_eigs">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_H_eigs">[docs]</a>
 <span class="k">def</span> <span class="nf">get_H_eigs</span><span class="p">(</span><span class="n">Mt</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the eigenvalues and eigenvectors of the Hermitian matrix formed from a given Markov transition matrix.</span>
+
+<span class="sd">    The function constructs a Hermitian matrix, `H`, by symmetrizing the input matrix `Mt` and computes its eigenvalues</span>
+<span class="sd">    and eigenvectors. The Hermitian matrix is constructed as H = 0.5 * (Mt + Mt.T) + 0.5j * (Mt - Mt.T), where `Mt.T` </span>
+<span class="sd">    is the transpose of `Mt`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Mt : ndarray</span>
+<span class="sd">        A square numpy array representing a Markov transition matrix from which the Hermitian matrix `H` is derived.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    w : ndarray</span>
+<span class="sd">        An array of real eigenvalues of the Hermitian matrix, sorted in ascending order.</span>
+<span class="sd">    v : ndarray</span>
+<span class="sd">        An array of the corresponding eigenvectors, where each column corresponds to an eigenvalue in `w`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; Mt = np.array([[0.8, 0.2], [0.4, 0.6]])</span>
+<span class="sd">    &gt;&gt;&gt; eigenvalues, eigenvectors = get_H_eigs(Mt)</span>
+<span class="sd">    &gt;&gt;&gt; print(&quot;Eigenvalues:&quot;, eigenvalues)</span>
+<span class="sd">    &gt;&gt;&gt; print(&quot;Eigenvectors:&quot;, eigenvectors)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function is designed to work with stochastic matrices, such as those used in Markov models, providing an alternative matrix decomposition with real eigenvalues and unambiguous sorting of components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">H</span><span class="o">=</span><span class="mf">.5</span><span class="o">*</span><span class="p">(</span><span class="n">Mt</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Mt</span><span class="p">))</span><span class="o">+</span><span class="mf">.5</span><span class="n">j</span><span class="o">*</span><span class="p">(</span><span class="n">Mt</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Mt</span><span class="p">))</span>
     <span class="n">w</span><span class="p">,</span><span class="n">v</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
     <span class="n">w</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
@@ -378,9 +571,38 @@
 <div class="viewcode-block" id="get_motifs">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_motifs">[docs]</a>
 <span class="k">def</span> <span class="nf">get_motifs</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">ncomp</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts and scales the last `ncomp` components of complex eigenvectors from a given set of eigenvectors, optionally weighted by given weights, eigenvalues can be used as weights for a kinetic scaling.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    v : ndarray</span>
+<span class="sd">        A 2D array containing eigenvectors where each column represents an eigenvector. The array can be complex-valued.</span>
+<span class="sd">    ncomp : int</span>
+<span class="sd">        The number of components from the end of each eigenvector to process.</span>
+<span class="sd">    w : ndarray, optional</span>
+<span class="sd">        A 1D array of weights to scale the components of the eigenvectors. If not provided, the components are processed without scaling.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    vkin : ndarray</span>
+<span class="sd">        A 2D array where each row represents the concatenated scaled real and imaginary parts of the last `ncomp` components of the eigenvectors from `v`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; v = np.array([[1+1j, 2+2j, 3+3j], [4+4j, 5+5j, 6+6j]])</span>
+<span class="sd">    &gt;&gt;&gt; ncomp = 2</span>
+<span class="sd">    &gt;&gt;&gt; weights = np.array([0.5, 1.5])</span>
+<span class="sd">    &gt;&gt;&gt; motifs = get_motifs(v, ncomp, weights)</span>
+<span class="sd">    &gt;&gt;&gt; print(motifs)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function is useful for to describe or classify a complex system based upon its dynamics as described by a stochastic matrix yielding H-eigs stored as columns in `v`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">w</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">vr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:]))</span>
-        <span class="n">vi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:]))</span>
+        <span class="n">vr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:])</span>
+        <span class="n">vi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">vr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:]))</span>
         <span class="n">vi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:],</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:]))</span>
@@ -390,8 +612,34 @@
 
 <div class="viewcode-block" id="get_landscape_coords_umap">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_landscape_coords_umap">[docs]</a>
-<span class="k">def</span> <span class="nf">get_landscape_coords_umap</span><span class="p">(</span><span class="n">vkin</span><span class="p">):</span>
-    <span class="n">reducer</span><span class="o">=</span><span class="n">umap</span><span class="o">.</span><span class="n">UMAP</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_landscape_coords_umap</span><span class="p">(</span><span class="n">vkin</span><span class="p">,</span><span class="o">**</span><span class="n">embedding_args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Just a wrapper for UMAP.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    vkin : ndarray</span>
+<span class="sd">        A 2D array where each row contains dynamical motifs or any other high-dimensional data. Each row is treated as an individual data point.</span>
+<span class="sd">    embedding_args : dict, optional</span>
+<span class="sd">        Additional keyword arguments to pass to the UMAP constructor, allowing customization of the UMAP behavior (e.g., `n_neighbors`, `min_dist`).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    x_clusters : ndarray</span>
+<span class="sd">        A 2D array with two columns, representing the 2D embedded coordinates of the input data obtained via UMAP.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; v = np.array([[1, 2], [3, 4], [5, 6]])</span>
+<span class="sd">    &gt;&gt;&gt; x_clusters = get_landscape_coords_umap(v, min_dist=0.1)</span>
+<span class="sd">    &gt;&gt;&gt; print(x_clusters)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - UMAP is a powerful method for embedding high-dimensional data into a lower-dimensional space, preserving both local and global structure of the data.</span>
+<span class="sd">    - The flexibility to specify additional parameters allows for tuning the algorithm based on specific dataset characteristics or analysis requirements.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reducer</span><span class="o">=</span><span class="n">umap</span><span class="o">.</span><span class="n">UMAP</span><span class="p">(</span><span class="o">**</span><span class="n">embedding_args</span><span class="p">)</span>
     <span class="n">trans</span> <span class="o">=</span> <span class="n">reducer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">vkin</span><span class="p">)</span>
     <span class="n">x_clusters</span><span class="o">=</span><span class="n">trans</span><span class="o">.</span><span class="n">embedding_</span>
     <span class="k">return</span> <span class="n">x_clusters</span></div>
@@ -400,6 +648,33 @@
 <div class="viewcode-block" id="get_avdx_clusters">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_avdx_clusters">[docs]</a>
 <span class="k">def</span> <span class="nf">get_avdx_clusters</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">,</span><span class="n">Mt</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the average directional changes between clusters weighted by transition probabilities, based on cluster embeddings and a transition matrix. The result captures the average directional movement expected from one cluster to another.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x_clusters : ndarray</span>
+<span class="sd">        A 2D array containing the embedded coordinates of each cluster. Each row corresponds to a cluster and the columns to the coordinates in the reduced space.</span>
+<span class="sd">    Mt : ndarray</span>
+<span class="sd">        A 2D array (transition matrix) where each element (i, j) represents the probability of transitioning from cluster i to cluster j.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dx_clusters : ndarray</span>
+<span class="sd">        A 2D array where each row represents a cluster and the columns contain the sum of weighted directional changes to all other clusters, indicating the net direction and magnitude of transitions for each cluster.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; x_clusters = np.array([[1, 2], [3, 4], [5, 6]])  # Example coordinates of clusters</span>
+<span class="sd">    &gt;&gt;&gt; Mt = np.array([[0.1, 0.2, 0.7], [0.3, 0.4, 0.3], [0.2, 0.3, 0.5]])  # Example transition matrix</span>
+<span class="sd">    &gt;&gt;&gt; dx_clusters = get_avdx_clusters(x_clusters, Mt)</span>
+<span class="sd">    &gt;&gt;&gt; print(dx_clusters)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function is useful in analyzing the overall directional dynamics of a system where clusters represent different states or configurations, and the transition matrix describes the likelihood of transitions between these states.</span>
+<span class="sd">    - This function assumes the transition matrix is properly normalized such that each row sums to one.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n_clusters</span><span class="o">=</span><span class="n">Mt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">dxmatrix</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_clusters</span><span class="p">,</span><span class="n">n_clusters</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">):</span>
@@ -412,10 +687,54 @@
 <div class="viewcode-block" id="get_kineticstates">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_kineticstates">[docs]</a>
 <span class="k">def</span> <span class="nf">get_kineticstates</span><span class="p">(</span><span class="n">vkin</span><span class="p">,</span><span class="n">nstates_final</span><span class="p">,</span><span class="n">nstates_initial</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pcut_final</span><span class="o">=</span><span class="mf">.01</span><span class="p">,</span><span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">max_states</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">return_nstates_initial</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">cluster_ninit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determines kinetic states from dynamical motifs using an iterative k-means clustering approach, aiming to find a specified number of states with sufficient representation.</span>
+<span class="sd">    This function attempts to find a user-specified number of final kinetic states (`nstates_final`) by iteratively applying k-means clustering and increasing the number of clusters until the desired number of states with a probability above a certain threshold (`pcut_final`) is achieved or the maximum limit of states (`max_states`) is reached. It refines the clustering by merging less probable states into their nearest more probable states.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    vkin : ndarray</span>
+<span class="sd">        A 2D array of dynamical motifs, where each row corresponds to a sample and columns correspond to features.</span>
+<span class="sd">    nstates_final : int</span>
+<span class="sd">        The desired number of final states to achieve with sufficient sample representation.</span>
+<span class="sd">    nstates_initial : int, optional</span>
+<span class="sd">        The initial number of states to start clustering. If None, it is set equal to `nstates_final`.</span>
+<span class="sd">    pcut_final : float, optional</span>
+<span class="sd">        The probability cutoff to consider a state as sufficiently populated. States below this cutoff are considered sparsely populated and are merged.</span>
+<span class="sd">    seed : int, optional</span>
+<span class="sd">        Seed for random number generator for reproducibility of k-means clustering.</span>
+<span class="sd">    max_states : int, optional</span>
+<span class="sd">        The maximum number of states to try before stopping the clustering process.</span>
+<span class="sd">    return_nstates_initial : bool, optional</span>
+<span class="sd">        If True, returns the number of initial states along with the state labels.</span>
+<span class="sd">    cluster_ninit : int, optional</span>
+<span class="sd">        The number of times the k-means algorithm will be run with different centroid seeds.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    stateSet : ndarray</span>
+<span class="sd">        An array of state labels for each sample in `vkin`.</span>
+<span class="sd">    nstates_initial : int, optional</span>
+<span class="sd">        The initial number of states tried, returned only if `return_nstates_initial` is True.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; vkin = np.random.rand(100, 10)  # Randomly generated dynamical motifs</span>
+<span class="sd">    &gt;&gt;&gt; states = get_kineticstates(vkin, 5, seed=42, pcut_final=0.05, max_states=50)</span>
+<span class="sd">    &gt;&gt;&gt; print(states)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function ensures that all final states have a probability greater than `pcut_final` by merging underpopulated states into their nearest populated neighbors.</span>
+<span class="sd">    - The process is stochastic due to the initialization of k-means; thus, setting a seed can help in achieving reproducible results.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">nstates_initial</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">nstates_initial</span><span class="o">=</span><span class="n">nstates_final</span>
     <span class="n">nstates_good</span><span class="o">=</span><span class="mi">0</span>
     <span class="n">nstates</span><span class="o">=</span><span class="n">nstates_initial</span>
+    <span class="k">if</span> <span class="n">nstates</span><span class="o">&gt;</span><span class="n">max_states</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Initial states higher than max states, exiting...&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
     <span class="k">while</span> <span class="n">nstates_good</span><span class="o">&lt;</span><span class="n">nstates_final</span> <span class="ow">and</span> <span class="n">nstates</span><span class="o">&lt;</span><span class="n">max_states</span><span class="p">:</span>
         <span class="n">clusters_v</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">nstates</span><span class="p">,</span><span class="n">init</span><span class="o">=</span><span class="s1">&#39;k-means++&#39;</span><span class="p">,</span><span class="n">n_init</span><span class="o">=</span><span class="n">cluster_ninit</span><span class="p">,</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span><span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
         <span class="n">clusters_v</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">vkin</span><span class="p">)</span>
@@ -432,7 +751,7 @@
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">states_plow</span><span class="p">:</span>
         <span class="n">indstate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stateSet</span><span class="o">==</span><span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">imin</span> <span class="ow">in</span> <span class="n">indstate</span><span class="p">:</span>
-            <span class="n">dists</span><span class="o">=</span><span class="n">get_dmat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">vkin</span><span class="p">[</span><span class="n">imin</span><span class="p">,:]]),</span><span class="n">vkin</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#closest in eig space</span>
+            <span class="n">dists</span><span class="o">=</span><span class="n">utilities</span><span class="o">.</span><span class="n">get_dmat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">vkin</span><span class="p">[</span><span class="n">imin</span><span class="p">,:]]),</span><span class="n">vkin</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#closest in eig space</span>
             <span class="n">dists</span><span class="p">[</span><span class="n">indstate</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
             <span class="n">ireplace</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span>
             <span class="n">stateSet</span><span class="p">[</span><span class="n">imin</span><span class="p">]</span><span class="o">=</span><span class="n">stateSet</span><span class="p">[</span><span class="n">ireplace</span><span class="p">]</span>
@@ -454,7 +773,41 @@
 
 <div class="viewcode-block" id="get_committor">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_committor">[docs]</a>
-<span class="k">def</span> <span class="nf">get_committor</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">,</span><span class="n">indTargets</span><span class="p">,</span><span class="n">indSource</span><span class="p">,</span><span class="n">conv</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_committor</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">,</span><span class="n">indTargets</span><span class="p">,</span><span class="n">indSource</span><span class="p">,</span><span class="n">conv</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the committor probabilities for a Markov state model, which represent the probability of reaching a set of target states before returning to any source state.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Tmatrix : ndarray</span>
+<span class="sd">        A 2D array representing the transition probability matrix of the Markov state model, where `Tmatrix[i, j]` is the probability of transitioning from state `i` to state `j`.</span>
+<span class="sd">    indTargets : array-like</span>
+<span class="sd">        An array of indices representing the target states, i.e., the states to which the committor probabilities are calculated.</span>
+<span class="sd">    indSource : array-like</span>
+<span class="sd">        An array of indices representing the source states, which are treated as absorbing states for the calculation of committor probabilities.</span>
+<span class="sd">    conv : float, optional</span>
+<span class="sd">        The convergence threshold for the iterative solution of the committor probabilities. The iteration stops when the change in probabilities between successive iterations is below this threshold.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    q : ndarray</span>
+<span class="sd">        An array of committor probabilities, where each entry `q[i]` gives the probability of reaching any of the target states before any of the source states, starting from state `i`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; Tmatrix = np.array([[0.8, 0.2], [0.1, 0.9]])</span>
+<span class="sd">    &gt;&gt;&gt; indTargets = [1]</span>
+<span class="sd">    &gt;&gt;&gt; indSource = [0]</span>
+<span class="sd">    &gt;&gt;&gt; committor_probabilities = get_committor(Tmatrix, indTargets, indSource)</span>
+<span class="sd">    &gt;&gt;&gt; print(committor_probabilities)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function modifies the transition matrix to make the source states absorbing and sets the target states to have a committor probability of 1.</span>
+<span class="sd">    - The algorithm iteratively updates the committor probabilities until changes between iterations are less than the specified convergence threshold.</span>
+<span class="sd">    - It is essential that the transition matrix is stochastic, and the sum of probabilities from each state equals 1.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Mt</span><span class="o">=</span><span class="n">Tmatrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">nBins</span><span class="o">=</span><span class="n">Tmatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">sinkBins</span><span class="o">=</span><span class="n">indSource</span> <span class="c1">#np.where(avBinPnoColor==0.0)</span>
@@ -472,7 +825,8 @@
         <span class="n">q</span><span class="p">[</span><span class="n">indSource</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mf">0.0</span>
         <span class="n">q</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Mt</span><span class="p">,</span><span class="n">q</span><span class="p">)</span>
         <span class="n">dconv</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">qp</span><span class="o">-</span><span class="n">q</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;convergence: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dconv</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;convergence: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">dconv</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">qp</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">q</span><span class="p">[</span><span class="n">indTargets</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mf">1.0</span>
     <span class="n">q</span><span class="p">[</span><span class="n">indSource</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mf">0.0</span>
@@ -482,6 +836,40 @@
 <div class="viewcode-block" id="get_steady_state_matrixpowers">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_steady_state_matrixpowers">[docs]</a>
 <span class="k">def</span> <span class="nf">get_steady_state_matrixpowers</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">,</span><span class="n">conv</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the steady-state distribution of a Markov chain by repeatedly multiplying the transition matrix by itself and averaging the rows until convergence.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Tmatrix : ndarray</span>
+<span class="sd">        A 2D array representing the transition matrix of the Markov chain, where `Tmatrix[i, j]` is the probability of transitioning from state `i` to state `j`.</span>
+<span class="sd">    conv : float, optional</span>
+<span class="sd">        The convergence threshold for the iterative solution. The iteration stops when the change in the steady-state distribution between successive iterations is below this threshold.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pSS : ndarray</span>
+<span class="sd">        An array representing the steady-state distribution, where `pSS[i]` is the long-term probability of being in state `i`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; Tmatrix = np.array([[0.1, 0.9], [0.5, 0.5]])</span>
+<span class="sd">    &gt;&gt;&gt; steady_state_distribution = get_steady_state_matrixpowers(Tmatrix)</span>
+<span class="sd">    &gt;&gt;&gt; print(steady_state_distribution)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function uses a matrix power method, where the transition matrix is repeatedly squared to accelerate convergence to the steady state.</span>
+<span class="sd">    - The convergence is checked every 10 iterations, comparing the average of the resulting matrix&#39;s rows to the average from the previous iteration.</span>
+<span class="sd">    - If the maximum number of iterations (`max_iters`) is reached without achieving the desired convergence, the last computed distribution is returned.</span>
+<span class="sd">    - Ensure that the transition matrix is stochastic (rows sum to 1) and ergodic to guarantee convergence.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `Tmatrix` is not a square matrix or if any rows sum to more than 1.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">max_iters</span><span class="o">=</span><span class="mi">10000</span>
     <span class="n">Mt</span><span class="o">=</span><span class="n">Tmatrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">dconv</span><span class="o">=</span><span class="mf">1.e100</span>
@@ -500,72 +888,41 @@
     <span class="k">return</span> <span class="n">pSS</span></div>
 
 
-<div class="viewcode-block" id="plot_dx_arrows">
-<a class="viewcode-back" href="../../celltraj.html#celltraj.model.plot_dx_arrows">[docs]</a>
-<span class="k">def</span> <span class="nf">plot_dx_arrows</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">,</span><span class="n">dx_clusters</span><span class="p">):</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-    <span class="n">ax</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dx_clusters</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">x_clusters</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">dx_clusters</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">dx_clusters</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">head_width</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">.3</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="plot_eig">
-<a class="viewcode-back" href="../../celltraj.html#celltraj.model.plot_eig">[docs]</a>
-<span class="k">def</span> <span class="nf">plot_eig</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">x_clusters</span><span class="p">,</span><span class="n">ncomp</span><span class="p">):</span>
-    <span class="n">vr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:])</span>
-    <span class="n">vi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:])</span>
-    <span class="n">va</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span><span class="o">-</span><span class="n">ncomp</span><span class="p">:])</span>
-    <span class="n">vth</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">vr</span><span class="p">,</span><span class="n">vi</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
-    <span class="k">for</span> <span class="n">icomp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncomp</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span> <span class="c1">#range(ncomp):</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">x_clusters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="n">va</span><span class="p">[:,</span><span class="n">icomp</span><span class="p">],</span><span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">seismic</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;absolute value &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ncomp</span><span class="o">-</span><span class="n">icomp</span><span class="p">))</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">x_clusters</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="n">vth</span><span class="p">[:,</span><span class="n">icomp</span><span class="p">],</span><span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">seismic</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;theta &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ncomp</span><span class="o">-</span><span class="n">icomp</span><span class="p">))</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span></div>
-
-
-<div class="viewcode-block" id="get_dmat">
-<a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_dmat">[docs]</a>
-<span class="k">def</span> <span class="nf">get_dmat</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="c1">#adapted to python from Russell Fung matlab implementation (github.com/ki-analysis/manifold-ga dmat.m)</span>
-    <span class="n">x1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span> <span class="c1">#default from Fung folks is D x N</span>
-    <span class="k">if</span> <span class="n">x2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">nX1</span> <span class="o">=</span> <span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matlib</span><span class="o">.</span><span class="n">repmat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span><span class="mi">0</span><span class="p">),</span><span class="n">nX1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">x1</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">y</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span> <span class="c1"># Iron-out numerical wrinkles</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">x2</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x2</span><span class="p">)</span>
-        <span class="n">nX1</span> <span class="o">=</span> <span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">nX2</span> <span class="o">=</span> <span class="n">x2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matlib</span><span class="o">.</span><span class="n">repmat</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="mi">0</span> <span class="p">),</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nX2</span> <span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">matlib</span><span class="o">.</span><span class="n">repmat</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="mi">0</span> <span class="p">),</span> <span class="n">nX1</span><span class="p">,</span> <span class="mi">1</span> <span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">x2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y</span><span class="p">)</span></div>
-
-
 <span class="c1">####################################feature tuned kernel DMD a la aristoff########################</span>
 <div class="viewcode-block" id="get_kernel_sigmas">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_kernel_sigmas">[docs]</a>
 <span class="k">def</span> <span class="nf">get_kernel_sigmas</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">vector_sigma</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get sigmas from observation matrix</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes a vector of bandwidths (sigmas) for each feature in the observation matrix X, </span>
+<span class="sd">    scaled by a Mahalanobis matrix M, which are used to scale observations in a kernel.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    X : ndarray</span>
-<span class="sd">        observation matrix, samples x features</span>
+<span class="sd">        Observation matrix where each row is a sample and each column is a feature.</span>
 <span class="sd">    M : ndarray</span>
-<span class="sd">        Mahalanobis scaling matrix, features x features</span>
-<span class="sd">    s : float</span>
-<span class="sd">        bandwidth scaling factor</span>
+<span class="sd">        Mahalanobis scaling matrix, which is a square matrix of dimension equal to the number of features in X.</span>
+<span class="sd">    s : float, optional</span>
+<span class="sd">        Bandwidth scaling factor, by default 0.05.</span>
+<span class="sd">    vector_sigma : bool, optional</span>
+<span class="sd">        If True, returns a vector of sigmas for each feature; otherwise, returns a single sigma based on the aggregate statistics.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    h : ndarray, n_features (float)</span>
-<span class="sd">        vector of sigmas to scale observations in kernel</span>
+<span class="sd">    h : ndarray</span>
+<span class="sd">        If `vector_sigma` is True, returns an array of bandwidths (sigmas) for each feature, otherwise a single float value representing the overall bandwidth.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; X = np.array([[1, 2], [3, 4], [5, 6]])</span>
+<span class="sd">    &gt;&gt;&gt; M = np.eye(2)</span>
+<span class="sd">    &gt;&gt;&gt; sigmas = get_kernel_sigmas(X, M)</span>
+<span class="sd">    &gt;&gt;&gt; print(sigmas)</span>
+<span class="sd">    [value1, value2]  # Example output; actual values will depend on input data and parameters.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The function utilizes the Mahalanobis distance to adjust the typical Euclidean distance measure, taking into account the covariance among different features, thus scaling the input features in a way that reflects their statistical properties.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">XM</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">M</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">vector_sigma</span><span class="p">:</span>
@@ -586,22 +943,46 @@
 <div class="viewcode-block" id="get_gaussianKernelM">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_gaussianKernelM">[docs]</a>
 <span class="k">def</span> <span class="nf">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">h</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Malanobis scaled gaussian kernel from observation matrices X,Y</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes a Gaussian kernel matrix scaled by a Mahalanobis distance between two observation matrices X and Y.</span>
+<span class="sd">    Each element of the kernel matrix represents the Gaussian kernel between samples from X and Y with scaling</span>
+<span class="sd">    matrix M and bandwidths h.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    X : ndarray</span>
-<span class="sd">        observation matrix, samples x features</span>
+<span class="sd">        Observation matrix at time t, where each row is a sample and each column is a feature.</span>
 <span class="sd">    Y : ndarray</span>
-<span class="sd">        observation matrix at t+1, samples x features</span>
+<span class="sd">        Observation matrix at time t+1, similar in structure to X.</span>
 <span class="sd">    M : ndarray</span>
-<span class="sd">        Mahalanobis scaling matrix, features x features</span>
+<span class="sd">        Mahalanobis scaling matrix, a square matrix of dimensions equal to the number of features in X and Y,</span>
+<span class="sd">        used to scale the features for the distance calculation.</span>
 <span class="sd">    h : ndarray</span>
-<span class="sd">        vector of sigma scalings for gaussian from get_kernel_sigmas</span>
+<span class="sd">        A vector of sigma scalings for the Gaussian kernel, typically computed using `get_kernel_sigmas`. The</span>
+<span class="sd">        length of h should match the number of features in X and Y.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    k : ndarray, samples x samples (float)</span>
-<span class="sd">        Malanobis scaled kernel for X,Y</span>
+<span class="sd">    k : ndarray</span>
+<span class="sd">        A matrix of dimensions (n_samples_X, n_samples_Y) where each element [i, j] is the Gaussian kernel</span>
+<span class="sd">        value between the i-th sample of X and the j-th sample of Y, scaled according to M and h.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; X = np.random.rand(5, 3)</span>
+<span class="sd">    &gt;&gt;&gt; Y = np.random.rand(6, 3)</span>
+<span class="sd">    &gt;&gt;&gt; M = np.eye(3)</span>
+<span class="sd">    &gt;&gt;&gt; h = np.array([1.0, 1.0, 1.0])</span>
+<span class="sd">    &gt;&gt;&gt; K = get_gaussianKernelM(X, Y, M, h)</span>
+<span class="sd">    &gt;&gt;&gt; print(K.shape)</span>
+<span class="sd">    (5, 6)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The function applies a Mahalanobis transformation to X and Y before computing the Euclidean distance</span>
+<span class="sd">    for the Gaussian kernel. This accounts for the correlation between different features and adjusts</span>
+<span class="sd">    distances accordingly. This is particularly useful in multivariate data analysis where feature scaling</span>
+<span class="sd">    and normalization are critical.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">XM</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">M</span><span class="p">)</span>
     <span class="n">YM</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span><span class="n">M</span><span class="p">)</span>
@@ -616,30 +997,54 @@
 <div class="viewcode-block" id="get_koopman_eig">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_koopman_eig">[docs]</a>
 <span class="k">def</span> <span class="nf">get_koopman_eig</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">M</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">bta</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">psi_X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">psi_Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get linear matrix solution for Koopman operator from X,Y paired observation Y=F(X) with F the forward operator</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Koopman operator and its eigendecomposition, which describes the evolution of </span>
+<span class="sd">    observables in a dynamical system. This method utilizes a kernel-based approach to approximate</span>
+<span class="sd">    the forward map F(X) = Y using observations X and Y.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    X : ndarray</span>
-<span class="sd">        observation matrix, samples x features</span>
+<span class="sd">        Observation matrix at initial time, with samples as rows and features as columns.</span>
 <span class="sd">    Y : ndarray</span>
-<span class="sd">        observation matrix at t+1, samples x features</span>
-<span class="sd">    M : ndarray</span>
-<span class="sd">        Mahalanobis scaling matrix, features x features</span>
-<span class="sd">    s : float</span>
-<span class="sd">        kernel bandwidth scaling parameter</span>
-<span class="sd">    bta : float</span>
-<span class="sd">        regularization parameter for linear solve</span>
+<span class="sd">        Observation matrix at a subsequent time, aligned with X.</span>
+<span class="sd">    M : ndarray, optional</span>
+<span class="sd">        Mahalanobis scaling matrix for distance computation in feature space. If None, the identity matrix is used.</span>
+<span class="sd">    s : float, optional</span>
+<span class="sd">        Scaling factor for the bandwidth of the Gaussian kernel used in the computations.</span>
+<span class="sd">    bta : float, optional</span>
+<span class="sd">        Regularization parameter for the least-squares solution to stabilize the inversion.</span>
+<span class="sd">    h : ndarray, optional</span>
+<span class="sd">        Bandwidths for the Gaussian kernel. If None, they are computed internally using the scaling factor s.</span>
+<span class="sd">    psi_X : ndarray, optional</span>
+<span class="sd">        Precomputed Gaussian kernel matrix for X. If None, it is computed within the function.</span>
+<span class="sd">    psi_Y : ndarray, optional</span>
+<span class="sd">        Precomputed Gaussian kernel matrix for the transformation of X to Y. If None, it is computed within the function.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    K : ndarray</span>
-<span class="sd">        Koopman operator matrix, samples x samples (float)</span>
+<span class="sd">        Approximated Koopman operator matrix, which is the linear transformation matrix in the lifted space.</span>
 <span class="sd">    Xi : ndarray</span>
-<span class="sd">        Koopman left eigenvectors, samples x samples</span>
+<span class="sd">        Left eigenvectors of the Koopman operator.</span>
 <span class="sd">    Lam : ndarray</span>
-<span class="sd">        Koopman eigenvalue matrix (diagonal), samples x samples</span>
+<span class="sd">        Eigenvalues (diagonal matrix) of the Koopman operator, representing the dynamics&#39; temporal evolution.</span>
 <span class="sd">    W : ndarray</span>
-<span class="sd">        Koopman right eigenvectors, samples x samples</span>
+<span class="sd">        Right eigenvectors of the Koopman operator.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; X = np.random.normal(size=(100, 3))</span>
+<span class="sd">    &gt;&gt;&gt; Y = X + 0.1 * np.random.normal(size=(100, 3))</span>
+<span class="sd">    &gt;&gt;&gt; K, Xi, Lam, W = get_koopman_eig(X, Y, s=0.1, bta=1e-4)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The computation involves:</span>
+<span class="sd">    - Constructing kernel matrices for X and Y using a Gaussian kernel with Mahalanobis distance scaling.</span>
+<span class="sd">    - Solving a regularized linear system to find the Koopman operator.</span>
+<span class="sd">    - Performing eigendecomposition on the Koopman operator to extract its spectral properties, which reveal</span>
+<span class="sd">      the dynamics of the underlying system.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">nsamples</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">M</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -668,26 +1073,44 @@
 <div class="viewcode-block" id="get_koopman_modes">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_koopman_modes">[docs]</a>
 <span class="k">def</span> <span class="nf">get_koopman_modes</span><span class="p">(</span><span class="n">psi_X</span><span class="p">,</span><span class="n">Xi</span><span class="p">,</span><span class="n">W</span><span class="p">,</span><span class="n">X_obs</span><span class="p">,</span><span class="n">bta</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Koopman modes of an observable</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Koopman modes for specified observables using the Koopman operator&#39;s eigendecomposition. </span>
+<span class="sd">    Koopman modes represent the spatial structures associated with the dynamics captured by the Koopman eigenfunctions.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    psi_X : ndarray</span>
-<span class="sd">        kernel matrix, samples x samples</span>
+<span class="sd">        The kernel matrix corresponding to the data, usually derived from the Gaussian kernel of the observation matrix.</span>
+<span class="sd">        Shape should be (samples, samples).</span>
 <span class="sd">    Xi : ndarray</span>
-<span class="sd">        right eigenvectors of Koopman, samples x samples</span>
+<span class="sd">        Right eigenvectors of the Koopman operator matrix. Shape should be (samples, samples).</span>
 <span class="sd">    W : ndarray</span>
-<span class="sd">        left eigenvectors of Koopman, samples x samples</span>
-<span class="sd">    X : ndarray</span>
-<span class="sd">        observation matrix, samples x features</span>
-<span class="sd">    X_obs : ndarray, samples x observables</span>
-<span class="sd">        observables of interest in same time order as X, can be X or features of X</span>
+<span class="sd">        Left eigenvectors of the Koopman operator matrix. Shape should be (samples, samples).</span>
+<span class="sd">    X_obs : ndarray</span>
+<span class="sd">        Observables of interest corresponding to the observations. These could be the same as the original</span>
+<span class="sd">        observations or some function/feature of them. Shape should be (samples, observables).</span>
+<span class="sd">    bta : float, optional</span>
+<span class="sd">        Regularization parameter for the least-squares problem, default is 1.e-5.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    phi_X : ndarray</span>
-<span class="sd">        Koopman eigenfunctions</span>
+<span class="sd">        Koopman eigenfunctions, computed as the product of the kernel matrix and the right eigenvectors.</span>
+<span class="sd">        Shape is (samples, samples).</span>
 <span class="sd">    V : ndarray</span>
-<span class="sd">        Koopman modes of observables</span>
+<span class="sd">        Koopman modes of the observables, indicating how each mode contributes to the observables.</span>
+<span class="sd">        Shape is (observables, samples).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; psi_X = get_gaussianKernelM(X, X, M, h)</span>
+<span class="sd">    &gt;&gt;&gt; K, Xi, Lam, W = get_koopman_eig(X, Y)</span>
+<span class="sd">    &gt;&gt;&gt; phi_X, V = get_koopman_modes(psi_X, Xi, W, X)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The function solves a regularized linear system to stabilize the inversion when calculating the Koopman modes.</span>
+<span class="sd">    The modes are useful for understanding complex dynamics in the data, capturing the essential patterns associated with changes in observables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">phi_X</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">psi_X</span><span class="p">,</span><span class="n">Xi</span><span class="p">)</span>
     <span class="c1">#B = np.matmul(np.linalg.pinv(psi_X.astype(&#39;float64&#39;)),X_obs) #change to ridge regression soon</span>
@@ -699,67 +1122,48 @@
     <span class="k">return</span> <span class="n">phi_X</span><span class="p">,</span><span class="n">V</span></div>
 
 
-<div class="viewcode-block" id="get_koopman_inference">
-<a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_koopman_inference">[docs]</a>
-<span class="k">def</span> <span class="nf">get_koopman_inference</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">steps</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">nmodes</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Koopman prediction of an observable</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    start : int</span>
-<span class="sd">        sample index for start point</span>
-<span class="sd">    steps : int</span>
-<span class="sd">        number of steps of inference to perform</span>
-<span class="sd">    phi_X : ndarray</span>
-<span class="sd">        Koopman eigenfunctions, samples x samples</span>
-<span class="sd">    V : ndarray</span>
-<span class="sd">        Koopman modes of observables, must be calculated samples x samples</span>
-<span class="sd">    Lam : ndarray</span>
-<span class="sd">        Koopman eigenvalues matrix (diagonal), samples x samples</span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    X_pred : ndarray</span>
-<span class="sd">        predicted trajectory steps x observables</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nmodes</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span><span class="nb">tuple</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
-        <span class="n">indmodes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">indmodes</span><span class="o">=</span><span class="n">nmodes</span>
-        <span class="n">nmodes</span><span class="o">=</span><span class="n">indmodes</span><span class="o">.</span><span class="n">size</span>
-    <span class="n">d</span> <span class="o">=</span> <span class="n">V</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">lam</span> <span class="o">=</span> <span class="n">Lam</span><span class="p">[</span><span class="n">indmodes</span><span class="p">,:]</span>
-    <span class="n">lam</span> <span class="o">=</span> <span class="n">lam</span><span class="p">[:,</span><span class="n">indmodes</span><span class="p">]</span>
-    <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)</span>
-    <span class="n">X_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">steps</span><span class="p">,</span><span class="n">d</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;complex128&#39;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
-        <span class="c1">#X_pred[step,:] = np.matmul(np.matmul(phi_X[start,:],D),V)</span>
-        <span class="n">lambdas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
-        <span class="n">X_pred</span><span class="p">[</span><span class="n">step</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">phi_X</span><span class="p">[</span><span class="n">start</span><span class="p">,:],</span><span class="n">lambdas</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,:],</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="c1">#changed V to V.T to agree with DA notes 6nov23</span>
-        <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">D</span><span class="p">,</span><span class="n">lam</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">X_pred</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="get_koopman_inference_multiple">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_koopman_inference_multiple">[docs]</a>
 <span class="k">def</span> <span class="nf">get_koopman_inference_multiple</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span><span class="n">steps</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">nmodes</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Koopman prediction of an observable</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Predicts future states of observables using the Koopman operator framework over multiple starting indices and time steps.</span>
+
+<span class="sd">    This function uses the precomputed Koopman eigenfunctions, modes, and eigenvalues to propagate an initial state</span>
+<span class="sd">    through the dynamical system defined by the Koopman operator. The prediction considers a set of initial points</span>
+<span class="sd">    and performs the evolution for a specified number of time steps.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    start : int</span>
-<span class="sd">        sample index for start point</span>
+<span class="sd">    starts : ndarray</span>
+<span class="sd">        Array of indices specifying the starting points for the predictions. Shape should be (n_starts,).</span>
 <span class="sd">    steps : int</span>
-<span class="sd">        number of steps of inference to perform</span>
+<span class="sd">        Number of future time steps to predict.</span>
 <span class="sd">    phi_X : ndarray</span>
-<span class="sd">        Koopman eigenfunctions, samples x samples</span>
+<span class="sd">        Koopman eigenfunctions, with shape (samples, samples).</span>
 <span class="sd">    V : ndarray</span>
-<span class="sd">        Koopman modes of observables, must be calculated samples x samples</span>
+<span class="sd">        Koopman modes of the observables, with shape (observables, samples).</span>
 <span class="sd">    Lam : ndarray</span>
-<span class="sd">        Koopman eigenvalues matrix (diagonal), samples x samples</span>
+<span class="sd">        Diagonal matrix of Koopman eigenvalues, with shape (samples, samples).</span>
+<span class="sd">    nmodes : int or array_like, optional</span>
+<span class="sd">        Number of modes to include in the prediction or indices of specific modes to use. Default is 2.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    X_pred : ndarray</span>
-<span class="sd">        predicted trajectory steps x observables</span>
+<span class="sd">        Predicted values of the observables for each start index and each time step, with shape (n_starts, steps, observables).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; starts = np.array([10, 20, 30])  # Example starting indices</span>
+<span class="sd">    &gt;&gt;&gt; steps = 5  # Predict 5 steps into the future</span>
+<span class="sd">    &gt;&gt;&gt; predictions = get_koopman_inference_multiple(starts, steps, phi_X, V, Lam, nmodes=3)</span>
+<span class="sd">    &gt;&gt;&gt; print(predictions.shape)</span>
+<span class="sd">    (3, 5, number_of_observables)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function assumes that `phi_X`, `V`, and `Lam` are derived from the same Koopman analysis and are consistent in dimensions.</span>
+<span class="sd">    - The evolution is that of an ensemble of identical systems initiated from the same starting point.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nmodes</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span><span class="nb">tuple</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
         <span class="n">indmodes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nmodes</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
@@ -792,6 +1196,7 @@
 <span class="sd">        samples by features</span>
 <span class="sd">    phi_X : ndarray</span>
 <span class="sd">        Koopman eigenfunctions, samples x samples</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    M : ndarray</span>
@@ -841,6 +1246,7 @@
 <span class="sd">        samples by features</span>
 <span class="sd">    phi_X : ndarray</span>
 <span class="sd">        Koopman eigenfunctions, samples x samples</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    M : ndarray</span>
@@ -888,20 +1294,39 @@
 <div class="viewcode-block" id="update_mahalanobis_matrix_J">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.update_mahalanobis_matrix_J">[docs]</a>
 <span class="k">def</span> <span class="nf">update_mahalanobis_matrix_J</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">Xi</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">lam</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span> <span class="c1">#updating per David&#39;s method 30oct23</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update estimation of mahalanobis matrix for kernel tuning</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the Mahalanobis matrix based on Koopman operator analysis, using the eigenfunctions</span>
+<span class="sd">    and eigenvalues derived from the Koopman operator. This update aims to tune the kernel </span>
+<span class="sd">    for better feature scaling in further analyses.</span>
 
 <span class="sd">    Parameters</span>
-<span class="sd">    ----------`</span>
-<span class="sd">    Mprev : ndarray, features x features</span>
-<span class="sd">        Koopman eigenfunctions</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Mprev : ndarray</span>
+<span class="sd">        The previous Mahalanobis matrix, with shape (features, features), used for scaling the input data.</span>
 <span class="sd">    X : ndarray</span>
-<span class="sd">        samples by features</span>
-<span class="sd">    phi_X : ndarray</span>
-<span class="sd">        Koopman eigenfunctions, samples x samples</span>
+<span class="sd">        The observation matrix with shape (samples, features).</span>
+<span class="sd">    Xi : ndarray</span>
+<span class="sd">        Right eigenvectors of the Koopman operator, with shape (samples, samples).</span>
+<span class="sd">    V : ndarray</span>
+<span class="sd">        Left eigenvectors of the Koopman operator, with shape (samples, samples).</span>
+<span class="sd">    lam : ndarray</span>
+<span class="sd">        Eigenvalues of the Koopman operator, arranged in a diagonal matrix with shape (samples, samples).</span>
+<span class="sd">    h : ndarray, optional</span>
+<span class="sd">        Vector of sigma scalings for the Gaussian kernel; if not provided, it will be computed inside the function.</span>
+<span class="sd">    s : float, optional</span>
+<span class="sd">        Scaling factor for kernel bandwidth, default is 0.05.</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    M : ndarray</span>
-<span class="sd">        updated mahalanobis matrix using Koopman eigenfunction gradients</span>
+<span class="sd">        The updated Mahalanobis matrix, used for scaling the input data in the kernel.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The function computes an updated Mahalanobis matrix by evaluating the gradients of the Koopman</span>
+<span class="sd">    eigenfunctions. These gradients are used to compute fluxes in the eigenspace, which are then</span>
+<span class="sd">    used to adjust the Mahalanobis matrix to ensure that the observed flux is isotropic in all</span>
+<span class="sd">    dimensions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1">#define gradient of Koopman eigenfunctions</span>
     <span class="c1">#dphi = @(x,efcn) sum((X(1:N-1,:)-x)*M.*(k(x)&#39;.*Phi_x(:,efcn)));</span>
@@ -949,6 +1374,7 @@
 <span class="sd">        samples by features</span>
 <span class="sd">    phi_X : ndarray</span>
 <span class="sd">        Koopman eigenfunctions, samples x samples</span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    M : ndarray</span>

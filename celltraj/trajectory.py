@@ -959,15 +959,17 @@ class Trajectory:
             print('set imgchannel, mskchannel1, and mskchannel2 keys')
             return 1
         if mskchannel2 is None:
-            if fmskchannel is None:
-                print('set fmskchannel if not using mskchannel2')
+            feature_name=f'img{imgchannel}_m{mskchannel1}m{fmask_channel}_ratio'
+            if fmask_channel is None:
+                print('set fmask_channel if not using mskchannel2')
                 return 1
+        else:
+            feature_name=f'img{imgchannel}_m{mskchannel1}m{mskchannel2}_ratio'
         if not hasattr(self,'cells_indSet'):
             print('no cell index, run get_cell_index')
             return 1
         if indcells is None:
             indcells=np.arange(self.cells_indSet.size).astype(int)
-        feature_name=f'img{imgchannel}_m{mskchannel1}m{mskchannel2}_ratio'
         cratio=[None]*np.array(indcells).size
         ip_frame=10000000
         icell=0
@@ -991,8 +993,11 @@ class Trajectory:
                     msk2=imprep.get_cyto_minus_nuc_labels(msk1,msk2)
                 elif make_disjoint:
                     msk1[msk2>0]=0
-                if not np.all(np.unique(msk1)==np.unique(msk2)):
-                    print(f'warning: frame {self.cells_indimgSet[ic]} mask1 and mask2 yielding different indices')
+                if np.unique(msk1).size!=np.unique(msk2).size:
+                    print(f'Warning: there are {np.unique(msk1).size} labels in msk1 and {np.unique(msk2).size} labels in msk2')
+                else:
+                    if not np.all(np.unique(msk1)==np.unique(msk2)):
+                        print(f'warning: frame {self.cells_indimgSet[ic]} mask1 and mask2 yielding different indices')
                 if erosion_footprint1 is not None:
                     fmsk1=skimage.morphology.binary_erosion(msk1>0,footprint=erosion_footprint1); msk1[fmsk1]=0
                 if erosion_footprint2 is not None:
@@ -1162,8 +1167,8 @@ class Trajectory:
                 img,msk=self.get_cell_data(indcells_frame,boundary_expansion=3*self.image_shape,return_masks=True,relabel_masks=True,relabel_mskchannels=[mskchannel])
                 if self.axes[-1]=='c':
                     msk=msk[...,mskchannel]
-                beta_map=features.apply3d(msk,features.get_neighbor_feature_map,radius=radius,dtype=np.float64,neighbor_function=self.get_beta)
-                alpha_map=features.apply3d(msk,features.get_neighbor_feature_map,radius=radius,dtype=np.float64,neighbor_function=self.get_alpha)
+                beta_map=features.apply3d(msk,features.get_neighbor_feature_map,dtype=np.float64,radius=radius,neighbor_function=self.get_beta)
+                alpha_map=features.apply3d(msk,features.get_neighbor_feature_map,dtype=np.float64,radius=radius,neighbor_function=self.get_alpha)
                 if n_frame==self.cells_frameSet[0]: #can't do motility for 0th frame
                     props_beta={"label":np.arange(indcells_frame.size),"meanIntensity":np.ones(indcells_frame.size)*np.nan}
                     props_alpha={"label":np.arange(indcells_frame.size),"meanIntensity":np.ones(indcells_frame.size)*np.nan}
@@ -1171,11 +1176,18 @@ class Trajectory:
                     props_beta = regionprops_table(msk, intensity_image=beta_map,properties=('label',), extra_properties=(features.meanIntensity,))
                     props_alpha = regionprops_table(msk, intensity_image=alpha_map,properties=('label',), extra_properties=(features.meanIntensity,))
                 ncells_frame=props_beta['label'].size
-                Xf_com_frame=np.zeros((ncells_frame,3))
+                Xf_com_frame=np.ones((ncells_frame,3))*np.nan
                 for icell_frame in range(ncells_frame):
                     Xf_com_frame[icell_frame,0]=scipy.linalg.norm(self.get_dx(indcells_frame[icell_frame]),check_finite=False)
-                    Xf_com_frame[icell_frame,1]=props_beta['meanIntensity'][icell_frame]
-                    Xf_com_frame[icell_frame,2]=props_alpha['meanIntensity'][icell_frame]
+                    if not np.isnan(Xf_com_frame[icell_frame,0]): #if untracked and no displacement info, leave as nan
+                        if not np.isnan(props_beta['meanIntensity'][icell_frame]): #when no neighbors returns nan but cell is tracked, set to zero instead
+                            Xf_com_frame[icell_frame,1]=props_beta['meanIntensity'][icell_frame]
+                        else:
+                            Xf_com_frame[icell_frame,1]=0.0
+                        if not np.isnan(props_alpha['meanIntensity'][icell_frame]):
+                            Xf_com_frame[icell_frame,2]=props_alpha['meanIntensity'][icell_frame]
+                        else:
+                            Xf_com_frame[icell_frame,2]=0.0
             Xf_com[icell]=Xf_com_frame[self.cells_indSet[ic],:]
             ip_frame=self.cells_frameSet[ic]
         Xf_com=np.array(Xf_com)
@@ -2122,6 +2134,37 @@ class Trajectory:
             paircorrx[ir]=paircorrx[ir]/norm
         paircorrx=paircorrx*V/nc
         return rbins,paircorrx
+
+    def get_tcf(self, trajectories=None, x=None, minlength=2):
+        if x is None:
+            x=self.Xpca
+        if trajectories is None:
+            trajectories = self.trajectories
+        ntraj = len(trajectories)
+        traj_lengths = np.zeros(ntraj)
+        for itraj in range(ntraj):
+            traj_lengths[itraj] = trajectories[itraj].size
+        nframes = np.max(traj_lengths)
+        nt = np.floor(nframes / 2).astype(int)
+        dxcorr = np.zeros(nt)
+        tnorm = np.zeros(nt)
+        for itraj in range(ntraj):
+            cell_traj = trajectories[itraj]
+            traj_len = cell_traj.size
+            nmax = np.floor(traj_len / 2).astype(int)
+            if traj_len > minlength:
+                xtraj = x[cell_traj,:]
+                for it1 in range(nmax):
+                    for it2 in range(it1, it1 + nmax):
+                        it = it2 - it1
+                        #dxcorr[it] = dxcorr[it] + np.sum(np.power(xtraj[it1, :]-xtraj[it2, :],2))
+                        corr=np.dot(xtraj[it1,:],xtraj[it2,:])
+                        if np.isfinite(corr):
+                            dxcorr[it]=dxcorr[it]+corr
+                            tnorm[it] = tnorm[it] + 1
+        for it in range(nt):
+            dxcorr[it] = dxcorr[it] / tnorm[it]
+        return dxcorr
 
     def get_alpha(self,i1,i2):
         """

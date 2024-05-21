@@ -45,12 +45,6 @@ Or download the `tarball`_:
 
     $ curl -OJL https://github.com/jcopperm/celltraj/tarball/master
 
-Once you have a copy of the source, you can install it with:
-
-.. code-block:: console
-
-    $ python setup.py install
-
 
 .. _Github repo: https://github.com/jcopperm/celltraj
 .. _tarball: https://github.com/jcopperm/celltraj/tarball/master

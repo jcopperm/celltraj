@@ -224,14 +224,20 @@ def featHaralick(regionmask, intensity):
     if regionmask.ndim==3:
         xf = [None]*regionmask.shape[0]
         for iz in range(regionmask.shape[0]):
-            feath = np.mean(mahotas.features.haralick(imgn[iz,...]),axis=0)
-            feath[5] = feath[5]/nlevels #feature 5 is sum average which is way over scale with average of nlevels
+            try:
+                feath = np.mean(mahotas.features.haralick(imgn[iz,...]),axis=0)
+                feath[5] = feath[5]/nlevels #feature 5 is sum average which is way over scale with average of nlevels
+            except:
+                feath = np.ones(13)*np.nan
             xf[iz] = feath
         xf=np.array(xf)
         xf=np.mean(xf,axis=0)
     elif regionmask.ndim==2:
-        feath = np.nanmean(mahotas.features.haralick(imgn),axis=0)
-        feath[5] = feath[5]/nlevels #feature 5 is sum average which is way over scale with average of nlevels
+        try:
+            feath = np.nanmean(mahotas.features.haralick(imgn),axis=0)
+            feath[5] = feath[5]/nlevels #feature 5 is sum average which is way over scale with average of nlevels
+        except:
+            feath = np.ones(13)*np.nan
         xf = feath
     return xf
 
@@ -608,7 +614,7 @@ def featBoundaryCB(regionmask, intensity):
     Computes boundary-based Fourier Transform features for a region mask distinguishing between core-cell
     and surrounding areas by using intensity to define active regions. This function applies a binary erosion
     to the region mask to refine the core region and then calculates the Fourier Transform features based on
-    the refined mask and intensity data.
+    the refined mask and intensity data. Currently there is no way to pass parameters to the boundaryCB_FFT function.
 
     Parameters
     ----------
@@ -826,6 +832,9 @@ def get_contact_labels(labels0,radius=10):
     ValueError
         If `labels0` is not 2D or 3D, or if there are issues with dilation or label matching.
     """
+    if radius is None:
+        radius=10
+        print(f'no radius provided, setting to {radius}')
     if labels0.ndim==2:
         footprint=skimage.morphology.disk(radius=radius)
     if labels0.ndim==3:
@@ -853,7 +862,7 @@ def get_contact_labels(labels0,radius=10):
                 contact_labels[indi[0][labels_inv[indi]==j],indi[1][labels_inv[indi]==j],indi[2][labels_inv[indi]==j]]=j
     return contact_labels
 
-def get_neighbor_feature_map(labels,neighbor_function=None,contact_labels=None,radius=None,dtype=np.float64,**neighbor_function_args):
+def get_neighbor_feature_map(labels,neighbor_function=None,contact_labels=None,radius=10,dtype=np.float64,**neighbor_function_args):
     """
     Constructs a map where each cell's pixels are annotated with a feature value that quantifies some aspect of
     its relationship with neighboring cells. This is typically used in image analysis to evaluate how cells or
