@@ -436,7 +436,7 @@ def featNucBoundary(regionmask, intensity):
         xf = np.ones(15)*np.nan
     return xf
 
-def get_cc_cs_border(mskcell,fmskcell,bordersize=10):
+def get_cc_cs_border(mskcell,fmskcell,bordersize=0):
     """
     Identifies core-cell (cc) and cell-surrounding (cs) borders within a given cell mask by applying
     morphological operations and boundary detection.
@@ -513,7 +513,7 @@ def get_cc_cs_border(mskcell,fmskcell,bordersize=10):
     csborder=csborder.astype(int)
     return ccborder,csborder
 
-def boundaryCB_FFT(msk,fmsk,ncomp=15,center=None,nth=256,bordersize=1):
+def boundaryCB_FFT(msk,fmsk,ncomp=15,center=None,nth=256,bordersize=0):
     """
     Computes the Fourier Transform of boundary data for a mask distinguishing between core-cell
     and cell-surrounding regions, encoding the shape information in frequency space.
@@ -649,7 +649,7 @@ def featBoundaryCB(regionmask, intensity):
     - Visualization commands within the function (commented out) can be enabled for debugging or understanding
       the process by visual inspection.
     """
-    regionmask=skimage.morphology.binary_erosion(regionmask)
+    #regionmask=skimage.morphology.binary_erosion(regionmask)
     #plt.clf();plt.imshow(np.max(intensity,axis=0));plt.contour(np.max(regionmask,axis=0),colors='red');plt.pause(2)
     intensity=intensity>0
     if regionmask.ndim==3:

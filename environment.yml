@@ -33,3 +33,4 @@ dependencies:
    - adjustText
    - cmapfile
    - nanomesh
+   - seaborn

@@ -6,6 +6,7 @@ import re
 import scipy
 import pyemma.coordinates as coor
 from adjustText import adjust_text
+import itertools
 
 #class Translate():
 """
@@ -51,7 +52,7 @@ def get_predictedFC(state_probs,statesFC):
         x_FC_predicted[itr,:]=(np.tile(statep,(nG,1))*statesFC.T).sum(-1)
     return x_FC_predicted
 
-def get_state_decomposition(self,x_fc,state_probs,npermutations=500,inds_tm_training=None,save_file=None,visual=False,verbose=True,nchunk=100,gene_names=None,lb=None,ub=None):
+def get_state_decomposition(x_fc,state_probs,npermutations=500,inds_tm_training=None,save_file=None,visual=False,verbose=True,nchunk=100,gene_names=None,lb=None,ub=None):
     n=state_probs.shape[1]
     ntr=state_probs.shape[0]
     nG=x_fc.shape[1]
@@ -103,18 +104,21 @@ def get_state_decomposition(self,x_fc,state_probs,npermutations=500,inds_tm_trai
         np.save(save_file,x_fc_states)
     return x_fc_states
 
-def get_null_correlations(self,x_fc,x_fc_states,x_fc_predicted,nrandom=500,nchunk=20,save_file=None):
+def get_null_correlations(x_fc,x_fc_states,x_fc_predicted,nrandom=500,seed=None,tmfSet=None):
     n=x_fc_states.shape[0]
     ntr=x_fc.shape[0]
-    nrandom=500
-    xr=6
+    if tmfSet is None:
+        tmfSet=np.arange(ntr).astype(str)
+    if seed is None:
+        seed=0
+    rng = np.random.default_rng(seed=seed)
     corrSet_pred=np.zeros(ntr)
     corrSet_predrand=np.zeros((nrandom,ntr))
     corrSet_rand=np.zeros((nrandom,ntr))
     for ir in range(nrandom):
         state_probs_r=np.zeros((ntr,n))
         for itr in range(ntr):
-            rp=np.random.rand(n)
+            rp=rng.random(n)
             rp=rp/np.sum(rp)
             state_probs_r[itr,:]=rp.copy()
         x_fc_null=get_predictedFC(state_probs_r,x_fc_states)
@@ -127,8 +131,5 @@ def get_null_correlations(self,x_fc,x_fc_states,x_fc_predicted,nrandom=500,nchun
             corrSet_pred[itr]=rhoSet[0,2]
             corrSet_rand[ir,itr]=rhoSet[1,2]
             corrSet_predrand[ir,itr]=rhoSet[0,1]
-            print(tmfSet[itr]+f' correlation: prediction {rhoSet[0,2]:.2f}, null {rhoSet[1,2]:.2f} prednull {rhoSet[0,1]:.2f}, ir: {ir} of {nrandom}')
-            if ir%nchunk==0 or ir==nrandom-1:
-                if save_file is not None:
-                    np.save(save_file,corrSet_rand)
-        return corrSet_pred, corrSet_rand, corrSet_predrand
+            #print(tmfSet[itr]+f' correlation: prediction {rhoSet[0,2]:.2f}, null {rhoSet[1,2]:.2f} prednull {rhoSet[0,1]:.2f}, ir: {ir} of {nrandom}')
+    return corrSet_pred, corrSet_rand, corrSet_predrand
