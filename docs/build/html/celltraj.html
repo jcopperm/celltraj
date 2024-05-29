@@ -18,6 +18,7 @@
         <script src="_static/documentation_options.js?v=a58bc63e"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -501,7 +502,7 @@ repeated across each 2D section. For example, applying edge detection or blurrin
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.features.boundaryCB_FFT">
-<span class="sig-prename descclassname"><span class="pre">celltraj.features.</span></span><span class="sig-name descname"><span class="pre">boundaryCB_FFT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmsk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncomp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/features.html#boundaryCB_FFT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.features.boundaryCB_FFT" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">celltraj.features.</span></span><span class="sig-name descname"><span class="pre">boundaryCB_FFT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmsk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncomp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/features.html#boundaryCB_FFT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.features.boundaryCB_FFT" title="Link to this definition"></a></dt>
 <dd><p>Computes the Fourier Transform of boundary data for a mask distinguishing between core-cell
 and cell-surrounding regions, encoding the shape information in frequency space.</p>
 <p>This function identifies boundaries within a mask and differentiates between core-cell (cc) and
@@ -852,7 +853,7 @@ objects in biomedical images.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.features.get_cc_cs_border">
-<span class="sig-prename descclassname"><span class="pre">celltraj.features.</span></span><span class="sig-name descname"><span class="pre">get_cc_cs_border</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mskcell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmskcell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/features.html#get_cc_cs_border"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.features.get_cc_cs_border" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">celltraj.features.</span></span><span class="sig-name descname"><span class="pre">get_cc_cs_border</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mskcell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmskcell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/features.html#get_cc_cs_border"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.features.get_cc_cs_border" title="Link to this definition"></a></dt>
 <dd><p>Identifies core-cell (cc) and cell-surrounding (cs) borders within a given cell mask by applying
 morphological operations and boundary detection.</p>
 <p>This function defines two regions within a cell mask: the core-cell border, which is far enough from the
@@ -5376,18 +5377,111 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span id="celltraj-translate-module"></span><h2>celltraj.translate module<a class="headerlink" href="#module-celltraj.translate" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.translate.get_null_correlations">
-<span class="sig-prename descclassname"><span class="pre">celltraj.translate.</span></span><span class="sig-name descname"><span class="pre">get_null_correlations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_fc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_fc_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_fc_predicted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrandom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/translate.html#get_null_correlations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.translate.get_null_correlations" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">celltraj.translate.</span></span><span class="sig-name descname"><span class="pre">get_null_correlations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_fc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_fc_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_fc_predicted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrandom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmfSet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/translate.html#get_null_correlations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.translate.get_null_correlations" title="Link to this definition"></a></dt>
+<dd><p>Calculate null correlations for predicted and real fold changes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_fc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Measured fold change matrix (conditions x genes).</p></li>
+<li><p><strong>x_fc_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – State-specific fold change matrix (states x genes).</p></li>
+<li><p><strong>x_fc_predicted</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Predicted fold change matrix (conditions x genes).</p></li>
+<li><p><strong>nrandom</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Number of random permutations for generating null distributions (default is 500).</p></li>
+<li><p><strong>seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Random seed for reproducibility (default is None).</p></li>
+<li><p><strong>tmfSet</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Array of treatment names or identifiers (default is None).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>corrSet_pred</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Correlations between predicted and real fold changes for each condition.</p></li>
+<li><p><strong>corrSet_rand</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Null correlations between randomly generated state probabilities and real fold changes.</p></li>
+<li><p><strong>corrSet_predrand</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Null correlations between predicted fold changes and fold changes from randomly generated state probabilities.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function generates null distributions by randomly permuting state probabilities and calculating the
+corresponding fold changes. The correlations between these null fold changes and the real/predicted fold changes
+are computed to evaluate the significance of the predictions.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x_fc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>  <span class="c1"># Example fold change data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x_fc_states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>  <span class="c1"># Example state-specific fold changes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x_fc_predicted</span> <span class="o">=</span> <span class="n">get_predictedFC</span><span class="p">(</span><span class="n">state_probs</span><span class="p">,</span> <span class="n">x_fc_states</span><span class="p">)</span>  <span class="c1"># Example predicted fold changes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">corr_pred</span><span class="p">,</span> <span class="n">corr_rand</span><span class="p">,</span> <span class="n">corr_predrand</span> <span class="o">=</span> <span class="n">get_null_correlations</span><span class="p">(</span><span class="n">x_fc</span><span class="p">,</span> <span class="n">x_fc_states</span><span class="p">,</span> <span class="n">x_fc_predicted</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.translate.get_predictedFC">
 <span class="sig-prename descclassname"><span class="pre">celltraj.translate.</span></span><span class="sig-name descname"><span class="pre">get_predictedFC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_probs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statesFC</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/translate.html#get_predictedFC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.translate.get_predictedFC" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Predict fold changes based on state probabilities and state-specific fold changes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state_probs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – State probability matrix (conditions x states).</p></li>
+<li><p><strong>statesFC</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – State-specific fold change matrix (states x genes).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>x_FC_predicted</strong> – Predicted fold change matrix (conditions x genes).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">state_probs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># Example state probability data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">statesFC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>  <span class="c1"># Example state-specific fold change data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">predicted_fc</span> <span class="o">=</span> <span class="n">get_predictedFC</span><span class="p">(</span><span class="n">state_probs</span><span class="p">,</span> <span class="n">statesFC</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.translate.get_state_decomposition">
-<span class="sig-prename descclassname"><span class="pre">celltraj.translate.</span></span><span class="sig-name descname"><span class="pre">get_state_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_fc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_probs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npermutations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inds_tm_training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/translate.html#get_state_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.translate.get_state_decomposition" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">celltraj.translate.</span></span><span class="sig-name descname"><span class="pre">get_state_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_fc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_probs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npermutations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inds_tm_training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gene_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/translate.html#get_state_decomposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.translate.get_state_decomposition" title="Link to this definition"></a></dt>
+<dd><p>Decompose paired bulk average data (e.g. bulk RNAseq or gene expression measurement) into state-specific contributions using least squares optimization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_fc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Fold change matrix (samples x genes).</p></li>
+<li><p><strong>state_probs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – State probability matrix (samples x states).</p></li>
+<li><p><strong>npermutations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Number of permutations for training set decompositions (default is 500).</p></li>
+<li><p><strong>inds_tm_training</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Indices of training set conditions (default is None).</p></li>
+<li><p><strong>save_file</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – File path to save the state-specific fold changes (default is None).</p></li>
+<li><p><strong>visual</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, visualizes the decomposition process (default is False).</p></li>
+<li><p><strong>verbose</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, provides detailed logs during the decomposition process (default is True).</p></li>
+<li><p><strong>nchunk</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Chunk size for logging and saving intermediate results (default is 100).</p></li>
+<li><p><strong>gene_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Names of the genes (default is None).</p></li>
+<li><p><strong>lb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Lower bounds for the linear least squares optimization (default is None, which sets to zeros).</p></li>
+<li><p><strong>ub</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Upper bounds for the linear least squares optimization (default is None, which sets to infinity).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>x_fc_states</strong> – State-specific fold change matrix (states x genes).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If the state corresponds to the same RNA level regardless of the ligand treatment, then the measured average fold change for gene <cite>g</cite> in condition <cite>t</cite> can be decomposed into a linear combination
+of state-specific fold changes <cite>s_g</cite> and state probabilities <cite>p_t</cite>, such that:</p>
+<div class="math notranslate nohighlight">
+\[x_{tg} = \sum_{i=1}^{n} p_{ti} s_{ig}\]</div>
+<p>where:
+- <cite>x_{tg}</cite> is the measured fold change for gene <cite>g</cite> in condition <cite>t</cite>.
+- <cite>p_{ti}</cite> is the probability of state <cite>i</cite> in condition <cite>t</cite>.
+- <cite>s_{ig}</cite> is the state-specific fold change for state <cite>i</cite> and gene <cite>g</cite>.
+- <cite>n</cite> is the number of states.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x_fc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5000</span><span class="p">)</span>  <span class="c1"># Example fold change data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">state_probs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># Example state probability data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x_fc_states</span> <span class="o">=</span> <span class="n">get_state_decomposition</span><span class="p">(</span><span class="n">x_fc</span><span class="p">,</span> <span class="n">state_probs</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
 
 </section>
 <section id="module-celltraj.utilities">

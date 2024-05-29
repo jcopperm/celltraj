@@ -8,41 +8,28 @@ import pyemma.coordinates as coor
 from adjustText import adjust_text
 import itertools
 
-#class Translate():
-"""
-A toolset for single-cell trajectory modeling and multidomain translation. See:
-
-Danger
--------
-This code, currently, should be considered as an untested pre-release version
-
-Todo
-----
-Refactor
-    In general, this class's methods generally handle data by holding state in the object.
-    The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.
-    The state being updated along the way is usually "helper" quantities.
-    I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --
-    one example of this might be setting them as properties, and then updating the value in state as part of that
-    accessor if necessary.
-References
---------
-Jeremy Copperman, Ian McLean, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.
-Morphodynamical and gene expression trajectories of cell state change..
-Manuscript in preparation.
-"""
-
-#def __init__(self):
-#    """
-#    Work-in-progress init function. For now, just start adding attribute definitions in here.
-#    Todo
-#    ----
-#    - Most logic from initialize() should be moved in here.
-#    - Also, comment all of these here. Right now most of them have comments throughout the code.
-#    - Reorganize these attributes into some meaningful structure
-#    """a
-
 def get_predictedFC(state_probs,statesFC):
+    """
+    Predict fold changes based on state probabilities and state-specific fold changes.
+
+    Parameters
+    ----------
+    state_probs : ndarray
+        State probability matrix (conditions x states).
+    statesFC : ndarray
+        State-specific fold change matrix (states x genes).
+
+    Returns
+    -------
+    x_FC_predicted : ndarray
+        Predicted fold change matrix (conditions x genes).
+
+    Examples
+    --------
+    >>> state_probs = np.random.rand(10, 3)  # Example state probability data
+    >>> statesFC = np.random.rand(3, 5000)  # Example state-specific fold change data
+    >>> predicted_fc = get_predictedFC(state_probs, statesFC)
+    """
     ntr=state_probs.shape[0]
     n=state_probs.shape[1]
     nG=statesFC.shape[1]
@@ -53,6 +40,60 @@ def get_predictedFC(state_probs,statesFC):
     return x_FC_predicted
 
 def get_state_decomposition(x_fc,state_probs,npermutations=500,inds_tm_training=None,save_file=None,visual=False,verbose=True,nchunk=100,gene_names=None,lb=None,ub=None):
+    """
+    Decompose paired bulk average data (e.g. bulk RNAseq or gene expression measurement) into state-specific contributions using least squares optimization.
+
+    Parameters
+    ----------
+    x_fc : ndarray
+        Fold change matrix (samples x genes).
+    state_probs : ndarray
+        State probability matrix (samples x states).
+    npermutations : int, optional
+        Number of permutations for training set decompositions (default is 500).
+    inds_tm_training : ndarray, optional
+        Indices of training set conditions (default is None).
+    save_file : str, optional
+        File path to save the state-specific fold changes (default is None).
+    visual : bool, optional
+        If True, visualizes the decomposition process (default is False).
+    verbose : bool, optional
+        If True, provides detailed logs during the decomposition process (default is True).
+    nchunk : int, optional
+        Chunk size for logging and saving intermediate results (default is 100).
+    gene_names : ndarray, optional
+        Names of the genes (default is None).
+    lb : ndarray, optional
+        Lower bounds for the linear least squares optimization (default is None, which sets to zeros).
+    ub : ndarray, optional
+        Upper bounds for the linear least squares optimization (default is None, which sets to infinity).
+
+    Returns
+    -------
+    x_fc_states : ndarray
+        State-specific fold change matrix (states x genes).
+
+    Notes
+    -----
+    If the state corresponds to the same RNA level regardless of the ligand treatment, then the measured average fold change for gene `g` in condition `t` can be decomposed into a linear combination
+    of state-specific fold changes `s_g` and state probabilities `p_t`, such that:
+
+    .. math::
+        x_{tg} = \sum_{i=1}^{n} p_{ti} s_{ig}
+
+    where:
+    - `x_{tg}` is the measured fold change for gene `g` in condition `t`.
+    - `p_{ti}` is the probability of state `i` in condition `t`.
+    - `s_{ig}` is the state-specific fold change for state `i` and gene `g`.
+    - `n` is the number of states.
+
+    Examples
+    --------
+    >>> x_fc = np.random.rand(10, 5000)  # Example fold change data
+    >>> state_probs = np.random.rand(10, 3)  # Example state probability data
+    >>> x_fc_states = get_state_decomposition(x_fc, state_probs)
+
+    """
     n=state_probs.shape[1]
     ntr=state_probs.shape[0]
     nG=x_fc.shape[1]
@@ -105,6 +146,47 @@ def get_state_decomposition(x_fc,state_probs,npermutations=500,inds_tm_training=
     return x_fc_states
 
 def get_null_correlations(x_fc,x_fc_states,x_fc_predicted,nrandom=500,seed=None,tmfSet=None):
+    """
+    Calculate null correlations for predicted and real fold changes.
+
+    Parameters
+    ----------
+    x_fc : ndarray
+        Measured fold change matrix (conditions x genes).
+    x_fc_states : ndarray
+        State-specific fold change matrix (states x genes).
+    x_fc_predicted : ndarray
+        Predicted fold change matrix (conditions x genes).
+    nrandom : int, optional
+        Number of random permutations for generating null distributions (default is 500).
+    seed : int, optional
+        Random seed for reproducibility (default is None).
+    tmfSet : ndarray, optional
+        Array of treatment names or identifiers (default is None).
+
+    Returns
+    -------
+    corrSet_pred : ndarray
+        Correlations between predicted and real fold changes for each condition.
+    corrSet_rand : ndarray
+        Null correlations between randomly generated state probabilities and real fold changes.
+    corrSet_predrand : ndarray
+        Null correlations between predicted fold changes and fold changes from randomly generated state probabilities.
+
+    Notes
+    -----
+    This function generates null distributions by randomly permuting state probabilities and calculating the 
+    corresponding fold changes. The correlations between these null fold changes and the real/predicted fold changes
+    are computed to evaluate the significance of the predictions.
+
+    Examples
+    --------
+    >>> x_fc = np.random.rand(10, 5000)  # Example fold change data
+    >>> x_fc_states = np.random.rand(3, 5000)  # Example state-specific fold changes
+    >>> x_fc_predicted = get_predictedFC(state_probs, x_fc_states)  # Example predicted fold changes
+    >>> corr_pred, corr_rand, corr_predrand = get_null_correlations(x_fc, x_fc_states, x_fc_predicted)
+
+    """
     n=x_fc_states.shape[0]
     ntr=x_fc.shape[0]
     if tmfSet is None:

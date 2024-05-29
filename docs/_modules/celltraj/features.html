@@ -537,7 +537,7 @@
 
 <div class="viewcode-block" id="get_cc_cs_border">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.get_cc_cs_border">[docs]</a>
-<span class="k">def</span> <span class="nf">get_cc_cs_border</span><span class="p">(</span><span class="n">mskcell</span><span class="p">,</span><span class="n">fmskcell</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_cc_cs_border</span><span class="p">(</span><span class="n">mskcell</span><span class="p">,</span><span class="n">fmskcell</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Identifies core-cell (cc) and cell-surrounding (cs) borders within a given cell mask by applying</span>
 <span class="sd">    morphological operations and boundary detection.</span>
@@ -617,7 +617,7 @@
 
 <div class="viewcode-block" id="boundaryCB_FFT">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.boundaryCB_FFT">[docs]</a>
-<span class="k">def</span> <span class="nf">boundaryCB_FFT</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">fmsk</span><span class="p">,</span><span class="n">ncomp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nth</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">boundaryCB_FFT</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">fmsk</span><span class="p">,</span><span class="n">ncomp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nth</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Fourier Transform of boundary data for a mask distinguishing between core-cell</span>
 <span class="sd">    and cell-surrounding regions, encoding the shape information in frequency space.</span>
@@ -756,7 +756,7 @@
 <span class="sd">    - Visualization commands within the function (commented out) can be enabled for debugging or understanding</span>
 <span class="sd">      the process by visual inspection.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">regionmask</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span><span class="n">regionmask</span><span class="p">)</span>
+    <span class="c1">#regionmask=skimage.morphology.binary_erosion(regionmask)</span>
     <span class="c1">#plt.clf();plt.imshow(np.max(intensity,axis=0));plt.contour(np.max(regionmask,axis=0),colors=&#39;red&#39;);plt.pause(2)</span>
     <span class="n">intensity</span><span class="o">=</span><span class="n">intensity</span><span class="o">&gt;</span><span class="mi">0</span>
     <span class="k">if</span> <span class="n">regionmask</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>

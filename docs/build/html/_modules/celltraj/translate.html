@@ -81,44 +81,32 @@
 <span class="kn">import</span> <span class="nn">scipy</span>
 <span class="kn">import</span> <span class="nn">pyemma.coordinates</span> <span class="k">as</span> <span class="nn">coor</span>
 <span class="kn">from</span> <span class="nn">adjustText</span> <span class="kn">import</span> <span class="n">adjust_text</span>
-
-<span class="c1">#class Translate():</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">A toolset for single-cell trajectory modeling and multidomain translation. See:</span>
-
-<span class="sd">Danger</span>
-<span class="sd">-------</span>
-<span class="sd">This code, currently, should be considered as an untested pre-release version</span>
-
-<span class="sd">Todo</span>
-<span class="sd">----</span>
-<span class="sd">Refactor</span>
-<span class="sd">    In general, this class&#39;s methods generally handle data by holding state in the object.</span>
-<span class="sd">    The functions that update state with the result of a calculation, though, tend to update a lot of state on the way.</span>
-<span class="sd">    The state being updated along the way is usually &quot;helper&quot; quantities.</span>
-<span class="sd">    I think it would be prudent to refactor these in such a way that these are updated in as few places as possible --</span>
-<span class="sd">    one example of this might be setting them as properties, and then updating the value in state as part of that</span>
-<span class="sd">    accessor if necessary.</span>
-<span class="sd">References</span>
-<span class="sd">--------</span>
-<span class="sd">Jeremy Copperman, Ian McLean, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman.</span>
-<span class="sd">Morphodynamical and gene expression trajectories of cell state change..</span>
-<span class="sd">Manuscript in preparation.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="c1">#def __init__(self):</span>
-<span class="c1">#    &quot;&quot;&quot;</span>
-<span class="c1">#    Work-in-progress init function. For now, just start adding attribute definitions in here.</span>
-<span class="c1">#    Todo</span>
-<span class="c1">#    ----</span>
-<span class="c1">#    - Most logic from initialize() should be moved in here.</span>
-<span class="c1">#    - Also, comment all of these here. Right now most of them have comments throughout the code.</span>
-<span class="c1">#    - Reorganize these attributes into some meaningful structure</span>
-<span class="c1">#    &quot;&quot;&quot;a</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
 
 <div class="viewcode-block" id="get_predictedFC">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.translate.get_predictedFC">[docs]</a>
 <span class="k">def</span> <span class="nf">get_predictedFC</span><span class="p">(</span><span class="n">state_probs</span><span class="p">,</span><span class="n">statesFC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Predict fold changes based on state probabilities and state-specific fold changes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    state_probs : ndarray</span>
+<span class="sd">        State probability matrix (conditions x states).</span>
+<span class="sd">    statesFC : ndarray</span>
+<span class="sd">        State-specific fold change matrix (states x genes).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    x_FC_predicted : ndarray</span>
+<span class="sd">        Predicted fold change matrix (conditions x genes).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; state_probs = np.random.rand(10, 3)  # Example state probability data</span>
+<span class="sd">    &gt;&gt;&gt; statesFC = np.random.rand(3, 5000)  # Example state-specific fold change data</span>
+<span class="sd">    &gt;&gt;&gt; predicted_fc = get_predictedFC(state_probs, statesFC)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ntr</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">n</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">nG</span><span class="o">=</span><span class="n">statesFC</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -131,7 +119,61 @@
 
 <div class="viewcode-block" id="get_state_decomposition">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.translate.get_state_decomposition">[docs]</a>
-<span class="k">def</span> <span class="nf">get_state_decomposition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x_fc</span><span class="p">,</span><span class="n">state_probs</span><span class="p">,</span><span class="n">npermutations</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">inds_tm_training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">gene_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_state_decomposition</span><span class="p">(</span><span class="n">x_fc</span><span class="p">,</span><span class="n">state_probs</span><span class="p">,</span><span class="n">npermutations</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">inds_tm_training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">gene_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decompose paired bulk average data (e.g. bulk RNAseq or gene expression measurement) into state-specific contributions using least squares optimization.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x_fc : ndarray</span>
+<span class="sd">        Fold change matrix (samples x genes).</span>
+<span class="sd">    state_probs : ndarray</span>
+<span class="sd">        State probability matrix (samples x states).</span>
+<span class="sd">    npermutations : int, optional</span>
+<span class="sd">        Number of permutations for training set decompositions (default is 500).</span>
+<span class="sd">    inds_tm_training : ndarray, optional</span>
+<span class="sd">        Indices of training set conditions (default is None).</span>
+<span class="sd">    save_file : str, optional</span>
+<span class="sd">        File path to save the state-specific fold changes (default is None).</span>
+<span class="sd">    visual : bool, optional</span>
+<span class="sd">        If True, visualizes the decomposition process (default is False).</span>
+<span class="sd">    verbose : bool, optional</span>
+<span class="sd">        If True, provides detailed logs during the decomposition process (default is True).</span>
+<span class="sd">    nchunk : int, optional</span>
+<span class="sd">        Chunk size for logging and saving intermediate results (default is 100).</span>
+<span class="sd">    gene_names : ndarray, optional</span>
+<span class="sd">        Names of the genes (default is None).</span>
+<span class="sd">    lb : ndarray, optional</span>
+<span class="sd">        Lower bounds for the linear least squares optimization (default is None, which sets to zeros).</span>
+<span class="sd">    ub : ndarray, optional</span>
+<span class="sd">        Upper bounds for the linear least squares optimization (default is None, which sets to infinity).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    x_fc_states : ndarray</span>
+<span class="sd">        State-specific fold change matrix (states x genes).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If the state corresponds to the same RNA level regardless of the ligand treatment, then the measured average fold change for gene `g` in condition `t` can be decomposed into a linear combination</span>
+<span class="sd">    of state-specific fold changes `s_g` and state probabilities `p_t`, such that:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        x_{tg} = \sum_{i=1}^{n} p_{ti} s_{ig}</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    - `x_{tg}` is the measured fold change for gene `g` in condition `t`.</span>
+<span class="sd">    - `p_{ti}` is the probability of state `i` in condition `t`.</span>
+<span class="sd">    - `s_{ig}` is the state-specific fold change for state `i` and gene `g`.</span>
+<span class="sd">    - `n` is the number of states.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; x_fc = np.random.rand(10, 5000)  # Example fold change data</span>
+<span class="sd">    &gt;&gt;&gt; state_probs = np.random.rand(10, 3)  # Example state probability data</span>
+<span class="sd">    &gt;&gt;&gt; x_fc_states = get_state_decomposition(x_fc, state_probs)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">ntr</span><span class="o">=</span><span class="n">state_probs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">nG</span><span class="o">=</span><span class="n">x_fc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -186,18 +228,62 @@
 
 <div class="viewcode-block" id="get_null_correlations">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.translate.get_null_correlations">[docs]</a>
-<span class="k">def</span> <span class="nf">get_null_correlations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x_fc</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">,</span><span class="n">x_fc_predicted</span><span class="p">,</span><span class="n">nrandom</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_null_correlations</span><span class="p">(</span><span class="n">x_fc</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">,</span><span class="n">x_fc_predicted</span><span class="p">,</span><span class="n">nrandom</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">tmfSet</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate null correlations for predicted and real fold changes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x_fc : ndarray</span>
+<span class="sd">        Measured fold change matrix (conditions x genes).</span>
+<span class="sd">    x_fc_states : ndarray</span>
+<span class="sd">        State-specific fold change matrix (states x genes).</span>
+<span class="sd">    x_fc_predicted : ndarray</span>
+<span class="sd">        Predicted fold change matrix (conditions x genes).</span>
+<span class="sd">    nrandom : int, optional</span>
+<span class="sd">        Number of random permutations for generating null distributions (default is 500).</span>
+<span class="sd">    seed : int, optional</span>
+<span class="sd">        Random seed for reproducibility (default is None).</span>
+<span class="sd">    tmfSet : ndarray, optional</span>
+<span class="sd">        Array of treatment names or identifiers (default is None).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    corrSet_pred : ndarray</span>
+<span class="sd">        Correlations between predicted and real fold changes for each condition.</span>
+<span class="sd">    corrSet_rand : ndarray</span>
+<span class="sd">        Null correlations between randomly generated state probabilities and real fold changes.</span>
+<span class="sd">    corrSet_predrand : ndarray</span>
+<span class="sd">        Null correlations between predicted fold changes and fold changes from randomly generated state probabilities.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function generates null distributions by randomly permuting state probabilities and calculating the </span>
+<span class="sd">    corresponding fold changes. The correlations between these null fold changes and the real/predicted fold changes</span>
+<span class="sd">    are computed to evaluate the significance of the predictions.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; x_fc = np.random.rand(10, 5000)  # Example fold change data</span>
+<span class="sd">    &gt;&gt;&gt; x_fc_states = np.random.rand(3, 5000)  # Example state-specific fold changes</span>
+<span class="sd">    &gt;&gt;&gt; x_fc_predicted = get_predictedFC(state_probs, x_fc_states)  # Example predicted fold changes</span>
+<span class="sd">    &gt;&gt;&gt; corr_pred, corr_rand, corr_predrand = get_null_correlations(x_fc, x_fc_states, x_fc_predicted)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n</span><span class="o">=</span><span class="n">x_fc_states</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">ntr</span><span class="o">=</span><span class="n">x_fc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">nrandom</span><span class="o">=</span><span class="mi">500</span>
-    <span class="n">xr</span><span class="o">=</span><span class="mi">6</span>
+    <span class="k">if</span> <span class="n">tmfSet</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tmfSet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ntr</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">seed</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
     <span class="n">corrSet_pred</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ntr</span><span class="p">)</span>
     <span class="n">corrSet_predrand</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nrandom</span><span class="p">,</span><span class="n">ntr</span><span class="p">))</span>
     <span class="n">corrSet_rand</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nrandom</span><span class="p">,</span><span class="n">ntr</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">ir</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrandom</span><span class="p">):</span>
         <span class="n">state_probs_r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ntr</span><span class="p">,</span><span class="n">n</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ntr</span><span class="p">):</span>
-            <span class="n">rp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">rp</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
             <span class="n">rp</span><span class="o">=</span><span class="n">rp</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span>
             <span class="n">state_probs_r</span><span class="p">[</span><span class="n">itr</span><span class="p">,:]</span><span class="o">=</span><span class="n">rp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">x_fc_null</span><span class="o">=</span><span class="n">get_predictedFC</span><span class="p">(</span><span class="n">state_probs_r</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">)</span>
@@ -210,11 +296,8 @@
             <span class="n">corrSet_pred</span><span class="p">[</span><span class="n">itr</span><span class="p">]</span><span class="o">=</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">corrSet_rand</span><span class="p">[</span><span class="n">ir</span><span class="p">,</span><span class="n">itr</span><span class="p">]</span><span class="o">=</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
             <span class="n">corrSet_predrand</span><span class="p">[</span><span class="n">ir</span><span class="p">,</span><span class="n">itr</span><span class="p">]</span><span class="o">=</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">tmfSet</span><span class="p">[</span><span class="n">itr</span><span class="p">]</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39; correlation: prediction </span><span class="si">{</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">, null </span><span class="si">{</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> prednull </span><span class="si">{</span><span class="n">rhoSet</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">, ir: </span><span class="si">{</span><span class="n">ir</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">nrandom</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">ir</span><span class="o">%</span><span class="n">nchunk</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">ir</span><span class="o">==</span><span class="n">nrandom</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">save_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">save_file</span><span class="p">,</span><span class="n">corrSet_rand</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">corrSet_pred</span><span class="p">,</span> <span class="n">corrSet_rand</span><span class="p">,</span> <span class="n">corrSet_predrand</span></div>
+            <span class="c1">#print(tmfSet[itr]+f&#39; correlation: prediction {rhoSet[0,2]:.2f}, null {rhoSet[1,2]:.2f} prednull {rhoSet[0,1]:.2f}, ir: {ir} of {nrandom}&#39;)</span>
+    <span class="k">return</span> <span class="n">corrSet_pred</span><span class="p">,</span> <span class="n">corrSet_rand</span><span class="p">,</span> <span class="n">corrSet_predrand</span></div>
 
 </pre></div>
 
