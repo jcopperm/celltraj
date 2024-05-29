@@ -8,7 +8,7 @@ celltraj
 
 
 celltraj: A Toolset for Single-Cell Trajectory Modeling
-======================================================
+=======================================================
 
 A software package designed for the modeling and analysis of single-cell trajectories, from extracting morphodynamical data from live-cell imaging to integrating gene expression data to provide insight into the molecular basis of single-cell behaviors.
 
