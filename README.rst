@@ -31,7 +31,7 @@ Free software: MIT license
 
 Documentation
 -------------
-- `celltraj Ddcumentation <https://jcopperm.github.io/celltraj>`_
+- `celltraj documentation <https://jcopperm.github.io/celltraj>`_
 
 Tutorials
 ---------

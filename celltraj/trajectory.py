@@ -41,10 +41,6 @@ class Trajectory:
     """
     A toolset for single-cell trajectory modeling. See:
     
-    Warning
-    -------
-    This code, currently, should be considered as an untested pre-release version
-    
     References
     ----------
     Copperman, Jeremy, Sean M. Gross, Young Hwan Chang, Laura M. Heiser, and Daniel M. Zuckerman. 
