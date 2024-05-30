@@ -9,6 +9,7 @@ Stable release
 --------------
 
 For a conda environment with necessary packages:
+
 .. code-block:: console
 
     $ conda env create -f environment.yml
@@ -20,7 +21,7 @@ To install celltraj, run this command in your terminal:
     
     $ pip install celltraj
     
-This is the preferred method to install celltraj, as it will always install the most recent stable release.
+This is the preferred method to install celltraj, as it will always install the most recent release.
     
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide you through the process.
 
