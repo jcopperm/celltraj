@@ -555,7 +555,8 @@ class Trajectory:
         (2, 2, 2)  # Example output shape for a 2D label image with two labels.
         """
         bbox_table=regionprops_table(label,intensity_image=None,properties=['label','bbox'])
-        cblocks=np.zeros((np.max(label),label.ndim,2)).astype(int)
+        ncells=bbox_table['label'].size
+        cblocks=np.zeros((ncells,label.ndim,2)).astype(int)
         if label.ndim==2:
             cblocks[:,0,0]=bbox_table['bbox-0']
             cblocks[:,1,0]=bbox_table['bbox-1']
@@ -901,7 +902,7 @@ class Trajectory:
         else:
             return np.array(Xf)
 
-    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,fmask_channel=None,make_disjoint=True,erosion_footprint1=None,erosion_footprint2=None,combined_and_disjoint=False,intensity_sum=False,intensity_ztransform=False,noratio=False,inverse_ratio=False,save_h5=False,overwrite=False):
+    def get_cell_compartment_ratio(self,indcells=None,imgchannel=None,mskchannel1=None,mskchannel2=None,fmask_channel=None,make_disjoint=True,remove_background_perframe=False,fmask_channel_background=0,background_percentile=1,erosion_footprint1=None,erosion_footprint2=None,combined_and_disjoint=False,intensity_sum=False,intensity_ztransform=False,noratio=False,inverse_ratio=False,save_h5=False,overwrite=False):
         """
         Calculates the ratio of features between two cellular compartments, optionally adjusted for image
         intensity and morphology transformations. This method allows for complex comparisons between different
@@ -972,19 +973,26 @@ class Trajectory:
         for icell in range(np.array(indcells).size):
             ic=indcells[icell]
             if not self.cells_frameSet[ic]==ip_frame:
+                ncells_frame=np.sum(self.cells_indimgSet==self.cells_indimgSet[ic])
+                cratio_frame=np.ones(ncells_frame)*np.nan
                 sys.stdout.write('featurizing cells from frame '+str(self.cells_frameSet[ic])+'\n')
                 img=self.get_image_data(self.cells_indimgSet[ic]) #use image data for intensity image
                 msk=self.get_mask_data(self.cells_indimgSet[ic])
                 if self.axes[-1]=='c':
                     img=img[...,imgchannel]
                 msk1=msk[...,mskchannel1]
+                props0 = regionprops_table(msk1)
                 if fmask_channel is None:
                     msk2=msk[...,mskchannel2]
                 else:
-                    fmsk=self.get_fmask_data(self.cells_indimgSet[ic])
-                    fmsk=fmsk[...,fmask_channel]
+                    fmsk=self.get_fmask_data(self.cells_indimgSet[ic],channel=fmask_channel)
+                    #fmsk=fmsk[...,fmask_channel]
                     msk2=msk1.copy()
                     msk2[np.logical_not(fmsk>0)]=0
+                if remove_background_perframe:
+                    fmsk_foreground=self.get_fmask_data(self.cells_indimgSet[ic],channel=fmask_channel_background)
+                    background_mean=np.nanpercentile(img[np.logical_not(fmsk_foreground)],background_percentile)
+                    print(f'frame {self.cells_frameSet[ic]} removing background level {background_mean}')
                 if combined_and_disjoint:
                     msk2=imprep.get_cyto_minus_nuc_labels(msk1,msk2)
                 elif make_disjoint:
@@ -1000,6 +1008,7 @@ class Trajectory:
                     fmsk2=skimage.morphology.binary_erosion(msk2>0,footprint=erosion_footprint2); msk2[fmsk2]=0
                 props1 = regionprops_table(msk1, intensity_image=img,properties=('label','intensity_mean','area'))
                 props2 = regionprops_table(msk2, intensity_image=img,properties=('label','intensity_mean','area'))
+                commonlabels0,indcommon0,indcommon01=np.intersect1d(props0['label'],props1['label'],return_indices=True)
                 commonlabels,indcommon1,indcommon2=np.intersect1d(props1['label'],props2['label'],return_indices=True)
                 props2_matched=props1.copy()
                 props2_matched['intensity_mean']=np.ones_like(props1['intensity_mean'])*np.nan
@@ -1007,19 +1016,22 @@ class Trajectory:
                 props2_matched['area']=np.ones_like(props1['area'])*np.nan
                 props2_matched['area'][indcommon1]=props2['area'][indcommon2]
                 props2=props2_matched
+                if remove_background_perframe:
+                    props1['intensity_mean']=props1['intensity_mean']-background_mean
+                    props2['intensity_mean']=props2['intensity_mean']-background_mean
                 if intensity_sum:
                     if intensity_ztransform:
-                        cratio_frame=np.divide(self.img_zstds[imgchannel]*np.multiply(props1['intensity_mean']+self.img_zmeans[imgchannel],props1['area']),self.img_zstds[imgchannel]*np.multiply(props2['intensity_mean']+self.img_zmeans[imgchannel],props2['area']))
+                        cratio_frame[indcommon0]=np.divide(self.img_zstds[imgchannel]*np.multiply(props1['intensity_mean']+self.img_zmeans[imgchannel],props1['area']),self.img_zstds[imgchannel]*np.multiply(props2['intensity_mean']+self.img_zmeans[imgchannel],props2['area']))
                     else:
-                        cratio_frame=np.divide(np.multiply(props1['intensity_mean'],props1['area']),np.multiply(props2['intensity_mean'],props2['area']))
+                        cratio_frame[indcommon0]=np.divide(np.multiply(props1['intensity_mean'],props1['area']),np.multiply(props2['intensity_mean'],props2['area']))
                 else:
                     if intensity_ztransform:
-                        cratio_frame=np.divide(self.img_zstds[imgchannel]*props1['intensity_mean']+self.img_zmeans[imgchannel],self.img_zstds[imgchannel]*props2['intensity_mean']+self.img_zmeans[imgchannel])
+                        cratio_frame[indcommon0]=np.divide(self.img_zstds[imgchannel]*props1['intensity_mean']+self.img_zmeans[imgchannel],self.img_zstds[imgchannel]*props2['intensity_mean']+self.img_zmeans[imgchannel])
                     else:
                         if noratio:
-                            cratio_frame=props1['intensity_mean']
+                            cratio_frame[indcommon0]=props1['intensity_mean']
                         else:
-                            cratio_frame=np.divide(props1['intensity_mean'],props2['intensity_mean'])
+                            cratio_frame[indcommon0]=np.divide(props1['intensity_mean'],props2['intensity_mean'])
             cratio[icell]=cratio_frame[self.cells_indSet[ic]]
             ip_frame=self.cells_frameSet[ic]
         if inverse_ratio:

@@ -34,3 +34,4 @@ dependencies:
    - cmapfile
    - nanomesh
    - seaborn
+   - pyntcloud
