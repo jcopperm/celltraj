@@ -82,6 +82,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.nmaskchannels"><code class="docutils literal notranslate"><span class="pre">Trajectory.nmaskchannels</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.ndim"><code class="docutils literal notranslate"><span class="pre">Trajectory.ndim</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_lineage_btrack"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_lineage_btrack()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_lineage_min_otcost"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_lineage_min_otcost()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_lineage_mindist"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_lineage_mindist()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_mask_data"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_mask_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_motility_features"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_motility_features()</span></code></a></li>
@@ -184,6 +185,26 @@
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_J_old"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_J_old()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_flux"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_flux()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.model.update_mahalanobis_matrix_grad"><code class="docutils literal notranslate"><span class="pre">update_mahalanobis_matrix_grad()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#celltraj-spatial">celltraj.spatial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.constrain_volume"><code class="docutils literal notranslate"><span class="pre">constrain_volume()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_LJ_force"><code class="docutils literal notranslate"><span class="pre">get_LJ_force()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_adhesive_displacement"><code class="docutils literal notranslate"><span class="pre">get_adhesive_displacement()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_border_dict"><code class="docutils literal notranslate"><span class="pre">get_border_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_flux_displacement"><code class="docutils literal notranslate"><span class="pre">get_flux_displacement()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_flux_ligdist"><code class="docutils literal notranslate"><span class="pre">get_flux_ligdist()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_labels_fromborderdict"><code class="docutils literal notranslate"><span class="pre">get_labels_fromborderdict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_morse_force"><code class="docutils literal notranslate"><span class="pre">get_morse_force()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_nuc_displacement"><code class="docutils literal notranslate"><span class="pre">get_nuc_displacement()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_ot_displacement"><code class="docutils literal notranslate"><span class="pre">get_ot_displacement()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_ot_dx"><code class="docutils literal notranslate"><span class="pre">get_ot_dx()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_secreted_ligand_density"><code class="docutils literal notranslate"><span class="pre">get_secreted_ligand_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_surface_displacement"><code class="docutils literal notranslate"><span class="pre">get_surface_displacement()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_surface_displacement_deviation"><code class="docutils literal notranslate"><span class="pre">get_surface_displacement_deviation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_surface_points"><code class="docutils literal notranslate"><span class="pre">get_surface_points()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_volconstraint_com"><code class="docutils literal notranslate"><span class="pre">get_volconstraint_com()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_yukawa_force"><code class="docutils literal notranslate"><span class="pre">get_yukawa_force()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#celltraj-translate">celltraj.translate</a><ul>
@@ -419,7 +440,7 @@ providing an indication of how parallel their movements are.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cell_blocks">
-<span class="sig-name descname"><span class="pre">get_cell_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_blocks" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_cell_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_label_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_blocks" title="Link to this definition"></a></dt>
 <dd><p>Extracts bounding box information for each cell from a labeled mask image. This function
 returns the minimum and maximum indices for each labeled cell, useful for operations such
 as cropping around a cell or analyzing specific cell regions. The function supports both
@@ -479,7 +500,7 @@ represented by [min_dim1, min_dim2, …, max_dim1, max_dim2, …].</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cell_compartment_ratio">
-<span class="sig-name descname"><span class="pre">get_cell_compartment_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indcells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmask_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_disjoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">erosion_footprint1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">erosion_footprint2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combined_and_disjoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_sum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_ztransform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_compartment_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_compartment_ratio" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_cell_compartment_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indcells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmask_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_disjoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_background_perframe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmask_channel_background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">erosion_footprint1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">erosion_footprint2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combined_and_disjoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_sum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_ztransform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_compartment_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_compartment_ratio" title="Link to this definition"></a></dt>
 <dd><p>Calculates the ratio of features between two cellular compartments, optionally adjusted for image
 intensity and morphology transformations. This method allows for complex comparisons between different
 mask channels or modified versions of these channels to derive cellular compartment ratios.</p>
@@ -1052,6 +1073,50 @@ with -1. The data saved in <cite>linSet</cite> thus represents the lineage of ea
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lineage_data</span> <span class="o">=</span> <span class="n">traj</span><span class="o">.</span><span class="n">get_lineage_btrack</span><span class="p">(</span><span class="n">mskchannel</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">visual</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_lineage_min_otcost">
+<span class="sig-name descname"><span class="pre">get_lineage_min_otcost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distcut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ot_cost_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_lineage_min_otcost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_lineage_min_otcost" title="Link to this definition"></a></dt>
+<dd><p>Tracks cell lineages over multiple time points using optimal transport cost minimization.</p>
+<p>This method uses centroid distances and optimal transport costs to identify the best matches for cell
+trajectories between consecutive time points, ensuring accurate tracking even in dense or complex environments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distcut</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Maximum distance between cell centroids to consider a match (default is 5.0).</p></li>
+<li><p><strong>ot_cost_cut</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Maximum optimal transport cost allowed for a match (default is np.inf).</p></li>
+<li><p><strong>border_scale</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Scaling factors for the cell border in the [z, y, x] dimensions. If not provided, the scaling is
+determined from <cite>self.micron_per_pixel</cite> and <cite>border_resolution</cite>.</p></li>
+<li><p><strong>border_resolution</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Resolution for the cell border, used to determine <cite>border_scale</cite> if it is not provided. If not set,
+uses <cite>self.border_resolution</cite>.</p></li>
+<li><p><strong>visual</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, plots the cells and their matches at each time point for visualization (default is False).</p></li>
+<li><p><strong>save_h5</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, saves the lineage data to the HDF5 file (default is False).</p></li>
+<li><p><strong>overwrite</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, overwrites existing data in the HDF5 file when saving (default is False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The function updates the instance’s <cite>linSet</cite> attribute, which is a list of arrays containing lineage
+information for each time point. If <cite>save_h5</cite> is True, the lineage data is saved to the HDF5 file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function assumes that cell positions have already been extracted using the <cite>get_cell_positions</cite> method.</p></li>
+<li><p>The function uses the <cite>spatial.get_border_dict</cite> method to compute cell borders and <cite>spatial.get_ot_dx</cite></p></li>
+</ul>
+<p>to compute optimal transport distances.
+- Visualization is available for 2D and 3D data, with different handling for each case.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">traj</span><span class="o">.</span><span class="n">get_lineage_min_otcost</span><span class="p">(</span><span class="n">distcut</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">ot_cost_cut</span><span class="o">=</span><span class="mf">50.0</span><span class="p">,</span> <span class="n">visual</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">Frame 1 tracked 20 of 25 cells</span>
+<span class="go">Frame 2 tracked 22 of 30 cells</span>
+<span class="go">...</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -4553,6 +4618,808 @@ dimensions.</p>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
+</dd></dl>
+
+</section>
+<section id="celltraj-spatial">
+<h2>celltraj.spatial<a class="headerlink" href="#celltraj-spatial" title="Link to this heading"></a></h2>
+<p>Modeling functions for boundary-resolved and physics-based single-cell modeling.</p>
+<dl class="py function" id="module-celltraj.spatial">
+<dt class="sig sig-object py" id="celltraj.spatial.constrain_volume">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">constrain_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_vols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">volconstraint_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#constrain_volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.constrain_volume" title="Link to this definition"></a></dt>
+<dd><p>Adjusts the positions of boundary points to achieve target volumes for different regions.</p>
+<p>This function iterates through different regions identified by their indices and adjusts the
+boundary points to match specified target volumes. The adjustments are performed using the
+<cite>get_volconstraint_com</cite> function, which modifies the boundary points to achieve the desired volume.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>border_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – A dictionary containing boundary information, typically with keys:
+- ‘pts’: ndarray of shape (N, 3), coordinates of the boundary points.
+- ‘index’: ndarray of shape (N,), indices identifying the region each point belongs to.
+- ‘n’: ndarray of shape (N, 3), normals at the boundary points.</p></li>
+<li><p><strong>target_vols</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A dictionary or array where each key or index corresponds to a region index, and the value is
+the target volume for that region.</p></li>
+<li><p><strong>exclude_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code>, <em>optional</em>) – States to be excluded from volume adjustment. If not provided, all states will be adjusted.
+Default is None.</p></li>
+<li><p><strong>**volconstraint_args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <em>optional</em>) – Additional arguments to pass to the <cite>get_volconstraint_com</cite> function, such as maximum iterations
+or convergence criteria.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>border_pts_c</strong> – An array of shape (N, 3) representing the adjusted coordinates of the boundary points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function uses volume constraints to adjust the morphology of different regions based on
+specified target volumes.</p></li>
+<li><p>The regions are identified by the ‘index’ values in <cite>border_dict</cite>.</p></li>
+<li><p>Points belonging to excluded states are not adjusted.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;pts&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]),</span>
+<span class="go">                   &#39;index&#39;: np.array([1, 1, 2]),</span>
+<span class="go">                   &#39;n&#39;: np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0]])}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_vols</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adjusted_pts</span> <span class="o">=</span> <span class="n">constrain_volume</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span> <span class="n">target_vols</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adjusted_pts</span><span class="p">)</span>
+<span class="go">array([[ ... ]])  # Adjusted coordinates for regions with target volumes</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_LJ_force">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_LJ_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_repulsion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_LJ_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_LJ_force" title="Link to this definition"></a></dt>
+<dd><p>Computes the Lennard-Jones (LJ) force for a given set of distances.</p>
+<p>The Lennard-Jones potential models interactions between a pair of neutral atoms or molecules,
+capturing both the attractive and repulsive forces. This function calculates the LJ force based on
+the provided distances, interaction strength, and characteristic distance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The distance(s) at which to calculate the Lennard-Jones force. Can be a single float or an array of distances.</p></li>
+<li><p><strong>eps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The depth of the potential well, representing the strength of the interaction.</p></li>
+<li><p><strong>R</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The characteristic distance parameter, which influences the distance at which the potential well occurs.
+Default is 1.</p></li>
+<li><p><strong>max_repulsion</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, the force is limited to a maximum repulsion by setting distances below the <cite>sigma</cite> value
+to <cite>sigma</cite>, where <cite>sigma</cite> is the distance at which the potential crosses zero (point of maximum repulsion).
+Default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>force</strong> – The computed Lennard-Jones force at each distance provided in <cite>r</cite>. The shape of the output matches the shape of <cite>r</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">interaction_strength</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">characteristic_distance</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">forces</span> <span class="o">=</span> <span class="n">get_LJ_force</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">interaction_strength</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">characteristic_distance</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">forces</span><span class="p">)</span>
+<span class="go">[ 0.  -24.         0.7410312]</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The Lennard-Jones force is computed using the formula:
+<cite>force = 48 * eps * [(sigma^12 / r^13) - 0.5 * (sigma^6 / r^7)]</cite>,
+where <cite>eps</cite> is the interaction strength and <cite>sigma</cite> is the effective particle diameter, calculated
+as <cite>sigma = R / 2^(1/6)</cite>.</p></li>
+<li><p>The <cite>max_repulsion</cite> option ensures that no distances smaller than <cite>sigma</cite> are considered, effectively
+limiting the maximum repulsive force.</p></li>
+<li><p>This function can handle both scalar and array inputs for <cite>r</cite>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_adhesive_displacement">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_adhesive_displacement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surf_force_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_neighbor_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_displacement_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([],</span> <span class="pre">dtype=float64)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetrize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">force_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_adhesive_displacement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_adhesive_displacement" title="Link to this definition"></a></dt>
+<dd><p>Computes the adhesive displacement between cell surfaces using a specified surface force function.</p>
+<p>This function calculates the displacement of cell surfaces based on adhesive forces. It uses the states and positions of
+neighboring cells to determine active interfaces and apply force-based displacements. Optionally, the displacements can
+be symmetrized to ensure consistency across cell borders.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>border_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – A dictionary containing border information, including:
+- ‘pts’: ndarray of shape (N, 3), coordinates of border points.
+- ‘nn_pts’: ndarray of shape (N, 3), coordinates of nearest neighbor points.
+- ‘states’: ndarray of shape (N,), states of the border points.
+- ‘nn_states’: ndarray of shape (N,), states of the nearest neighbor points.
+- ‘nn_inds’: ndarray of shape (N,), indices of the nearest neighbor points.</p></li>
+<li><p><strong>surf_force_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">callable</span></code>) – A function that computes the surface force based on distance and other parameters.
+Should take distance, epsilon, and additional arguments as inputs.</p></li>
+<li><p><strong>eps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array where <cite>eps[i, j]</cite> represents the interaction strength between state <cite>i</cite> and state <cite>j</cite>.</p></li>
+<li><p><strong>alpha</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – A scaling factor for the displacement magnitude (default is 1.0).</p></li>
+<li><p><strong>maxd</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The maximum allowed displacement. Displacements will be scaled if any calculated displacements exceed this value.</p></li>
+<li><p><strong>rmin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The minimum interaction distance. Displacements calculated from distances smaller than <cite>rmin</cite> will be set to <cite>rmin</cite>.</p></li>
+<li><p><strong>rmax</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The maximum interaction distance. Displacements calculated from distances larger than <cite>rmax</cite> will be set to <cite>rmax</cite>.</p></li>
+<li><p><strong>active_neighbor_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – An array specifying the states of neighbors that are active for interaction (default is np.array([1])).</p></li>
+<li><p><strong>active_displacement_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – An array specifying the states of cells that are active for displacement (default is an empty array, which means all states are active).</p></li>
+<li><p><strong>symmetrize</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, the displacements are symmetrized to ensure consistency across borders (default is True).</p></li>
+<li><p><strong>**force_args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <em>optional</em>) – Additional arguments to be passed to the <cite>surf_force_function</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dr</strong> – A 2D array of shape (N, 3) representing the displacements of the border points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function filters out inactive or excluded states before computing the displacement.</p></li>
+<li><p>Displacement is scaled using the surface force and optionally capped by <cite>maxd</cite>.</p></li>
+<li><p>Symmetrization ensures that the displacement is consistent from both interacting cells’ perspectives.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;pts&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;nn_pts&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;states&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;nn_states&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;nn_inds&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">surf_force_function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="o">-</span><span class="n">eps</span> <span class="o">*</span> <span class="p">(</span><span class="n">r</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dr</span> <span class="o">=</span> <span class="n">get_adhesive_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span> <span class="n">surf_force_function</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dr</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(100, 3)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_border_dict">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_border_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_nnindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_nnvector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_curvature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">border_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_border_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_border_dict" title="Link to this definition"></a></dt>
+<dd><p>Computes the border properties of labeled regions in a segmented image.</p>
+<p>This function identifies the borders of labeled regions in a given image and calculates various properties
+such as nearest neighbor indices, vectors, and curvature. It can also return the scaled distances if specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D or 3D array where each element represents a label, identifying different regions in the image.</p></li>
+<li><p><strong>states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – An array indicating the state of each labeled region. If provided, states are used to differentiate
+regions. If None, all regions are assumed to have the same state.</p></li>
+<li><p><strong>radius</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The radius for finding nearest neighbors around each border point (default is 10).</p></li>
+<li><p><strong>vdist</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – An array representing distances or potential values at each point in the image. If provided, this
+array is used to calculate border distances.</p></li>
+<li><p><strong>return_nnindex</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, returns the nearest neighbor index for each border point (default is True).</p></li>
+<li><p><strong>return_nnvector</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, returns the vector pointing to the nearest neighbor for each border point (default is True).</p></li>
+<li><p><strong>return_curvature</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, calculates and returns the curvature at each border point (default is True).</p></li>
+<li><p><strong>scale</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Scaling factors for each dimension of the labels array. If provided, scales the labels accordingly.</p></li>
+<li><p><strong>**border_args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <em>optional</em>) – Additional arguments to control border property calculations, such as ‘knn’ for the number of nearest
+neighbors when computing curvature.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>border_dict</strong> – A dictionary containing the computed border properties:
+- ‘pts’: ndarray of float, coordinates of the border points.
+- ‘index’: ndarray of int, indices of the regions to which each border point belongs.
+- ‘states’: ndarray of int, states of the regions to which each border point belongs.
+- ‘nn_index’: ndarray of int, nearest neighbor indices for each border point (if <cite>return_nnindex</cite> is True).
+- ‘nn_states’: ndarray of int, states of the nearest neighbors (if <cite>return_nnindex</cite> is True).
+- ‘nn_pts’: ndarray of float, coordinates of the nearest neighbors (if <cite>return_nnvector</cite> is True).
+- ‘nn_inds’: ndarray of int, indices of the nearest neighbors (if <cite>return_nnvector</cite> is True).
+- ‘n’: ndarray of float, normals at each border point (if <cite>return_curvature</cite> is True).
+- ‘c’: ndarray of float, curvature at each border point (if <cite>return_curvature</cite> is True).
+- ‘vdist’: ndarray of float, scaled distances at each border point (if <cite>vdist</cite> is provided).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function is useful for analyzing cell shapes and their interactions in spatially resolved images.</p></li>
+<li><p>The nearest neighbor indices and vectors can help understand cell-cell interactions and local neighborhood structures.</p></li>
+<li><p>The curvature values can provide insights into the geometrical properties of cell boundaries.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scale</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">border_dict</span> <span class="o">=</span> <span class="n">get_border_dict</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">return_nnindex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_nnvector</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">])</span>
+<span class="go">[[0., 1.], [0., 2.], [1., 1.], [2., 0.], [2., 1.]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_index&#39;</span><span class="p">])</span>
+<span class="go">[2, 2, 2, 1, 1]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_flux_displacement">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_flux_displacement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flux_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmeans</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsigmas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">flux_function_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_flux_displacement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_flux_displacement" title="Link to this definition"></a></dt>
+<dd><p>Calculates the displacement of border points using flux information.</p>
+<p>This function computes the displacement of border points by applying a flux function or random sampling
+based on mean and standard deviation values. The displacements can be controlled by normal vectors,
+excluded for certain states, and scaled to a maximum displacement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>border_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – A dictionary containing information about the current cell borders, including:
+- ‘n’: ndarray of shape (N, 3), normal vectors at the border points.
+- ‘states’: ndarray of shape (N,), states of the border points.</p></li>
+<li><p><strong>border_features</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Features at the border points used as input to the flux function (default is None).</p></li>
+<li><p><strong>flux_function</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">callable</span></code>, <em>optional</em>) – A function that takes <cite>border_features</cite> and additional arguments to compute mean (<cite>fmeans</cite>) and standard
+deviation (<cite>fsigmas</cite>) of the flux at each border point (default is None, meaning random sampling is used).</p></li>
+<li><p><strong>exclude_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code>, <em>optional</em>) – A list or array of states to exclude from displacement calculations (default is None, meaning no states are excluded).</p></li>
+<li><p><strong>n</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Normal vectors at the border points. If None, normal vectors are taken from <cite>border_dict[‘n’]</cite> (default is None).</p></li>
+<li><p><strong>fmeans</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code>, <em>optional</em>) – Mean flux value(s) for random sampling (default is 0.). If <cite>flux_function</cite> is provided, this value is ignored.</p></li>
+<li><p><strong>fsigmas</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code>, <em>optional</em>) – Standard deviation of flux value(s) for random sampling (default is 0.). If <cite>flux_function</cite> is provided, this value is ignored.</p></li>
+<li><p><strong>random_seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Seed for the random number generator to ensure reproducibility (default is None).</p></li>
+<li><p><strong>alpha</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – A scaling factor for the displacement magnitude (default is 1.0).</p></li>
+<li><p><strong>maxd</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The maximum allowed displacement. If specified, the displacement is scaled to ensure it does not exceed this value (default is None).</p></li>
+<li><p><strong>**flux_function_args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <em>optional</em>) – Additional arguments to pass to the <cite>flux_function</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dx</strong> – A 2D array of shape (N, 3) representing the displacements of the border points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function can use a flux function to calculate displacements based on border features or perform random sampling
+with specified mean and standard deviation values.</p></li>
+<li><p>Displacement deviations are scaled by normal vectors and can be controlled by <cite>alpha</cite> and capped by <cite>maxd</cite>.</p></li>
+<li><p>Excludes displacements for specified states, if <cite>exclude_states</cite> is provided.</p></li>
+<li><p>The random number generator can be seeded for reproducibility using <cite>random_seed</cite>.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;states&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dx</span> <span class="o">=</span> <span class="n">get_flux_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span> <span class="n">fmeans</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">fsigmas</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">maxd</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dx</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(100, 3)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_flux_ligdist">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_flux_ligdist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vdist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_flux_ligdist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_flux_ligdist" title="Link to this definition"></a></dt>
+<dd><p>Calculate the mean and standard deviation of flux values based on ligand distribution.</p>
+<p>This function computes the flux mean and standard deviation for a given ligand distribution, using
+specified parameters for the mean and scaling factor for the standard deviation. Optionally, it can
+center the mean flux to ensure the overall flux is balanced.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vdist</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 3D array representing the ligand concentration distribution in a tissue volume.</p></li>
+<li><p><strong>cmean</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – A scaling factor for the mean flux. Default is 1.0.</p></li>
+<li><p><strong>csigma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – A scaling factor for the standard deviation of the flux. Default is 0.5.</p></li>
+<li><p><strong>center</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, centers the mean flux distribution around zero by subtracting the overall mean. Default is True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>fmeans</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 3D array representing the mean flux values based on the ligand distribution.</p></li>
+<li><p><strong>fsigmas</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 3D array representing the standard deviation of flux values based on the ligand distribution.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ligand_distribution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mean_flux</span><span class="p">,</span> <span class="n">sigma_flux</span> <span class="o">=</span> <span class="n">get_flux_ligdist</span><span class="p">(</span><span class="n">ligand_distribution</span><span class="p">,</span> <span class="n">cmean</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">csigma</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">mean_flux</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">sigma_flux</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(100, 100, 50) (100, 100, 50)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function uses the absolute value of <cite>vdist</cite> to calculate the standard deviation of the flux.</p></li>
+<li><p>Centering the mean flux helps in ensuring there is no net flux imbalance across the tissue volume.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_labels_fromborderdict">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_labels_fromborderdict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_labels_fromborderdict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_labels_fromborderdict" title="Link to this definition"></a></dt>
+<dd><p>Generates a label mask from a dictionary of border points and associated states.</p>
+<p>This function creates a 3D label array by identifying regions enclosed by the boundary points
+in <cite>border_dict</cite>. It assigns unique labels to each region based on the indices of the border points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>border_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – A dictionary containing the border points and associated information. Expected keys include:
+- ‘pts’: ndarray of shape (N, D), coordinates of the border points.
+- ‘index’: ndarray of shape (N,), labels for each border point.
+- ‘states’: ndarray of shape (N,), states associated with each border point.</p></li>
+<li><p><strong>labels_shape</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">ints</span></code>) – The shape of the output labels array.</p></li>
+<li><p><strong>active_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code>, <em>optional</em>) – A list or array of states to include in the labeling. If None, all unique states
+in <cite>border_dict[‘states’]</cite> are used.</p></li>
+<li><p><strong>surface_labels</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – A pre-existing label array to use as a base. Regions with non-zero values in this
+array will retain their labels.</p></li>
+<li><p><strong>connected</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, ensures that labeled regions are connected. Uses the largest connected
+component labeling method.</p></li>
+<li><p><strong>random_seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – A seed for the random number generator to ensure reproducibility.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>labels</strong> – An array of the same shape as <cite>labels_shape</cite> with labeled regions. Each unique region
+enclosed by border points is assigned a unique label.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function utilizes convex hull and Delaunay triangulation to determine the regions
+enclosed by the border points.</p></li>
+<li><p>It can be used to generate labels for 3D volumes, based on the locations and states of border points.</p></li>
+<li><p>The function includes options for randomization and enforcing connectivity of labeled regions.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;pts&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]),</span>
+<span class="gp">... </span>    <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s1">&#39;states&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">get_labels_fromborderdict</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span> <span class="n">labels_shape</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+<span class="go">array([[[1, 1, 0],</span>
+<span class="go">        [1, 1, 0],</span>
+<span class="go">        [0, 0, 0]],</span>
+<span class="go">       [[1, 1, 0],</span>
+<span class="go">        [1, 1, 0],</span>
+<span class="go">        [0, 0, 0]],</span>
+<span class="go">       [[0, 0, 0],</span>
+<span class="go">        [0, 0, 0],</span>
+<span class="go">        [0, 0, 0]]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_morse_force">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_morse_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_morse_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_morse_force" title="Link to this definition"></a></dt>
+<dd><p>Computes the Morse force for a given set of distances.</p>
+<p>The Morse potential is used to model the interaction between a pair of atoms or molecules, capturing both
+the attractive and repulsive forces more realistically than the Lennard-Jones potential. This function calculates
+the Morse force based on the provided distances, interaction strength, characteristic distance, and interaction range.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The distance(s) at which to calculate the Morse force. Can be a single float or an array of distances.</p></li>
+<li><p><strong>eps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The depth of the potential well, representing the strength of the interaction.</p></li>
+<li><p><strong>R</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The equilibrium distance where the potential reaches its minimum. Default is 1.</p></li>
+<li><p><strong>L</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The width of the potential well, determining the range of the interaction. A larger value of <cite>L</cite>
+indicates a narrower well, meaning the potential changes more rapidly with distance. Default is 4.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>force</strong> – The computed Morse force at each distance provided in <cite>r</cite>. The shape of the output matches the shape of <cite>r</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">interaction_strength</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">equilibrium_distance</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">interaction_range</span> <span class="o">=</span> <span class="mf">4.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">forces</span> <span class="o">=</span> <span class="n">get_morse_force</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">interaction_strength</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">equilibrium_distance</span><span class="p">,</span> <span class="n">L</span><span class="o">=</span><span class="n">interaction_range</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">forces</span><span class="p">)</span>
+<span class="go">[ 1.17328042  0.         -0.63212056]</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The Morse force is derived from the Morse potential and is calculated using the formula:
+<cite>force = eps * [exp(-2 * (r - R) / L) - exp(-(r - R) / L)]</cite>,
+where <cite>eps</cite> is the interaction strength, <cite>R</cite> is the equilibrium distance, and <cite>L</cite> is the interaction range.</p></li>
+<li><p>This function can handle both scalar and array inputs for <cite>r</cite>.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_nuc_displacement">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_nuc_displacement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border_pts_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Rset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nuc_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([1])</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">nuc_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_nuc_displacement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_nuc_displacement" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_ot_displacement">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_ot_displacement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_dict_prev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_ot_displacement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_ot_displacement" title="Link to this definition"></a></dt>
+<dd><p>Computes the optimal transport (OT) displacement between two sets of boundary points.</p>
+<p>This function calculates the optimal transport displacements between the points in the current
+boundary (<cite>border_dict</cite>) and the points in the previous boundary (<cite>border_dict_prev</cite>). It finds
+the optimal matches and computes the displacement vectors for each point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>border_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – A dictionary containing the current boundary points and related information. Expected keys include:
+- ‘index’: ndarray of shape (N,), unique labels of current boundary points.
+- ‘pts’: ndarray of shape (N, D), coordinates of the current boundary points.</p></li>
+<li><p><strong>border_dict_prev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – A dictionary containing the previous boundary points and related information. Expected keys include:
+- ‘index’: ndarray of shape (M,), unique labels of previous boundary points.
+- ‘pts’: ndarray of shape (M, D), coordinates of the previous boundary points.</p></li>
+<li><p><strong>parent_index</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – An array of unique labels (indices) to use for matching previous boundary points. If not provided,
+<cite>index1</cite> from <cite>border_dict</cite> will be used to match with <cite>border_dict_prev</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>inds_ot</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 1D array containing the indices of the optimal transport matches for the current boundary points
+from the previous boundary points.</p></li>
+<li><p><strong>dxs_ot</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array of shape (N, D), representing the displacement vectors from the current boundary points
+to the matched previous boundary points.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function uses the <cite>get_ot_dx</cite> function to compute the optimal transport match and displacement
+between boundary points.</p></li>
+<li><p>If <cite>parent_index</cite> is not provided, it defaults to using the indices of the current boundary points
+(<cite>index1</cite>).</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s1">&#39;pts&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">border_dict_prev</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="s1">&#39;pts&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inds_ot</span><span class="p">,</span> <span class="n">dxs_ot</span> <span class="o">=</span> <span class="n">get_ot_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span> <span class="n">border_dict_prev</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inds_ot</span>
+<span class="go">array([0, 0, 0])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dxs_ot</span>
+<span class="go">array([[ 0, -1],</span>
+<span class="go">       [ 0,  1],</span>
+<span class="go">       [ 0,  1]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_ot_dx">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_ot_dx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pts0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pts1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_dx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_cost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_ot_dx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_ot_dx" title="Link to this definition"></a></dt>
+<dd><p>Computes the optimal transport (OT) displacement and cost between two sets of points.</p>
+<p>This function calculates the optimal transport map between two sets of points <cite>pts0</cite> and <cite>pts1</cite> using the
+Earth Mover’s Distance (EMD). It returns the indices of the optimal transport matches and the displacement
+vectors, as well as the transport cost if specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pts0</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array of shape (N, D), representing the first set of points, where N is the number of points
+and D is the dimensionality.</p></li>
+<li><p><strong>pts1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array of shape (M, D), representing the second set of points, where M is the number of points
+and D is the dimensionality.</p></li>
+<li><p><strong>return_dx</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, returns the displacement vectors between matched points (default is True).</p></li>
+<li><p><strong>return_cost</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, returns the total transport cost (default is False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>inds_ot</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 1D array of shape (N,), representing the indices of the points in <cite>pts1</cite> that are matched to
+the points in <cite>pts0</cite> according to the optimal transport map.</p></li>
+<li><p><strong>dx</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – A 2D array of shape (N, D), representing the displacement vectors from the points in <cite>pts0</cite> to the
+matched points in <cite>pts1</cite>. Returned only if <cite>return_dx</cite> is True.</p></li>
+<li><p><strong>cost</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The total optimal transport cost, calculated as the sum of the transport cost between matched points.
+Returned only if <cite>return_cost</cite> is True.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function uses the Earth Mover’s Distance (EMD) for computing the optimal transport map, which minimizes
+the cost of moving mass from <cite>pts0</cite> to <cite>pts1</cite>.</p></li>
+<li><p>The cost is computed as the sum of the pairwise distances weighted by the transport plan.</p></li>
+<li><p>Displacement vectors are computed as the difference between points in <cite>pts0</cite> and their matched points in <cite>pts1</cite>.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pts0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pts1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inds_ot</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">cost</span> <span class="o">=</span> <span class="n">get_ot_dx</span><span class="p">(</span><span class="n">pts0</span><span class="p">,</span> <span class="n">pts1</span><span class="p">,</span> <span class="n">return_dx</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_cost</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inds_ot</span>
+<span class="go">array([0, 1, 2])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dx</span>
+<span class="go">array([[ 0, -1],</span>
+<span class="go">       [ 0,  1],</span>
+<span class="go">       [ 0,  1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cost</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_secreted_ligand_density">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_secreted_ligand_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indz_bm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secretion_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">micron_per_pixel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_secreted_ligand_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_secreted_ligand_density" title="Link to this definition"></a></dt>
+<dd><p>Calculate the spatial distribution of secreted ligand density in a 3D tissue model.</p>
+<p>This function simulates the diffusion and absorption of secreted ligands in a 3D volume defined by a binary mask.
+It uses finite element methods to solve the diffusion equation for ligand concentration, taking into account secretion
+from cell surfaces and absorption at boundaries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msk</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 3D binary mask representing the tissue, where non-zero values indicate the presence of cells.</p></li>
+<li><p><strong>scale</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The scaling factor for spatial resolution in the x and y dimensions. Default is 2.</p></li>
+<li><p><strong>zscale</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The scaling factor for spatial resolution in the z dimension. Default is 1.</p></li>
+<li><p><strong>npad</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Number of pixels to pad the mask in each dimension. Default is None, implying no padding.</p></li>
+<li><p><strong>indz_bm</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The index for the basal membrane in the z-dimension, where diffusion starts. Default is 0.</p></li>
+<li><p><strong>secretion_rate</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code>, <em>optional</em>) – The rate of ligand secretion from the cell surfaces. Can be a scalar or array for different cell types. Default is 1.0.</p></li>
+<li><p><strong>D</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The diffusion coefficient for the ligand. If None, it is set to a default value based on the pixel size. Default is None.</p></li>
+<li><p><strong>micron_per_pixel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The conversion factor from pixels to microns. Default is 1.</p></li>
+<li><p><strong>visual</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, generates visualizations of the cell borders and diffusion process. Default is False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>vdist</strong> – A 3D array representing the steady-state concentration of the secreted ligand in the tissue volume.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tissue_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ligand_density</span> <span class="o">=</span> <span class="n">get_secreted_ligand_density</span><span class="p">(</span><span class="n">tissue_mask</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">zscale</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">secretion_rate</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ligand_density</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(100, 100, 50)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function uses <cite>fipy</cite> for solving the diffusion equation and <cite>skimage.segmentation.find_boundaries</cite> for
+identifying cell borders.</p></li>
+<li><p>The function includes various options for handling different boundary conditions, cell shapes, and secretion rates.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_surface_displacement">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_surface_displacement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_surface_displacement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_surface_displacement" title="Link to this definition"></a></dt>
+<dd><p>Computes the surface displacement of cells based on their curvature and normal vectors.</p>
+<p>This function calculates the displacement of cell surfaces using the curvature values and normal vectors.
+The displacement can be scaled by a factor <cite>alpha</cite>, and optionally constrained by a maximum displacement value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>border_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – A dictionary containing information about the cell borders, including:
+- ‘n’: ndarray of shape (N, 3), normal vectors at the border points.
+- ‘c’: ndarray of shape (N,), curvature values at the border points.
+- ‘states’: ndarray of shape (N,), states of the border points.</p></li>
+<li><p><strong>sts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – An array of scaling factors for each state, used to modify the curvature. If provided, <cite>sts</cite> is multiplied
+with the curvature values based on the state of each border point (default is None, meaning no scaling is applied).</p></li>
+<li><p><strong>c</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Curvature values at the border points. If None, it uses the curvature from <cite>border_dict</cite> (default is None).</p></li>
+<li><p><strong>n</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Normal vectors at the border points. If None, it uses the normal vectors from <cite>border_dict</cite> (default is None).</p></li>
+<li><p><strong>alpha</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – A scaling factor for the displacement magnitude (default is 1.0).</p></li>
+<li><p><strong>maxd</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The maximum allowed displacement. If specified, the displacement is scaled to ensure it does not exceed this value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dx</strong> – A 2D array of shape (N, 3) representing the displacements of the border points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The displacement is calculated as a product of curvature, normal vectors, and the scaling factor <cite>alpha</cite>.</p></li>
+<li><p>If <cite>sts</cite> is provided, curvature values are scaled according to the states of the border points.</p></li>
+<li><p>Displacement magnitude is capped by <cite>maxd</cite> if specified, ensuring that no displacement exceeds this value.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;states&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dx</span> <span class="o">=</span> <span class="n">get_surface_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span> <span class="n">sts</span><span class="o">=</span><span class="n">sts</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">maxd</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dx</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(100, 3)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_surface_displacement_deviation">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_surface_displacement_deviation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_pts_prev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_eigs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_surface_displacement_deviation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_surface_displacement_deviation" title="Link to this definition"></a></dt>
+<dd><p>Calculates the surface displacement deviation using optimal transport between current and previous border points.</p>
+<p>This function computes the displacement of cell surface points based on deviations from previous positions.
+The displacement can be modified by normal vectors, filtered by specific states, and controlled by curvature
+or variance in displacement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>border_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – A dictionary containing information about the current cell borders, including:
+- ‘pts’: ndarray of shape (N, 3), current border points.
+- ‘states’: ndarray of shape (N,), states of the border points.</p></li>
+<li><p><strong>border_pts_prev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array of shape (N, 3) containing the positions of border points from the previous time step.</p></li>
+<li><p><strong>exclude_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code>, <em>optional</em>) – A list or array of states to exclude from displacement calculations (default is None, meaning no states are excluded).</p></li>
+<li><p><strong>n</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Normal vectors at the border points. If None, normal vectors are calculated based on the optimal transport displacement (default is None).</p></li>
+<li><p><strong>knn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The number of nearest neighbors to consider when computing variance or eigen decomposition for curvature calculations (default is 12).</p></li>
+<li><p><strong>use_eigs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, use eigen decomposition to calculate the displacement deviation; otherwise, use variance (default is False).</p></li>
+<li><p><strong>alpha</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – A scaling factor for the displacement magnitude (default is 1.0).</p></li>
+<li><p><strong>maxd</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The maximum allowed displacement. If specified, the displacement is scaled to ensure it does not exceed this value (default is None).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>dx</strong> – A 2D array of shape (N, 3) representing the displacements of the border points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function uses optimal transport to calculate deviations between current and previous border points.</p></li>
+<li><p>The surface displacement deviation is inspired by the “mother of all non-linearities”– the Kardar-Parisi-Zhang non-linear surface growth universality class.</p></li>
+<li><p>Displacement deviations are scaled by the normal vectors and can be controlled by <cite>alpha</cite> and capped by <cite>maxd</cite>.</p></li>
+<li><p>If <cite>use_eigs</cite> is True, eigen decomposition of the displacement field is used to calculate deviations, otherwise variance is used.</p></li>
+<li><p>Excludes displacements for specified states, if <cite>exclude_states</cite> is provided.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;pts&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;states&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">border_pts_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dx</span> <span class="o">=</span> <span class="n">get_surface_displacement_deviation</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span> <span class="n">border_pts_prev</span><span class="p">,</span> <span class="n">exclude_states</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">maxd</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dx</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(100, 3)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_surface_points">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_surface_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_normals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_curvature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_surface_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_surface_points" title="Link to this definition"></a></dt>
+<dd><p>Computes the surface points of a labeled mask and optionally calculates normals and curvature.</p>
+<p>This function identifies the surface (border) points of a given labeled mask using segmentation techniques.
+It can also compute normals (perpendicular vectors to the surface) and curvature values at these points if requested.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msk</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 3D binary or labeled array representing the mask of regions of interest. Non-zero values represent the regions.</p></li>
+<li><p><strong>return_normals</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, computes and returns the normals at each surface point (default is False).</p></li>
+<li><p><strong>return_curvature</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, computes and returns the curvature at each surface point (default is False).</p></li>
+<li><p><strong>knn</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The number of nearest neighbors to consider when calculating normals and curvature (default is 20).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>border_pts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A 2D array of shape (N, 3) containing the coordinates of the border points, where N is the number of border points found.</p></li>
+<li><p><strong>n</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – A 2D array of shape (N, 3) containing the normal vectors at each border point. Only returned if <cite>return_normals</cite> is True.</p></li>
+<li><p><strong>c</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – A 1D array of length N containing the curvature values at each border point. Only returned if <cite>return_curvature</cite> is True.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function uses eigen decomposition on the neighborhood of each surface point to compute normals and curvature.</p></li>
+<li><p>The normals are adjusted to face outward from the surface. If normals face inward, they are flipped.</p></li>
+<li><p>Curvature is calculated as the ratio of the smallest eigenvalue to the sum of all eigenvalues, giving an estimate of local surface bending.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">msk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">msk</span><span class="p">[</span><span class="mi">40</span><span class="p">:</span><span class="mi">60</span><span class="p">,</span> <span class="mi">40</span><span class="p">:</span><span class="mi">60</span><span class="p">,</span> <span class="mi">40</span><span class="p">:</span><span class="mi">60</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># A cube in the center</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">border_pts</span> <span class="o">=</span> <span class="n">get_surface_points</span><span class="p">(</span><span class="n">msk</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">border_pts</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(960, 3)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_pts</span><span class="p">,</span> <span class="n">normals</span> <span class="o">=</span> <span class="n">get_surface_points</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span> <span class="n">return_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">border_pts</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">normals</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">((960, 3), (960, 3))</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_pts</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">curvature</span> <span class="o">=</span> <span class="n">get_surface_points</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span> <span class="n">return_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_curvature</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">border_pts</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">normals</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">curvature</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">((960, 3), (960, 3), (960,))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_volconstraint_com">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_volconstraint_com</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border_pts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_volume</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">converror</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_volconstraint_com"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_volconstraint_com" title="Link to this definition"></a></dt>
+<dd><p>Adjusts the positions of boundary points to achieve a target volume using a centroid-based method.</p>
+<p>This function iteratively adjusts the positions of boundary points to match a specified target volume.
+The adjustment is done by moving points along the direction from the centroid to the points, scaled
+by the difference between the current and target volumes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>border_pts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – An array of shape (N, 3) representing the coordinates of the boundary points.</p></li>
+<li><p><strong>target_volume</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The desired volume to be achieved.</p></li>
+<li><p><strong>max_iter</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Maximum number of iterations to perform. Default is 1000.</p></li>
+<li><p><strong>converror</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Convergence error threshold. Iterations stop when the relative volume error is below this value.
+Default is 0.05.</p></li>
+<li><p><strong>dc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – A scaling factor for the displacement calculated in each iteration. Default is 1.0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>border_pts</strong> – An array of shape (N, 3) representing the adjusted coordinates of the boundary points that
+approximate the target volume.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The method assumes a 3D convex hull can be formed by the points, which is adjusted iteratively.</p></li>
+<li><p>The convergence is based on the relative difference between the current volume and the target volume.</p></li>
+<li><p>If the boundary points are collinear in any dimension, the method adjusts them to ensure a valid convex hull.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_volume</span> <span class="o">=</span> <span class="mf">10.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adjusted_pts</span> <span class="o">=</span> <span class="n">get_volconstraint_com</span><span class="p">(</span><span class="n">border_pts</span><span class="p">,</span> <span class="n">target_volume</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adjusted_pts</span><span class="p">)</span>
+<span class="go">array([[ ... ]])  # Adjusted coordinates to approximate the target volume</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_yukawa_force">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_yukawa_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_yukawa_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_yukawa_force" title="Link to this definition"></a></dt>
+<dd><p>Computes the Yukawa force for a given set of distances.</p>
+<p>The Yukawa force is a screened Coulomb force often used to describe interactions
+in plasmas and other systems with screened potentials. This function calculates
+the Yukawa force based on the provided distances, interaction strength, and screening length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The distance(s) at which to calculate the Yukawa force. Can be a single float
+or an array of distances.</p></li>
+<li><p><strong>eps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The interaction strength (or potential strength) parameter, determining the amplitude
+of the force.</p></li>
+<li><p><strong>R</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The screening length parameter, which determines how quickly the force decays
+with distance. Default is 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>force</strong> – The computed Yukawa force at each distance provided in <cite>r</cite>. The shape of the output
+matches the shape of <cite>r</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">interaction_strength</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">screening_length</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">forces</span> <span class="o">=</span> <span class="n">get_yukawa_force</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">interaction_strength</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">screening_length</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">forces</span><span class="p">)</span>
+<span class="go">[4. e+00 1.47151776e+00 4.48168907e-01]</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The Yukawa force is computed using the formula:
+<cite>force = eps * exp(-r / R) * (r + R) / (R * r^2)</cite>,
+where <cite>eps</cite> is the interaction strength and <cite>R</cite> is the screening length.</p></li>
+<li><p>The function handles both scalar and array inputs for <cite>r</cite>.</p></li>
+</ul>
 </dd></dl>
 
 </section>

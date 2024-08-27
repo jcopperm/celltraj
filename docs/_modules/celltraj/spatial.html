@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>celltraj.spatial &mdash; celltraj 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            celltraj
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">celltraj</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">celltraj</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">celltraj.spatial</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for celltraj.spatial</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">trajectory</span>
+<span class="kn">import</span> <span class="nn">imageprep</span> <span class="k">as</span> <span class="nn">imprep</span>
+<span class="kn">import</span> <span class="nn">features</span>
+<span class="kn">import</span> <span class="nn">model</span>
+<span class="kn">import</span> <span class="nn">utilities</span>
+<span class="kn">import</span> <span class="nn">pyemma.coordinates</span> <span class="k">as</span> <span class="nn">coor</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">skimage</span>
+<span class="kn">from</span> <span class="nn">nanomesh</span> <span class="kn">import</span> <span class="n">Mesher</span>
+<span class="kn">import</span> <span class="nn">fipy</span>
+<span class="kn">import</span> <span class="nn">sklearn</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">det</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">dirichlet</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pyntcloud</span> <span class="kn">import</span> <span class="n">PyntCloud</span>
+<span class="kn">import</span> <span class="nn">ot</span>
+
+<div class="viewcode-block" id="get_border_dict">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_border_dict">[docs]</a>
+<span class="k">def</span> <span class="nf">get_border_dict</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">vdist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">return_nnindex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_nnvector</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_curvature</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">border_args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the border properties of labeled regions in a segmented image.</span>
+
+<span class="sd">    This function identifies the borders of labeled regions in a given image and calculates various properties</span>
+<span class="sd">    such as nearest neighbor indices, vectors, and curvature. It can also return the scaled distances if specified.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    labels : ndarray</span>
+<span class="sd">        A 2D or 3D array where each element represents a label, identifying different regions in the image.</span>
+<span class="sd">    states : ndarray, optional</span>
+<span class="sd">        An array indicating the state of each labeled region. If provided, states are used to differentiate</span>
+<span class="sd">        regions. If None, all regions are assumed to have the same state.</span>
+<span class="sd">    radius : float, optional</span>
+<span class="sd">        The radius for finding nearest neighbors around each border point (default is 10).</span>
+<span class="sd">    vdist : ndarray, optional</span>
+<span class="sd">        An array representing distances or potential values at each point in the image. If provided, this</span>
+<span class="sd">        array is used to calculate border distances.</span>
+<span class="sd">    return_nnindex : bool, optional</span>
+<span class="sd">        If True, returns the nearest neighbor index for each border point (default is True).</span>
+<span class="sd">    return_nnvector : bool, optional</span>
+<span class="sd">        If True, returns the vector pointing to the nearest neighbor for each border point (default is True).</span>
+<span class="sd">    return_curvature : bool, optional</span>
+<span class="sd">        If True, calculates and returns the curvature at each border point (default is True).</span>
+<span class="sd">    scale : list or ndarray, optional</span>
+<span class="sd">        Scaling factors for each dimension of the labels array. If provided, scales the labels accordingly.</span>
+<span class="sd">    **border_args : dict, optional</span>
+<span class="sd">        Additional arguments to control border property calculations, such as &#39;knn&#39; for the number of nearest</span>
+<span class="sd">        neighbors when computing curvature.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    border_dict : dict</span>
+<span class="sd">        A dictionary containing the computed border properties:</span>
+<span class="sd">        - &#39;pts&#39;: ndarray of float, coordinates of the border points.</span>
+<span class="sd">        - &#39;index&#39;: ndarray of int, indices of the regions to which each border point belongs.</span>
+<span class="sd">        - &#39;states&#39;: ndarray of int, states of the regions to which each border point belongs.</span>
+<span class="sd">        - &#39;nn_index&#39;: ndarray of int, nearest neighbor indices for each border point (if `return_nnindex` is True).</span>
+<span class="sd">        - &#39;nn_states&#39;: ndarray of int, states of the nearest neighbors (if `return_nnindex` is True).</span>
+<span class="sd">        - &#39;nn_pts&#39;: ndarray of float, coordinates of the nearest neighbors (if `return_nnvector` is True).</span>
+<span class="sd">        - &#39;nn_inds&#39;: ndarray of int, indices of the nearest neighbors (if `return_nnvector` is True).</span>
+<span class="sd">        - &#39;n&#39;: ndarray of float, normals at each border point (if `return_curvature` is True).</span>
+<span class="sd">        - &#39;c&#39;: ndarray of float, curvature at each border point (if `return_curvature` is True).</span>
+<span class="sd">        - &#39;vdist&#39;: ndarray of float, scaled distances at each border point (if `vdist` is provided).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function is useful for analyzing cell shapes and their interactions in spatially resolved images.</span>
+<span class="sd">    - The nearest neighbor indices and vectors can help understand cell-cell interactions and local neighborhood structures.</span>
+<span class="sd">    - The curvature values can provide insights into the geometrical properties of cell boundaries.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; labels = np.array([[0, 1, 1, 0], [0, 1, 1, 0], [2, 2, 0, 0], [0, 0, 0, 0]])</span>
+<span class="sd">    &gt;&gt;&gt; scale = [1.0, 1.0]</span>
+<span class="sd">    &gt;&gt;&gt; border_dict = get_border_dict(labels, scale=scale, return_nnindex=True, return_nnvector=True)</span>
+<span class="sd">    &gt;&gt;&gt; print(border_dict[&#39;pts&#39;])</span>
+<span class="sd">    [[0., 1.], [0., 2.], [1., 1.], [2., 0.], [2., 1.]]</span>
+<span class="sd">    &gt;&gt;&gt; print(border_dict[&#39;nn_index&#39;])</span>
+<span class="sd">    [2, 2, 2, 1, 1]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">scale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scale</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">ndim</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">labels</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">zoom</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">border_dict</span><span class="o">=</span><span class="p">{}</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;scale&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">scale</span>
+    <span class="k">if</span> <span class="n">states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labels</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">);</span><span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">states</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">=</span><span class="mi">1</span>
+    <span class="n">border</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">segmentation</span><span class="o">.</span><span class="n">find_boundaries</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
+    <span class="n">ind</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">border</span><span class="p">)</span>
+    <span class="n">border_pts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">border_pts</span>
+    <span class="n">border_index</span><span class="o">=</span><span class="n">labels</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">border_index</span>
+    <span class="n">border_states</span><span class="o">=</span><span class="n">states</span><span class="p">[</span><span class="n">border_index</span><span class="p">]</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">border_states</span>
+    <span class="k">if</span> <span class="n">return_nnindex</span><span class="p">:</span>
+        <span class="n">contact_labels</span><span class="o">=</span><span class="n">features</span><span class="o">.</span><span class="n">get_contact_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">contact_inds</span><span class="o">=</span><span class="n">contact_labels</span><span class="p">[</span><span class="n">border</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_index&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">contact_inds</span>
+        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_states&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">states</span><span class="p">[</span><span class="n">contact_inds</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">return_nnvector</span><span class="p">:</span>
+        <span class="n">iset</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">iset</span><span class="o">=</span><span class="n">iset</span><span class="p">[</span><span class="n">iset</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">nn_labels</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">iset</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">inds_labels</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">iset</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">border_nn_pts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">border_pts</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">border_nn_inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">border_pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iset</span><span class="p">:</span>
+            <span class="n">inds_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">border_index</span><span class="o">==</span><span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">nn_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">neighbors</span><span class="o">.</span><span class="n">NearestNeighbors</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;ball_tree&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">border_pts</span><span class="p">[</span><span class="n">inds_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iset</span><span class="p">:</span>
+            <span class="n">indi</span><span class="o">=</span><span class="n">inds_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">jset</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">contact_inds</span><span class="p">[</span><span class="n">indi</span><span class="p">])</span>
+            <span class="n">jset</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">jset</span><span class="p">,[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">jset</span><span class="p">:</span>
+                <span class="n">indj</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">contact_inds</span><span class="p">[</span><span class="n">indi</span><span class="p">]</span><span class="o">==</span><span class="n">j</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">borderij_pts</span><span class="o">=</span><span class="n">border_pts</span><span class="p">[</span><span class="n">indi</span><span class="p">[</span><span class="n">indj</span><span class="p">]]</span>
+                <span class="n">distij</span><span class="p">,</span><span class="n">indij_nn</span><span class="o">=</span><span class="n">nn_labels</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">kneighbors</span><span class="p">(</span><span class="n">borderij_pts</span><span class="p">)</span>
+                <span class="n">indij_nn</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">indij_nn</span><span class="p">)</span>
+                <span class="n">borderj_pts</span><span class="o">=</span><span class="n">border_pts</span><span class="p">[</span><span class="n">inds_labels</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">indij_nn</span><span class="p">]]</span>
+                <span class="n">border_nn_pts</span><span class="p">[</span><span class="n">indi</span><span class="p">[</span><span class="n">indj</span><span class="p">]]</span><span class="o">=</span><span class="n">borderj_pts</span>
+                <span class="n">border_nn_inds</span><span class="p">[</span><span class="n">indi</span><span class="p">[</span><span class="n">indj</span><span class="p">]]</span><span class="o">=</span><span class="n">inds_labels</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">indij_nn</span><span class="p">]</span>
+        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_pts&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">border_nn_pts</span>
+        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_inds&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">border_nn_inds</span>
+    <span class="k">if</span> <span class="n">return_curvature</span><span class="p">:</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">border_pts</span><span class="p">)</span>
+        <span class="n">c</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">border_pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">&#39;knn&#39;</span> <span class="ow">in</span> <span class="n">border_args</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">knn</span><span class="o">=</span><span class="n">border_args</span><span class="p">[</span><span class="s1">&#39;knn&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">knn</span><span class="o">=</span><span class="mi">12</span>
+        <span class="n">iset</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">iset</span><span class="o">=</span><span class="n">iset</span><span class="p">[</span><span class="n">iset</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iset</span><span class="p">:</span>
+            <span class="n">msk</span><span class="o">=</span><span class="n">labels</span><span class="o">==</span><span class="n">i</span>
+            <span class="n">indi</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">border_index</span><span class="o">==</span><span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">border_pts_i</span><span class="p">,</span><span class="n">n_i</span><span class="p">,</span><span class="n">c_i</span><span class="o">=</span><span class="n">get_surface_points</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">return_normals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_curvature</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">n</span><span class="p">[</span><span class="n">indi</span><span class="p">]</span><span class="o">=</span><span class="n">n_i</span>
+            <span class="n">c</span><span class="p">[</span><span class="n">indi</span><span class="p">]</span><span class="o">=</span><span class="n">c_i</span>
+        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">n</span>
+        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">c</span>
+    <span class="k">if</span> <span class="n">vdist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">vdist_border</span><span class="o">=</span><span class="n">vdist</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;vdist&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">vdist_border</span>
+    <span class="k">return</span> <span class="n">border_dict</span></div>
+
+
+<div class="viewcode-block" id="get_surface_points">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_surface_points">[docs]</a>
+<span class="k">def</span> <span class="nf">get_surface_points</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">return_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">return_curvature</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">knn</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the surface points of a labeled mask and optionally calculates normals and curvature.</span>
+
+<span class="sd">    This function identifies the surface (border) points of a given labeled mask using segmentation techniques.</span>
+<span class="sd">    It can also compute normals (perpendicular vectors to the surface) and curvature values at these points if requested.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    msk : ndarray</span>
+<span class="sd">        A 3D binary or labeled array representing the mask of regions of interest. Non-zero values represent the regions.</span>
+<span class="sd">    return_normals : bool, optional</span>
+<span class="sd">        If True, computes and returns the normals at each surface point (default is False).</span>
+<span class="sd">    return_curvature : bool, optional</span>
+<span class="sd">        If True, computes and returns the curvature at each surface point (default is False).</span>
+<span class="sd">    knn : int, optional</span>
+<span class="sd">        The number of nearest neighbors to consider when calculating normals and curvature (default is 20).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    border_pts : ndarray</span>
+<span class="sd">        A 2D array of shape (N, 3) containing the coordinates of the border points, where N is the number of border points found.</span>
+<span class="sd">    n : ndarray, optional</span>
+<span class="sd">        A 2D array of shape (N, 3) containing the normal vectors at each border point. Only returned if `return_normals` is True.</span>
+<span class="sd">    c : ndarray, optional</span>
+<span class="sd">        A 1D array of length N containing the curvature values at each border point. Only returned if `return_curvature` is True.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function uses eigen decomposition on the neighborhood of each surface point to compute normals and curvature.</span>
+<span class="sd">    - The normals are adjusted to face outward from the surface. If normals face inward, they are flipped.</span>
+<span class="sd">    - Curvature is calculated as the ratio of the smallest eigenvalue to the sum of all eigenvalues, giving an estimate of local surface bending.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; msk = np.zeros((100, 100, 100), dtype=int)</span>
+<span class="sd">    &gt;&gt;&gt; msk[40:60, 40:60, 40:60] = 1  # A cube in the center</span>
+<span class="sd">    &gt;&gt;&gt; border_pts = get_surface_points(msk)</span>
+<span class="sd">    &gt;&gt;&gt; border_pts.shape</span>
+<span class="sd">    (960, 3)</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; border_pts, normals = get_surface_points(msk, return_normals=True)</span>
+<span class="sd">    &gt;&gt;&gt; border_pts.shape, normals.shape</span>
+<span class="sd">    ((960, 3), (960, 3))</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; border_pts, normals, curvature = get_surface_points(msk, return_normals=True, return_curvature=True)</span>
+<span class="sd">    &gt;&gt;&gt; border_pts.shape, normals.shape, curvature.shape</span>
+<span class="sd">    ((960, 3), (960, 3), (960,))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">border</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">segmentation</span><span class="o">.</span><span class="n">find_boundaries</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
+    <span class="n">ind</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">border</span><span class="p">)</span>
+    <span class="n">border_pts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">if</span> <span class="n">return_normals</span> <span class="ow">or</span> <span class="n">return_curvature</span><span class="p">:</span>
+        <span class="n">cloud</span><span class="o">=</span><span class="n">PyntCloud</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">border_pts</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;z&#39;</span><span class="p">]))</span>
+        <span class="n">k_neighbors</span> <span class="o">=</span> <span class="n">cloud</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">knn</span><span class="p">)</span>
+        <span class="n">ev</span> <span class="o">=</span> <span class="n">cloud</span><span class="o">.</span><span class="n">add_scalar_field</span><span class="p">(</span><span class="s2">&quot;eigen_decomposition&quot;</span><span class="p">,</span> <span class="n">k_neighbors</span><span class="o">=</span><span class="n">k_neighbors</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">2</span><span class="p">]]])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">3</span><span class="p">]],</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">4</span><span class="p">]],</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">5</span><span class="p">]]],[</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">6</span><span class="p">]],</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">7</span><span class="p">]],</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">8</span><span class="p">]]],[</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">9</span><span class="p">]],</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">10</span><span class="p">]],</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">11</span><span class="p">]]]])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">border_pts_trans</span><span class="o">=</span><span class="n">border_pts</span><span class="o">+</span><span class="mf">2.</span><span class="o">*</span><span class="n">v</span><span class="p">[:,</span><span class="mi">2</span><span class="p">,:]</span>
+        <span class="n">ind_trans</span><span class="o">=</span><span class="n">border_pts_trans</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">iax</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">border_pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">inds_max</span><span class="o">=</span><span class="n">ind_trans</span><span class="p">[:,</span><span class="n">iax</span><span class="p">]</span><span class="o">&gt;</span><span class="n">msk</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">iax</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
+            <span class="n">ind_trans</span><span class="p">[</span><span class="n">inds_max</span><span class="p">,</span><span class="n">iax</span><span class="p">]</span><span class="o">=</span><span class="n">msk</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">iax</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
+            <span class="n">inds_min</span><span class="o">=</span><span class="n">ind_trans</span><span class="p">[:,</span><span class="n">iax</span><span class="p">]</span><span class="o">&lt;</span><span class="mi">0</span>
+            <span class="n">ind_trans</span><span class="p">[</span><span class="n">inds_min</span><span class="p">,</span><span class="n">iax</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
+        <span class="n">infacing_normals</span><span class="o">=</span><span class="n">msk</span><span class="p">[</span><span class="n">ind_trans</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">ind_trans</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">ind_trans</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">v</span><span class="p">[:,</span><span class="mi">2</span><span class="p">,:]</span>
+        <span class="n">n</span><span class="p">[</span><span class="n">infacing_normals</span><span class="p">,:]</span><span class="o">=-</span><span class="mf">1.</span><span class="o">*</span><span class="n">n</span><span class="p">[</span><span class="n">infacing_normals</span><span class="p">,:]</span>
+        <span class="k">if</span> <span class="n">return_curvature</span><span class="p">:</span>
+            <span class="n">c</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">w</span><span class="p">[:,</span><span class="mi">2</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">pts_nnmean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">border_pts</span><span class="p">[</span><span class="n">k_neighbors</span><span class="p">,:],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">dn</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">border_pts</span><span class="o">-</span><span class="n">pts_nnmean</span><span class="p">,</span><span class="n">n</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">c</span><span class="p">[</span><span class="n">dn</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">]</span><span class="o">=-</span><span class="mf">1.</span><span class="o">*</span><span class="n">c</span><span class="p">[</span><span class="n">dn</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">border_pts</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">c</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">border_pts</span><span class="p">,</span><span class="n">n</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">border_pts</span></div>
+
+
+<div class="viewcode-block" id="get_adhesive_displacement">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_adhesive_displacement">[docs]</a>
+<span class="k">def</span> <span class="nf">get_adhesive_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">surf_force_function</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">active_neighbor_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]),</span><span class="n">active_displacement_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span><span class="n">symmetrize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="o">**</span><span class="n">force_args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the adhesive displacement between cell surfaces using a specified surface force function.</span>
+
+<span class="sd">    This function calculates the displacement of cell surfaces based on adhesive forces. It uses the states and positions of </span>
+<span class="sd">    neighboring cells to determine active interfaces and apply force-based displacements. Optionally, the displacements can </span>
+<span class="sd">    be symmetrized to ensure consistency across cell borders.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    border_dict : dict</span>
+<span class="sd">        A dictionary containing border information, including:</span>
+<span class="sd">        - &#39;pts&#39;: ndarray of shape (N, 3), coordinates of border points.</span>
+<span class="sd">        - &#39;nn_pts&#39;: ndarray of shape (N, 3), coordinates of nearest neighbor points.</span>
+<span class="sd">        - &#39;states&#39;: ndarray of shape (N,), states of the border points.</span>
+<span class="sd">        - &#39;nn_states&#39;: ndarray of shape (N,), states of the nearest neighbor points.</span>
+<span class="sd">        - &#39;nn_inds&#39;: ndarray of shape (N,), indices of the nearest neighbor points.</span>
+
+<span class="sd">    surf_force_function : callable</span>
+<span class="sd">        A function that computes the surface force based on distance and other parameters. </span>
+<span class="sd">        Should take distance, epsilon, and additional arguments as inputs.</span>
+
+<span class="sd">    eps : ndarray</span>
+<span class="sd">        A 2D array where `eps[i, j]` represents the interaction strength between state `i` and state `j`.</span>
+
+<span class="sd">    alpha : float, optional</span>
+<span class="sd">        A scaling factor for the displacement magnitude (default is 1.0).</span>
+
+<span class="sd">    maxd : float, optional</span>
+<span class="sd">        The maximum allowed displacement. Displacements will be scaled if any calculated displacements exceed this value.</span>
+
+<span class="sd">    rmin : float, optional</span>
+<span class="sd">        The minimum interaction distance. Displacements calculated from distances smaller than `rmin` will be set to `rmin`.</span>
+
+<span class="sd">    rmax : float, optional</span>
+<span class="sd">        The maximum interaction distance. Displacements calculated from distances larger than `rmax` will be set to `rmax`.</span>
+
+<span class="sd">    active_neighbor_states : ndarray, optional</span>
+<span class="sd">        An array specifying the states of neighbors that are active for interaction (default is np.array([1])).</span>
+
+<span class="sd">    active_displacement_states : ndarray, optional</span>
+<span class="sd">        An array specifying the states of cells that are active for displacement (default is an empty array, which means all states are active).</span>
+
+<span class="sd">    symmetrize : bool, optional</span>
+<span class="sd">        If True, the displacements are symmetrized to ensure consistency across borders (default is True).</span>
+
+<span class="sd">    **force_args : dict, optional</span>
+<span class="sd">        Additional arguments to be passed to the `surf_force_function`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dr : ndarray</span>
+<span class="sd">        A 2D array of shape (N, 3) representing the displacements of the border points.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function filters out inactive or excluded states before computing the displacement.</span>
+<span class="sd">    - Displacement is scaled using the surface force and optionally capped by `maxd`.</span>
+<span class="sd">    - Symmetrization ensures that the displacement is consistent from both interacting cells&#39; perspectives.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; border_dict = {</span>
+<span class="sd">    ...     &#39;pts&#39;: np.random.rand(100, 3),</span>
+<span class="sd">    ...     &#39;nn_pts&#39;: np.random.rand(100, 3),</span>
+<span class="sd">    ...     &#39;states&#39;: np.random.randint(0, 2, 100),</span>
+<span class="sd">    ...     &#39;nn_states&#39;: np.random.randint(0, 2, 100),</span>
+<span class="sd">    ...     &#39;nn_inds&#39;: np.random.randint(0, 100, 100)</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt; surf_force_function = lambda r, eps: -eps * (r - 1)</span>
+<span class="sd">    &gt;&gt;&gt; eps = np.array([[0.1, 0.2], [0.2, 0.3]])</span>
+<span class="sd">    &gt;&gt;&gt; dr = get_adhesive_displacement(border_dict, surf_force_function, eps, alpha=0.5)</span>
+<span class="sd">    &gt;&gt;&gt; dr.shape</span>
+<span class="sd">    (100, 3)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">active_inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_states&#39;</span><span class="p">],</span><span class="n">active_neighbor_states</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">#boundaries between surfaces are in force equilibrium</span>
+    <span class="n">exclude_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">active_neighbor_states</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]))</span>
+    <span class="n">exclude_inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">],</span><span class="n">exclude_states</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">active_inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">active_inds</span><span class="p">,</span><span class="n">exclude_inds</span><span class="p">)</span>
+    <span class="n">dx_surf</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_pts&#39;</span><span class="p">][</span><span class="n">active_inds</span><span class="p">]</span><span class="o">-</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">][</span><span class="n">active_inds</span><span class="p">]</span>
+    <span class="n">dr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">])</span>
+    <span class="n">rdx_surf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx_surf</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rmin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rdx_surf</span><span class="p">[</span><span class="n">rdx_surf</span><span class="o">&lt;</span><span class="n">rmin</span><span class="p">]</span><span class="o">=</span><span class="n">rmin</span>
+    <span class="n">eps_all</span><span class="o">=</span><span class="n">eps</span><span class="p">[</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">][</span><span class="n">active_inds</span><span class="p">],</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_states&#39;</span><span class="p">][</span><span class="n">active_inds</span><span class="p">]]</span>
+    <span class="n">force_surf</span><span class="o">=</span><span class="n">surf_force_function</span><span class="p">(</span><span class="n">rdx_surf</span><span class="p">,</span><span class="n">eps_all</span><span class="p">,</span><span class="o">**</span><span class="n">force_args</span><span class="p">)</span>
+    <span class="n">force_surf</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">force_surf</span><span class="p">))]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">dx_surf_hat</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">dx_surf</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rdx_surf</span><span class="p">,</span><span class="n">rdx_surf</span><span class="p">,</span><span class="n">rdx_surf</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">maxd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">maxr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">force_surf</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">maxr</span><span class="o">=</span><span class="mf">1.</span>
+        <span class="n">force_surf</span><span class="o">=</span><span class="n">force_surf</span><span class="o">*</span><span class="p">(</span><span class="n">maxd</span><span class="o">/</span><span class="n">maxr</span><span class="p">)</span>
+    <span class="n">dr</span><span class="p">[</span><span class="n">active_inds</span><span class="p">,:]</span><span class="o">=</span><span class="n">alpha</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">force_surf</span><span class="p">,</span><span class="n">force_surf</span><span class="p">,</span><span class="n">force_surf</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">dx_surf_hat</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">symmetrize</span><span class="p">:</span>
+        <span class="n">dr_symm</span><span class="o">=</span><span class="n">dr</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">dr_symm</span><span class="p">[</span><span class="n">active_inds</span><span class="p">,:]</span><span class="o">=</span><span class="mf">.5</span><span class="o">*</span><span class="n">dr</span><span class="p">[</span><span class="n">active_inds</span><span class="p">,:]</span><span class="o">-</span><span class="mf">.5</span><span class="o">*</span><span class="n">dr</span><span class="p">[</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_inds&#39;</span><span class="p">][</span><span class="n">active_inds</span><span class="p">],:]</span>
+        <span class="n">dr_symm</span><span class="p">[</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_inds&#39;</span><span class="p">][</span><span class="n">active_inds</span><span class="p">],:]</span><span class="o">=</span><span class="mf">.5</span><span class="o">*</span><span class="n">dr</span><span class="p">[</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_inds&#39;</span><span class="p">][</span><span class="n">active_inds</span><span class="p">],:]</span><span class="o">-</span><span class="mf">.5</span><span class="o">*</span><span class="n">dr</span><span class="p">[</span><span class="n">active_inds</span><span class="p">,:]</span>
+        <span class="n">dr</span><span class="o">=</span><span class="n">dr_symm</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">dr</span><span class="p">[</span><span class="n">exclude_inds</span><span class="p">,:]</span><span class="o">=</span><span class="mf">0.</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="n">dr</span></div>
+
+
+<div class="viewcode-block" id="get_surface_displacement">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_surface_displacement">[docs]</a>
+<span class="k">def</span> <span class="nf">get_surface_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">sts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the surface displacement of cells based on their curvature and normal vectors.</span>
+
+<span class="sd">    This function calculates the displacement of cell surfaces using the curvature values and normal vectors. </span>
+<span class="sd">    The displacement can be scaled by a factor `alpha`, and optionally constrained by a maximum displacement value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    border_dict : dict</span>
+<span class="sd">        A dictionary containing information about the cell borders, including:</span>
+<span class="sd">        - &#39;n&#39;: ndarray of shape (N, 3), normal vectors at the border points.</span>
+<span class="sd">        - &#39;c&#39;: ndarray of shape (N,), curvature values at the border points.</span>
+<span class="sd">        - &#39;states&#39;: ndarray of shape (N,), states of the border points.</span>
+
+<span class="sd">    sts : ndarray, optional</span>
+<span class="sd">        An array of scaling factors for each state, used to modify the curvature. If provided, `sts` is multiplied </span>
+<span class="sd">        with the curvature values based on the state of each border point (default is None, meaning no scaling is applied).</span>
+
+<span class="sd">    c : ndarray, optional</span>
+<span class="sd">        Curvature values at the border points. If None, it uses the curvature from `border_dict` (default is None).</span>
+
+<span class="sd">    n : ndarray, optional</span>
+<span class="sd">        Normal vectors at the border points. If None, it uses the normal vectors from `border_dict` (default is None).</span>
+
+<span class="sd">    alpha : float, optional</span>
+<span class="sd">        A scaling factor for the displacement magnitude (default is 1.0).</span>
+
+<span class="sd">    maxd : float, optional</span>
+<span class="sd">        The maximum allowed displacement. If specified, the displacement is scaled to ensure it does not exceed this value.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dx : ndarray</span>
+<span class="sd">        A 2D array of shape (N, 3) representing the displacements of the border points.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The displacement is calculated as a product of curvature, normal vectors, and the scaling factor `alpha`.</span>
+<span class="sd">    - If `sts` is provided, curvature values are scaled according to the states of the border points.</span>
+<span class="sd">    - Displacement magnitude is capped by `maxd` if specified, ensuring that no displacement exceeds this value.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; border_dict = {</span>
+<span class="sd">    ...     &#39;n&#39;: np.random.rand(100, 3),</span>
+<span class="sd">    ...     &#39;c&#39;: np.random.rand(100),</span>
+<span class="sd">    ...     &#39;states&#39;: np.random.randint(0, 2, 100)</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt; sts = np.array([1.0, 0.5])</span>
+<span class="sd">    &gt;&gt;&gt; dx = get_surface_displacement(border_dict, sts=sts, alpha=0.2, maxd=0.1)</span>
+<span class="sd">    &gt;&gt;&gt; dx.shape</span>
+<span class="sd">    (100, 3)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">c</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">sts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">c</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="n">sts</span><span class="p">[</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]])</span>
+    <span class="n">dx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="n">alpha</span><span class="p">,</span><span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="n">alpha</span><span class="p">,</span><span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="n">alpha</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">maxd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rdx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">maxr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rdx</span><span class="p">))</span>
+        <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="o">*</span><span class="p">(</span><span class="n">maxd</span><span class="o">/</span><span class="n">maxr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dx</span></div>
+
+
+<div class="viewcode-block" id="get_surface_displacement_deviation">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_surface_displacement_deviation">[docs]</a>
+<span class="k">def</span> <span class="nf">get_surface_displacement_deviation</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">border_pts_prev</span><span class="p">,</span><span class="n">exclude_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">knn</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">use_eigs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the surface displacement deviation using optimal transport between current and previous border points.</span>
+
+<span class="sd">    This function computes the displacement of cell surface points based on deviations from previous positions.</span>
+<span class="sd">    The displacement can be modified by normal vectors, filtered by specific states, and controlled by curvature</span>
+<span class="sd">    or variance in displacement.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    border_dict : dict</span>
+<span class="sd">        A dictionary containing information about the current cell borders, including:</span>
+<span class="sd">        - &#39;pts&#39;: ndarray of shape (N, 3), current border points.</span>
+<span class="sd">        - &#39;states&#39;: ndarray of shape (N,), states of the border points.</span>
+
+<span class="sd">    border_pts_prev : ndarray</span>
+<span class="sd">        A 2D array of shape (N, 3) containing the positions of border points from the previous time step.</span>
+
+<span class="sd">    exclude_states : array-like, optional</span>
+<span class="sd">        A list or array of states to exclude from displacement calculations (default is None, meaning no states are excluded).</span>
+
+<span class="sd">    n : ndarray, optional</span>
+<span class="sd">        Normal vectors at the border points. If None, normal vectors are calculated based on the optimal transport displacement (default is None).</span>
+
+<span class="sd">    knn : int, optional</span>
+<span class="sd">        The number of nearest neighbors to consider when computing variance or eigen decomposition for curvature calculations (default is 12).</span>
+
+<span class="sd">    use_eigs : bool, optional</span>
+<span class="sd">        If True, use eigen decomposition to calculate the displacement deviation; otherwise, use variance (default is False).</span>
+
+<span class="sd">    alpha : float, optional</span>
+<span class="sd">        A scaling factor for the displacement magnitude (default is 1.0).</span>
+
+<span class="sd">    maxd : float, optional</span>
+<span class="sd">        The maximum allowed displacement. If specified, the displacement is scaled to ensure it does not exceed this value (default is None).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dx : ndarray</span>
+<span class="sd">        A 2D array of shape (N, 3) representing the displacements of the border points.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function uses optimal transport to calculate deviations between current and previous border points.</span>
+<span class="sd">    - The surface displacement deviation is inspired by the &quot;mother of all non-linearities&quot;-- the Kardar-Parisi-Zhang non-linear surface growth universality class.</span>
+<span class="sd">    - Displacement deviations are scaled by the normal vectors and can be controlled by `alpha` and capped by `maxd`.</span>
+<span class="sd">    - If `use_eigs` is True, eigen decomposition of the displacement field is used to calculate deviations, otherwise variance is used.</span>
+<span class="sd">    - Excludes displacements for specified states, if `exclude_states` is provided.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; border_dict = {</span>
+<span class="sd">    ...     &#39;pts&#39;: np.random.rand(100, 3),</span>
+<span class="sd">    ...     &#39;states&#39;: np.random.randint(0, 2, 100)</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt; border_pts_prev = np.random.rand(100, 3)</span>
+<span class="sd">    &gt;&gt;&gt; dx = get_surface_displacement_deviation(border_dict, border_pts_prev, exclude_states=[0], alpha=0.5, maxd=0.1)</span>
+<span class="sd">    &gt;&gt;&gt; dx.shape</span>
+<span class="sd">    (100, 3)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">border_pts</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">]</span>
+    <span class="n">inds_ot</span><span class="p">,</span><span class="n">dx_ot</span><span class="o">=</span><span class="n">get_ot_dx</span><span class="p">(</span><span class="n">border_pts</span><span class="p">,</span><span class="n">border_pts_prev</span><span class="p">)</span>
+    <span class="n">rdx_ot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx_ot</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dx_ot</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">dx_ot</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">dx_ot</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rdx_ot</span><span class="p">,</span><span class="n">rdx_ot</span><span class="p">,</span><span class="n">rdx_ot</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">cloud</span><span class="o">=</span><span class="n">PyntCloud</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">border_pts</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;z&#39;</span><span class="p">]))</span>
+    <span class="n">k_neighbors</span> <span class="o">=</span> <span class="n">cloud</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">knn</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">use_eigs</span><span class="p">:</span>
+        <span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">dx_ot</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">dx_ot</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">dx_ot</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">ev</span> <span class="o">=</span> <span class="n">cloud</span><span class="o">.</span><span class="n">add_scalar_field</span><span class="p">(</span><span class="s2">&quot;eigen_decomposition&quot;</span><span class="p">,</span> <span class="n">k_neighbors</span><span class="o">=</span><span class="n">k_neighbors</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span><span class="n">cloud</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">ev</span><span class="p">[</span><span class="mi">2</span><span class="p">]]])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">dh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dh</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">rdx_ot</span><span class="p">[</span><span class="n">k_neighbors</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">dx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span><span class="n">alpha</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span><span class="n">alpha</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span><span class="n">alpha</span><span class="p">)])</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exclude_states</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ind_exclude</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">],</span><span class="n">exclude_states</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dx</span><span class="p">[</span><span class="n">ind_exclude</span><span class="p">,:]</span><span class="o">=</span><span class="mf">0.</span>
+    <span class="k">if</span> <span class="n">maxd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rdx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">maxr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rdx</span><span class="p">))</span>
+        <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="o">*</span><span class="p">(</span><span class="n">maxd</span><span class="o">/</span><span class="n">maxr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dx</span></div>
+
+
+<div class="viewcode-block" id="get_nuc_displacement">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_nuc_displacement">[docs]</a>
+<span class="k">def</span> <span class="nf">get_nuc_displacement</span><span class="p">(</span><span class="n">border_pts_new</span><span class="p">,</span><span class="n">border_dict</span><span class="p">,</span><span class="n">Rset</span><span class="p">,</span><span class="n">nuc_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span><span class="o">**</span><span class="n">nuc_args</span><span class="p">):</span>
+    <span class="n">border_pts</span><span class="o">=</span><span class="n">border_pts_new</span>
+    <span class="n">border_index</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span>
+    <span class="n">border_states</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]</span>
+    <span class="n">ind_nucs</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">border_states</span><span class="p">,</span><span class="n">nuc_states</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">iset</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">border_index</span><span class="p">[</span><span class="n">ind_nucs</span><span class="p">])</span>
+    <span class="n">iset</span><span class="o">=</span><span class="n">iset</span><span class="p">[</span><span class="n">iset</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dnuc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">border_pts</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iset</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;nucd </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">pts</span><span class="o">=</span><span class="n">border_pts</span><span class="p">[</span><span class="n">border_index</span><span class="o">==</span><span class="n">i</span><span class="p">,:]</span>
+        <span class="n">xc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">dnuc_c</span><span class="o">=</span><span class="n">get_nuc_dx</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span><span class="n">xc</span><span class="p">,</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">][</span><span class="n">border_index</span><span class="o">==</span><span class="n">i</span><span class="p">],</span><span class="n">Rset</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="o">**</span><span class="n">nuc_args</span><span class="p">)</span>
+        <span class="n">dnuc</span><span class="p">[</span><span class="n">border_index</span><span class="o">==</span><span class="n">i</span><span class="p">,:]</span><span class="o">=</span><span class="n">dnuc_c</span>
+    <span class="k">return</span> <span class="n">dnuc</span></div>
+
+
+<div class="viewcode-block" id="get_flux_displacement">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_flux_displacement">[docs]</a>
+<span class="k">def</span> <span class="nf">get_flux_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">border_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">flux_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">exclude_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fmeans</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">fsigmas</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">flux_function_args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the displacement of border points using flux information.</span>
+
+<span class="sd">    This function computes the displacement of border points by applying a flux function or random sampling</span>
+<span class="sd">    based on mean and standard deviation values. The displacements can be controlled by normal vectors,</span>
+<span class="sd">    excluded for certain states, and scaled to a maximum displacement.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    border_dict : dict</span>
+<span class="sd">        A dictionary containing information about the current cell borders, including:</span>
+<span class="sd">        - &#39;n&#39;: ndarray of shape (N, 3), normal vectors at the border points.</span>
+<span class="sd">        - &#39;states&#39;: ndarray of shape (N,), states of the border points.</span>
+
+<span class="sd">    border_features : ndarray, optional</span>
+<span class="sd">        Features at the border points used as input to the flux function (default is None).</span>
+
+<span class="sd">    flux_function : callable, optional</span>
+<span class="sd">        A function that takes `border_features` and additional arguments to compute mean (`fmeans`) and standard</span>
+<span class="sd">        deviation (`fsigmas`) of the flux at each border point (default is None, meaning random sampling is used).</span>
+
+<span class="sd">    exclude_states : array-like, optional</span>
+<span class="sd">        A list or array of states to exclude from displacement calculations (default is None, meaning no states are excluded).</span>
+
+<span class="sd">    n : ndarray, optional</span>
+<span class="sd">        Normal vectors at the border points. If None, normal vectors are taken from `border_dict[&#39;n&#39;]` (default is None).</span>
+
+<span class="sd">    fmeans : float or array-like, optional</span>
+<span class="sd">        Mean flux value(s) for random sampling (default is 0.). If `flux_function` is provided, this value is ignored.</span>
+
+<span class="sd">    fsigmas : float or array-like, optional</span>
+<span class="sd">        Standard deviation of flux value(s) for random sampling (default is 0.). If `flux_function` is provided, this value is ignored.</span>
+
+<span class="sd">    random_seed : int, optional</span>
+<span class="sd">        Seed for the random number generator to ensure reproducibility (default is None).</span>
+
+<span class="sd">    alpha : float, optional</span>
+<span class="sd">        A scaling factor for the displacement magnitude (default is 1.0).</span>
+
+<span class="sd">    maxd : float, optional</span>
+<span class="sd">        The maximum allowed displacement. If specified, the displacement is scaled to ensure it does not exceed this value (default is None).</span>
+
+<span class="sd">    **flux_function_args : dict, optional</span>
+<span class="sd">        Additional arguments to pass to the `flux_function`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dx : ndarray</span>
+<span class="sd">        A 2D array of shape (N, 3) representing the displacements of the border points.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function can use a flux function to calculate displacements based on border features or perform random sampling</span>
+<span class="sd">      with specified mean and standard deviation values.</span>
+<span class="sd">    - Displacement deviations are scaled by normal vectors and can be controlled by `alpha` and capped by `maxd`.</span>
+<span class="sd">    - Excludes displacements for specified states, if `exclude_states` is provided.</span>
+<span class="sd">    - The random number generator can be seeded for reproducibility using `random_seed`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; border_dict = {</span>
+<span class="sd">    ...     &#39;n&#39;: np.random.rand(100, 3),</span>
+<span class="sd">    ...     &#39;states&#39;: np.random.randint(0, 2, 100)</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt; dx = get_flux_displacement(border_dict, fmeans=0.5, fsigmas=0.1, random_seed=42, alpha=0.8, maxd=0.2)</span>
+<span class="sd">    &gt;&gt;&gt; dx.shape</span>
+<span class="sd">    (100, 3)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span>
+    <span class="n">npts</span><span class="o">=</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">flux_function</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">fmeans</span><span class="p">):</span>
+            <span class="n">fmeans</span><span class="o">=</span><span class="n">fmeans</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">fsigmas</span><span class="p">):</span>
+            <span class="n">fsigmas</span><span class="o">=</span><span class="n">fsigmas</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">border_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;provide border_features as input to flux_function&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">fmeans</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;fmeans ignored, defaulting to flux_function&#39;</span><span class="p">)</span>
+        <span class="n">fmeans</span><span class="p">,</span><span class="n">fsigmas</span><span class="o">=</span><span class="n">flux_function</span><span class="p">(</span><span class="n">border_features</span><span class="p">,</span><span class="o">**</span><span class="n">flux_function_args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">random_seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">fmeans</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="n">fsigmas</span><span class="p">,</span><span class="n">size</span><span class="o">=</span><span class="n">npts</span><span class="p">)</span>
+    <span class="n">dx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">f</span><span class="o">*</span><span class="n">alpha</span><span class="p">,</span><span class="n">f</span><span class="o">*</span><span class="n">alpha</span><span class="p">,</span><span class="n">f</span><span class="o">*</span><span class="n">alpha</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">maxd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rdx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">maxr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rdx</span><span class="p">))</span>
+        <span class="n">dx</span><span class="o">=</span><span class="n">dx</span><span class="o">*</span><span class="p">(</span><span class="n">maxd</span><span class="o">/</span><span class="n">maxr</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exclude_states</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ind_exclude</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">],</span><span class="n">exclude_states</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dx</span><span class="p">[</span><span class="n">ind_exclude</span><span class="p">,:]</span><span class="o">=</span><span class="mf">0.</span>
+    <span class="k">return</span> <span class="n">dx</span></div>
+
+
+<div class="viewcode-block" id="get_ot_dx">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_ot_dx">[docs]</a>
+<span class="k">def</span> <span class="nf">get_ot_dx</span><span class="p">(</span><span class="n">pts0</span><span class="p">,</span><span class="n">pts1</span><span class="p">,</span><span class="n">return_dx</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_cost</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the optimal transport (OT) displacement and cost between two sets of points.</span>
+
+<span class="sd">    This function calculates the optimal transport map between two sets of points `pts0` and `pts1` using the</span>
+<span class="sd">    Earth Mover&#39;s Distance (EMD). It returns the indices of the optimal transport matches and the displacement</span>
+<span class="sd">    vectors, as well as the transport cost if specified.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pts0 : ndarray</span>
+<span class="sd">        A 2D array of shape (N, D), representing the first set of points, where N is the number of points</span>
+<span class="sd">        and D is the dimensionality.</span>
+
+<span class="sd">    pts1 : ndarray</span>
+<span class="sd">        A 2D array of shape (M, D), representing the second set of points, where M is the number of points</span>
+<span class="sd">        and D is the dimensionality.</span>
+
+<span class="sd">    return_dx : bool, optional</span>
+<span class="sd">        If True, returns the displacement vectors between matched points (default is True).</span>
+
+<span class="sd">    return_cost : bool, optional</span>
+<span class="sd">        If True, returns the total transport cost (default is False).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    inds_ot : ndarray</span>
+<span class="sd">        A 1D array of shape (N,), representing the indices of the points in `pts1` that are matched to</span>
+<span class="sd">        the points in `pts0` according to the optimal transport map.</span>
+
+<span class="sd">    dx : ndarray, optional</span>
+<span class="sd">        A 2D array of shape (N, D), representing the displacement vectors from the points in `pts0` to the</span>
+<span class="sd">        matched points in `pts1`. Returned only if `return_dx` is True.</span>
+
+<span class="sd">    cost : float, optional</span>
+<span class="sd">        The total optimal transport cost, calculated as the sum of the transport cost between matched points.</span>
+<span class="sd">        Returned only if `return_cost` is True.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function uses the Earth Mover&#39;s Distance (EMD) for computing the optimal transport map, which minimizes</span>
+<span class="sd">      the cost of moving mass from `pts0` to `pts1`.</span>
+<span class="sd">    - The cost is computed as the sum of the pairwise distances weighted by the transport plan.</span>
+<span class="sd">    - Displacement vectors are computed as the difference between points in `pts0` and their matched points in `pts1`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; pts0 = np.array([[0, 0], [1, 1], [2, 2]])</span>
+<span class="sd">    &gt;&gt;&gt; pts1 = np.array([[0, 1], [1, 0], [2, 1]])</span>
+<span class="sd">    &gt;&gt;&gt; inds_ot, dx, cost = get_ot_dx(pts0, pts1, return_dx=True, return_cost=True)</span>
+<span class="sd">    &gt;&gt;&gt; inds_ot</span>
+<span class="sd">    array([0, 1, 2])</span>
+<span class="sd">    &gt;&gt;&gt; dx</span>
+<span class="sd">    array([[ 0, -1],</span>
+<span class="sd">           [ 0,  1],</span>
+<span class="sd">           [ 0,  1]])</span>
+<span class="sd">    &gt;&gt;&gt; cost</span>
+<span class="sd">    1.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">w0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">pts0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">pts0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">w1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">pts1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">pts1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">ot</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">pts0</span><span class="p">,</span><span class="n">pts1</span><span class="p">)</span>
+    <span class="n">G0</span> <span class="o">=</span> <span class="n">ot</span><span class="o">.</span><span class="n">emd</span><span class="p">(</span><span class="n">w0</span><span class="p">,</span><span class="n">w1</span><span class="p">,</span><span class="n">M</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_cost</span><span class="p">:</span>
+        <span class="n">cost</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">G0</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="n">M</span><span class="o">.</span><span class="n">flatten</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="n">return_dx</span><span class="p">:</span>
+            <span class="n">inds_ot</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">G0</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">dx</span><span class="o">=</span><span class="n">pts0</span><span class="o">-</span><span class="n">pts1</span><span class="p">[</span><span class="n">inds_ot</span><span class="p">,:]</span>
+            <span class="k">return</span> <span class="n">inds_ot</span><span class="p">,</span><span class="n">dx</span><span class="p">,</span><span class="n">cost</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cost</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">inds_ot</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">G0</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">dx</span><span class="o">=</span><span class="n">pts0</span><span class="o">-</span><span class="n">pts1</span><span class="p">[</span><span class="n">inds_ot</span><span class="p">,:]</span>
+        <span class="k">return</span> <span class="n">inds_ot</span><span class="p">,</span><span class="n">dx</span></div>
+
+
+<div class="viewcode-block" id="get_ot_displacement">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_ot_displacement">[docs]</a>
+<span class="k">def</span> <span class="nf">get_ot_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">border_dict_prev</span><span class="p">,</span><span class="n">parent_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the optimal transport (OT) displacement between two sets of boundary points.</span>
+
+<span class="sd">    This function calculates the optimal transport displacements between the points in the current </span>
+<span class="sd">    boundary (`border_dict`) and the points in the previous boundary (`border_dict_prev`). It finds </span>
+<span class="sd">    the optimal matches and computes the displacement vectors for each point.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    border_dict : dict</span>
+<span class="sd">        A dictionary containing the current boundary points and related information. Expected keys include:</span>
+<span class="sd">        - &#39;index&#39;: ndarray of shape (N,), unique labels of current boundary points.</span>
+<span class="sd">        - &#39;pts&#39;: ndarray of shape (N, D), coordinates of the current boundary points.</span>
+
+<span class="sd">    border_dict_prev : dict</span>
+<span class="sd">        A dictionary containing the previous boundary points and related information. Expected keys include:</span>
+<span class="sd">        - &#39;index&#39;: ndarray of shape (M,), unique labels of previous boundary points.</span>
+<span class="sd">        - &#39;pts&#39;: ndarray of shape (M, D), coordinates of the previous boundary points.</span>
+
+<span class="sd">    parent_index : ndarray, optional</span>
+<span class="sd">        An array of unique labels (indices) to use for matching previous boundary points. If not provided, </span>
+<span class="sd">        `index1` from `border_dict` will be used to match with `border_dict_prev`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    inds_ot : ndarray</span>
+<span class="sd">        A 1D array containing the indices of the optimal transport matches for the current boundary points </span>
+<span class="sd">        from the previous boundary points.</span>
+
+<span class="sd">    dxs_ot : ndarray</span>
+<span class="sd">        A 2D array of shape (N, D), representing the displacement vectors from the current boundary points </span>
+<span class="sd">        to the matched previous boundary points.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function uses the `get_ot_dx` function to compute the optimal transport match and displacement </span>
+<span class="sd">      between boundary points.</span>
+<span class="sd">    - If `parent_index` is not provided, it defaults to using the indices of the current boundary points </span>
+<span class="sd">      (`index1`).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; border_dict = {</span>
+<span class="sd">    ...     &#39;index&#39;: np.array([1, 2, 3]),</span>
+<span class="sd">    ...     &#39;pts&#39;: np.array([[0, 0], [1, 1], [2, 2]])</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt; border_dict_prev = {</span>
+<span class="sd">    ...     &#39;index&#39;: np.array([1, 2, 3]),</span>
+<span class="sd">    ...     &#39;pts&#39;: np.array([[0, 1], [1, 0], [2, 1]])</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt; inds_ot, dxs_ot = get_ot_displacement(border_dict, border_dict_prev)</span>
+<span class="sd">    &gt;&gt;&gt; inds_ot</span>
+<span class="sd">    array([0, 0, 0])</span>
+<span class="sd">    &gt;&gt;&gt; dxs_ot</span>
+<span class="sd">    array([[ 0, -1],</span>
+<span class="sd">           [ 0,  1],</span>
+<span class="sd">           [ 0,  1]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">index1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">])</span>
+    <span class="n">index0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">border_dict_prev</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">])</span>
+    <span class="n">npts</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">parent_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parent_index</span><span class="o">=</span><span class="n">index1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;using first set of indices to match previous, provide parent index if indices are not the same&#39;</span><span class="p">)</span>
+    <span class="n">inds_ot</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">dxs_ot</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">index1</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+        <span class="n">inds1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">index1</span><span class="p">[</span><span class="n">ic</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">inds0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">border_dict_prev</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">parent_index</span><span class="p">[</span><span class="n">ic</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ind_ot</span><span class="p">,</span><span class="n">dx_ot</span><span class="o">=</span><span class="n">get_ot_dx</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">][</span><span class="n">inds1</span><span class="p">,:],</span><span class="n">border_dict_prev</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">][</span><span class="n">inds0</span><span class="p">,:])</span>
+        <span class="n">inds_ot</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inds_ot</span><span class="p">,</span><span class="n">ind_ot</span><span class="p">)</span>
+        <span class="n">dxs_ot</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dxs_ot</span><span class="p">,</span><span class="n">dx_ot</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">inds_ot</span><span class="p">,</span><span class="n">dxs_ot</span></div>
+
+
+<div class="viewcode-block" id="get_labels_fromborderdict">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_labels_fromborderdict">[docs]</a>
+<span class="k">def</span> <span class="nf">get_labels_fromborderdict</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">labels_shape</span><span class="p">,</span><span class="n">active_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a label mask from a dictionary of border points and associated states.</span>
+
+<span class="sd">    This function creates a 3D label array by identifying regions enclosed by the boundary points </span>
+<span class="sd">    in `border_dict`. It assigns unique labels to each region based on the indices of the border points.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    border_dict : dict</span>
+<span class="sd">        A dictionary containing the border points and associated information. Expected keys include:</span>
+<span class="sd">        - &#39;pts&#39;: ndarray of shape (N, D), coordinates of the border points.</span>
+<span class="sd">        - &#39;index&#39;: ndarray of shape (N,), labels for each border point.</span>
+<span class="sd">        - &#39;states&#39;: ndarray of shape (N,), states associated with each border point.</span>
+
+<span class="sd">    labels_shape : tuple of ints</span>
+<span class="sd">        The shape of the output labels array.</span>
+
+<span class="sd">    active_states : array-like, optional</span>
+<span class="sd">        A list or array of states to include in the labeling. If None, all unique states </span>
+<span class="sd">        in `border_dict[&#39;states&#39;]` are used.</span>
+
+<span class="sd">    surface_labels : ndarray, optional</span>
+<span class="sd">        A pre-existing label array to use as a base. Regions with non-zero values in this </span>
+<span class="sd">        array will retain their labels.</span>
+
+<span class="sd">    connected : bool, optional</span>
+<span class="sd">        If True, ensures that labeled regions are connected. Uses the largest connected </span>
+<span class="sd">        component labeling method.</span>
+
+<span class="sd">    random_seed : int, optional</span>
+<span class="sd">        A seed for the random number generator to ensure reproducibility.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    labels : ndarray</span>
+<span class="sd">        An array of the same shape as `labels_shape` with labeled regions. Each unique region </span>
+<span class="sd">        enclosed by border points is assigned a unique label.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function utilizes convex hull and Delaunay triangulation to determine the regions </span>
+<span class="sd">      enclosed by the border points.</span>
+<span class="sd">    - It can be used to generate labels for 3D volumes, based on the locations and states of border points.</span>
+<span class="sd">    - The function includes options for randomization and enforcing connectivity of labeled regions.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; border_dict = {</span>
+<span class="sd">    ...     &#39;pts&#39;: np.array([[0, 0, 0], [1, 1, 1], [2, 2, 2]]),</span>
+<span class="sd">    ...     &#39;index&#39;: np.array([1, 1, 2]),</span>
+<span class="sd">    ...     &#39;states&#39;: np.array([1, 1, 2])</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt; labels_shape = (3, 3, 3)</span>
+<span class="sd">    &gt;&gt;&gt; labels = get_labels_fromborderdict(border_dict, labels_shape)</span>
+<span class="sd">    &gt;&gt;&gt; print(labels)</span>
+<span class="sd">    array([[[1, 1, 0],</span>
+<span class="sd">            [1, 1, 0],</span>
+<span class="sd">            [0, 0, 0]],</span>
+<span class="sd">           [[1, 1, 0],</span>
+<span class="sd">            [1, 1, 0],</span>
+<span class="sd">            [0, 0, 0]],</span>
+<span class="sd">           [[0, 0, 0],</span>
+<span class="sd">            [0, 0, 0],</span>
+<span class="sd">            [0, 0, 0]]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">active_states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">active_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">])</span>
+    <span class="n">active_inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">],</span><span class="n">active_states</span><span class="p">)</span>
+    <span class="n">border_pts</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">][</span><span class="n">active_inds</span><span class="p">]</span>
+    <span class="n">border_index</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">][</span><span class="n">active_inds</span><span class="p">]</span>
+    <span class="n">iset</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">border_index</span><span class="p">)</span>
+    <span class="n">iset</span><span class="o">=</span><span class="n">iset</span><span class="p">[</span><span class="n">iset</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">pts_vol</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">labels_shape</span><span class="p">)))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">labels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">labels_shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rng</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">iset</span><span class="p">):</span>
+        <span class="n">inds</span><span class="o">=</span><span class="n">border_index</span><span class="o">==</span><span class="n">i</span>
+        <span class="n">pts</span><span class="o">=</span><span class="n">border_pts</span><span class="p">[</span><span class="n">inds</span><span class="p">,:]</span>
+        <span class="c1">#check for 1D</span>
+        <span class="n">ind_ax1d</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">==</span><span class="mf">0.</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">iax</span> <span class="ow">in</span> <span class="n">ind_ax1d</span><span class="p">:</span>
+            <span class="n">dg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">dg</span><span class="p">[</span><span class="n">iax</span><span class="p">]</span><span class="o">=</span><span class="mf">.5</span>
+            <span class="n">pts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">pts</span><span class="o">-</span><span class="n">dg</span><span class="p">,</span><span class="n">pts</span><span class="o">+</span><span class="n">dg</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">hull</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">ConvexHull</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">pts</span><span class="p">)</span>
+        <span class="n">hull_vertices</span><span class="o">=</span><span class="n">pts</span><span class="p">[</span><span class="n">hull</span><span class="o">.</span><span class="n">vertices</span><span class="p">]</span>
+        <span class="n">dhull</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">Delaunay</span><span class="p">(</span><span class="n">hull_vertices</span><span class="p">)</span>
+        <span class="n">msk</span><span class="o">=</span><span class="n">dhull</span><span class="o">.</span><span class="n">find_simplex</span><span class="p">(</span><span class="n">pts_vol</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">labels_shape</span><span class="p">)</span><span class="o">&gt;-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">connected</span><span class="p">:</span>
+            <span class="n">msk</span><span class="o">=</span><span class="n">imprep</span><span class="o">.</span><span class="n">get_label_largestcc</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">labels</span><span class="p">[</span><span class="n">msk</span><span class="p">]</span><span class="o">=</span><span class="n">i</span>
+    <span class="n">labels</span><span class="p">[</span><span class="n">surface_labels</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">surface_labels</span><span class="p">[</span><span class="n">surface_labels</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">labels</span></div>
+
+
+<div class="viewcode-block" id="get_volconstraint_com">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_volconstraint_com">[docs]</a>
+<span class="k">def</span> <span class="nf">get_volconstraint_com</span><span class="p">(</span><span class="n">border_pts</span><span class="p">,</span><span class="n">target_volume</span><span class="p">,</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span><span class="n">converror</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adjusts the positions of boundary points to achieve a target volume using a centroid-based method.</span>
+
+<span class="sd">    This function iteratively adjusts the positions of boundary points to match a specified target volume.</span>
+<span class="sd">    The adjustment is done by moving points along the direction from the centroid to the points, scaled</span>
+<span class="sd">    by the difference between the current and target volumes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    border_pts : ndarray</span>
+<span class="sd">        An array of shape (N, 3) representing the coordinates of the boundary points.</span>
+
+<span class="sd">    target_volume : float</span>
+<span class="sd">        The desired volume to be achieved.</span>
+
+<span class="sd">    max_iter : int, optional</span>
+<span class="sd">        Maximum number of iterations to perform. Default is 1000.</span>
+
+<span class="sd">    converror : float, optional</span>
+<span class="sd">        Convergence error threshold. Iterations stop when the relative volume error is below this value.</span>
+<span class="sd">        Default is 0.05.</span>
+
+<span class="sd">    dc : float, optional</span>
+<span class="sd">        A scaling factor for the displacement calculated in each iteration. Default is 1.0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    border_pts : ndarray</span>
+<span class="sd">        An array of shape (N, 3) representing the adjusted coordinates of the boundary points that </span>
+<span class="sd">        approximate the target volume.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The method assumes a 3D convex hull can be formed by the points, which is adjusted iteratively.</span>
+<span class="sd">    - The convergence is based on the relative difference between the current volume and the target volume.</span>
+<span class="sd">    - If the boundary points are collinear in any dimension, the method adjusts them to ensure a valid convex hull.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; border_pts = np.array([[0, 0, 0], [1, 1, 1], [2, 2, 2]])</span>
+<span class="sd">    &gt;&gt;&gt; target_volume = 10.0</span>
+<span class="sd">    &gt;&gt;&gt; adjusted_pts = get_volconstraint_com(border_pts, target_volume)</span>
+<span class="sd">    &gt;&gt;&gt; print(adjusted_pts)</span>
+<span class="sd">    array([[ ... ]])  # Adjusted coordinates to approximate the target volume</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">conv</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">npts</span><span class="o">=</span><span class="n">border_pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">xc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">border_pts</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">dxc</span><span class="o">=</span><span class="n">border_pts</span><span class="o">-</span><span class="n">xc</span>
+    <span class="n">rdxc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dxc</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">dxc_hat</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">dxc</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rdxc</span><span class="p">,</span><span class="n">rdxc</span><span class="p">,</span><span class="n">rdxc</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">dx</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">border_pts</span><span class="p">)</span>
+    <span class="n">total_dR</span><span class="o">=</span><span class="mf">0.</span>
+    <span class="n">errors</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+    <span class="n">ind_ax1d</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">border_pts</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">border_pts</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">==</span><span class="mf">0.</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">iax</span> <span class="ow">in</span> <span class="n">ind_ax1d</span><span class="p">:</span>
+        <span class="n">ng</span><span class="o">=</span><span class="n">n</span><span class="o">.</span><span class="n">copy</span><span class="p">();</span><span class="n">ng</span><span class="p">[</span><span class="n">iax</span><span class="p">]</span><span class="o">=-</span><span class="n">n</span><span class="p">[</span><span class="n">iax</span><span class="p">]</span>
+        <span class="n">dg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">dg</span><span class="p">[</span><span class="n">iax</span><span class="p">]</span><span class="o">=</span><span class="mf">.5</span>
+        <span class="n">border_pts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">border_pts</span><span class="o">-</span><span class="n">dg</span><span class="p">,</span><span class="n">border_pts</span><span class="o">+</span><span class="n">dg</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">n</span><span class="p">,</span><span class="n">ng</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">hull</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">ConvexHull</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">border_pts</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">max_iter</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">conv</span><span class="p">)</span><span class="o">&gt;</span><span class="n">converror</span><span class="p">:</span>
+        <span class="n">dV</span><span class="o">=</span><span class="n">target_volume</span><span class="o">-</span><span class="n">hull</span><span class="o">.</span><span class="n">volume</span>
+        <span class="n">dR</span><span class="o">=</span><span class="n">dc</span><span class="o">*</span><span class="n">dV</span><span class="o">/</span><span class="n">hull</span><span class="o">.</span><span class="n">area</span>
+        <span class="c1">#total_dR=total_dR+dc*dR</span>
+        <span class="n">dx</span><span class="o">=</span><span class="n">dR</span><span class="o">*</span><span class="n">dxc_hat</span>
+        <span class="n">border_pts</span><span class="o">=</span><span class="n">border_pts</span><span class="o">+</span><span class="n">dx</span>
+        <span class="n">hull</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">ConvexHull</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">border_pts</span><span class="p">)</span>
+        <span class="n">conv</span><span class="o">=</span><span class="p">(</span><span class="n">hull</span><span class="o">.</span><span class="n">volume</span><span class="o">-</span><span class="n">target_volume</span><span class="p">)</span><span class="o">/</span><span class="n">target_volume</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;error: </span><span class="si">{</span><span class="n">conv</span><span class="si">}</span><span class="s1"> totalDR: </span><span class="si">{</span><span class="n">total_dR</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">errors</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">errors</span><span class="p">,</span><span class="n">conv</span><span class="p">)</span>
+        <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">border_pts</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">npts</span><span class="p">,:]</span></div>
+
+
+<div class="viewcode-block" id="constrain_volume">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.constrain_volume">[docs]</a>
+<span class="k">def</span> <span class="nf">constrain_volume</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">target_vols</span><span class="p">,</span><span class="n">exclude_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">volconstraint_args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adjusts the positions of boundary points to achieve target volumes for different regions.</span>
+
+<span class="sd">    This function iterates through different regions identified by their indices and adjusts the</span>
+<span class="sd">    boundary points to match specified target volumes. The adjustments are performed using the</span>
+<span class="sd">    `get_volconstraint_com` function, which modifies the boundary points to achieve the desired volume.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    border_dict : dict</span>
+<span class="sd">        A dictionary containing boundary information, typically with keys:</span>
+<span class="sd">        - &#39;pts&#39;: ndarray of shape (N, 3), coordinates of the boundary points.</span>
+<span class="sd">        - &#39;index&#39;: ndarray of shape (N,), indices identifying the region each point belongs to.</span>
+<span class="sd">        - &#39;n&#39;: ndarray of shape (N, 3), normals at the boundary points.</span>
+
+<span class="sd">    target_vols : dict or ndarray</span>
+<span class="sd">        A dictionary or array where each key or index corresponds to a region index, and the value is</span>
+<span class="sd">        the target volume for that region.</span>
+
+<span class="sd">    exclude_states : array-like, optional</span>
+<span class="sd">        States to be excluded from volume adjustment. If not provided, all states will be adjusted.</span>
+<span class="sd">        Default is None.</span>
+
+<span class="sd">    **volconstraint_args : dict, optional</span>
+<span class="sd">        Additional arguments to pass to the `get_volconstraint_com` function, such as maximum iterations</span>
+<span class="sd">        or convergence criteria.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    border_pts_c : ndarray</span>
+<span class="sd">        An array of shape (N, 3) representing the adjusted coordinates of the boundary points.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function uses volume constraints to adjust the morphology of different regions based on</span>
+<span class="sd">      specified target volumes.</span>
+<span class="sd">    - The regions are identified by the &#39;index&#39; values in `border_dict`.</span>
+<span class="sd">    - Points belonging to excluded states are not adjusted.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; border_dict = {&#39;pts&#39;: np.array([[0, 0, 0], [1, 1, 1], [2, 2, 2]]),</span>
+<span class="sd">                       &#39;index&#39;: np.array([1, 1, 2]),</span>
+<span class="sd">                       &#39;n&#39;: np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0]])}</span>
+<span class="sd">    &gt;&gt;&gt; target_vols = {1: 10.0, 2: 5.0}</span>
+<span class="sd">    &gt;&gt;&gt; adjusted_pts = constrain_volume(border_dict, target_vols)</span>
+<span class="sd">    &gt;&gt;&gt; print(adjusted_pts)</span>
+<span class="sd">    array([[ ... ]])  # Adjusted coordinates for regions with target volumes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">border_pts</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">]</span>
+    <span class="n">border_index</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">exclude_states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">active_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">active_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]),</span><span class="n">exclude_states</span><span class="p">)</span>
+    <span class="n">active_inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">],</span><span class="n">active_states</span><span class="p">)</span>
+    <span class="n">n</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span>
+    <span class="n">iset</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">border_index</span><span class="p">[</span><span class="n">active_inds</span><span class="p">])</span>
+    <span class="n">iset</span><span class="o">=</span><span class="n">iset</span><span class="p">[</span><span class="n">iset</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">border_pts_c</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">border_pts</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iset</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;constraining volume </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">pts</span><span class="o">=</span><span class="n">border_pts</span><span class="p">[</span><span class="n">border_index</span><span class="o">==</span><span class="n">i</span><span class="p">,:]</span>
+        <span class="c1">#pts_c=get_volconstraint_com(pts,n[border_index==i],target_vols[i],**volconstraint_args)</span>
+        <span class="n">pts_c</span><span class="o">=</span><span class="n">get_volconstraint_com</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span><span class="n">target_vols</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="o">**</span><span class="n">volconstraint_args</span><span class="p">)</span>
+        <span class="n">border_pts_c</span><span class="p">[</span><span class="n">border_index</span><span class="o">==</span><span class="n">i</span><span class="p">,:]</span><span class="o">=</span><span class="n">pts_c</span>
+    <span class="n">border_pts_c</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">active_inds</span><span class="p">),:]</span><span class="o">=</span><span class="n">border_pts</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">active_inds</span><span class="p">),:]</span>
+    <span class="k">return</span> <span class="n">border_pts_c</span></div>
+
+
+<div class="viewcode-block" id="get_yukawa_force">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_yukawa_force">[docs]</a>
+<span class="k">def</span> <span class="nf">get_yukawa_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Yukawa force for a given set of distances.</span>
+
+<span class="sd">    The Yukawa force is a screened Coulomb force often used to describe interactions</span>
+<span class="sd">    in plasmas and other systems with screened potentials. This function calculates</span>
+<span class="sd">    the Yukawa force based on the provided distances, interaction strength, and screening length.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    r : array-like or float</span>
+<span class="sd">        The distance(s) at which to calculate the Yukawa force. Can be a single float</span>
+<span class="sd">        or an array of distances.</span>
+
+<span class="sd">    eps : float</span>
+<span class="sd">        The interaction strength (or potential strength) parameter, determining the amplitude</span>
+<span class="sd">        of the force.</span>
+
+<span class="sd">    R : float, optional</span>
+<span class="sd">        The screening length parameter, which determines how quickly the force decays</span>
+<span class="sd">        with distance. Default is 1.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    force : array-like or float</span>
+<span class="sd">        The computed Yukawa force at each distance provided in `r`. The shape of the output</span>
+<span class="sd">        matches the shape of `r`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; distances = np.array([0.5, 1.0, 1.5])</span>
+<span class="sd">    &gt;&gt;&gt; interaction_strength = 2.0</span>
+<span class="sd">    &gt;&gt;&gt; screening_length = 1.0</span>
+<span class="sd">    &gt;&gt;&gt; forces = get_yukawa_force(distances, interaction_strength, R=screening_length)</span>
+<span class="sd">    &gt;&gt;&gt; print(forces)</span>
+<span class="sd">    [4. e+00 1.47151776e+00 4.48168907e-01]</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The Yukawa force is computed using the formula:</span>
+<span class="sd">      `force = eps * exp(-r / R) * (r + R) / (R * r^2)`,</span>
+<span class="sd">      where `eps` is the interaction strength and `R` is the screening length.</span>
+<span class="sd">    - The function handles both scalar and array inputs for `r`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">force</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">eps</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span><span class="o">/</span><span class="n">R</span><span class="p">),</span><span class="n">r</span><span class="o">+</span><span class="n">R</span><span class="p">),</span><span class="n">R</span><span class="o">*</span><span class="n">r</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">force</span></div>
+
+
+<div class="viewcode-block" id="get_LJ_force">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_LJ_force">[docs]</a>
+<span class="k">def</span> <span class="nf">get_LJ_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">max_repulsion</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Lennard-Jones (LJ) force for a given set of distances.</span>
+
+<span class="sd">    The Lennard-Jones potential models interactions between a pair of neutral atoms or molecules, </span>
+<span class="sd">    capturing both the attractive and repulsive forces. This function calculates the LJ force based on </span>
+<span class="sd">    the provided distances, interaction strength, and characteristic distance.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    r : array-like or float</span>
+<span class="sd">        The distance(s) at which to calculate the Lennard-Jones force. Can be a single float or an array of distances.</span>
+
+<span class="sd">    eps : float</span>
+<span class="sd">        The depth of the potential well, representing the strength of the interaction.</span>
+
+<span class="sd">    R : float, optional</span>
+<span class="sd">        The characteristic distance parameter, which influences the distance at which the potential well occurs.</span>
+<span class="sd">        Default is 1.</span>
+
+<span class="sd">    max_repulsion : bool, optional</span>
+<span class="sd">        If True, the force is limited to a maximum repulsion by setting distances below the `sigma` value</span>
+<span class="sd">        to `sigma`, where `sigma` is the distance at which the potential crosses zero (point of maximum repulsion).</span>
+<span class="sd">        Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    force : array-like or float</span>
+<span class="sd">        The computed Lennard-Jones force at each distance provided in `r`. The shape of the output matches the shape of `r`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; distances = np.array([0.5, 1.0, 1.5])</span>
+<span class="sd">    &gt;&gt;&gt; interaction_strength = 1.0</span>
+<span class="sd">    &gt;&gt;&gt; characteristic_distance = 1.0</span>
+<span class="sd">    &gt;&gt;&gt; forces = get_LJ_force(distances, interaction_strength, R=characteristic_distance)</span>
+<span class="sd">    &gt;&gt;&gt; print(forces)</span>
+<span class="sd">    [ 0.  -24.         0.7410312]</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The Lennard-Jones force is computed using the formula:</span>
+<span class="sd">      `force = 48 * eps * [(sigma^12 / r^13) - 0.5 * (sigma^6 / r^7)]`,</span>
+<span class="sd">      where `eps` is the interaction strength and `sigma` is the effective particle diameter, calculated </span>
+<span class="sd">      as `sigma = R / 2^(1/6)`.</span>
+<span class="sd">    - The `max_repulsion` option ensures that no distances smaller than `sigma` are considered, effectively </span>
+<span class="sd">      limiting the maximum repulsive force.</span>
+<span class="sd">    - This function can handle both scalar and array inputs for `r`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sigma</span><span class="o">=</span><span class="n">R</span><span class="o">/</span><span class="p">(</span><span class="mf">2.</span><span class="o">**</span><span class="p">(</span><span class="mf">.16666666</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span><span class="nb">tuple</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">max_repulsion</span><span class="p">:</span>
+            <span class="n">r</span><span class="p">[</span><span class="n">r</span><span class="o">&lt;</span><span class="n">sigma</span><span class="p">]</span><span class="o">=</span><span class="n">sigma</span> <span class="c1">#set max repulsion to zero crossing level</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">max_repulsion</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">r</span><span class="o">&lt;</span><span class="n">sigma</span><span class="p">:</span>
+                <span class="n">r</span><span class="o">=</span><span class="n">sigma</span>
+    <span class="n">force</span><span class="o">=</span><span class="mf">48.</span><span class="o">*</span><span class="n">eps</span><span class="o">*</span><span class="p">((</span><span class="n">sigma</span><span class="o">**</span><span class="mi">12</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">r</span><span class="o">**</span><span class="mi">13</span><span class="p">)</span><span class="o">-</span><span class="mf">.5</span><span class="o">*</span><span class="p">(</span><span class="n">sigma</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">r</span><span class="o">**</span><span class="mi">7</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">force</span></div>
+
+
+<div class="viewcode-block" id="get_morse_force">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_morse_force">[docs]</a>
+<span class="k">def</span> <span class="nf">get_morse_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">L</span><span class="o">=</span><span class="mf">4.</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Morse force for a given set of distances.</span>
+
+<span class="sd">    The Morse potential is used to model the interaction between a pair of atoms or molecules, capturing both </span>
+<span class="sd">    the attractive and repulsive forces more realistically than the Lennard-Jones potential. This function calculates </span>
+<span class="sd">    the Morse force based on the provided distances, interaction strength, characteristic distance, and interaction range.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    r : array-like or float</span>
+<span class="sd">        The distance(s) at which to calculate the Morse force. Can be a single float or an array of distances.</span>
+
+<span class="sd">    eps : float</span>
+<span class="sd">        The depth of the potential well, representing the strength of the interaction.</span>
+
+<span class="sd">    R : float, optional</span>
+<span class="sd">        The equilibrium distance where the potential reaches its minimum. Default is 1.</span>
+
+<span class="sd">    L : float, optional</span>
+<span class="sd">        The width of the potential well, determining the range of the interaction. A larger value of `L` </span>
+<span class="sd">        indicates a narrower well, meaning the potential changes more rapidly with distance. Default is 4.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    force : array-like or float</span>
+<span class="sd">        The computed Morse force at each distance provided in `r`. The shape of the output matches the shape of `r`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; distances = np.array([0.8, 1.0, 1.2])</span>
+<span class="sd">    &gt;&gt;&gt; interaction_strength = 2.0</span>
+<span class="sd">    &gt;&gt;&gt; equilibrium_distance = 1.0</span>
+<span class="sd">    &gt;&gt;&gt; interaction_range = 4.0</span>
+<span class="sd">    &gt;&gt;&gt; forces = get_morse_force(distances, interaction_strength, R=equilibrium_distance, L=interaction_range)</span>
+<span class="sd">    &gt;&gt;&gt; print(forces)</span>
+<span class="sd">    [ 1.17328042  0.         -0.63212056]</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The Morse force is derived from the Morse potential and is calculated using the formula:</span>
+<span class="sd">      `force = eps * [exp(-2 * (r - R) / L) - exp(-(r - R) / L)]`,</span>
+<span class="sd">      where `eps` is the interaction strength, `R` is the equilibrium distance, and `L` is the interaction range.</span>
+<span class="sd">    - This function can handle both scalar and array inputs for `r`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">force</span><span class="o">=</span><span class="n">eps</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="o">-</span><span class="mf">2.</span><span class="o">/</span><span class="n">L</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="n">R</span><span class="p">))</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="mf">1.</span><span class="o">/</span><span class="n">L</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="n">R</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">force</span></div>
+
+
+<div class="viewcode-block" id="get_secreted_ligand_density">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_secreted_ligand_density">[docs]</a>
+<span class="k">def</span> <span class="nf">get_secreted_ligand_density</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">npad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">indz_bm</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">secretion_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">micron_per_pixel</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the spatial distribution of secreted ligand density in a 3D tissue model.</span>
+
+<span class="sd">    This function simulates the diffusion and absorption of secreted ligands in a 3D volume defined by a binary mask. </span>
+<span class="sd">    It uses finite element methods to solve the diffusion equation for ligand concentration, taking into account secretion </span>
+<span class="sd">    from cell surfaces and absorption at boundaries.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    msk : ndarray</span>
+<span class="sd">        A 3D binary mask representing the tissue, where non-zero values indicate the presence of cells.</span>
+
+<span class="sd">    scale : float, optional</span>
+<span class="sd">        The scaling factor for spatial resolution in the x and y dimensions. Default is 2.</span>
+
+<span class="sd">    zscale : float, optional</span>
+<span class="sd">        The scaling factor for spatial resolution in the z dimension. Default is 1.</span>
+
+<span class="sd">    npad : array-like of int, optional</span>
+<span class="sd">        Number of pixels to pad the mask in each dimension. Default is None, implying no padding.</span>
+
+<span class="sd">    indz_bm : int, optional</span>
+<span class="sd">        The index for the basal membrane in the z-dimension, where diffusion starts. Default is 0.</span>
+
+<span class="sd">    secretion_rate : float or array-like, optional</span>
+<span class="sd">        The rate of ligand secretion from the cell surfaces. Can be a scalar or array for different cell types. Default is 1.0.</span>
+
+<span class="sd">    D : float, optional</span>
+<span class="sd">        The diffusion coefficient for the ligand. If None, it is set to a default value based on the pixel size. Default is None.</span>
+
+<span class="sd">    micron_per_pixel : float, optional</span>
+<span class="sd">        The conversion factor from pixels to microns. Default is 1.</span>
+
+<span class="sd">    visual : bool, optional</span>
+<span class="sd">        If True, generates visualizations of the cell borders and diffusion process. Default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    vdist : ndarray</span>
+<span class="sd">        A 3D array representing the steady-state concentration of the secreted ligand in the tissue volume.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; tissue_mask = np.random.randint(0, 2, size=(100, 100, 50))</span>
+<span class="sd">    &gt;&gt;&gt; ligand_density = get_secreted_ligand_density(tissue_mask, scale=2.5, zscale=1.2, secretion_rate=0.8)</span>
+<span class="sd">    &gt;&gt;&gt; print(ligand_density.shape)</span>
+<span class="sd">    (100, 100, 50)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - This function uses `fipy` for solving the diffusion equation and `skimage.segmentation.find_boundaries` for </span>
+<span class="sd">      identifying cell borders.</span>
+<span class="sd">    - The function includes various options for handling different boundary conditions, cell shapes, and secretion rates.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">npad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">npad</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">D</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">D</span><span class="o">=</span><span class="mf">10.0</span><span class="o">*</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="n">micron_per_pixel</span><span class="o">/</span><span class="n">zscale</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">msk_cells</span><span class="o">=</span><span class="n">msk</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">indz_bm</span><span class="p">:]</span>
+    <span class="n">msk_cells_orig</span><span class="o">=</span><span class="n">msk_cells</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">border_cells_orig</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">segmentation</span><span class="o">.</span><span class="n">find_boundaries</span><span class="p">(</span><span class="n">msk_cells_orig</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
+    <span class="n">msk_cells_orig</span><span class="p">[</span><span class="n">border_cells_orig</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span> <span class="c1">#we want to zero out inside of cells, but include the border later</span>
+    <span class="n">orig_shape</span><span class="o">=</span><span class="n">msk_cells</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">msk_cells</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="n">msk_cells</span><span class="p">,</span><span class="n">zoom</span><span class="o">=</span><span class="p">[</span><span class="n">scale</span><span class="o">/</span><span class="n">zscale</span><span class="p">,</span><span class="n">scale</span><span class="o">/</span><span class="n">zscale</span><span class="p">,</span><span class="n">scale</span><span class="p">],</span><span class="n">order</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1">#msk_cells=np.swapaxes(msk_cells,0,2) for when z in dimension 0</span>
+    <span class="c1">#npad_swp=npad.copy();npad_swp[0]=npad[2];npad_swp[2]=npad[0];npad=npad_swp.copy()</span>
+    <span class="n">prepad_shape</span><span class="o">=</span><span class="n">msk_cells</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">padmask</span><span class="o">=</span><span class="n">imprep</span><span class="o">.</span><span class="n">pad_image</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">msk_cells</span><span class="p">),</span><span class="n">msk_cells</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">npad</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">msk_cells</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">npad</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">msk_cells</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">npad</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">msk_cells</span><span class="o">=</span><span class="n">imprep</span><span class="o">.</span><span class="n">pad_image</span><span class="p">(</span><span class="n">msk_cells</span><span class="p">,</span><span class="n">msk_cells</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">npad</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">msk_cells</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">npad</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">msk_cells</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">npad</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">msk_cells</span><span class="o">=</span><span class="n">imprep</span><span class="o">.</span><span class="n">get_label_largestcc</span><span class="p">(</span><span class="n">msk_cells</span><span class="p">)</span>
+    <span class="n">cell_inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">msk_cells</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">msk_cells</span><span class="p">)</span><span class="o">!=</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">borders_thick</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">segmentation</span><span class="o">.</span><span class="n">find_boundaries</span><span class="p">(</span><span class="n">msk_cells</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
+    <span class="n">borders_pts</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">borders_thick</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">cell_inds_borders</span><span class="o">=</span><span class="n">msk_cells</span><span class="p">[</span><span class="n">borders_thick</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">visual</span><span class="p">:</span>
+        <span class="n">inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">borders_pts</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;</span><span class="mi">20</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
+        <span class="n">fig</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">();</span><span class="n">ax</span><span class="o">=</span><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">);</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">borders_pts</span><span class="p">[</span><span class="n">inds</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">borders_pts</span><span class="p">[</span><span class="n">inds</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">borders_pts</span><span class="p">[</span><span class="n">inds</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="n">cell_inds_borders</span><span class="p">[</span><span class="n">inds</span><span class="p">]);</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">.1</span><span class="p">)</span>
+    <span class="n">clusters_msk_cells</span><span class="o">=</span><span class="n">coor</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="n">AssignCenters</span><span class="p">(</span><span class="n">borders_pts</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">)</span>
+    <span class="n">mesher</span> <span class="o">=</span> <span class="n">Mesher</span><span class="p">(</span><span class="n">msk_cells</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">mesher</span><span class="o">.</span><span class="n">generate_contour</span><span class="p">()</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">mesher</span><span class="o">.</span><span class="n">tetrahedralize</span><span class="p">(</span><span class="n">opts</span><span class="o">=</span><span class="s1">&#39;-pAq&#39;</span><span class="p">)</span>
+    <span class="n">tetra_mesh</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tetra&#39;</span><span class="p">)</span>
+    <span class="n">tetra_mesh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;vmesh.msh&#39;</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s1">&#39;gmsh22&#39;</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1">#write</span>
+    <span class="n">mesh_fipy</span> <span class="o">=</span> <span class="n">fipy</span><span class="o">.</span><span class="n">Gmsh3D</span><span class="p">(</span><span class="s1">&#39;vmesh.msh&#39;</span><span class="p">)</span> <span class="c1">#,communicator=fipy.solvers.petsc.comms.petscCommWrapper) #,communicator=fipy.tools.serialComm)</span>
+    <span class="n">facepoints</span><span class="o">=</span><span class="n">mesh_fipy</span><span class="o">.</span><span class="n">faceCenters</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">cellpoints</span><span class="o">=</span><span class="n">mesh_fipy</span><span class="o">.</span><span class="n">cellCenters</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">cell_inds_facepoints</span><span class="o">=</span><span class="n">cell_inds_borders</span><span class="p">[</span><span class="n">clusters_msk_cells</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">facepoints</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">visual</span><span class="p">:</span>
+        <span class="n">inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cell_inds_facepoints</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">fig</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">();</span><span class="n">ax</span><span class="o">=</span><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">);</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">facepoints</span><span class="p">[</span><span class="n">inds</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">facepoints</span><span class="p">[</span><span class="n">inds</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">facepoints</span><span class="p">[</span><span class="n">inds</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="n">cell_inds_facepoints</span><span class="p">[</span><span class="n">inds</span><span class="p">],</span><span class="n">alpha</span><span class="o">=</span><span class="mf">.3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">.1</span><span class="p">)</span>
+    <span class="n">eq</span> <span class="o">=</span> <span class="n">fipy</span><span class="o">.</span><span class="n">TransientTerm</span><span class="p">()</span> <span class="o">==</span> <span class="n">fipy</span><span class="o">.</span><span class="n">DiffusionTerm</span><span class="p">(</span><span class="n">coeff</span><span class="o">=</span><span class="n">D</span><span class="p">)</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">fipy</span><span class="o">.</span><span class="n">CellVariable</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;solution variable&quot;</span><span class="p">,</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">mesh_fipy</span><span class="p">,</span><span class="n">value</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">)</span>
+    <span class="n">facesUp</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">mesh_fipy</span><span class="o">.</span><span class="n">exteriorFaces</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="n">facepoints</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">facepoints</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">facesBottom</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">mesh_fipy</span><span class="o">.</span><span class="n">exteriorFaces</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="n">facepoints</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">==</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">facepoints</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]))</span>
+    <span class="n">phi</span><span class="o">.</span><span class="n">constrain</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">facesUp</span><span class="p">)</span> <span class="c1">#absorbing boundary on exterior except bottom</span>
+    <span class="c1">#phi.faceGrad.constrain(0., facesUp) #reflecting boundary on bottom</span>
+    <span class="c1">#phi.faceGrad.constrain(0., facesBottom) #reflecting boundary on bottom</span>
+    <span class="n">phi</span><span class="o">.</span><span class="n">constrain</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">facesBottom</span><span class="p">)</span> <span class="c1">#absorbing boundary on bottom</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">secretion_rate</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span><span class="nb">tuple</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+        <span class="n">flux_cells</span><span class="o">=</span><span class="n">secretion_rate</span><span class="o">*</span><span class="n">D</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">cell_inds</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">flux_cells</span><span class="o">=</span><span class="n">D</span><span class="o">*</span><span class="n">secretion_rate</span>
+    <span class="k">for</span> <span class="n">ic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cell_inds</span><span class="o">.</span><span class="n">size</span><span class="p">):</span> <span class="c1">#constrain boundary flux for each cell</span>
+        <span class="n">phi</span><span class="o">.</span><span class="n">faceGrad</span><span class="o">.</span><span class="n">constrain</span><span class="p">(</span><span class="n">flux_cells</span><span class="p">[</span><span class="n">cell_inds</span><span class="p">[</span><span class="n">ic</span><span class="p">]]</span> <span class="o">*</span> <span class="n">mesh_fipy</span><span class="o">.</span><span class="n">faceNormals</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">cell_inds_facepoints</span><span class="o">==</span><span class="n">cell_inds</span><span class="p">[</span><span class="n">ic</span><span class="p">])</span>
+    <span class="c1">#fipy.DiffusionTerm(coeff=D).solve(var=phi)</span>
+    <span class="n">eq</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">var</span><span class="o">=</span><span class="n">phi</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="p">(</span><span class="mf">1000000.</span><span class="o">/</span><span class="n">D</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;huh&#39;</span><span class="p">)</span>
+    <span class="c1">#vdist,edges=utilities.get_meshfunc_average(phi.faceValue.value,facepoints,bins=msk_cells.shape)</span>
+    <span class="n">sol_values</span><span class="o">=</span><span class="n">phi</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sol_values</span><span class="p">[</span><span class="n">phi</span><span class="o">.</span><span class="n">value</span><span class="o">&lt;</span><span class="mf">0.</span><span class="p">]</span><span class="o">=</span><span class="mf">0.</span>
+    <span class="n">vdist</span><span class="p">,</span><span class="n">edges</span><span class="o">=</span><span class="n">utilities</span><span class="o">.</span><span class="n">get_meshfunc_average</span><span class="p">(</span><span class="n">phi</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="n">cellpoints</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="n">msk_cells</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">visual</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">();</span><span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">msk_cells</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span><span class="n">colors</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">);</span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">vdist</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span><span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">Blues</span><span class="p">);</span><span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">.1</span><span class="p">)</span>
+    <span class="n">inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">padmask</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span><span class="n">vdist</span><span class="o">=</span><span class="n">vdist</span><span class="p">[</span><span class="n">inds</span><span class="p">,:,:]</span>
+    <span class="n">inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">padmask</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span><span class="n">vdist</span><span class="o">=</span><span class="n">vdist</span><span class="p">[:,</span><span class="n">inds</span><span class="p">,:]</span>
+    <span class="n">inds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">padmask</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span><span class="n">vdist</span><span class="o">=</span><span class="n">vdist</span><span class="p">[:,:,</span><span class="n">inds</span><span class="p">]</span> <span class="c1">#unpad msk_cells=imprep.pad_image(msk_cells,msk_cells.shape[0]+npad,msk_cells.shape[1]+npad,msk_cells.shape[2])</span>
+    <span class="n">vdist</span><span class="o">=</span><span class="n">skimage</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">vdist</span><span class="p">,</span> <span class="n">orig_shape</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1">#unzoom msk_cells=scipy.ndimage.zoom(msk_cells,zoom=[scale,scale/sctm.zscale,scale/sctm.zscale])</span>
+    <span class="n">vdist</span><span class="p">[</span><span class="n">msk_cells_orig</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mf">0.</span>
+    <span class="n">vdist</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">ndimage</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="n">vdist</span><span class="p">,</span><span class="n">sigma</span><span class="o">=</span><span class="p">[</span><span class="mf">2.</span><span class="o">/</span><span class="p">(</span><span class="n">scale</span><span class="o">/</span><span class="n">zscale</span><span class="p">),</span><span class="mf">2.</span><span class="o">/</span><span class="p">(</span><span class="n">scale</span><span class="o">/</span><span class="n">zscale</span><span class="p">),</span><span class="mf">2.</span><span class="o">/</span><span class="n">scale</span><span class="p">])</span>
+    <span class="n">vdist</span><span class="p">[</span><span class="n">msk_cells_orig</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mf">0.</span>
+    <span class="n">vdist</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">vdist</span><span class="p">,((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),(</span><span class="n">indz_bm</span><span class="p">,</span><span class="mi">0</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">vdist</span></div>
+
+
+<div class="viewcode-block" id="get_flux_ligdist">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_flux_ligdist">[docs]</a>
+<span class="k">def</span> <span class="nf">get_flux_ligdist</span><span class="p">(</span><span class="n">vdist</span><span class="p">,</span><span class="n">cmean</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">csigma</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the mean and standard deviation of flux values based on ligand distribution.</span>
+
+<span class="sd">    This function computes the flux mean and standard deviation for a given ligand distribution, using </span>
+<span class="sd">    specified parameters for the mean and scaling factor for the standard deviation. Optionally, it can </span>
+<span class="sd">    center the mean flux to ensure the overall flux is balanced.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    vdist : ndarray</span>
+<span class="sd">        A 3D array representing the ligand concentration distribution in a tissue volume.</span>
+
+<span class="sd">    cmean : float, optional</span>
+<span class="sd">        A scaling factor for the mean flux. Default is 1.0.</span>
+
+<span class="sd">    csigma : float, optional</span>
+<span class="sd">        A scaling factor for the standard deviation of the flux. Default is 0.5.</span>
+
+<span class="sd">    center : bool, optional</span>
+<span class="sd">        If True, centers the mean flux distribution around zero by subtracting the overall mean. Default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fmeans : ndarray</span>
+<span class="sd">        A 3D array representing the mean flux values based on the ligand distribution.</span>
+
+<span class="sd">    fsigmas : ndarray</span>
+<span class="sd">        A 3D array representing the standard deviation of flux values based on the ligand distribution.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; ligand_distribution = np.random.random((100, 100, 50))</span>
+<span class="sd">    &gt;&gt;&gt; mean_flux, sigma_flux = get_flux_ligdist(ligand_distribution, cmean=1.2, csigma=0.8)</span>
+<span class="sd">    &gt;&gt;&gt; print(mean_flux.shape, sigma_flux.shape)</span>
+<span class="sd">    (100, 100, 50) (100, 100, 50)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The function uses the absolute value of `vdist` to calculate the standard deviation of the flux.</span>
+<span class="sd">    - Centering the mean flux helps in ensuring there is no net flux imbalance across the tissue volume.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fmeans</span><span class="o">=</span><span class="n">cmean</span><span class="o">*</span><span class="n">vdist</span>
+    <span class="k">if</span> <span class="n">center</span><span class="p">:</span>
+        <span class="n">fmeans</span><span class="o">=</span><span class="n">fmeans</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">fmeans</span><span class="p">)</span>
+    <span class="n">fsigmas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">csigma</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">vdist</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">fmeans</span><span class="p">,</span><span class="n">fsigmas</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jeremy Copperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

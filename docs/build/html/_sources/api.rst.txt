@@ -41,6 +41,16 @@ Modeling functions for single-cell trajectories.
    :undoc-members:
    :show-inheritance:
 
+celltraj.spatial
+---------------------
+
+Modeling functions for boundary-resolved and physics-based single-cell modeling.
+
+.. automodule:: celltraj.spatial
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 celltraj.translate
 -------------------------
 

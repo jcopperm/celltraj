@@ -35,7 +35,7 @@ import imageprep as imprep
 import features
 from nanomesh import Mesher
 import fipy
-
+import spatial
 
 class Trajectory:
     """
@@ -1379,6 +1379,51 @@ class Trajectory:
         return cells_x
 
     def get_lineage_min_otcost(self,distcut=5.,ot_cost_cut=np.inf,border_scale=None,border_resolution=None,visual=False,save_h5=False,overwrite=False):
+        """
+        Tracks cell lineages over multiple time points using optimal transport cost minimization.
+
+        This method uses centroid distances and optimal transport costs to identify the best matches for cell 
+        trajectories between consecutive time points, ensuring accurate tracking even in dense or complex environments.
+
+        Parameters
+        ----------
+        distcut : float, optional
+            Maximum distance between cell centroids to consider a match (default is 5.0).
+        ot_cost_cut : float, optional
+            Maximum optimal transport cost allowed for a match (default is np.inf).
+        border_scale : list of float, optional
+            Scaling factors for the cell border in the [z, y, x] dimensions. If not provided, the scaling is 
+            determined from `self.micron_per_pixel` and `border_resolution`.
+        border_resolution : float, optional
+            Resolution for the cell border, used to determine `border_scale` if it is not provided. If not set,
+            uses `self.border_resolution`.
+        visual : bool, optional
+            If True, plots the cells and their matches at each time point for visualization (default is False).
+        save_h5 : bool, optional
+            If True, saves the lineage data to the HDF5 file (default is False).
+        overwrite : bool, optional
+            If True, overwrites existing data in the HDF5 file when saving (default is False).
+
+        Returns
+        -------
+        None
+            The function updates the instance's `linSet` attribute, which is a list of arrays containing lineage
+            information for each time point. If `save_h5` is True, the lineage data is saved to the HDF5 file.
+
+        Notes
+        -----
+        - This function assumes that cell positions have already been extracted using the `get_cell_positions` method.
+        - The function uses the `spatial.get_border_dict` method to compute cell borders and `spatial.get_ot_dx` 
+        to compute optimal transport distances.
+        - Visualization is available for 2D and 3D data, with different handling for each case.
+
+        Examples
+        --------
+        >>> traj.get_lineage_min_otcost(distcut=10.0, ot_cost_cut=50.0, visual=True)
+        Frame 1 tracked 20 of 25 cells
+        Frame 2 tracked 22 of 30 cells
+        ...
+        """
         nimg=self.nt
         if not hasattr(self,'x'):
             print('need to run get_cell_positions for cell locations')
@@ -1468,6 +1513,7 @@ class Trajectory:
             self.linSet=linSet
             attribute_list=['linSet']
             self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
+        return linSet
 
     def get_lineage_btrack(self,mskchannel=0,distcut=5.,framewindow=6,visual_1cell=False,visual=False,max_search_radius=100,save_h5=False,overwrite=False):
         """

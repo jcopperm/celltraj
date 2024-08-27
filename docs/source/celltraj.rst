@@ -44,6 +44,14 @@ celltraj.model module
    :undoc-members:
    :show-inheritance:
 
+celltraj.spatial module
+-----------------------
+
+.. automodule:: celltraj.spatial
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 celltraj.trajectory module
 --------------------------
 
