@@ -528,7 +528,7 @@ class Trajectory:
             print(f'need to set attribute fmskchannel to pull from a mask channel, fmsk_threshold and fmsk_imgchannel to threshold an image channel for foreground masks, fmask_channels foreground and fmsk under image data in h5')
         return fmsk
 
-    def get_cell_blocks(self,label):
+    def get_cell_blocks(self,label,return_label_ids=False):
         """
         Extracts bounding box information for each cell from a labeled mask image. This function
         returns the minimum and maximum indices for each labeled cell, useful for operations such
@@ -569,7 +569,10 @@ class Trajectory:
             cblocks[:,0,1]=bbox_table['bbox-3']
             cblocks[:,1,1]=bbox_table['bbox-4']
             cblocks[:,2,1]=bbox_table['bbox-5']
-        return cblocks
+        if not return_label_ids:
+            return cblocks
+        else:
+            return cblocks,bbox_table['label']
 
     def get_cell_index(self,verbose=False,save_h5=False,overwrite=False):
         """
@@ -637,13 +640,14 @@ class Trajectory:
         cells_imgfileSet=np.zeros(self.ncells_total).astype(int)
         cells_indSet=np.zeros(ncells_total).astype(int)
         cells_indimgSet=np.zeros(ncells_total).astype(int)
+        cells_labelidSet=np.zeros(ncells_total).astype(int)
         cellblocks=np.zeros((ncells_total,self.ndim,2)).astype(int)
         indcell_running=0
         for im in range(nImg):
             label=self.get_mask_data(im)
             if self.nmaskchannels>0:
                 label=label[...,self.mskchannel]
-            cblocks=self.get_cell_blocks(label)
+            cblocks,label_ids=self.get_cell_blocks(label,return_label_ids=True)
             ncells=np.shape(cblocks)[0]
             totalcells=totalcells+ncells
             #cells_imgfileSet=np.append(cells_imgfileSet,im*np.ones(ncells))
@@ -652,6 +656,7 @@ class Trajectory:
             cells_indSet[indcell_running:indcell_running+ncells]=np.arange(ncells).astype(int)
             #cellblocks=np.append(cellblocks,cblocks,axis=0)
             cellblocks[indcell_running:indcell_running+ncells]=cblocks
+            cells_labelidSet[indcell_running:indcell_running+ncells]=label_ids
             indcell_running=indcell_running+ncells
             if verbose:
                 sys.stdout.write('frame '+str(im)+' with '+str(ncells)+' cells\n')
@@ -659,12 +664,13 @@ class Trajectory:
         self.cells_imgfileSet=cells_imgfileSet.astype(int)
         self.cells_indSet=cells_indSet.astype(int)
         self.cells_indimgSet=cells_imgfileSet.astype(int)
+        self.cells_labelidSet=cells_labelidSet.astype(int)
         self.cellblocks=cellblocks
         if self.ncells_total != totalcells:
             sys.stdout.write(f'expected {self.ncells_total} cells but read {totalcells} cells')
             return False
         if save_h5:
-            attribute_list=['cells_frameSet','cells_imgfileSet','cells_indSet','cells_indimgSet','cellblocks']
+            attribute_list=['cells_frameSet','cells_imgfileSet','cells_indSet','cells_indimgSet','cells_labelidSet','cellblocks']
             self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return True
 
@@ -1372,6 +1378,97 @@ class Trajectory:
             self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return cells_x
 
+    def get_lineage_min_otcost(self,distcut=5.,ot_cost_cut=np.inf,border_scale=None,border_resolution=None,visual=False,save_h5=False,overwrite=False):
+        nimg=self.nt
+        if not hasattr(self,'x'):
+            print('need to run get_cell_positions for cell locations')
+        linSet=[None]*nimg
+        if border_resolution is None:
+            if hasattr(self,'border_resolution'):
+                border_resolution=self.border_resolution
+            else:
+                print('Need to set border_resolution attribute')
+                return 1
+        if border_scale is None:
+            border_scalexy=self.micron_per_pixel/border_resolution
+            border_scale=[border_scalexy*self.zscale,border_scalexy,border_scalexy]  
+            print(f'scaling border to {border_scale}')
+        indt0=np.where(self.cells_indimgSet==0)[0]
+        linSet[0]=np.ones(indt0.size).astype(int)*-1
+        msk0=self.get_mask_data(0)[...,self.mskchannel]
+        msk0=imprep.transform_image(msk0,self.tf_matrix_set[0,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
+        border_dict_prev=spatial.get_border_dict(msk0,scale=border_scale,return_nnindex=False,return_nnvector=False,return_curvature=False)
+        for iS in range(1,nimg):
+            indt1=np.where(self.cells_indimgSet==iS)[0]
+            labelids_t1=self.cells_labelidSet[indt1]
+            xt1=self.x[indt1,:]
+            msk1=self.get_mask_data(iS)[...,self.mskchannel]
+            msk1=imprep.transform_image(msk1,self.tf_matrix_set[iS,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
+            border_dict=spatial.get_border_dict(msk1,scale=border_scale,return_nnindex=False,return_nnvector=False,return_curvature=False,states=None)
+            indt0=np.where(self.cells_indimgSet==iS-1)[0]
+            labelids_t0=self.cells_labelidSet[indt0]
+            xt0=self.x[indt0,:]
+            ncells=xt1.shape[0] #np.max(masks[frameind,:,:])
+            lin1=np.ones(ncells).astype(int)*-1
+            ntracked=0
+            dmatx=utilities.get_dmat(xt1,xt0)
+            lin1=np.zeros(indt1.size).astype(int)
+            if self.ndim==3 and hasattr(self,'zscale'):
+                print(f'scaling z by {self.zscale}')
+                xt0[:,0]=xt0[:,0]*self.zscale
+                xt1[:,0]=xt1[:,0]*self.zscale
+            for ic in range(indt1.size): #nn tracking
+                ic1_labelid=labelids_t1[ic]
+                border_pts1=border_dict['pts'][border_dict['index']==ic1_labelid,:]
+                if indt0.size>0:
+                    if np.sum(dmatx[ic,:]<distcut)>0:
+                        ind_nnx=np.argsort(dmatx[ic,:])
+                        ind_neighbors=np.where(dmatx[ic,:]<distcut)[0]
+                        ot_costs=np.zeros(ind_neighbors.size)
+                        for i_neighbor in range(ind_neighbors.size):
+                            ic0_labelid=labelids_t0[ind_neighbors[i_neighbor]]
+                            border_pts0=border_dict_prev['pts'][border_dict_prev['index']==ic0_labelid,:]
+                            ot_costs[i_neighbor]=spatial.get_ot_dx(border_pts0,border_pts1,return_dx=False,return_cost=True)
+                        ind_min_ot_cost=np.argmin(ot_costs)
+                        ot_cost=ot_costs[ind_min_ot_cost]
+                        ic0=ind_neighbors[ind_min_ot_cost]
+                        if ic0 != ind_nnx[0]:
+                            print(f'frame {iS} cell {ic} ot min {ic0} at {dmatx[ic,ic0]} centroid min {ind_nnx[0]} at {dmatx[ic,ind_nnx[0]]}')
+                    else:
+                        ot_cost=np.inf
+                else:
+                    ot_cost=np.inf
+                if ot_cost<ot_cost_cut:
+                    lin1[ic]=ic0
+                else:
+                    lin1[ic]=-1
+                ntracked=np.sum(lin1>-1)
+            msk0=msk1.copy()
+            border_dict_prev=border_dict.copy()
+            del border_dict
+            if visual:
+                if self.ndim==3:
+                    vmsk1=np.max(msk1,axis=0)
+                    vmsk0=np.max(msk0,axis=0)
+                    ix=1;iy=2
+                elif self.ndim==2:
+                    vmsk1=msk1
+                    vmsk0=msk0
+                    ix=0;iy=1
+                plt.clf()
+                plt.scatter(xt1[:,ix],xt1[:,iy],s=20,marker='x',color='darkred',alpha=0.5)
+                plt.scatter(xt0[:,ix],xt0[:,iy],s=20,marker='x',color='lightgreen',alpha=0.5)
+                plt.contour(vmsk1.T,levels=np.arange(np.max(vmsk1)+1),colors='red',alpha=.3,linewidths=.3)
+                plt.contour(vmsk0.T,levels=np.arange(np.max(vmsk0)+1),colors='green',alpha=.3,linewidths=.3)
+                plt.scatter(xt1[lin1>-1,ix],xt1[lin1>-1,iy],s=300,marker='o',alpha=.1,color='purple')
+                plt.pause(.1)
+            print('frame '+str(iS)+' tracked '+str(ntracked)+' of '+str(ncells)+' cells')
+            linSet[iS]=lin1
+        if save_h5:
+            self.linSet=linSet
+            attribute_list=['linSet']
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
+
     def get_lineage_btrack(self,mskchannel=0,distcut=5.,framewindow=6,visual_1cell=False,visual=False,max_search_radius=100,save_h5=False,overwrite=False):
         """
         Tracks cell lineages over an image stack using Bayesian tracking with visual confirmation options.
@@ -1580,6 +1677,10 @@ class Trajectory:
             ntracked=0
             dmatx=utilities.get_dmat(xt1,xt0)
             lin1=np.zeros(indt1.size).astype(int)
+            if self.ndim==3 and hasattr(self,'zscale'):
+                print(f'scaling z by {self.zscale}')
+                xt0[:,0]=xt0[:,0]*self.zscale
+                xt1[:,0]=xt1[:,0]*self.zscale
             for ic in range(indt1.size): #nn tracking
                 if indt0.size>0:
                     ind_nnx=np.argsort(dmatx[ic,:])
