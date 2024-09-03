@@ -1030,6 +1030,14 @@ class Trajectory:
                         cratio_frame[indcommon0]=np.divide(self.img_zstds[imgchannel]*np.multiply(props1['intensity_mean']+self.img_zmeans[imgchannel],props1['area']),self.img_zstds[imgchannel]*np.multiply(props2['intensity_mean']+self.img_zmeans[imgchannel],props2['area']))
                     else:
                         cratio_frame[indcommon0]=np.divide(np.multiply(props1['intensity_mean'],props1['area']),np.multiply(props2['intensity_mean'],props2['area']))
+                        if noratio and not inverse_ratio:
+                            cratio_frame[indcommon0]=np.multiply(props1['intensity_mean'],props1['area'])
+                        elif noratio and inverse_ratio:
+                            cratio_frame[indcommon0]=np.multiply(props2['intensity_mean'],props2['area'])
+                        elif not noratio and not inverse_ratio:
+                            cratio_frame[indcommon0]=np.divide(np.multiply(props1['intensity_mean'],props1['area']),np.multiply(props2['intensity_mean'],props2['area']))
+                        elif not noratio and inverse_ratio:
+                            cratio_frame[indcommon0]=np.divide(np.multiply(props2['intensity_mean'],props2['area']),np.multiply(props1['intensity_mean'],props1['area']))
                 else:
                     if intensity_ztransform:
                         cratio_frame[indcommon0]=np.divide(self.img_zstds[imgchannel]*props1['intensity_mean']+self.img_zmeans[imgchannel],self.img_zstds[imgchannel]*props2['intensity_mean']+self.img_zmeans[imgchannel])
