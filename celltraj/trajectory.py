@@ -1034,14 +1034,16 @@ class Trajectory:
                     if intensity_ztransform:
                         cratio_frame[indcommon0]=np.divide(self.img_zstds[imgchannel]*props1['intensity_mean']+self.img_zmeans[imgchannel],self.img_zstds[imgchannel]*props2['intensity_mean']+self.img_zmeans[imgchannel])
                     else:
-                        if noratio:
+                        if noratio and not inverse_ratio:
                             cratio_frame[indcommon0]=props1['intensity_mean']
-                        else:
+                        elif noratio and inverse_ratio:
+                            cratio_frame[indcommon0]=props2['intensity_mean']
+                        elif not noratio and not inverse_ratio:
                             cratio_frame[indcommon0]=np.divide(props1['intensity_mean'],props2['intensity_mean'])
+                        elif not noratio and inverse_ratio:
+                            cratio_frame[indcommon0]=np.divide(props2['intensity_mean'],props1['intensity_mean'])
             cratio[icell]=cratio_frame[self.cells_indSet[ic]]
             ip_frame=self.cells_frameSet[ic]
-        if inverse_ratio:
-            cratio=np.power(cratio,-1)
         if save_h5:
             setattr(self,feature_name,cratio)
             attribute_list=[feature_name]
