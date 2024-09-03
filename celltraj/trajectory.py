@@ -1436,7 +1436,10 @@ class Trajectory:
                 return 1
         if border_scale is None:
             border_scalexy=self.micron_per_pixel/border_resolution
-            border_scale=[border_scalexy*self.zscale,border_scalexy,border_scalexy]  
+            if self.ndim==3:
+                border_scale=[border_scalexy*self.zscale,border_scalexy,border_scalexy] 
+            else:
+                border_scale=[border_scalexy,border_scalexy]
             print(f'scaling border to {border_scale}')
         indt0=np.where(self.cells_indimgSet==0)[0]
         linSet[0]=np.ones(indt0.size).astype(int)*-1
