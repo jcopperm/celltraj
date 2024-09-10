@@ -36,6 +36,8 @@ import features
 from nanomesh import Mesher
 import fipy
 import spatial
+if 'ipykernel' in sys.modules:
+    from IPython.display import clear_output
 
 class Trajectory:
     """
@@ -1852,7 +1854,7 @@ class Trajectory:
         cell_traj=np.flip(cell_ind_history[indtracked].astype(int))
         return cell_traj
 
-    def get_unique_trajectories(self,cell_inds=None,verbose=False,extra_depth=None):
+    def get_unique_trajectories(self,cell_inds=None,verbose=False,extra_depth=None,save_h5=False,overwrite=False):
         """
         Computes unique trajectories for a set of cells over multiple frames, minimizing redundancy by
         ensuring that no two trajectories cover the same cell path beyond a specified overlap (extra_depth).
@@ -1918,6 +1920,9 @@ class Trajectory:
                 if n_untracked%100 == 0:
                     sys.stdout.write('tracked cell '+str(indc)+', '+str(cell_traj.size)+' tracks, '+str(n_untracked)+' left\n')
         self.trajectories=trajectories
+        if save_h5:
+            attribute_list=['trajectories']
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
 
     def get_traj_segments(self,seg_length):
         """
@@ -1970,6 +1975,187 @@ class Trajectory:
                     traj_seg=cell_traj[ic:ic+seg_length]
                     traj_segSet=np.append(traj_segSet,traj_seg[np.newaxis,:],axis=0)
         return traj_segSet
+    
+    def get_cell_children(self,icell):
+        """
+        Get the child cells for a given cell in the next frame.
+
+        This function identifies the child cells of a given parent cell `icell` by tracking the lineage data 
+        across consecutive frames. The lineage is determined from the parent cell's index and the lineage set 
+        for the next frame.
+
+        Parameters
+        ----------
+        icell : int
+            The index of the cell for which to find the children.
+
+        Returns
+        -------
+        ind_children : ndarray
+            An array of indices representing the child cells of the given cell `icell` in the next frame.
+
+        Notes
+        -----
+        - The function looks at the current frame of `icell` and identifies its child cells in the subsequent frame
+        using the lineage tracking set (`linSet`).
+        - This method assumes that the lineage set (`linSet`) and cell indexing (`cells_indimgSet`, `cells_indSet`) 
+        are properly initialized and populated.
+
+        Examples
+        --------
+        >>> cell_index = 10
+        >>> children = model.get_cell_children(cell_index)
+        >>> print(f'Children of cell {cell_index}: {children}')
+        """
+        iS=self.cells_indimgSet[icell]
+        icell_frame=self.cells_indSet[icell]
+        indt1=np.where(self.cells_indimgSet==iS+1)[0]
+        lin1=self.linSet[iS+1]
+        ind_children_frame=np.where(lin1==icell_frame)[0]
+        ind_children=indt1[ind_children_frame]
+        return ind_children
+
+    def get_cells_nchildren(self):
+        """
+        Compute the number of children for each cell across all frames.
+
+        This function calculates the number of child cells each parent cell has across consecutive time frames. 
+        The result is an array where each element corresponds to the number of child cells for a given parent 
+        cell in the next frame. Cells with no children will have a count of 0.
+
+        Returns
+        -------
+        cells_nchildren : ndarray
+            An array where each element represents the number of child cells for each cell 
+            in the dataset. The indices correspond to the cell indices in `self.cells_indSet`.
+
+        Notes
+        -----
+        - The function iterates through all time frames (`nt`) to determine the lineage of each cell 
+        using the `linSet` attribute, which holds the lineage information between frames.
+        - Cells that are not tracked between frames (i.e., not assigned a child in the next frame) 
+        will have a count of 0 children.
+        - The method assumes that `linSet`, `cells_indSet`, and `cells_indimgSet` are properly initialized 
+        and populated.
+
+        Examples
+        --------
+        >>> cell_children_counts = model.get_cells_nchildren()
+        >>> print(f'Number of children for each cell: {cell_children_counts}')
+        """
+        cells_nchildren=np.zeros(self.cells_indSet.size).astype(int)
+        for iS in range(1,self.nt):
+            indt1=np.where(self.cells_indimgSet==iS)[0]
+            indt0=np.where(self.cells_indimgSet==iS-1)[0]
+            lin1=self.linSet[iS].copy()
+            inds_tracked,counts_tracked=np.unique(lin1,return_counts=True)
+            if inds_tracked[0]==-1:
+                inds_tracked=inds_tracked[1:]
+                counts_tracked=counts_tracked[1:]
+            cells_nchildren[indt0[inds_tracked]]=counts_tracked
+        return cells_nchildren
+
+    def get_cell_sandwich(self,ic,msk_channel=0,boundary_expansion=None,trajl_past=1,trajl_future=1):
+        """
+        Extracts a sequence of image and mask "sandwiches" for a given cell, including past and future frames.
+
+        This function creates a set of 2D or 3D image and mask stacks for a specified cell, tracking the cell 
+        across multiple frames into the past and future. It includes boundary expansion around the cell if specified 
+        and gathers the images and masks for the cell trajectory. The function is useful for analyzing the temporal 
+        behavior of a cell within its local neighborhood.
+
+        Parameters
+        ----------
+        ic : int
+            Index of the target cell.
+        msk_channel : int, optional
+            Channel of the mask image where the cell is identified (default is 0).
+        boundary_expansion : int or None, optional
+            Number of pixels to expand the boundary around the cell block (default is None, no expansion).
+        trajl_past : int, optional
+            Number of past frames to include in the sandwich (default is 1).
+        trajl_future : int, optional
+            Number of future frames to include in the sandwich (default is 1).
+
+        Returns
+        -------
+        imgs : list of ndarray
+            A list of image stacks (2D or 3D) for each frame in the trajectory sandwich.
+        msks : list of ndarray
+            A list of binary masks corresponding to the same frames in `imgs`, where the cell and its descendants 
+            are highlighted.
+
+        Notes
+        -----
+        - The function retrieves the cell trajectory from the current frame, including both past and future cells, 
+        as well as their children in future frames.
+        - The images and masks are collected and returned in two separate lists, with the past, present, and future 
+        frames in sequential order.
+        - The function supports both 2D and 3D image data based on the dimensions of the input data.
+
+        Examples
+        --------
+        >>> imgs, msks = model.get_cell_sandwich(ic=42, boundary_expansion=10, trajl_past=2, trajl_future=2)
+        >>> print(f'Retrieved {len(imgs)} images and masks for cell 42 across past and future frames.')
+        """
+        cblock=self.cellblocks[ic,...].copy()
+        if boundary_expansion is not None:
+            cblock[:,0]=cblock[:,0]-boundary_expansion
+            cblock[:,0][cblock[:,0]<0]=0
+            cblock[:,1]=cblock[:,1]+boundary_expansion
+            indreplace=np.where(cblock[:,1]>self.image_shape)[0]
+            cblock[:,1][indreplace]=self.image_shape[indreplace]
+        cell_traj=self.get_cell_trajectory(ic)
+        icells_tree=np.array([ic])
+        n_frame=self.cells_indimgSet[ic]
+        img=self.get_image_data(n_frame)
+        msk=self.get_mask_data(n_frame)
+        if self.ndim==3:
+            imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+            mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+        if self.ndim==2:
+            imgc=img[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+            mskc=msk[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+        imgs=[None]*(trajl_past+trajl_future+1)
+        msks=[None]*(trajl_past+trajl_future+1)
+        imgs[0]=imgc
+        msks[0]=mskc==self.cells_labelidSet[ic]
+        for ipast in range(1,trajl_past+1):
+            img=self.get_image_data(n_frame-trajl_past+ipast-1)
+            msk=self.get_mask_data(n_frame-trajl_past+ipast-1)
+            if self.ndim==3:
+                imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+                mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+            if self.ndim==2:
+                imgc=img[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+                mskc=msk[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+            imgs[ipast]=imgc
+            if cell_traj.size>(trajl_past+1-ipast):
+                icell_global_past=cell_traj[-trajl_past-1+ipast-1]
+                icell_local_past=self.cells_labelidSet[icell_global_past]
+            else:
+                icell_local_past=np.inf
+            msks[ipast]=mskc==icell_local_past
+            print([icell_global_past,ic])
+        for ifuture in range(1,trajl_future+1):
+            icells_future=np.array([]).astype(int)
+            for ic_tree in icells_tree:
+                inds_children=self.get_cell_children(ic_tree)
+                icells_future=np.append(icells_future,inds_children)
+            #print(icells_future)
+            icells_tree=icells_future.copy()
+            icells_future_local=self.cells_labelidSet[icells_future]
+            img=self.get_image_data(n_frame+ifuture)
+            msk=self.get_mask_data(n_frame+ifuture)
+            if self.ndim==3:
+                imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+                mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+            if self.ndim==2:
+                imgc=img[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+                mskc=msk[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+            imgs[ifuture+trajl_past]=imgc
+            msks[ifuture+trajl_past]=np.isin(mskc,icells_future_local)
+        return imgs,msks
 
     def get_Xtraj_celltrajectory(self,cell_traj,Xtraj=None,traj=None):
         """
@@ -2678,3 +2864,262 @@ class Trajectory:
                 inds=np.where(np.logical_and(d_r>0.,d_r<rmax))[0]
                 S_r[indcomm_ctraj1[j]]=np.sum(np.divide(S2[inds],d_r[inds]))
         return S_r
+
+    def manual_fate_validation(self,indcells,fate_attr,trajl_future=2,trajl_past=2,restart=True,val_tracks=True,rep_channel=2,bf_channel=0,nuc_channel=1,msk_channel=0,pathto='./',save_pic=False,boundary_expansion=[1,40,40],save_attr=True,save_h5=False,overwrite=False):
+        """
+        Manually validates cell fate by reviewing images and tracking data for individual cells over time. 
+        Provides an interactive validation interface to assess whether cells follow a specific fate or not.
+
+        Parameters
+        ----------
+        indcells : array-like of int
+            Indices of cells to review for fate validation.
+        fate_attr : str
+            The name of the fate attribute being reviewed and validated.
+        trajl_future : int, optional
+            Number of future frames to include in the trajectory review (default is 2).
+        trajl_past : int, optional
+            Number of past frames to include in the trajectory review (default is 2).
+        restart : bool, optional
+            Whether to restart validation from the beginning (default is True). If False, previously reviewed cells are re-evaluated.
+        val_tracks : bool, optional
+            If True, validates the cell tracking in addition to fate validation (default is True).
+        rep_channel : int, optional
+            The channel used for representation images (default is 2).
+        bf_channel : int, optional
+            The bright-field channel (default is 0).
+        nuc_channel : int, optional
+            The nucleus channel (default is 1).
+        msk_channel : int, optional
+            The mask channel used for cell identification (default is 0).
+        pathto : str, optional
+            The path to save images if `save_pic` is True (default is './').
+        save_pic : bool, optional
+            Whether to save the images for each validated cell (default is False).
+        boundary_expansion : list of int, optional
+            The number of pixels to expand the boundary of the cell block in the image (default is [1, 40, 40]).
+        save_attr : bool, optional
+            Whether to save the validated attributes during the process (default is True).
+        save_h5 : bool, optional
+            Whether to save the updated attributes to an HDF5 file (default is False).
+        overwrite : bool, optional
+            Whether to overwrite existing data when saving to HDF5 (default is False).
+
+        Returns
+        -------
+        vals_fate : ndarray of int
+            Validated fate values for each cell. 1 indicates fate, 0 indicates not fate, and -1 indicates unclear or indeterminate fate.
+        inds_fate : ndarray of int
+            Indices of the cells that were confirmed to follow the fate of interest.
+
+        Notes
+        -----
+        - This function provides an interactive review interface, where users can manually validate the fate and tracking of cells.
+        - It allows users to interactively break cell lineage links if necessary and stores the results of each review session.
+        - The images and masks for each cell across its past and future trajectory are visualized for validation.
+
+        Examples
+        --------
+        >>> vals_fate, inds_fate = model.manual_fate_validation(indcells, 'apoptosis', trajl_future=3, trajl_past=3, save_pic=True, pathto='/output/images')
+        >>> print(f'Validated fates for {len(inds_fate)} cells.')
+        """
+        nc=indcells.size
+        setattr(self,f'indreviewed_{fate_attr}',indcells)
+        if hasattr(self,f'vals_{fate_attr}') and restart:
+            inds_fate=getattr(self,f'inds_{fate_attr}')
+            vals_fate=getattr(self,f'vals_{fate_attr}')
+            istart=vals_fate.size
+            print(f'restarting from {istart} of {indcells.size}')
+            if istart==indcells.size:
+                print('all indices reviewed, run with restart=False to redo')
+                return vals_fate,inds_fate
+        else:
+            inds_fate=np.array([]).astype(int)
+            vals_fate=np.array([]).astype(int)
+            istart=0
+        cblocks=np.zeros((indcells.size,self.ndim,2)).astype(int)
+        cell_trajs=[None]*nc
+        for icb in range(nc):
+            icell=indcells[icb]
+            cblock=self.cellblocks[icell,...].copy()
+            if boundary_expansion is not None:
+                cblock[:,0]=cblock[:,0]-boundary_expansion
+                cblock[:,0][cblock[:,0]<0]=0
+                cblock[:,1]=cblock[:,1]+boundary_expansion
+                indreplace=np.where(cblock[:,1]>self.image_shape)[0]
+                cblock[:,1][indreplace]=self.image_shape[indreplace]
+            cblocks[icb,...]=cblock
+            cell_trajs[icb]=self.get_cell_trajectory(icell)
+        for iic in range(istart,nc):
+            cell_traj=cell_trajs[iic]
+            ic=indcells[iic]
+            icells_tree=np.array([ic])
+            n_frame=self.cells_indimgSet[ic]
+            img=self.get_image_data(n_frame)
+            msk=self.get_mask_data(n_frame)
+            cblock=cblocks[iic,...]
+            imgc_test,mskc_relabeled=self.get_cell_data(ic,boundary_expansion=boundary_expansion,relabel_mskchannels=[msk_channel]) #get first cell image
+            if self.ndim==3:
+                imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+                mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+                imgc=np.flip(imgc,axis=0);mskc=np.flip(mskc,axis=0);mskc_relabeled=np.flip(mskc_relabeled,axis=0);
+            if self.ndim==2:
+                imgc=img[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+                mskc=msk[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+                mskc_relabeled=mskc_relabeled[np.newaxis,...]
+            imgs=[None]*(trajl_past+trajl_future+1)
+            msks=[None]*(trajl_past+trajl_future+1)
+            imgs[0]=imgc
+            msks[0]=mskc
+            nzset=[imgs[0].shape[0]]
+            #print(f'setting {0}')
+            for ipast in range(1,trajl_past+1):
+                img=self.get_image_data(n_frame-trajl_past+ipast)
+                msk=self.get_mask_data(n_frame-trajl_past+ipast)
+                cblock=cblocks[iic,...]
+                if self.ndim==3:
+                    imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+                    mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+                    imgc=np.flip(imgc,axis=0);mskc=np.flip(mskc,axis=0);
+                if self.ndim==2:
+                    imgc=img[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+                    mskc=msk[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+                imgs[ipast]=imgc
+                if cell_traj.size>(trajl_past+1-ipast):
+                    icell_global_past=cell_traj[-trajl_past-1+ipast]
+                    icell_local_past=self.cells_labelidSet[icell_global_past]
+                else:
+                    icell_local_past=np.inf
+                msks[ipast]=mskc==icell_local_past
+                #print(f'setting {ipast}')
+                #print(np.unique(msks[ipast]))
+                nzset.append(imgs[ipast].shape[0])
+            for ifuture in range(1,trajl_future+1):
+                icells_future=np.array([]).astype(int)
+                for ic_tree in icells_tree:
+                    inds_children=self.get_cell_children(ic_tree)
+                    icells_future=np.append(icells_future,inds_children)
+                #print(icells_future)
+                icells_tree=icells_future.copy()
+                icells_future_local=self.cells_labelidSet[icells_future]
+                img=self.get_image_data(n_frame+ifuture)
+                msk=self.get_mask_data(n_frame+ifuture)
+                cblock=cblocks[iic,...]
+                if self.ndim==3:
+                    imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+                    mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
+                    imgc=np.flip(imgc,axis=0);mskc=np.flip(mskc,axis=0);
+                if self.ndim==2:
+                    imgc=img[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+                    mskc=msk[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
+                imgs[ifuture+trajl_past]=imgc
+                mskc[np.logical_not(np.isin(mskc,icells_future_local))]=0
+                msks[ifuture+trajl_past]=mskc
+                nzset.append(imgs[ifuture+trajl_past].shape[0])
+                #print(f'setting {ifuture+trajl_past}')
+            nzmax=np.max(nzset)
+            if nzmax<3:
+                nz_plots=3
+            else:
+                nz_plots=nzmax
+            vertsize=2*nz_plots
+            ny_plots=trajl_future+trajl_past+1
+            hsize=3*ny_plots
+            #fig=plt.figure(figsize=(12,vertsize))
+            fig,ax=plt.subplots(nz_plots,ny_plots,figsize=(hsize,vertsize))
+            for iz in range(nz_plots):
+                for iy in range(ny_plots):
+                    ax[iz,iy].axis('off')
+            image_order=np.arange(1,trajl_past+1).tolist()+[0]+np.arange(trajl_past+1,trajl_past+trajl_future+1).tolist()
+            colors=['darkred']*(trajl_past)+['red']+['darkred']*(trajl_future)
+            alphas=[0.1]*(trajl_past)+[1.]+[.5]*(trajl_future)
+            colors_all=['red']*(trajl_past)+['black']+['blue']*(trajl_future)
+            alphas_all=[1.]*(trajl_past)+[.33]+[1.]*(trajl_future)
+            for iy in range(len(image_order)):
+                il=image_order[iy]
+                #print(f'trajl: {len(imgs)} il: {il}')
+                nz=imgs[il].shape[0]
+                for iz in range(nz):
+                    img_rep=imprep.znorm(imgs[il][iz,:,:,rep_channel])
+                    img_bf=imprep.znorm(imgs[il][iz,:,:,bf_channel])
+                    img_nuc=imprep.znorm(imgs[il][iz,:,:,nuc_channel])
+                    msk_cyto=mskc_relabeled[iz,:,:,msk_channel]==ic
+                    msk_all=msks[il][iz,:,:,msk_channel]
+                    ax[iz,iy].imshow(img_bf,cmap=plt.cm.binary,clim=(-3,3))
+                    if np.percentile(img_nuc,99)>1:
+                        cs=ax[iz,iy].contour(img_nuc,cmap=plt.cm.BuPu,levels=np.linspace(1,np.percentile(img_nuc,99),4),alpha=.2)
+                        cs.cmap.set_over('purple')
+                    #if np.percentile(img_rep,99)>1:
+                        #cs=ax[iz,il].contour(img_rep,cmap=plt.cm.YlOrBr_r,levels=np.linspace(1,np.percentile(img_rep,99),4),alpha=.2)
+                        #cs.cmap.set_over('yellow')
+                    ax[iz,iy].contour(msk_all,levels=np.unique(msk_all),colors=colors_all[iy],alpha=alphas_all[iy],linewidths=.8)
+                    ax[iz,iy].contour(msk_cyto,colors=colors[iy],alpha=alphas[iy])
+                    #ax[iz,il].contour(msk_all,levels=np.unique(msk_all),colors='blue')#,alpha=.33)
+                    ax[iz,iy].axis('off')
+                    ax[iz,iy].set_title('cell '+str(iic)+' of '+str(nc))
+                #plt.pause(.5)
+                titlestr='fate validation: '
+            imgfile=f'{pathto}/{fate_attr}_cell{iic}.png'
+            if save_pic:
+                plt.savefig(imgfile)
+            plt.show()
+            inpstatus=True
+            while inpstatus:
+                if val_tracks:
+                    vtrack = input("track validation (1 all good, -2 to break past link, 2 to break future link, 0 to break both):\n")
+                    try:
+                        vtrack=int(vtrack)
+                        inpstatus=False
+                    except:
+                        print('invalid input')
+                    if vtrack!=1:
+                        iS=self.cells_indimgSet[ic]
+                        if vtrack==-2 or vtrack==0:
+                            print(f'breaking past linkage for cell {ic}')
+                            self.linSet[iS][self.cells_indSet[ic]]=-1
+                        if vtrack==2 or vtrack==0:
+                            icells_children=self.get_cell_children(ic)
+                            for ic_child in icells_children:
+                                msk0=np.max(mskc_relabeled[...,msk_channel],axis=0)
+                                msk1=np.max(msks[trajl_past+1][...,msk_channel],axis=0)                                
+                                fig1=plt.figure()
+                                plt.contour(msk0,colors='black')
+                                plt.contour(msk1,levels=np.unique(msk1),colors='blue',alpha=.5)
+                                plt.contour(msk1==self.cells_labelidSet[ic_child],colors='red')
+                                plt.show()
+                                vbreak = input("break the linkage to the red cell? (y or n)\n")
+                                if vbreak=='y':
+                                    print(f'breaking future linkage to cell {ic_child}')
+                                    self.linSet[iS+1][self.cells_indSet[ic_child]]=-1
+                                plt.close(fig1)
+                vfate = input("fate validation (q to quit, -1 can't tell, 0 not fate, 1 is fate):\n")
+                if vfate=='q':
+                    if save_h5:
+                        attribute_list=[f'inds_{fate_attr}',f'vals_{fate_attr}',f'indreviewed_{fate_attr}']
+                        self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
+                        if val_tracks:
+                            attribute_list=['linSet']
+                            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
+                    return vals_fate,inds_fate
+                try:
+                    vfate=int(vfate)
+                    inpstatus=False
+                except:
+                    print('invalid input')
+            vals_fate=np.append(vals_fate,vfate)
+            if vfate==1:
+                inds_fate=np.append(inds_fate,ic)
+            titlestr=titlestr+' '+str(vfate)
+            plt.close(fig)
+            if 'ipykernel' in sys.modules:
+                clear_output(wait=True)
+            if save_attr:
+                setattr(self,f'inds_{fate_attr}',inds_fate)
+                setattr(self,f'vals_{fate_attr}',vals_fate)
+        if save_h5:
+            attribute_list=[f'inds_{fate_attr}',f'vals_{fate_attr}',f'indreviewed_{fate_attr}']
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
+            if val_tracks:
+                attribute_list=['linSet']
+                self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
+        return vals_fate,inds_fate

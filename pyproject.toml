@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "celltraj"
-version = "0.1.58"
+version = "0.1.61"
 authors = [
   { name="Jeremy Copperman", email="copperma@ohsu.edu" },
 ]

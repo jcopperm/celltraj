@@ -136,6 +136,7 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
         iset=iset[iset>0]
         for i in iset:
             msk=labels==i
+            print(f'cell {i}, pixels {np.sum(msk)}')
             indi=np.where(border_index==i)[0]
             border_pts_i,n_i,c_i=get_surface_points(msk,return_normals=True,return_curvature=True)
             n[indi]=n_i
@@ -147,7 +148,7 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
         border_dict['vdist']=vdist_border
     return border_dict
 
-def get_surface_points(msk,return_normals=False,return_curvature=False,knn=20):
+def get_surface_points(msk,return_normals=False,return_curvature=False,knn=20,rscale=.1):
     """
     Computes the surface points of a labeled mask and optionally calculates normals and curvature.
 
@@ -199,30 +200,55 @@ def get_surface_points(msk,return_normals=False,return_curvature=False,knn=20):
     border=skimage.segmentation.find_boundaries(msk,mode='inner')
     ind=np.where(border)
     border_pts=np.array(ind).astype(float).T
+    npts=border_pts.shape[0]
+    if knn>int(npts/4):
+        knn=int(npts/4)
+        print(f'adjusted knn: {knn} npts: {npts}')
     if return_normals or return_curvature:
-        cloud=PyntCloud(pd.DataFrame(data=border_pts,columns=['x','y','z']))
+        if msk.ndim==3:
+            rand_dx=np.array([np.random.normal(loc=0.,scale=rscale,size=npts),np.random.normal(loc=0.,scale=rscale,size=npts),np.random.normal(loc=0.,scale=rscale,size=npts)]).T
+        elif msk.ndim==2:
+            rand_dx=np.array([np.random.normal(loc=0.,scale=rscale,size=npts),np.random.normal(loc=0.,scale=rscale,size=npts),np.zeros(npts)]).T
+            border_pts=np.concatenate((border_pts,np.zeros((border_pts.shape[0],1))),axis=1)
+        cloud=PyntCloud(pd.DataFrame(data=border_pts+rand_dx,columns=['x','y','z']))
         k_neighbors = cloud.get_neighbors(k=knn)
         ev = cloud.add_scalar_field("eigen_decomposition", k_neighbors=k_neighbors)
         w = np.array([cloud.points[ev[0]],cloud.points[ev[1]],cloud.points[ev[2]]]).T
         v = np.array([[cloud.points[ev[3]],cloud.points[ev[4]],cloud.points[ev[5]]],[cloud.points[ev[6]],cloud.points[ev[7]],cloud.points[ev[8]]],[cloud.points[ev[9]],cloud.points[ev[10]],cloud.points[ev[11]]]]).T
-        border_pts_trans=border_pts+2.*v[:,2,:]
+        if msk.ndim==3:
+            border_pts_trans=border_pts+2.*v[:,2,:]
+        if msk.ndim==2:
+            border_pts_trans=border_pts+2.*v[:,1,:]
         ind_trans=border_pts_trans.astype(int)
-        for iax in range(border_pts.shape[1]):
+        for iax in range(msk.ndim): #border_pts.shape[1]):
             inds_max=ind_trans[:,iax]>msk.shape[iax]-1
             ind_trans[inds_max,iax]=msk.shape[iax]-1
             inds_min=ind_trans[:,iax]<0
             ind_trans[inds_min,iax]=0
-        infacing_normals=msk[ind_trans[:,0],ind_trans[:,1],ind_trans[:,2]]
-        n = v[:,2,:]
+        if msk.ndim==3:
+            infacing_normals=msk[ind_trans[:,0],ind_trans[:,1],ind_trans[:,2]]
+            n = v[:,2,:]
+        elif msk.ndim==2:
+            infacing_normals=msk[ind_trans[:,0],ind_trans[:,1]]
+            n = v[:,1,:]
         n[infacing_normals,:]=-1.*n[infacing_normals,:]
         if return_curvature:
-            c=np.divide(w[:,2],np.sum(w,axis=1))
+            if msk.ndim==3:
+                c=np.divide(w[:,2],np.sum(w,axis=1))
+            elif msk.ndim==2:
+                c=np.divide(w[:,1],np.sum(w,axis=1))
             pts_nnmean=np.mean(border_pts[k_neighbors,:],axis=1)
             dn=np.sum(np.multiply(border_pts-pts_nnmean,n),axis=1)
             c[dn<0]=-1.*c[dn<0]
-            return border_pts,n,c
+            if msk.ndim==3:
+                return border_pts,n,c
+            elif msk.ndim==2:
+                return border_pts[:,0:2],n[:,0:2],c
         else:
-            return border_pts,n
+            if msk.ndim==3:
+                return border_pts,n
+            elif msk.ndim==2:
+                return border_pts[:,0:2],n[:,0:2]
     else:
         return border_pts
 

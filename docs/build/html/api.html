@@ -57,6 +57,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_beta"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_beta()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_blocks"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_blocks()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_channel_crosscorr"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_channel_crosscorr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_children"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_children()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_compartment_ratio"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_compartment_ratio()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_data"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_features"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_features()</span></code></a></li>
@@ -67,7 +68,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.cells_indimgSet"><code class="docutils literal notranslate"><span class="pre">Trajectory.cells_indimgSet</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.cellblocks"><code class="docutils literal notranslate"><span class="pre">Trajectory.cellblocks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_positions"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_positions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_sandwich"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_sandwich()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_trajectory"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_trajectory()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cells_nchildren"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cells_nchildren()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_dx"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_dx()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_fmask_data"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_fmask_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_frames"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_frames()</span></code></a></li>
@@ -96,6 +99,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_trajectory_steps"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_trajectory_steps()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_unique_trajectories"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_unique_trajectories()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.load_from_h5"><code class="docutils literal notranslate"><span class="pre">Trajectory.load_from_h5()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.manual_fate_validation"><code class="docutils literal notranslate"><span class="pre">Trajectory.manual_fate_validation()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.save_to_h5"><code class="docutils literal notranslate"><span class="pre">Trajectory.save_to_h5()</span></code></a></li>
 </ul>
 </li>
@@ -499,6 +503,39 @@ represented by [min_dim1, min_dim2, …, max_dim1, max_dim2, …].</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cell_children">
+<span class="sig-name descname"><span class="pre">get_cell_children</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">icell</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_children"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_children" title="Link to this definition"></a></dt>
+<dd><p>Get the child cells for a given cell in the next frame.</p>
+<p>This function identifies the child cells of a given parent cell <cite>icell</cite> by tracking the lineage data
+across consecutive frames. The lineage is determined from the parent cell’s index and the lineage set
+for the next frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>icell</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The index of the cell for which to find the children.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ind_children</strong> – An array of indices representing the child cells of the given cell <cite>icell</cite> in the next frame.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function looks at the current frame of <cite>icell</cite> and identifies its child cells in the subsequent frame</p></li>
+</ul>
+<p>using the lineage tracking set (<cite>linSet</cite>).
+- This method assumes that the lineage set (<cite>linSet</cite>) and cell indexing (<cite>cells_indimgSet</cite>, <cite>cells_indSet</cite>)
+are properly initialized and populated.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cell_index</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">children</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_cell_children</span><span class="p">(</span><span class="n">cell_index</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Children of cell </span><span class="si">{</span><span class="n">cell_index</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">children</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cell_compartment_ratio">
 <span class="sig-name descname"><span class="pre">get_cell_compartment_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indcells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmask_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_disjoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_background_perframe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmask_channel_background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">erosion_footprint1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">erosion_footprint2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combined_and_disjoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_sum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity_ztransform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inverse_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_compartment_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_compartment_ratio" title="Link to this definition"></a></dt>
 <dd><p>Calculates the ratio of features between two cellular compartments, optionally adjusted for image
@@ -751,6 +788,48 @@ Default is False.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cell_sandwich">
+<span class="sig-name descname"><span class="pre">get_cell_sandwich</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msk_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_expansion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajl_past</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajl_future</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_sandwich"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_sandwich" title="Link to this definition"></a></dt>
+<dd><p>Extracts a sequence of image and mask “sandwiches” for a given cell, including past and future frames.</p>
+<p>This function creates a set of 2D or 3D image and mask stacks for a specified cell, tracking the cell
+across multiple frames into the past and future. It includes boundary expansion around the cell if specified
+and gathers the images and masks for the cell trajectory. The function is useful for analyzing the temporal
+behavior of a cell within its local neighborhood.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ic</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Index of the target cell.</p></li>
+<li><p><strong>msk_channel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Channel of the mask image where the cell is identified (default is 0).</p></li>
+<li><p><strong>boundary_expansion</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <em>optional</em>) – Number of pixels to expand the boundary around the cell block (default is None, no expansion).</p></li>
+<li><p><strong>trajl_past</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Number of past frames to include in the sandwich (default is 1).</p></li>
+<li><p><strong>trajl_future</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Number of future frames to include in the sandwich (default is 1).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>imgs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A list of image stacks (2D or 3D) for each frame in the trajectory sandwich.</p></li>
+<li><p><strong>msks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – A list of binary masks corresponding to the same frames in <cite>imgs</cite>, where the cell and its descendants
+are highlighted.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function retrieves the cell trajectory from the current frame, including both past and future cells,</p></li>
+</ul>
+<p>as well as their children in future frames.
+- The images and masks are collected and returned in two separate lists, with the past, present, and future
+frames in sequential order.
+- The function supports both 2D and 3D image data based on the dimensions of the input data.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imgs</span><span class="p">,</span> <span class="n">msks</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_cell_sandwich</span><span class="p">(</span><span class="n">ic</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">boundary_expansion</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">trajl_past</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">trajl_future</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Retrieved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">imgs</span><span class="p">)</span><span class="si">}</span><span class="s1"> images and masks for cell 42 across past and future frames.&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cell_trajectory">
 <span class="sig-name descname"><span class="pre">get_cell_trajectory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_ind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_hist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_trajectory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_trajectory" title="Link to this definition"></a></dt>
 <dd><p>Retrieves the trajectory of a specified cell across previous frames, tracing back from the current frame to
@@ -788,6 +867,38 @@ The array is ordered from the earliest appearance to the current frame.</p>
 via methods such as <cite>get_lineage_btrack</cite>. Each index in the resulting trajectory corresponds to a
 position in previous frames where the cell was identified, stepping backwards until the cell’s first
 detection or the limit of specified history steps.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cells_nchildren">
+<span class="sig-name descname"><span class="pre">get_cells_nchildren</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cells_nchildren"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cells_nchildren" title="Link to this definition"></a></dt>
+<dd><p>Compute the number of children for each cell across all frames.</p>
+<p>This function calculates the number of child cells each parent cell has across consecutive time frames.
+The result is an array where each element corresponds to the number of child cells for a given parent
+cell in the next frame. Cells with no children will have a count of 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cells_nchildren</strong> – An array where each element represents the number of child cells for each cell
+in the dataset. The indices correspond to the cell indices in <cite>self.cells_indSet</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The function iterates through all time frames (<cite>nt</cite>) to determine the lineage of each cell</p></li>
+</ul>
+<p>using the <cite>linSet</cite> attribute, which holds the lineage information between frames.
+- Cells that are not tracked between frames (i.e., not assigned a child in the next frame)
+will have a count of 0 children.
+- The method assumes that <cite>linSet</cite>, <cite>cells_indSet</cite>, and <cite>cells_indimgSet</cite> are properly initialized
+and populated.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cell_children_counts</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_cells_nchildren</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Number of children for each cell: </span><span class="si">{</span><span class="n">cell_children_counts</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -1571,6 +1682,53 @@ of the instance.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">traj</span><span class="o">.</span><span class="n">load_from_h5</span><span class="p">(</span><span class="s1">&#39;/data/group1&#39;</span><span class="p">)</span>
 <span class="go">loading path/to/your/hdf5file.h5</span>
 <span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.manual_fate_validation">
+<span class="sig-name descname"><span class="pre">manual_fate_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indcells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fate_attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajl_future</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trajl_past</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_tracks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rep_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bf_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nuc_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msk_channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pathto</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_pic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_expansion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">40,</span> <span class="pre">40]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_attr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.manual_fate_validation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.manual_fate_validation" title="Link to this definition"></a></dt>
+<dd><p>Manually validates cell fate by reviewing images and tracking data for individual cells over time.
+Provides an interactive validation interface to assess whether cells follow a specific fate or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indcells</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Indices of cells to review for fate validation.</p></li>
+<li><p><strong>fate_attr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the fate attribute being reviewed and validated.</p></li>
+<li><p><strong>trajl_future</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Number of future frames to include in the trajectory review (default is 2).</p></li>
+<li><p><strong>trajl_past</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Number of past frames to include in the trajectory review (default is 2).</p></li>
+<li><p><strong>restart</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Whether to restart validation from the beginning (default is True). If False, previously reviewed cells are re-evaluated.</p></li>
+<li><p><strong>val_tracks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, validates the cell tracking in addition to fate validation (default is True).</p></li>
+<li><p><strong>rep_channel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The channel used for representation images (default is 2).</p></li>
+<li><p><strong>bf_channel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The bright-field channel (default is 0).</p></li>
+<li><p><strong>nuc_channel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The nucleus channel (default is 1).</p></li>
+<li><p><strong>msk_channel</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The mask channel used for cell identification (default is 0).</p></li>
+<li><p><strong>pathto</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – The path to save images if <cite>save_pic</cite> is True (default is ‘./’).</p></li>
+<li><p><strong>save_pic</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Whether to save the images for each validated cell (default is False).</p></li>
+<li><p><strong>boundary_expansion</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – The number of pixels to expand the boundary of the cell block in the image (default is [1, 40, 40]).</p></li>
+<li><p><strong>save_attr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Whether to save the validated attributes during the process (default is True).</p></li>
+<li><p><strong>save_h5</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Whether to save the updated attributes to an HDF5 file (default is False).</p></li>
+<li><p><strong>overwrite</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – Whether to overwrite existing data when saving to HDF5 (default is False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>vals_fate</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Validated fate values for each cell. 1 indicates fate, 0 indicates not fate, and -1 indicates unclear or indeterminate fate.</p></li>
+<li><p><strong>inds_fate</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Indices of the cells that were confirmed to follow the fate of interest.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function provides an interactive review interface, where users can manually validate the fate and tracking of cells.</p></li>
+<li><p>It allows users to interactively break cell lineage links if necessary and stores the results of each review session.</p></li>
+<li><p>The images and masks for each cell across its past and future trajectory are visualized for validation.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vals_fate</span><span class="p">,</span> <span class="n">inds_fate</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">manual_fate_validation</span><span class="p">(</span><span class="n">indcells</span><span class="p">,</span> <span class="s1">&#39;apoptosis&#39;</span><span class="p">,</span> <span class="n">trajl_future</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">trajl_past</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">save_pic</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pathto</span><span class="o">=</span><span class="s1">&#39;/output/images&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Validated fates for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">inds_fate</span><span class="p">)</span><span class="si">}</span><span class="s1"> cells.&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
