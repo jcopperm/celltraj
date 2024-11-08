@@ -16,8 +16,9 @@ from scipy.stats import dirichlet
 import pandas as pd
 from pyntcloud import PyntCloud
 import ot
+from multipoles import MultipoleExpansion
 
-def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,return_nnvector=True,return_curvature=True,scale=None,**border_args):
+def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,return_nnvector=True,return_curvature=True,nn_states=None,scale=None,**border_args):
     """
     Computes the border properties of labeled regions in a segmented image.
 
@@ -34,8 +35,7 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
     radius : float, optional
         The radius for finding nearest neighbors around each border point (default is 10).
     vdist : ndarray, optional
-        An array representing distances or potential values at each point in the image. If provided, this
-        array is used to calculate border distances.
+        An array representing a scalar value in the image, such as estimated ligand concentration, to store in the border point dictionary.
     return_nnindex : bool, optional
         If True, returns the nearest neighbor index for each border point (default is True).
     return_nnvector : bool, optional
@@ -83,6 +83,8 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
         scale=np.ones(labels.ndim)
     else:
         labels=scipy.ndimage.zoom(labels,zoom=scale,order=0)
+        if vdist is not None:
+            vdist=scipy.ndimage.zoom(vdist,zoom=scale)
     labels=labels.astype(int)
     border_dict={}
     border_dict['scale']=scale
@@ -101,16 +103,16 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
         contact_inds=contact_labels[border>0]
         border_dict['nn_index']=contact_inds
         border_dict['nn_states']=states[contact_inds]
-    if return_nnvector:
+    if return_nnvector or nn_states is not None:
         iset=np.unique(labels)
         iset=iset[iset>0]
-        nn_labels=[None]*(np.max(iset)+1)
+        knn_labels=[None]*(np.max(iset)+1)
         inds_labels=[None]*(np.max(iset)+1)
         border_nn_pts=np.ones_like(border_pts)*np.nan
         border_nn_inds=np.zeros(border_pts.shape[0]).astype(int)
         for i in iset:
             inds_labels[i]=np.where(border_index==i)[0]
-            nn_labels[i] = sklearn.neighbors.NearestNeighbors(n_neighbors=1, radius=1.,algorithm='ball_tree').fit(border_pts[inds_labels[i]])
+            knn_labels[i] = sklearn.neighbors.NearestNeighbors(n_neighbors=1, radius=1.,algorithm='ball_tree').fit(border_pts[inds_labels[i]])
         for i in iset:
             indi=inds_labels[i]
             jset=np.unique(contact_inds[indi])
@@ -118,13 +120,40 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
             for j in jset:
                 indj=np.where(contact_inds[indi]==j)[0]
                 borderij_pts=border_pts[indi[indj]]
-                distij,indij_nn=nn_labels[j].kneighbors(borderij_pts)
+                distij,indij_nn=knn_labels[j].kneighbors(borderij_pts)
                 indij_nn=np.squeeze(indij_nn)
                 borderj_pts=border_pts[inds_labels[j][indij_nn]]
                 border_nn_pts[indi[indj]]=borderj_pts
                 border_nn_inds[indi[indj]]=inds_labels[j][indij_nn]
         border_dict['nn_pts']=border_nn_pts
         border_dict['nn_inds']=border_nn_inds
+        if nn_states is not None:
+            border_nn_pts_state=np.ones((border_pts.shape[0],np.max(states)+1,border_pts.shape[1]))*np.nan
+            border_nn_inds_state=np.ones((border_pts.shape[0],np.max(states)+1)).astype(int)*-1
+            #knn_states=[None]*(np.max(states)+1)
+            inds_states=[None]*(np.max(states)+1)
+            iset=np.where(np.isin(states,nn_states))[0]
+            stateset=np.unique(states)
+            for istate in stateset:
+                inds_states[istate]=np.where(border_dict['states']==istate)[0]
+                #if inds_states[istate].size>0:
+                    #knn_states[istate] = sklearn.neighbors.NearestNeighbors(n_neighbors=1, radius=1.,algorithm='ball_tree').fit(border_pts[inds_states[istate]])
+            for i in iset:
+                print(f'getting nn points for cell {i}')
+                indi=inds_labels[i]
+                if indi is not None:
+                    for istate in stateset:
+                        indistate=np.setdiff1d(inds_states[istate],indi)
+                        if indistate.size>0:
+                            knn_states = sklearn.neighbors.NearestNeighbors(n_neighbors=1, radius=1.,algorithm='ball_tree').fit(border_pts[indistate])
+                            borderij_pts=border_pts[indi]
+                            distij,indij_nn=knn_states.kneighbors(borderij_pts)
+                            indij_nn=np.squeeze(indij_nn)
+                            borderj_pts=border_pts[indistate[indij_nn]]
+                            border_nn_pts_state[indi,istate,:]=borderj_pts
+                            border_nn_inds_state[indi,istate]=indistate[indij_nn]
+            border_dict['nn_pts_state']=border_nn_pts_state
+            border_dict['nn_inds_state']=border_nn_inds_state
     if return_curvature:
         n=np.zeros_like(border_pts)
         c=np.zeros(border_pts.shape[0])
@@ -136,7 +165,7 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
         iset=iset[iset>0]
         for i in iset:
             msk=labels==i
-            print(f'cell {i}, pixels {np.sum(msk)}')
+            print(f'label {i}, pixels {np.sum(msk)}')
             indi=np.where(border_index==i)[0]
             border_pts_i,n_i,c_i=get_surface_points(msk,return_normals=True,return_curvature=True)
             n[indi]=n_i
@@ -422,6 +451,21 @@ def get_surface_displacement(border_dict,sts=None,c=None,n=None,alpha=1.,maxd=No
         maxr=np.max(np.abs(rdx))
         dx=dx*(maxd/maxr)
     return dx
+
+def get_surface_gradvariance(border_pts,dx_ot,knn=12,use_eigs=False):
+    rdx_ot = np.linalg.norm(dx_ot,axis=1)
+    cloud=PyntCloud(pd.DataFrame(data=border_pts,columns=['x','y','z']))
+    k_neighbors = cloud.get_neighbors(k=knn)
+    if use_eigs:
+        cloud.points['x']=dx_ot[:,0]
+        cloud.points['y']=dx_ot[:,1]
+        cloud.points['z']=dx_ot[:,2]
+        ev = cloud.add_scalar_field("eigen_decomposition", k_neighbors=k_neighbors)
+        w = np.array([cloud.points[ev[0]],cloud.points[ev[1]],cloud.points[ev[2]]]).T
+        dh = np.sum(w,axis=1)
+    else:
+        dh=np.var(rdx_ot[k_neighbors],axis=1)
+    return dh
 
 def get_surface_displacement_deviation(border_dict,border_pts_prev,exclude_states=None,n=None,knn=12,use_eigs=False,alpha=1.,maxd=None):
     """
@@ -1284,7 +1328,6 @@ def get_secreted_ligand_density(msk,scale=2.,zscale=1.,npad=None,indz_bm=0,secre
         phi.faceGrad.constrain(flux_cells[cell_inds[ic]] * mesh_fipy.faceNormals, where=cell_inds_facepoints==cell_inds[ic])
     #fipy.DiffusionTerm(coeff=D).solve(var=phi)
     eq.solve(var=phi, dt=(1000000./D))
-    print('huh')
     #vdist,edges=utilities.get_meshfunc_average(phi.faceValue.value,facepoints,bins=msk_cells.shape)
     sol_values=phi.value.copy()
     sol_values[phi.value<0.]=0.
@@ -1349,3 +1392,245 @@ def get_flux_ligdist(vdist,cmean=1.,csigma=.5,center=True):
     fsigmas=np.abs(csigma*np.abs(vdist))
     return fmeans,fsigmas
 
+def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_states=None,cell_labels_next=None,cell_labels_prev=None,lin_next=None,lin_prev=None,vdist=None,border_scale=1.0,radius=2.0,order=1,return_border_properties_list=False):
+    """
+    Calculate geometric and physical properties of cell borders, with optional tracking between frames 
+    and surface contact details.
+
+    This function computes properties of cell borders based on `cell_labels`, surface contacts, and 
+    multipole moments up to a specified order. It supports tracking cell border displacement across 
+    frames using optional next and previous frame labels (`cell_labels_next`, `cell_labels_prev`). 
+    Outputs include multipole moments and border displacements useful in characterizing cell interactions 
+    and tracking cell behaviors.
+
+    Parameters
+    ----------
+    cell_labels : ndarray
+        Array of labels identifying distinct cells within the domain.
+    
+    surfaces : list of ndarrays, optional
+        List of binary masks indicating surface layers adjacent to cells (e.g., membranes or other 
+        boundaries). Each is assigned a unique identifier.
+
+    cell_states : ndarray of int, optional
+        Array specifying a state for each cell in `cell_labels`. Defaults to 1 if not provided.
+    
+    surface_states : ndarray of int, optional
+        Array of states corresponding to each surface in `surfaces`. These states must not overlap 
+        with `cell_states`.
+
+    cell_labels_next : ndarray, optional
+        Label array for the next frame to track cell borders over time.
+    
+    cell_labels_prev : ndarray, optional
+        Label array for the previous frame, used for backward tracking of cells.
+    
+    lin_next : list of lists, optional
+        Mapping of cells in `cell_labels` to corresponding cells in `cell_labels_next`. Each entry 
+        contains IDs of linked cells in the next frame.
+    
+    lin_prev : list of lists, optional
+        Mapping of cells in `cell_labels` to corresponding cells in `cell_labels_prev`, used for 
+        backward tracking.
+
+    border_scale : float, optional
+        Resolution in microns applied to border point extraction (default is 1.0).
+    
+    radius : float, optional
+        Radius in pixels for calculating border properties such as contact neighbors (default is 2.0).
+    
+    order : int, optional
+        Order of multipole moments to calculate for each border contact (default is 1).
+    
+    return_border_properties_list : bool, optional
+        If True, returns a list of property names for multipole moments alongside the border 
+        dictionary.
+
+    Returns
+    -------
+    border_dict : dict
+        Dictionary containing calculated properties of each cell's border, including:
+        
+        - `pts` : Array of border points.
+        - `index` : Label of each cell at the border.
+        - `nn_states` : Neighboring cell states at each border point.
+        - `contact_properties` : Array of multipole moment properties calculated up to `order`.
+        - `border_dx_next`, `border_dx_prev` : Displacements of each border in the next and previous 
+          frames, if applicable.
+        - `dx_next_properties`, `dx_prev_properties` : Arrays of multipole moments based on border 
+          displacement for next and previous frames.
+    
+    border_properties_list : list of str, optional
+        List of property names for `contact_properties` array if `return_border_properties_list` 
+        is True.
+
+    Notes
+    -----
+    - **Multipole Moment Calculation**: Moments up to the specified `order` are computed based on 
+      border charges (representing contact fraction) for each border point.
+    - **Cell Tracking**: When provided with `cell_labels_next` or `cell_labels_prev`, the function 
+      calculates optimal transport (OT) vectors to track border movement between frames.
+
+    Examples
+    --------
+    Calculate properties of cell borders and multipole moments with next-frame tracking:
+
+    >>> border_dict, property_list = get_border_properties(
+    ...     cell_labels=my_cell_labels, surfaces=my_surfaces, cell_states=my_states,
+    ...     cell_labels_next=my_next_frame_labels, lin_next=my_next_frame_links, 
+    ...     border_scale=0.8, radius=1.5, order=2, return_border_properties_list=True
+    ... )
+
+    """
+    labels=cell_labels.copy()
+    max_cellid=np.max(labels)
+    cell_ids=np.unique(labels)
+    cell_ids=cell_ids[cell_ids>0]
+    n_moments=sum(2 * l + 1 for l in range(order + 1))
+    if cell_states is None:
+        cell_states=[1]*max_cellid
+        cell_states=np.array(cell_states).astype(int)
+        cell_states=np.insert(cell_states,0,0)
+    max_cell_state=np.max(cell_states)
+    if surfaces is None:
+        n_surf=0
+    else:
+        n_surf=len(surfaces)
+        surface_ids=(np.arange(n_surf)+max_cellid+1).astype(int)
+        if surface_states is None:
+            surface_states=(np.arange(n_surf)+max_cell_state+1).astype(int)
+        else:
+            if np.intersect1d(cell_states,surface_states).size>0:
+                print('Conflicting labels between cell states and surface states provided')
+        nn_states=cell_states.copy()
+        cell_states=np.append(cell_states,surface_states)
+        surface_overlay=surfaces[0].copy()
+        for i_surf in range(n_surf):
+            overlapping=np.sum(np.logical_and(labels>0,surfaces[i_surf]))/np.sum(labels>0)
+            if overlapping>0:
+                print(f'Warning: {overlapping:.2e} fraction overlap between surface {i_surf} and cell labels, cell labels will overlay surface labels')
+            if i_surf>0:
+                overlapping_surf=np.sum(np.logical_and(surfaces[i_surf],surface_overlay))/np.sum(surfaces[i_surf])
+                if overlapping_surf>0.:
+                    print(f'Warning: {overlapping_surf:.2e} fraction overlap between surface {i_surf} and previous surfaces, {i_surf} will overlay')
+            surface_overlay=np.logical_or(surface_overlay,surfaces[i_surf])
+            labels[surfaces[i_surf]]=surface_ids[i_surf]
+    border_dict=get_border_dict(labels,states=cell_states,nn_states=nn_states,vdist=vdist,radius=radius,scale=border_scale)
+    contact_properties=np.ones((max_cellid+1,np.max(cell_states)+1,1+n_moments))*np.nan
+    border_properties_list=[None]*(1+n_moments)
+    border_properties_list[0]='total'
+    i_prop=1
+    for l in range(order+1):
+        for m in range(-l,l+1):
+            border_properties_list[i_prop]=f'({l},{m})'
+            i_prop=i_prop+1
+    for ic in range(cell_ids.size):
+        cellid=cell_ids[ic]
+        indcell=np.where(border_dict['index']==cellid)[0]
+        border_pts=border_dict['pts'][indcell,:]
+        border_nn_states=border_dict['nn_states'][indcell]
+        if indcell.size>0:
+            for i_state in np.unique(cell_states[cell_states>0]):
+                indcell_surf=np.where(border_nn_states==i_state)[0]
+                if indcell_surf.size>0:
+                    border_charge=np.ones(indcell.size)*-1
+                    border_charge[indcell_surf]=1
+                    av_surf_fraction=indcell_surf.size/indcell.size
+                    print(f'cell {cellid} state {i_state} contact fraction {av_surf_fraction:.2f}')
+                    charges_list = [{'q': q, 'xyz': tuple(border_pts)} for q, border_pts in zip(border_charge, border_pts)]
+                    charge_dist = {'discrete': True, 'charges': charges_list}
+                    Phi = MultipoleExpansion(charge_dist, order)
+                    contact_properties[cellid,i_state,0]=indcell.size
+                    i_prop=1
+                    for l in range(order+1):
+                        for m in range(-l,l+1):
+                            contact_properties[cellid,i_state,i_prop]=Phi.multipole_moments[l,m]
+                            i_prop=i_prop+1
+                else:
+                    print(f'cell {cellid} state {i_state} contact fraction {0.0:.2f}')
+    border_dict['contact_properties']=contact_properties
+    border_dict['border_properties_list']=border_properties_list
+    if cell_labels_next is not None:
+        dx_next_properties=np.ones((max_cellid+1,1+n_moments))*np.nan
+        border_dict_next=get_border_dict(cell_labels_next,states=None,scale=border_scale,return_nnindex=False,return_nnvector=False,return_curvature=False)
+        cell_ids_next=np.unique(cell_labels_next)
+        cell_ids_next=cell_ids_next[cell_ids_next>0]
+        max_cellid_next=np.max(cell_ids_next)
+        if lin_next is None:
+            print('no tracking provided, matching cells by ID')
+            lin_next = [[] for _ in range(cell_ids.size + 1)]
+            for cellid in cell_ids:
+                if np.isin(cellid,cell_ids_next):
+                    lin_next[cellid].append(cellid)
+        border_dx_next=np.zeros_like(border_dict['pts'])
+        inds_ot_next=np.ones(border_dict['pts'].shape[0]).astype(int)*-1
+        for ic in range(cell_ids.size):
+            cellid=cell_ids[ic]
+            if len(lin_next[cellid])>0:
+                indcell=np.where(border_dict['index']==cellid)[0]
+                border_pts=border_dict['pts'][indcell,:]
+                indcell_next=np.where(np.isin(border_dict_next['index'],lin_next[cellid]))[0]
+                if indcell_next.size>0:
+                    border_pts_next=border_dict_next['pts'][indcell_next,:]
+                    inds_ot,dx_ot=get_ot_dx(border_pts,border_pts_next,return_dx=True,return_cost=False)
+                    border_dx_next[indcell,:]=-dx_ot
+                    inds_ot_next[indcell]=indcell_next[inds_ot]
+                    dxc=np.sum(np.multiply(-dx_ot,border_dict['n'][indcell,:]),axis=1)
+                    border_charge=dxc
+                    charges_list = [{'q': q, 'xyz': tuple(border_pts)} for q, border_pts in zip(border_charge, border_pts)]
+                    charge_dist = {'discrete': True, 'charges': charges_list}
+                    Phi = MultipoleExpansion(charge_dist, order)
+                    dx_next_properties[cellid,0]=indcell.size
+                    i_prop=1
+                    for l in range(order+1):
+                        for m in range(-l,l+1):
+                            dx_next_properties[cellid,i_prop]=Phi.multipole_moments[l,m]
+                            i_prop=i_prop+1
+        border_dict['dh_next']=get_surface_gradvariance(border_dict['pts'],border_dx_next)
+        border_dict['border_dx_next']=border_dx_next
+        border_dict['inds_ot_next']=inds_ot_next
+        border_dict['dx_next_properties']=dx_next_properties
+    if cell_labels_prev is not None:
+        border_dict_prev=get_border_dict(cell_labels_prev,states=None,scale=border_scale,return_nnindex=False,return_nnvector=False,return_curvature=False)
+        dx_prev_properties=np.ones((max_cellid+1,1+n_moments))*np.nan
+        cell_ids_prev=np.unique(cell_labels_prev)
+        cell_ids_prev=cell_ids_prev[cell_ids_prev>0]
+        max_cellid_prev=np.max(cell_ids_prev)
+        if lin_prev is None:
+            print('no tracking provided, matching cells by ID')
+            lin_prev = [[] for _ in range(cell_ids.size + 1)]
+            for cellid in cell_ids:
+                if np.isin(cellid,cell_ids_prev):
+                    lin_prev[cellid].append(cellid)
+        border_dx_prev=np.zeros_like(border_dict['pts'])
+        inds_ot_prev=np.ones(border_dict['pts'].shape[0]).astype(int)*-1
+        for ic in range(cell_ids.size):
+            cellid=cell_ids[ic]
+            if len(lin_prev[cellid])>0:
+                indcell=np.where(border_dict['index']==cellid)[0]
+                border_pts=border_dict['pts'][indcell,:]
+                indcell_prev=np.where(np.isin(border_dict_prev['index'],lin_prev[cellid]))[0]
+                if indcell_prev.size>0:
+                    border_pts_prev=border_dict_prev['pts'][indcell_prev,:]
+                    inds_ot,dx_ot=get_ot_dx(border_pts,border_pts_prev,return_dx=True,return_cost=False)
+                    border_dx_prev[indcell,:]=-dx_ot
+                    inds_ot_prev[indcell]=indcell_prev[inds_ot]
+                    dxc=np.sum(np.multiply(-dx_ot,border_dict['n'][indcell,:]),axis=1)
+                    border_charge=dxc
+                    charges_list = [{'q': q, 'xyz': tuple(border_pts)} for q, border_pts in zip(border_charge, border_pts)]
+                    charge_dist = {'discrete': True, 'charges': charges_list}
+                    Phi = MultipoleExpansion(charge_dist, order)
+                    dx_prev_properties[cellid,0]=indcell.size
+                    i_prop=1
+                    for l in range(order+1):
+                        for m in range(-l,l+1):
+                            dx_prev_properties[cellid,i_prop]=Phi.multipole_moments[l,m]
+                            i_prop=i_prop+1
+        border_dict['dh_prev']=get_surface_gradvariance(border_dict['pts'],border_dx_prev)
+        border_dict['border_dx_prev']=border_dx_prev
+        border_dict['inds_ot_prev']=inds_ot_prev
+        border_dict['dx_prev_properties']=dx_prev_properties
+    if return_border_properties_list:
+        return border_dict,border_properties_list
+    else:
+        return border_dict

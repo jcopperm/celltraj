@@ -45,6 +45,10 @@ def get_cdist2d(prob1):
     probc1=probc1.reshape((nx,ny))
     return probc1
 
+def rescale_to_int(img,maxint=2**16-1,dtype=np.uint16):
+    img=maxint*((img-np.min(img))/np.max(img-np.min(img)))
+    return img.astype(dtype)
+
 def colorbar(mappable):
     from mpl_toolkits.axes_grid1 import make_axes_locatable
     #import matplotlib.pyplot as plt
@@ -144,7 +148,7 @@ def recursively_save_dict_contents_to_group( h5file, path, dic):
                 item = np.array(item).astype('|S32')
                 h5file[path + key] = item
             if not np.array_equal(h5file[path + key][()], item):
-                raise ValueError('The data representation in the HDF5 file does not match the original dict.')
+                print(f'{key}:{item} -- the data representation in the HDF5 file does not match the original dict.')
         # save dictionaries
         elif isinstance(item, dict):
             recursively_save_dict_contents_to_group(h5file, path + key + '/', item)
@@ -256,6 +260,8 @@ def get_pairwise_distance_sum(tshift,centers1,centers2,contact_transform=False,r
 
 def get_tshift(centers1,centers2,dist_function,ntrans=100,maxt=10, **dist_function_keys):
     ndim=centers1.shape[1]
+    centers1=centers1[np.isfinite(np.sum(centers1,axis=1)),:]
+    centers2=centers2[np.isfinite(np.sum(centers2,axis=1)),:]
     if not isinstance(ntrans, (list,tuple,np.ndarray)):
         ntrans=[ntrans]*ndim
     if not isinstance(maxt, (list,tuple,np.ndarray)):

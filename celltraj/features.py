@@ -847,13 +847,13 @@ def get_contact_labels(labels0,radius=10):
     labels_inv=-1*labels_inv
     contact_msk=get_contact_boundaries(labels0,boundary_only=True,radius=radius)
     contact_labels=np.zeros_like(labels0)
-    for i in np.unique(labels0[labels0>0]):
+    for i in np.flip(np.unique(labels0[labels0>0])):
         indi=np.where(np.logical_and(labels0==i,contact_msk))
         jset1=np.unique(labels[indi])
         jset2=np.unique(labels_inv[indi])
         jset=np.unique(np.concatenate((jset1,jset2)))
         jset=np.setdiff1d(jset,[i])
-        for j in jset:
+        for j in np.flip(jset):
             if labels0.ndim==2:
                 contact_labels[indi[0][labels[indi]==j],indi[1][labels[indi]==j]]=j
                 contact_labels[indi[0][labels_inv[indi]==j],indi[1][labels_inv[indi]==j]]=j

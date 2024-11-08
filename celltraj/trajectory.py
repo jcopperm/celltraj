@@ -146,7 +146,7 @@ class Trajectory:
                     f.close()
                     return True
                 except Exception as error:
-                    print(f'error loading metadata from {self.h5filename}: {error}')
+                    print(f'error loading data from {self.h5filename}: {error}')
                     f.close()
                     return False
             else:
@@ -779,7 +779,7 @@ class Trajectory:
         else:
             return imgc
                 
-    def get_cell_features(self,function_tuple,indcells=None,imgchannel=0,mskchannel=0,use_fmask_for_intensity_image=False,fmskchannel=None,use_mask_for_intensity_image=False,bordersize=10,apply_contact_transform=False,return_feature_list=False,save_h5=False,overwrite=False,concatenate_features=False):
+    def get_cell_features(self,function_tuple,indcells=None,imgchannel=0,mskchannel=0,use_fmask_for_intensity_image=False,fmskchannel=None,use_mask_for_intensity_image=False,bordersize=10,apply_contact_transform=False,preprocess_functions=(None),return_feature_list=False,save_h5=False,overwrite=False,concatenate_features=False):
         """
         Extracts complex cell features based on the specified custom functions and imaging data.
         This method allows customization of the feature extraction process using region properties
@@ -875,6 +875,10 @@ class Trajectory:
                     if img.ndim==3:
                         for iz in range(img.shape[0]):
                             img[iz,...]=features.get_contact_boundaries(img[iz,...],radius=bordersize)
+                if preprocess_functions is not None:
+                    nfunc=len(preprocess_functions)
+                    for ifunc in range(nfunc):
+                        img=preprocess_functions[ifunc](img)
                 props = regionprops_table(msk, intensity_image=img,properties=('label',), extra_properties=function_tuple)
                 Xf_frame=np.zeros((props['label'].size,len(props.keys())))
                 for i,key in enumerate(props.keys()):
@@ -1295,7 +1299,8 @@ class Trajectory:
                     t_global=np.zeros(self.ndim)
                 t_local=utilities.get_tshift(centers0,centers1+t_global,dist_function,ntrans=ntrans,maxt=maxt,**dist_function_keys)
                 #t_local=self.get_minT(msk0,msk1,nt=self.ntrans,dt=self.maxtrans)
-                tSet[iS,:]=t_global+t_local
+                #tSet[iS,:]=t_global+t_local
+                tSet[iS,:]=t_global-t_local #changes 24sep24
                 if zscale is not None:
                     tSet[iS,0]=tSet[iS,0]/zscale
                 sys.stdout.write(f'frame {iS} translation {t_global+t_local}\n')

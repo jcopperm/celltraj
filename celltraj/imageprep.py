@@ -220,6 +220,10 @@ def znorm(img):
     img=(img-np.nanmean(img))/np.nanstd(img)
     return img
 
+def rescale_to_int(img,maxint=2**16-1,dtype=np.uint16):
+    img=maxint*((img-np.min(img))/np.max(img-np.min(img)))
+    return img.astype(dtype)
+
 def histogram_stretch(img,lp=1,hp=99):
     """
     Performs histogram stretching on an input array or image to enhance the contrast by scaling the pixel 
