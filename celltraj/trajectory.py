@@ -3128,3 +3128,399 @@ class Trajectory:
                 attribute_list=['linSet']
                 self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return vals_fate,inds_fate
+
+    def get_border_properties_dict(self,iS,cell_states=None,secretion_rates=None,surfaces=None,surface_fmask_channels=None,surface_states_baseid=1000,add_label0_surf=True,make_cells_and_surfaces_disjoint=True,border_scale=None,border_resolution=None,vdist_scale=0.3,radius=2.0,order=1,visual=False,z_viz=None):
+        """
+        Calculate border properties for cells and surfaces at a given frame in a trajectory.
+
+        This function extracts data required to characterize the borders of cells within a specified 
+        frame (`iS`) in a 3D or 2D cell image sequence. The borders are characterized based on geometric 
+        and physical properties, with optional visualization and multipole moment expansion up to the 
+        specified `order`. Supports the inclusion of surface contacts, tracking cell borders over time, 
+        and calculating secreted ligand distributions.
+
+        Parameters
+        ----------
+        iS : int
+            Frame index within the trajectory for which to calculate border properties.
+
+        cell_states : ndarray, optional
+            Array of states for each cell in the current frame. If not provided, all cells are assigned 
+            state 1 by default.
+
+        secretion_rates : ndarray, optional
+            Array of secretion rates for each cell, used to calculate secreted ligand distribution 
+            along cell borders. If not provided, no secretion is considered.
+
+        surfaces : list of ndarrays, optional
+            List of binary masks for surfaces adjacent to cells (e.g., membranes or other boundaries). 
+            Surfaces are optionally assigned states via `surface_fmask_channels`.
+
+        surface_fmask_channels : list of int, optional
+            List of channels in the frame data specifying each surface's mask. Used if `surfaces` is 
+            None. Each channel mask is assigned a state from `surface_states_baseid` onward.
+
+        surface_states_baseid : int, optional
+            Base state ID for assigning states to surfaces. Defaults to 1000.
+
+        add_label0_surf : bool, optional
+            If True, includes cells labeled as 0 (background) as a surface layer. Default is True.
+
+        make_cells_and_surfaces_disjoint : bool, optional
+            If True, cells and surfaces are treated as mutually exclusive regions. Default is True.
+
+        border_scale : float or list of float, optional
+            Scale for border calculations. If None, it defaults to the `border_resolution` attribute 
+            if available.
+
+        border_resolution : float, optional
+            Resolution of the border calculations in units of pixels. If None, the value from the 
+            object's `border_resolution` attribute is used if present.
+
+        vdist_scale : float, optional
+            Scale factor for calculating the secreted ligand distribution. Default is 0.3.
+
+        radius : float, optional
+            Radius for identifying contact neighbors when calculating border properties. Default is 2.0.
+
+        order : int, optional
+            Order of multipole moments to compute for cell border properties. Default is 1.
+
+        visual : bool, optional
+            If True, generates a visualization of the borders, including displacements from the 
+            previous and next frames.
+
+        z_viz : int, optional
+            Specific z-plane to visualize in 3D data. If None, a central z-plane is chosen.
+
+        Returns
+        -------
+        border_dict : dict
+            Dictionary containing computed properties for cell borders, including:
+            
+            - `pts`: Coordinates of each border point.
+            - `index`: Cell IDs associated with each border point.
+            - `nn_states`: States of neighboring cells at each border point.
+            - `c`: Curvature at each border point.
+            - `global_index`: Global indices for each border point in the dataset.
+            - `border_dx_prev`, `border_dx_next`: Displacement vectors for borders to previous and 
+            next frames, if applicable.
+            - `contact_properties`: Multipole moment properties based on cell-state contacts.
+            - `vdist`: Secreted ligand density distribution, if `secretion_rates` is provided.
+
+        Notes
+        -----
+        - **Tracking**: If previous (`cell_labels_prev`) or next frame (`cell_labels_next`) is provided, 
+        the function calculates the optimal transport vector between consecutive frames for each cell.
+        - **Surface Assignment**: When `surface_fmask_channels` is provided, each channel is used to 
+        define a distinct surface mask, and `surface_states` are assigned based on `surface_states_baseid`.
+        - **Multipole Moments**: Higher-order moments are calculated based on border charges determined 
+        from neighboring cell states.
+
+        Examples
+        --------
+        Compute border properties for frame 10 with secreted ligand distribution and visualize:
+
+        >>> border_properties = self.get_border_properties_dict(
+        ...     iS=10, cell_states=my_cell_states, secretion_rates=my_secretion_rates,
+        ...     surface_fmask_channels=[0, 1], border_resolution=1.0, vdist_scale=0.5, order=2,
+        ...     visual=True, z_viz=15
+        ... )
+        """
+        if border_resolution is None and border_scale is None:
+            if hasattr(self,'border_resolution'):
+                border_resolution=self.border_resolution
+            else:
+                print('Need to set border_resolution attribute')
+                #return 1
+        if border_scale is None:
+            border_scalexy=self.micron_per_pixel/border_resolution
+            border_scale=[border_scalexy*self.zscale,border_scalexy,border_scalexy]  
+            print(f'scaling border to {border_scale}')
+        if iS<np.max(self.cells_frameSet):
+            indt1=np.where(self.cells_indimgSet==iS+1)[0]
+            labelids_t1=self.cells_labelidSet[indt1]
+            cell_labels1=self.get_mask_data(iS+1)[...,self.mskchannel]
+            cell_labels1=imprep.transform_image(cell_labels1,self.tf_matrix_set[iS+1,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
+        else:
+            cell_labels1=None
+        if iS>np.min(self.cells_frameSet):
+            indt0=np.where(self.cells_indimgSet==iS-1)[0]
+            labelids_t0=self.cells_labelidSet[indt0]
+            cell_labels0=self.get_mask_data(iS-1)[...,self.mskchannel]
+            cell_labels0=imprep.transform_image(cell_labels0,self.tf_matrix_set[iS-1,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
+        else:
+            cell_labels0=None
+        indt_current=np.where(self.cells_indimgSet==iS)[0]
+        labelids_current=self.cells_labelidSet[indt_current]
+        cell_labels_current=self.get_mask_data(iS)[...,self.mskchannel]
+        cell_labels_current=imprep.transform_image(cell_labels_current,self.tf_matrix_set[iS,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
+        max_cellid_current=np.max(cell_labels_current)
+        cell_ids_current=np.unique(cell_labels_current)
+        cell_ids_current=cell_ids_current[cell_ids_current>0]
+        if cell_states is None:
+            cell_states_current=np.ones_like(indt_current)
+        else:
+            cell_states_current=cell_states[indt_current]
+        cell_states_labelid=np.ones(max_cellid_current+1).astype(int)*-1
+        cell_states_labelid[0]=0
+        for ic in range(labelids_current.size):
+            ilabel=labelids_current[ic]
+            cell_states_labelid[ilabel]=cell_states_current[ic]
+        if surfaces is None:
+            if surface_fmask_channels is not None:
+                surfaces=[None]*len(surface_fmask_channels)
+                surface_label0=np.zeros_like(cell_labels_current).astype(bool)
+                for i_surf in range(len(surface_fmask_channels)):
+                    surfaces[i_surf]=self.get_fmask_data(iS,channel=surface_fmask_channels[surface_fmask_channels[i_surf]])
+                    if make_cells_and_surfaces_disjoint:
+                        surfaces[i_surf][cell_labels_current>0]=0
+                    surface_label0=np.logical_or(surface_label0,np.logical_not(surfaces[i_surf]))
+                if add_label0_surf:
+                    surfaces.append(np.logical_and(cell_labels_current==0,surface_label0))
+                n_surf=len(surfaces)
+                surface_states=np.arange(surface_states_baseid,surface_states_baseid+n_surf).astype(int)
+            else:
+                n_surf=0
+                surface_states=None
+        else:
+            n_surf=len(surfaces)
+            surface_states=np.ones(surface_states_baseid).astype(int)*-1
+            surface_states=np.append(surface_states,np.arange(surface_states_baseid,surface_states_baseid+n_surf).astype(int))
+        if iS<np.max(self.cells_frameSet):
+            lin1=self.linSet[iS+1]
+            lin_next = [[] for _ in range(max_cellid_current + 1)]
+            for ilabel in range(lin1.size):
+                if lin1[ilabel]>-1:
+                    i_next=labelids_t1[ilabel]
+                    i_current=labelids_current[lin1[ilabel]]
+                    lin_next[i_current].append(i_next)
+        else:
+            lin_next=None
+        if iS>np.min(self.cells_frameSet):
+            lin0=self.linSet[iS]
+            lin_prev = [[] for _ in range(max_cellid_current + 1)]
+            for ilabel in range(lin0.size):
+                if lin0[ilabel]>-1:
+                    i_current=labelids_current[ilabel]
+                    i_prev=labelids_t0[lin0[ilabel]]
+                    lin_prev[i_current].append(i_prev)
+        else:
+            lin_prev=None
+        if secretion_rates is not None:
+            secretion_rates_current=secretion_rates[indt_current]
+            secretion_rates_labelid=np.zeros(max_cellid_current+1).astype(int)
+            secretion_rates_labelid[0]=0
+            for ic in range(labelids_current.size):
+                ilabel=labelids_current[ic]
+                secretion_rates_labelid[ilabel]=secretion_rates_current[ic]
+            vdist=spatial.get_secreted_ligand_density(cell_labels_current,scale=vdist_scale,secretion_rate=secretion_rates_labelid,D=None,micron_per_pixel=border_resolution,visual=False)
+        else:
+            vdist=None
+        border_dict=spatial.get_border_properties(cell_labels_current,cell_states=cell_states_labelid,surfaces=surfaces,surface_states=surface_states,cell_labels_next=cell_labels1,lin_next=lin_next,cell_labels_prev=cell_labels0,lin_prev=lin_prev,vdist=vdist,border_scale=border_scale,order=order)
+        global_cellinds=np.ones(border_dict['pts'].shape[0]).astype(int)*-1
+        indcells=np.where(np.isin(border_dict['states'],np.unique(cell_states_current)))[0]
+        cellids_current_post=np.unique(border_dict['index'][indcells])
+        cellids_current_post=cellids_current_post[cellids_current_post>0]
+        for cellid in cellids_current_post:
+            indcell=np.where(border_dict['index']==cellid)[0]
+            ilabel=np.where(labelids_current==cellid)[0][0]
+            iglobal=indt_current[ilabel]
+            global_cellinds[indcell]=iglobal
+        border_dict['global_index']=global_cellinds
+        if visual:
+            if self.ndim==3:
+                ix=1;iy=2
+                if z_viz is None:
+                    z_viz=int((np.max(border_dict['pts'][:,0])-np.min(border_dict['pts'][:,0]))/2)
+                indz=np.where(np.logical_and(border_dict['pts'][:,0]>z_viz-1,border_dict['pts'][:,0]<z_viz+1))[0]
+            elif self.ndim==2:
+                ix=0;iy=1
+                indz=np.where(border_dict['pts'][:,0]<np.inf)[0]                
+            indcells=np.where(np.isin(border_dict['states'],np.unique(cell_states_current)))[0]
+            indpts=np.intersect1d(indz,indcells)
+            plt.close('all');plt.figure(figsize=(8,8))
+            plt.scatter(border_dict['pts'][indz,1],border_dict['pts'][indz,2],s=10,c=border_dict['states'][indz],cmap=plt.cm.Greens,alpha=.7)
+            plt.scatter(border_dict['pts'][indpts,1],border_dict['pts'][indpts,2],s=30,c=border_dict['c'][indpts],cmap=plt.cm.seismic,clim=(-3,3))
+            ax=plt.gca()
+            for ipt in range(indpts.size):
+                if iS>np.min(self.cells_frameSet):
+                    ax.arrow(border_dict['pts'][indpts[ipt],1],border_dict['pts'][indpts[ipt],2],border_dict['border_dx_prev'][indpts[ipt],1],border_dict['border_dx_prev'][indpts[ipt],2],color='gray',head_width=1,alpha=.8)
+                if iS<np.max(self.cells_frameSet):
+                    ax.arrow(border_dict['pts'][indpts[ipt],1],border_dict['pts'][indpts[ipt],2],border_dict['border_dx_next'][indpts[ipt],1],border_dict['border_dx_next'][indpts[ipt],2],color='black',head_width=1)
+            plt.axis('off')
+        return border_dict
+
+    def get_cellboundary_library(self,frames=None,indcells=None,secretion_rates=None,cell_states=None,surface_fmask_channels=[0],surface_states_baseid=None,border_resolution=1.0,vdist_scale=.3,visual=False,save_h5=False,overwrite=False,**border_property_args):
+        """
+        Collect and create a library of boundary properties for cells across specified frames in a trajectory.
+
+        This function gathers cell and surface boundary properties across frames or specific cell indices. 
+        It collects properties such as position, displacement, neighboring point states, curvatures, 
+        and secreted ligand distributions, if applicable. This data is returned in a library format 
+        and optionally saved to an HDF5 file for later use.
+
+        Parameters
+        ----------
+        frames : list of int, optional
+            Frame indices to include in the boundary library. If None, includes all frames in `cells_frameSet`.
+            
+        indcells : ndarray, optional
+            Array of specific cell indices to include in the library. If None, all cells are included.
+            
+        secretion_rates : ndarray, optional
+            Array of secretion rates for each cell, used to calculate ligand distribution along borders.
+            
+        cell_states : ndarray, optional
+            Array of cell states for each cell. If not provided, cells are assigned state 1.
+            
+        surface_fmask_channels : list of int, default=[0]
+            List of channels indicating each surface's mask in the frame data.
+            
+        surface_states_baseid : int, optional
+            Starting ID for surface states. Defaults to one more than the maximum `cell_states`.
+            
+        border_resolution : float, optional
+            Resolution for border properties in units of pixels. Default is 1.0.
+            
+        vdist_scale : float, optional
+            Scale for secreted ligand distribution. Default is 0.3.
+            
+        visual : bool, optional
+            If True, displays a visualization of the boundaries. Default is False.
+            
+        save_h5 : bool, optional
+            If True, saves the resulting boundary library to an HDF5 file. Default is False.
+            
+        overwrite : bool, optional
+            If True, overwrites the HDF5 data file if it exists. Default is False.
+            
+        **border_property_args
+            Additional arguments passed to the `get_border_properties_dict` function.
+
+        Returns
+        -------
+        boundary_library : dict
+            Dictionary containing collected boundary properties for the specified cells and frames:
+            
+            - `global_index`: Global cell indices for each boundary point.
+            - `states`: Cell or surface state at each boundary point.
+            - `pts`: Coordinates of each boundary point.
+            - `dx_prevs`, `dx_nexts`: Displacement vectors for boundaries to previous and next frames.
+            - `surface_normals`: Surface normal vectors at each boundary point.
+            - `curvatures`: Curvature at each boundary point.
+            - `nn_pts`: Coordinates of neighboring points.
+            - `nn_states`: States of neighboring points.
+            - `nn_pts_states`: States of neighboring points with finer resolution.
+            - `surf_vars`: Variance of surface displacement in the previous frame.
+            - `vdists`: Secreted ligand density distribution, if `secretion_rates` is provided.
+
+        Notes
+        -----
+        - **Frames and Cell Selection**: If both `frames` and `indcells` are provided, only frames derived from 
+        `indcells` are used.
+        - **Surfaces and States**: `surface_fmask_channels` and `surface_states_baseid` define and initialize 
+        surfaces in each frame, using additional states based on `surface_states_baseid`.
+        - **Ligand Distribution**: Secreted ligand density distribution (`vdists`) is included if `secretion_rates` 
+        is specified.
+
+        Examples
+        --------
+        Generate a cell boundary library for frames 10, 15, and 20, with visualization enabled:
+
+        >>> boundary_library = self.get_cellboundary_library(
+        ...     frames=[10, 15, 20], secretion_rates=my_secretion_rates, cell_states=my_cell_states,
+        ...     surface_fmask_channels=[0, 1], visual=True, border_resolution=2.0
+        ... )
+
+        Save the boundary library to HDF5 with overwrite enabled:
+
+        >>> boundary_library = self.get_cellboundary_library(
+        ...     indcells=my_indcells, save_h5=True, overwrite=True
+        ... )
+        """
+        if frames is None and indcells is None:
+            frames=np.unique(self.cells_frameSet)
+            indcells=np.arange(self.cells_indSet.size).astype(int)
+        elif frames is not None and indcells is None:
+            indcells=np.array([]).astype(int)
+            for iS in frames:
+                indcells=np.append(indcells,np.where(self.cells_frameSet==iS)[0])
+        elif indcells is not None:
+            if frames is not None:
+                print('both cell index and frames provided, using frames implied from cell index')
+            frames=np.unique(self.cells_frameSet[indcells])
+        if cell_states is None:
+            cell_states=np.ones(np.max(indcells)).astype(int)
+        if surface_states_baseid is None:
+            surface_states_baseid=np.max(cell_states)+1
+        global_index=[]
+        states=[]
+        pts=[]
+        dx_prevs=[]
+        dx_nexts=[]
+        surface_normals=[]
+        curvatures=[]
+        nn_pts=[]
+        nn_states=[]
+        nn_pts_states=[]
+        surf_vars=[]
+        if secretion_rates is not None:
+            vdists=[]
+        for iS in frames:
+            print(f'Extracting boundary library from frame {iS}')
+            indframe=np.where(self.cells_frameSet==iS)[0]
+            border_dict=get_border_properties_dict(self,iS,cell_states=cell_states,secretion_rates=secretion_rates,surface_fmask_channels=surface_fmask_channels,surface_states_baseid=surface_states_baseid,border_resolution=border_resolution,vdist_scale=vdist_scale,visual=visual)
+            if visual:
+                plt.show()
+            indcells_boundary=np.where(np.isin(border_dict['global_index'],indframe))[0]
+            global_index.append(border_dict['global_index'][indcells_boundary])
+            states.append(border_dict['states'][indcells_boundary])
+            pts.append(border_dict['pts'][indcells_boundary,:])
+            if iS>np.min(self.cells_frameSet):
+                dx_prevs.append(border_dict['border_dx_prev'][indcells_boundary,:])
+                surf_vars.append(border_dict['dh_prev'][indcells_boundary])
+            else:
+                dx_prevs.append(np.ones((indcells_boundary.size,self.ndim))*np.nan)
+                surf_vars.append(np.ones(indcells_boundary.size)*np.nan)
+            if iS<np.max(self.cells_frameSet):
+                dx_nexts.append(border_dict['border_dx_next'][indcells_boundary,:])
+            else:
+                dx_nexts.append(np.ones((indcells_boundary.size,self.ndim))*np.nan)
+            surface_normals.append(border_dict['n'][indcells_boundary,:])
+            curvatures.append(border_dict['c'][indcells_boundary])
+            nn_pts.append(border_dict['nn_pts'][indcells_boundary,:])
+            nn_states.append(border_dict['nn_states'][indcells_boundary])
+            nn_pts_states.append(border_dict['nn_pts_state'][indcells_boundary,:,:])
+            if secretion_rates is not None:
+                vdists.append(border_dict['vdist'][indcells_boundary])
+        boundary_library={'indcells':indcells,
+                        'cell_states':cell_states,
+                        'secretion_rates':secretion_rates,
+                        'surface_fmask_channels':surface_fmask_channels,
+                        'surface_states_baseid':surface_states_baseid,
+                        'border_resolution':border_resolution,
+                        'vdist_scale':vdist_scale}
+        boundary_library['global_index']=np.concatenate(global_index)
+        boundary_library['states']=np.concatenate(states)
+        boundary_library['pts']=np.vstack(pts)
+        boundary_library['dx_prevs']=np.vstack(dx_prevs)
+        boundary_library['dx_nexts']=np.vstack(dx_nexts)
+        boundary_library['surface_normals']=np.vstack(surface_normals)
+        boundary_library['curvatures']=np.concatenate(curvatures)
+        boundary_library['nn_pts']=np.vstack(nn_pts)
+        boundary_library['nn_pts_states']=np.vstack(nn_pts_states)
+        boundary_library['nn_states']=np.concatenate(nn_states)
+        boundary_library['surf_vars']=np.concatenate(surf_vars)
+        if secretion_rates is not None:
+            boundary_library['vdists']=np.concatenate(vdists)
+        if save_h5:
+            self.boundary_library=boundary_library
+            try:
+                attribute_list=['boundary_library']
+                data_written = self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
+            except Exception as e:
+                print(f'error writing data, {e}')
+            return boundary_library
+        else:
+            return boundary_library
