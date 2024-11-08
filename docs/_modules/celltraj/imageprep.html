@@ -307,6 +307,13 @@
     <span class="k">return</span> <span class="n">img</span></div>
 
 
+<div class="viewcode-block" id="rescale_to_int">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.rescale_to_int">[docs]</a>
+<span class="k">def</span> <span class="nf">rescale_to_int</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">maxint</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">):</span>
+    <span class="n">img</span><span class="o">=</span><span class="n">maxint</span><span class="o">*</span><span class="p">((</span><span class="n">img</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">img</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">img</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">img</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="histogram_stretch">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.histogram_stretch">[docs]</a>
 <span class="k">def</span> <span class="nf">histogram_stretch</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">lp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">hp</span><span class="o">=</span><span class="mi">99</span><span class="p">):</span>

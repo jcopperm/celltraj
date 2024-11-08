@@ -55,6 +55,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_Xtraj_celltrajectory"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_Xtraj_celltrajectory()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_alpha"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_alpha()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_beta"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_beta()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_border_properties_dict"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_border_properties_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_blocks"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_blocks()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_channel_crosscorr"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_channel_crosscorr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_children"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_children()</span></code></a></li>
@@ -70,6 +71,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_positions"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_positions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_sandwich"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_sandwich()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cell_trajectory"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cell_trajectory()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cellboundary_library"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cellboundary_library()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_cells_nchildren"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_cells_nchildren()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_dx"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_dx()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#celltraj.trajectory.Trajectory.get_fmask_data"><code class="docutils literal notranslate"><span class="pre">Trajectory.get_fmask_data()</span></code></a></li>
@@ -159,6 +161,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.imageprep.organize_filelist_fov"><code class="docutils literal notranslate"><span class="pre">organize_filelist_fov()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.imageprep.organize_filelist_time"><code class="docutils literal notranslate"><span class="pre">organize_filelist_time()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.imageprep.pad_image"><code class="docutils literal notranslate"><span class="pre">pad_image()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.imageprep.rescale_to_int"><code class="docutils literal notranslate"><span class="pre">rescale_to_int()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.imageprep.save_for_viewing"><code class="docutils literal notranslate"><span class="pre">save_for_viewing()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.imageprep.save_frame_h5"><code class="docutils literal notranslate"><span class="pre">save_frame_h5()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.imageprep.transform_image"><code class="docutils literal notranslate"><span class="pre">transform_image()</span></code></a></li>
@@ -196,6 +199,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_LJ_force"><code class="docutils literal notranslate"><span class="pre">get_LJ_force()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_adhesive_displacement"><code class="docutils literal notranslate"><span class="pre">get_adhesive_displacement()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_border_dict"><code class="docutils literal notranslate"><span class="pre">get_border_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_border_properties"><code class="docutils literal notranslate"><span class="pre">get_border_properties()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_flux_displacement"><code class="docutils literal notranslate"><span class="pre">get_flux_displacement()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_flux_ligdist"><code class="docutils literal notranslate"><span class="pre">get_flux_ligdist()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_labels_fromborderdict"><code class="docutils literal notranslate"><span class="pre">get_labels_fromborderdict()</span></code></a></li>
@@ -206,6 +210,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_secreted_ligand_density"><code class="docutils literal notranslate"><span class="pre">get_secreted_ligand_density()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_surface_displacement"><code class="docutils literal notranslate"><span class="pre">get_surface_displacement()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_surface_displacement_deviation"><code class="docutils literal notranslate"><span class="pre">get_surface_displacement_deviation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_surface_gradvariance"><code class="docutils literal notranslate"><span class="pre">get_surface_gradvariance()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_surface_points"><code class="docutils literal notranslate"><span class="pre">get_surface_points()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_volconstraint_com"><code class="docutils literal notranslate"><span class="pre">get_volconstraint_com()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.spatial.get_yukawa_force"><code class="docutils literal notranslate"><span class="pre">get_yukawa_force()</span></code></a></li>
@@ -234,6 +239,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.utilities.load_dict_from_h5"><code class="docutils literal notranslate"><span class="pre">load_dict_from_h5()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.utilities.recursively_load_dict_contents_from_group"><code class="docutils literal notranslate"><span class="pre">recursively_load_dict_contents_from_group()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.utilities.recursively_save_dict_contents_to_group"><code class="docutils literal notranslate"><span class="pre">recursively_save_dict_contents_to_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#celltraj.utilities.rescale_to_int"><code class="docutils literal notranslate"><span class="pre">rescale_to_int()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#celltraj.utilities.save_dict_to_h5"><code class="docutils literal notranslate"><span class="pre">save_dict_to_h5()</span></code></a></li>
 </ul>
 </li>
@@ -443,6 +449,81 @@ providing an indication of how parallel their movements are.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_border_properties_dict">
+<span class="sig-name descname"><span class="pre">get_border_properties_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secretion_rates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_fmask_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_states_baseid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_label0_surf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_cells_and_surfaces_disjoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdist_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_viz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_border_properties_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_border_properties_dict" title="Link to this definition"></a></dt>
+<dd><p>Calculate border properties for cells and surfaces at a given frame in a trajectory.</p>
+<p>This function extracts data required to characterize the borders of cells within a specified
+frame (<cite>iS</cite>) in a 3D or 2D cell image sequence. The borders are characterized based on geometric
+and physical properties, with optional visualization and multipole moment expansion up to the
+specified <cite>order</cite>. Supports the inclusion of surface contacts, tracking cell borders over time,
+and calculating secreted ligand distributions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iS</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Frame index within the trajectory for which to calculate border properties.</p></li>
+<li><p><strong>cell_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Array of states for each cell in the current frame. If not provided, all cells are assigned
+state 1 by default.</p></li>
+<li><p><strong>secretion_rates</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Array of secretion rates for each cell, used to calculate secreted ligand distribution
+along cell borders. If not provided, no secretion is considered.</p></li>
+<li><p><strong>surfaces</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarrays</span></code>, <em>optional</em>) – List of binary masks for surfaces adjacent to cells (e.g., membranes or other boundaries).
+Surfaces are optionally assigned states via <cite>surface_fmask_channels</cite>.</p></li>
+<li><p><strong>surface_fmask_channels</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – List of channels in the frame data specifying each surface’s mask. Used if <cite>surfaces</cite> is
+None. Each channel mask is assigned a state from <cite>surface_states_baseid</cite> onward.</p></li>
+<li><p><strong>surface_states_baseid</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Base state ID for assigning states to surfaces. Defaults to 1000.</p></li>
+<li><p><strong>add_label0_surf</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, includes cells labeled as 0 (background) as a surface layer. Default is True.</p></li>
+<li><p><strong>make_cells_and_surfaces_disjoint</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, cells and surfaces are treated as mutually exclusive regions. Default is True.</p></li>
+<li><p><strong>border_scale</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Scale for border calculations. If None, it defaults to the <cite>border_resolution</cite> attribute
+if available.</p></li>
+<li><p><strong>border_resolution</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Resolution of the border calculations in units of pixels. If None, the value from the
+object’s <cite>border_resolution</cite> attribute is used if present.</p></li>
+<li><p><strong>vdist_scale</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Scale factor for calculating the secreted ligand distribution. Default is 0.3.</p></li>
+<li><p><strong>radius</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Radius for identifying contact neighbors when calculating border properties. Default is 2.0.</p></li>
+<li><p><strong>order</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Order of multipole moments to compute for cell border properties. Default is 1.</p></li>
+<li><p><strong>visual</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, generates a visualization of the borders, including displacements from the
+previous and next frames.</p></li>
+<li><p><strong>z_viz</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Specific z-plane to visualize in 3D data. If None, a central z-plane is chosen.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><strong>border_dict</strong> – Dictionary containing computed properties for cell borders, including:</p>
+<ul class="simple">
+<li><p><cite>pts</cite>: Coordinates of each border point.</p></li>
+<li><p><cite>index</cite>: Cell IDs associated with each border point.</p></li>
+<li><p><cite>nn_states</cite>: States of neighboring cells at each border point.</p></li>
+<li><p><cite>c</cite>: Curvature at each border point.</p></li>
+<li><p><cite>global_index</cite>: Global indices for each border point in the dataset.</p></li>
+<li><p><cite>border_dx_prev</cite>, <cite>border_dx_next</cite>: Displacement vectors for borders to previous and</p></li>
+</ul>
+<p>next frames, if applicable.
+- <cite>contact_properties</cite>: Multipole moment properties based on cell-state contacts.
+- <cite>vdist</cite>: Secreted ligand density distribution, if <cite>secretion_rates</cite> is provided.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p><strong>Tracking</strong>: If previous (<cite>cell_labels_prev</cite>) or next frame (<cite>cell_labels_next</cite>) is provided,</p></li>
+</ul>
+<p>the function calculates the optimal transport vector between consecutive frames for each cell.
+- <strong>Surface Assignment</strong>: When <cite>surface_fmask_channels</cite> is provided, each channel is used to
+define a distinct surface mask, and <cite>surface_states</cite> are assigned based on <cite>surface_states_baseid</cite>.
+- <strong>Multipole Moments</strong>: Higher-order moments are calculated based on border charges determined
+from neighboring cell states.</p>
+<p class="rubric">Examples</p>
+<p>Compute border properties for frame 10 with secreted ligand distribution and visualize:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_border_properties_dict</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">iS</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cell_states</span><span class="o">=</span><span class="n">my_cell_states</span><span class="p">,</span> <span class="n">secretion_rates</span><span class="o">=</span><span class="n">my_secretion_rates</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">surface_fmask_channels</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">border_resolution</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">vdist_scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">visual</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">z_viz</span><span class="o">=</span><span class="mi">15</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cell_blocks">
 <span class="sig-name descname"><span class="pre">get_cell_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_label_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_blocks" title="Link to this definition"></a></dt>
 <dd><p>Extracts bounding box information for each cell from a labeled mask image. This function
@@ -614,7 +695,7 @@ Default is ‘boundingbox’.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cell_features">
-<span class="sig-name descname"><span class="pre">get_cell_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indcells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_fmask_for_intensity_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmskchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mask_for_intensity_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_contact_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_feature_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_features" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_cell_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function_tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indcells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imgchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mskchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_fmask_for_intensity_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmskchannel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mask_for_intensity_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bordersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_contact_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess_functions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_feature_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concatenate_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cell_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cell_features" title="Link to this definition"></a></dt>
 <dd><p>Extracts complex cell features based on the specified custom functions and imaging data.
 This method allows customization of the feature extraction process using region properties
 from segmented cell data, with optional transformations like border erosion or contact
@@ -867,6 +948,77 @@ The array is ordered from the earliest appearance to the current frame.</p>
 via methods such as <cite>get_lineage_btrack</cite>. Each index in the resulting trajectory corresponds to a
 position in previous frames where the cell was identified, stepping backwards until the cell’s first
 detection or the limit of specified history steps.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_cellboundary_library">
+<span class="sig-name descname"><span class="pre">get_cellboundary_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indcells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secretion_rates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_fmask_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_states_baseid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdist_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">border_property_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_cellboundary_library"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_cellboundary_library" title="Link to this definition"></a></dt>
+<dd><p>Collect and create a library of boundary properties for cells across specified frames in a trajectory.</p>
+<p>This function gathers cell and surface boundary properties across frames or specific cell indices.
+It collects properties such as position, displacement, neighboring point states, curvatures,
+and secreted ligand distributions, if applicable. This data is returned in a library format
+and optionally saved to an HDF5 file for later use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frames</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Frame indices to include in the boundary library. If None, includes all frames in <cite>cells_frameSet</cite>.</p></li>
+<li><p><strong>indcells</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Array of specific cell indices to include in the library. If None, all cells are included.</p></li>
+<li><p><strong>secretion_rates</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Array of secretion rates for each cell, used to calculate ligand distribution along borders.</p></li>
+<li><p><strong>cell_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Array of cell states for each cell. If not provided, cells are assigned state 1.</p></li>
+<li><p><strong>surface_fmask_channels</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="xref py py-class docutils literal notranslate"><span class="pre">[0]</span></code>) – List of channels indicating each surface’s mask in the frame data.</p></li>
+<li><p><strong>surface_states_baseid</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Starting ID for surface states. Defaults to one more than the maximum <cite>cell_states</cite>.</p></li>
+<li><p><strong>border_resolution</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Resolution for border properties in units of pixels. Default is 1.0.</p></li>
+<li><p><strong>vdist_scale</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Scale for secreted ligand distribution. Default is 0.3.</p></li>
+<li><p><strong>visual</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, displays a visualization of the boundaries. Default is False.</p></li>
+<li><p><strong>save_h5</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, saves the resulting boundary library to an HDF5 file. Default is False.</p></li>
+<li><p><strong>overwrite</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, overwrites the HDF5 data file if it exists. Default is False.</p></li>
+<li><p><strong>**border_property_args</strong> – Additional arguments passed to the <cite>get_border_properties_dict</cite> function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p><strong>boundary_library</strong> – Dictionary containing collected boundary properties for the specified cells and frames:</p>
+<ul class="simple">
+<li><p><cite>global_index</cite>: Global cell indices for each boundary point.</p></li>
+<li><p><cite>states</cite>: Cell or surface state at each boundary point.</p></li>
+<li><p><cite>pts</cite>: Coordinates of each boundary point.</p></li>
+<li><p><cite>dx_prevs</cite>, <cite>dx_nexts</cite>: Displacement vectors for boundaries to previous and next frames.</p></li>
+<li><p><cite>surface_normals</cite>: Surface normal vectors at each boundary point.</p></li>
+<li><p><cite>curvatures</cite>: Curvature at each boundary point.</p></li>
+<li><p><cite>nn_pts</cite>: Coordinates of neighboring points.</p></li>
+<li><p><cite>nn_states</cite>: States of neighboring points.</p></li>
+<li><p><cite>nn_pts_states</cite>: States of neighboring points with finer resolution.</p></li>
+<li><p><cite>surf_vars</cite>: Variance of surface displacement in the previous frame.</p></li>
+<li><p><cite>vdists</cite>: Secreted ligand density distribution, if <cite>secretion_rates</cite> is provided.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p><strong>Frames and Cell Selection</strong>: If both <cite>frames</cite> and <cite>indcells</cite> are provided, only frames derived from</p></li>
+</ul>
+<p><cite>indcells</cite> are used.
+- <strong>Surfaces and States</strong>: <cite>surface_fmask_channels</cite> and <cite>surface_states_baseid</cite> define and initialize
+surfaces in each frame, using additional states based on <cite>surface_states_baseid</cite>.
+- <strong>Ligand Distribution</strong>: Secreted ligand density distribution (<cite>vdists</cite>) is included if <cite>secretion_rates</cite>
+is specified.</p>
+<p class="rubric">Examples</p>
+<p>Generate a cell boundary library for frames 10, 15, and 20, with visualization enabled:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">boundary_library</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cellboundary_library</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">frames</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">secretion_rates</span><span class="o">=</span><span class="n">my_secretion_rates</span><span class="p">,</span> <span class="n">cell_states</span><span class="o">=</span><span class="n">my_cell_states</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">surface_fmask_channels</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">visual</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">border_resolution</span><span class="o">=</span><span class="mf">2.0</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Save the boundary library to HDF5 with overwrite enabled:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">boundary_library</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cellboundary_library</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">indcells</span><span class="o">=</span><span class="n">my_indcells</span><span class="p">,</span> <span class="n">save_h5</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -1631,7 +1783,7 @@ versatile for both freshly calculated and pre-computed trajectory datasets.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_unique_trajectories">
-<span class="sig-name descname"><span class="pre">get_unique_trajectories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_inds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_unique_trajectories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_unique_trajectories" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_unique_trajectories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_inds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_unique_trajectories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_unique_trajectories" title="Link to this definition"></a></dt>
 <dd><p>Computes unique trajectories for a set of cells over multiple frames, minimizing redundancy by
 ensuring that no two trajectories cover the same cell path beyond a specified overlap (extra_depth).</p>
 <dl class="field-list simple">
@@ -3801,6 +3953,11 @@ to the original dimensions, the image will be trimmed instead.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="celltraj.imageprep.rescale_to_int">
+<span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">rescale_to_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxint=65535</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.uint16'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#rescale_to_int"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.rescale_to_int" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="celltraj.imageprep.save_for_viewing">
 <span class="sig-prename descclassname"><span class="pre">celltraj.imageprep.</span></span><span class="sig-name descname"><span class="pre">save_for_viewing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/imageprep.html#save_for_viewing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.imageprep.save_for_viewing" title="Link to this definition"></a></dt>
 <dd><p>Saves data and optional metadata to a specified file using serialization. The function uses Python’s pickle module
@@ -4938,7 +5095,7 @@ Should take distance, epsilon, and additional arguments as inputs.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.spatial.get_border_dict">
-<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_border_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_nnindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_nnvector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_curvature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">border_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_border_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_border_dict" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_border_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_nnindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_nnvector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_curvature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">border_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_border_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_border_dict" title="Link to this definition"></a></dt>
 <dd><p>Computes the border properties of labeled regions in a segmented image.</p>
 <p>This function identifies the borders of labeled regions in a given image and calculates various properties
 such as nearest neighbor indices, vectors, and curvature. It can also return the scaled distances if specified.</p>
@@ -4949,8 +5106,7 @@ such as nearest neighbor indices, vectors, and curvature. It can also return the
 <li><p><strong>states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – An array indicating the state of each labeled region. If provided, states are used to differentiate
 regions. If None, all regions are assumed to have the same state.</p></li>
 <li><p><strong>radius</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – The radius for finding nearest neighbors around each border point (default is 10).</p></li>
-<li><p><strong>vdist</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – An array representing distances or potential values at each point in the image. If provided, this
-array is used to calculate border distances.</p></li>
+<li><p><strong>vdist</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – An array representing a scalar value in the image, such as estimated ligand concentration, to store in the border point dictionary.</p></li>
 <li><p><strong>return_nnindex</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, returns the nearest neighbor index for each border point (default is True).</p></li>
 <li><p><strong>return_nnvector</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, returns the vector pointing to the nearest neighbor for each border point (default is True).</p></li>
 <li><p><strong>return_curvature</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, calculates and returns the curvature at each border point (default is True).</p></li>
@@ -4990,6 +5146,76 @@ neighbors when computing curvature.</p></li>
 <span class="go">[[0., 1.], [0., 2.], [1., 1.], [2., 0.], [2., 1.]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;nn_index&#39;</span><span class="p">])</span>
 <span class="go">[2, 2, 2, 1, 1]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_border_properties">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_border_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surfaces</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_labels_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_labels_prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lin_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lin_prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_border_properties_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_border_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_border_properties" title="Link to this definition"></a></dt>
+<dd><p>Calculate geometric and physical properties of cell borders, with optional tracking between frames
+and surface contact details.</p>
+<p>This function computes properties of cell borders based on <cite>cell_labels</cite>, surface contacts, and
+multipole moments up to a specified order. It supports tracking cell border displacement across
+frames using optional next and previous frame labels (<cite>cell_labels_next</cite>, <cite>cell_labels_prev</cite>).
+Outputs include multipole moments and border displacements useful in characterizing cell interactions
+and tracking cell behaviors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell_labels</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Array of labels identifying distinct cells within the domain.</p></li>
+<li><p><strong>surfaces</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarrays</span></code>, <em>optional</em>) – List of binary masks indicating surface layers adjacent to cells (e.g., membranes or other
+boundaries). Each is assigned a unique identifier.</p></li>
+<li><p><strong>cell_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Array specifying a state for each cell in <cite>cell_labels</cite>. Defaults to 1 if not provided.</p></li>
+<li><p><strong>surface_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Array of states corresponding to each surface in <cite>surfaces</cite>. These states must not overlap
+with <cite>cell_states</cite>.</p></li>
+<li><p><strong>cell_labels_next</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Label array for the next frame to track cell borders over time.</p></li>
+<li><p><strong>cell_labels_prev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <em>optional</em>) – Label array for the previous frame, used for backward tracking of cells.</p></li>
+<li><p><strong>lin_next</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">lists</span></code>, <em>optional</em>) – Mapping of cells in <cite>cell_labels</cite> to corresponding cells in <cite>cell_labels_next</cite>. Each entry
+contains IDs of linked cells in the next frame.</p></li>
+<li><p><strong>lin_prev</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">lists</span></code>, <em>optional</em>) – Mapping of cells in <cite>cell_labels</cite> to corresponding cells in <cite>cell_labels_prev</cite>, used for
+backward tracking.</p></li>
+<li><p><strong>border_scale</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Resolution in microns applied to border point extraction (default is 1.0).</p></li>
+<li><p><strong>radius</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <em>optional</em>) – Radius in pixels for calculating border properties such as contact neighbors (default is 2.0).</p></li>
+<li><p><strong>order</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Order of multipole moments to calculate for each border contact (default is 1).</p></li>
+<li><p><strong>return_border_properties_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, returns a list of property names for multipole moments alongside the border
+dictionary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>border_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Dictionary containing calculated properties of each cell’s border, including:</p>
+<ul>
+<li><p><cite>pts</cite> : Array of border points.</p></li>
+<li><p><cite>index</cite> : Label of each cell at the border.</p></li>
+<li><p><cite>nn_states</cite> : Neighboring cell states at each border point.</p></li>
+<li><p><cite>contact_properties</cite> : Array of multipole moment properties calculated up to <cite>order</cite>.</p></li>
+<li><p><cite>border_dx_next</cite>, <cite>border_dx_prev</cite> : Displacements of each border in the next and previous
+frames, if applicable.</p></li>
+<li><p><cite>dx_next_properties</cite>, <cite>dx_prev_properties</cite> : Arrays of multipole moments based on border
+displacement for next and previous frames.</p></li>
+</ul>
+</li>
+<li><p><strong>border_properties_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – List of property names for <cite>contact_properties</cite> array if <cite>return_border_properties_list</cite>
+is True.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p><strong>Multipole Moment Calculation</strong>: Moments up to the specified <cite>order</cite> are computed based on
+border charges (representing contact fraction) for each border point.</p></li>
+<li><p><strong>Cell Tracking</strong>: When provided with <cite>cell_labels_next</cite> or <cite>cell_labels_prev</cite>, the function
+calculates optimal transport (OT) vectors to track border movement between frames.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<p>Calculate properties of cell borders and multipole moments with next-frame tracking:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">border_dict</span><span class="p">,</span> <span class="n">property_list</span> <span class="o">=</span> <span class="n">get_border_properties</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">cell_labels</span><span class="o">=</span><span class="n">my_cell_labels</span><span class="p">,</span> <span class="n">surfaces</span><span class="o">=</span><span class="n">my_surfaces</span><span class="p">,</span> <span class="n">cell_states</span><span class="o">=</span><span class="n">my_states</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">cell_labels_next</span><span class="o">=</span><span class="n">my_next_frame_labels</span><span class="p">,</span> <span class="n">lin_next</span><span class="o">=</span><span class="n">my_next_frame_links</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">border_scale</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">return_border_properties_list</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -5445,8 +5671,13 @@ or variance in displacement.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_surface_gradvariance">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_surface_gradvariance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border_pts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx_ot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_eigs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_surface_gradvariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_surface_gradvariance" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="celltraj.spatial.get_surface_points">
-<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_surface_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_normals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_curvature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_surface_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_surface_points" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_surface_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msk</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_normals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_curvature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">knn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_surface_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_surface_points" title="Link to this definition"></a></dt>
 <dd><p>Computes the surface points of a labeled mask and optionally calculates normals and curvature.</p>
 <p>This function identifies the surface (border) points of a given labeled mask using segmentation techniques.
 It can also compute normals (perpendicular vectors to the surface) and curvature values at these points if requested.</p>
@@ -5774,6 +6005,11 @@ of state-specific fold changes <cite>s_g</cite> and state probabilities <cite>p_
 <dl class="py function">
 <dt class="sig sig-object py" id="celltraj.utilities.recursively_save_dict_contents_to_group">
 <span class="sig-prename descclassname"><span class="pre">celltraj.utilities.</span></span><span class="sig-name descname"><span class="pre">recursively_save_dict_contents_to_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h5file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dic</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/utilities.html#recursively_save_dict_contents_to_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.utilities.recursively_save_dict_contents_to_group" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.utilities.rescale_to_int">
+<span class="sig-prename descclassname"><span class="pre">celltraj.utilities.</span></span><span class="sig-name descname"><span class="pre">rescale_to_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxint=65535</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.uint16'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/utilities.html#rescale_to_int"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.utilities.rescale_to_int" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
