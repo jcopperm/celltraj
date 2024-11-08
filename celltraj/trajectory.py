@@ -3470,7 +3470,7 @@ class Trajectory:
         for iS in frames:
             print(f'Extracting boundary library from frame {iS}')
             indframe=np.where(self.cells_frameSet==iS)[0]
-            border_dict=get_border_properties_dict(self,iS,cell_states=cell_states,secretion_rates=secretion_rates,surface_fmask_channels=surface_fmask_channels,surface_states_baseid=surface_states_baseid,border_resolution=border_resolution,vdist_scale=vdist_scale,visual=visual)
+            border_dict=self.get_border_properties_dict(iS,cell_states=cell_states,secretion_rates=secretion_rates,surface_fmask_channels=surface_fmask_channels,surface_states_baseid=surface_states_baseid,border_resolution=border_resolution,vdist_scale=vdist_scale,visual=visual)
             if visual:
                 plt.show()
             indcells_boundary=np.where(np.isin(border_dict['global_index'],indframe))[0]
