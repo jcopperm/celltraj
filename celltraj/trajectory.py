@@ -3109,7 +3109,7 @@ class Trajectory:
                                     print(f'breaking future linkage to cell {ic_child}')
                                     self.linSet[iS+1][self.cells_indSet[ic_child]]=-1
                                 plt.close(fig1)
-                vals_tracks=np.append(vals_fate,vtrack)
+                    vals_tracks=np.append(vals_tracks,vtrack)
                 vfate = input("fate validation (q to quit, -1 can't tell, 0 not fate, 1 is fate):\n")
                 if vfate=='q':
                     if save_h5:
