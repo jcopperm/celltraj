@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "celltraj"
-version = "0.1.61"
+version = "0.1.62"
 authors = [
   { name="Jeremy Copperman", email="copperma@ohsu.edu" },
 ]
@@ -24,8 +24,7 @@ dependencies = [
   "scipy",
   "scikit-image",
   "scikit-learn",
-  "scipy",
-  "pystackreg"
+  "scipy"
 ]
 
 [project.urls]
@@ -34,6 +33,7 @@ Issues = "https://github.com/jcopperm/celltraj/issues"
 
 [project.optional-dependencies]
 dependencies = [
+  "pystackreg",
   "mahotas",
   "umap-learn",
   "pytorch",
@@ -44,7 +44,11 @@ dependencies = [
   "pygpcca",
   "btrack",
   "adjustText",
-  "cmapfile"
+  "cmapfile",
+  "fipy",
+  "pot",
+  "nanomesh",
+  "ray[default]"
 ]
 
 [tool.setuptools]

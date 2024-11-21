@@ -25,8 +25,6 @@ from pystackreg import StackReg
 import pyemma.coordinates as coor
 import numpy.matlib
 import umap
-import btrack
-from btrack.constants import BayesianUpdates
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression
@@ -1579,6 +1577,8 @@ class Trajectory:
 
         >>> lineage_data = traj.get_lineage_btrack(mskchannel=1, visual=True)
         """
+        import btrack
+        from btrack.constants import BayesianUpdates
         nimg=self.nt
         if not hasattr(self,'tf_matrix_set'):
             print('need to run get_stack_trans for image stack registration before tracking')
@@ -2933,6 +2933,8 @@ class Trajectory:
         if hasattr(self,f'vals_{fate_attr}') and restart:
             inds_fate=getattr(self,f'inds_{fate_attr}')
             vals_fate=getattr(self,f'vals_{fate_attr}')
+            if val_tracks:
+                vals_tracks=getattr(self,f'vals_tracks')
             istart=vals_fate.size
             print(f'restarting from {istart} of {indcells.size}')
             if istart==indcells.size:
@@ -2942,6 +2944,8 @@ class Trajectory:
             inds_fate=np.array([]).astype(int)
             vals_fate=np.array([]).astype(int)
             istart=0
+            if val_tracks:
+                vals_tracks=np.array([]).astype(int)
         cblocks=np.zeros((indcells.size,self.ndim,2)).astype(int)
         cell_trajs=[None]*nc
         for icb in range(nc):
@@ -3061,12 +3065,20 @@ class Trajectory:
                     ax[iz,iy].contour(msk_cyto,colors=colors[iy],alpha=alphas[iy])
                     #ax[iz,il].contour(msk_all,levels=np.unique(msk_all),colors='blue')#,alpha=.33)
                     ax[iz,iy].axis('off')
-                    ax[iz,iy].set_title('cell '+str(iic)+' of '+str(nc))
+                    if iz==0 and il==0:
+                        ax[iz,iy].set_title('cell '+str(iic)+' of '+str(nc))
                 #plt.pause(.5)
                 titlestr='fate validation: '
             imgfile=f'{pathto}/{fate_attr}_cell{iic}.png'
             if save_pic:
                 plt.savefig(imgfile)
+                inds_file=f'{pathto}/inds_{fate_attr}.dat'
+                vals_file=f'{pathto}/vals_{fate_attr}.dat'
+                np.savetxt(inds_file,inds_fate,fmt='%d')
+                np.savetxt(vals_file,vals_fate,fmt='%d')
+                if val_tracks:
+                    vals_tracks_file=f'{pathto}/vals_tracks.dat'
+                    np.savetxt(vals_tracks_file,vals_tracks,fmt='%d')
             plt.show()
             inpstatus=True
             while inpstatus:
@@ -3097,15 +3109,19 @@ class Trajectory:
                                     print(f'breaking future linkage to cell {ic_child}')
                                     self.linSet[iS+1][self.cells_indSet[ic_child]]=-1
                                 plt.close(fig1)
+                vals_tracks=np.append(vals_fate,vtrack)
                 vfate = input("fate validation (q to quit, -1 can't tell, 0 not fate, 1 is fate):\n")
                 if vfate=='q':
                     if save_h5:
                         attribute_list=[f'inds_{fate_attr}',f'vals_{fate_attr}',f'indreviewed_{fate_attr}']
                         self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
                         if val_tracks:
-                            attribute_list=['linSet']
+                            attribute_list=['linSet','vals_tracks']
                             self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
-                    return vals_fate,inds_fate
+                    if val_tracks:
+                        return vals_fate,inds_fate,vals_tracks
+                    else:
+                        return vals_fate,inds_fate
                 try:
                     vfate=int(vfate)
                     inpstatus=False
@@ -3121,13 +3137,18 @@ class Trajectory:
             if save_attr:
                 setattr(self,f'inds_{fate_attr}',inds_fate)
                 setattr(self,f'vals_{fate_attr}',vals_fate)
+                if val_tracks:
+                    setattr(self,f'vals_tracks',vals_tracks)
         if save_h5:
             attribute_list=[f'inds_{fate_attr}',f'vals_{fate_attr}',f'indreviewed_{fate_attr}']
             self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
             if val_tracks:
-                attribute_list=['linSet']
+                attribute_list=['linSet','vals_tracks']
                 self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
-        return vals_fate,inds_fate
+        if not val_tracks:
+            return vals_fate,inds_fate
+        else:
+            return vals_fate,inds_fate,vals_tracks
 
     def get_border_properties_dict(self,iS,cell_states=None,secretion_rates=None,surfaces=None,surface_fmask_channels=None,surface_states_baseid=1000,add_label0_surf=True,make_cells_and_surfaces_disjoint=True,border_scale=None,border_resolution=None,vdist_scale=0.3,radius=2.0,order=1,visual=False,z_viz=None):
         """
