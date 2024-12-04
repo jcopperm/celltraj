@@ -1393,7 +1393,7 @@ class Trajectory:
             self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
         return cells_x
 
-    def get_lineage_min_otcost(self,distcut=5.,ot_cost_cut=np.inf,border_scale=None,border_resolution=None,visual=False,save_h5=False,overwrite=False):
+    def get_lineage_min_otcost(self,distcut=5.,ot_cost_cut=np.inf,border_scale=None,border_resolution=None,return_cost=False,visual=False,save_h5=False,overwrite=False):
         """
         Tracks cell lineages over multiple time points using optimal transport cost minimization.
 
@@ -1461,6 +1461,7 @@ class Trajectory:
         msk0=self.get_mask_data(0)[...,self.mskchannel]
         msk0=imprep.transform_image(msk0,self.tf_matrix_set[0,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
         border_dict_prev=spatial.get_border_dict(msk0,scale=border_scale,return_nnindex=False,return_nnvector=False,return_curvature=False)
+        ot_tracking_costs=np.ones(self.cells_indSet.size)*np.inf
         for iS in range(1,nimg):
             indt1=np.where(self.cells_indimgSet==iS)[0]
             labelids_t1=self.cells_labelidSet[indt1]
@@ -1491,7 +1492,11 @@ class Trajectory:
                         for i_neighbor in range(ind_neighbors.size):
                             ic0_labelid=labelids_t0[ind_neighbors[i_neighbor]]
                             border_pts0=border_dict_prev['pts'][border_dict_prev['index']==ic0_labelid,:]
-                            ot_costs[i_neighbor]=spatial.get_ot_dx(border_pts0,border_pts1,return_dx=False,return_cost=True)
+                            try:
+                                ot_costs[i_neighbor]=spatial.get_ot_dx(border_pts0,border_pts1,return_dx=False,return_cost=True)
+                            except Exception as e:
+                                ot_costs[i_neighbor]=np.inf
+                                print(f'Optimal transport frame {iS} cell {ic} neighbor {i_neighbor} failed with error {e}, setting cost to infinity')
                         ind_min_ot_cost=np.argmin(ot_costs)
                         ot_cost=ot_costs[ind_min_ot_cost]
                         ic0=ind_neighbors[ind_min_ot_cost]
@@ -1506,6 +1511,7 @@ class Trajectory:
                 else:
                     lin1[ic]=-1
                 ntracked=np.sum(lin1>-1)
+                ot_tracking_costs[indt1[ic]]=ot_cost
             msk0=msk1.copy()
             border_dict_prev=border_dict.copy()
             del border_dict
@@ -1529,9 +1535,13 @@ class Trajectory:
             linSet[iS]=lin1
         if save_h5:
             self.linSet=linSet
-            attribute_list=['linSet']
+            self.ot_tracking_costs=ot_tracking_costs
+            attribute_list=['linSet','ot_tracking_costs']
             self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
-        return linSet
+        if return_cost:
+            return ot_tracking_costs, linSet
+        else:
+            return linSet
 
     def get_lineage_btrack(self,mskchannel=0,distcut=5.,framewindow=6,visual_1cell=False,visual=False,max_search_radius=100,save_h5=False,overwrite=False):
         """
@@ -2016,6 +2026,85 @@ class Trajectory:
         icell_frame=self.cells_indSet[icell]
         indt1=np.where(self.cells_indimgSet==iS+1)[0]
         lin1=self.linSet[iS+1]
+        ind_children_frame=np.where(lin1==icell_frame)[0]
+        ind_children=indt1[ind_children_frame]
+        return ind_children
+
+    def get_cells_nchildren(self):
+        """
+        Compute the number of children for each cell across all frames.
+
+        This function calculates the number of child cells each parent cell has across consecutive time frames. 
+        The result is an array where each element corresponds to the number of child cells for a given parent 
+        cell in the next frame. Cells with no children will have a count of 0.
+
+        Returns
+        -------
+        cells_nchildren : ndarray
+            An array where each element represents the number of child cells for each cell 
+            in the dataset. The indices correspond to the cell indices in `self.cells_indSet`.
+
+        Notes
+        -----
+        - The function iterates through all time frames (`nt`) to determine the lineage of each cell 
+        using the `linSet` attribute, which holds the lineage information between frames.
+        - Cells that are not tracked between frames (i.e., not assigned a child in the next frame) 
+        will have a count of 0 children.
+        - The method assumes that `linSet`, `cells_indSet`, and `cells_indimgSet` are properly initialized 
+        and populated.
+
+        Examples
+        --------
+        >>> cell_children_counts = model.get_cells_nchildren()
+        >>> print(f'Number of children for each cell: {cell_children_counts}')
+        """
+        cells_nchildren=np.zeros(self.cells_indSet.size).astype(int)
+        for iS in range(1,self.nt):
+            indt1=np.where(self.cells_indimgSet==iS)[0]
+            indt0=np.where(self.cells_indimgSet==iS-1)[0]
+            lin1=self.linSet[iS].copy()
+            inds_tracked,counts_tracked=np.unique(lin1,return_counts=True)
+            if inds_tracked[0]==-1:
+                inds_tracked=inds_tracked[1:]
+                counts_tracked=counts_tracked[1:]
+            cells_nchildren[indt0[inds_tracked]]=counts_tracked
+        return cells_nchildren
+
+    def get_cell_parents(self,icell):
+        """
+        Get the child cells for a given cell in the next frame.
+
+        This function identifies the parent cells of a given child cell `icell` by tracking the lineage data 
+        across consecutive frames. The lineage is determined from the parent cell's index and the lineage set 
+        for the previous frame.
+
+        Parameters
+        ----------
+        icell : int
+            The index of the cell for which to find the children.
+
+        Returns
+        -------
+        ind_children : ndarray
+            An array of indices representing the child cells of the given cell `icell` in the next frame.
+
+        Notes
+        -----
+        - The function looks at the current frame of `icell` and identifies its child cells in the subsequent frame
+        using the lineage tracking set (`linSet`).
+        - This method assumes that the lineage set (`linSet`) and cell indexing (`cells_indimgSet`, `cells_indSet`) 
+        are properly initialized and populated.
+
+        Examples
+        --------
+        >>> cell_index = 10
+        >>> children = model.get_cell_children(cell_index)
+        >>> print(f'Children of cell {cell_index}: {children}')
+        """
+        iS=self.cells_indimgSet[icell]
+        icell_frame=self.cells_indSet[icell]
+        indt1=np.where(self.cells_indimgSet==iS)[0]
+        lin1=self.linSet[iS]
         ind_children_frame=np.where(lin1==icell_frame)[0]
         ind_children=indt1[ind_children_frame]
         return ind_children
@@ -2870,7 +2959,7 @@ class Trajectory:
                 S_r[indcomm_ctraj1[j]]=np.sum(np.divide(S2[inds],d_r[inds]))
         return S_r
 
-    def manual_fate_validation(self,indcells,fate_attr,trajl_future=2,trajl_past=2,restart=True,val_tracks=True,rep_channel=2,bf_channel=0,nuc_channel=1,msk_channel=0,pathto='./',save_pic=False,boundary_expansion=[1,40,40],save_attr=True,save_h5=False,overwrite=False):
+    def manual_fate_validation(self,indcells,fate_attr,trajl_future=2,trajl_past=2,stride=1,restart=False,val_tracks=False,rep_channel=2,bf_channel=0,nuc_channel=1,show_nuc=True,msk_channel=0,projection=False,nuclow=98,nuchigh=100,show_allcells=True,show_linked=True,pathto='./',save_pic=False,boundary_expansion=[1,40,40],save_attr=True,save_h5=False,overwrite=False):
         """
         Manually validates cell fate by reviewing images and tracking data for individual cells over time. 
         Provides an interactive validation interface to assess whether cells follow a specific fate or not.
@@ -2963,7 +3052,7 @@ class Trajectory:
             cell_traj=cell_trajs[iic]
             ic=indcells[iic]
             icells_tree=np.array([ic])
-            n_frame=self.cells_indimgSet[ic]
+            n_frame=self.cells_frameSet[ic]
             img=self.get_image_data(n_frame)
             msk=self.get_mask_data(n_frame)
             cblock=cblocks[iic,...]
@@ -2972,34 +3061,52 @@ class Trajectory:
                 imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
                 mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
                 imgc=np.flip(imgc,axis=0);mskc=np.flip(mskc,axis=0);mskc_relabeled=np.flip(mskc_relabeled,axis=0);
+                if projection:
+                    imgc=np.max(imgc,axis=0);mskc=np.max(mskc,axis=0);mskc_relabeled=np.max(mskc_relabeled,axis=0)
+                    imgc=imgc[np.newaxis,...];mskc=mskc[np.newaxis,...];mskc_relabeled=mskc_relabeled[np.newaxis,...]
             if self.ndim==2:
                 imgc=img[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
                 mskc=msk[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
                 mskc_relabeled=mskc_relabeled[np.newaxis,...]
             imgs=[None]*(trajl_past+trajl_future+1)
             msks=[None]*(trajl_past+trajl_future+1)
+            msks_all=[None]*(trajl_past+trajl_future+1)
+            frames=[None]*(trajl_past+trajl_future+1)
             imgs[0]=imgc
             msks[0]=mskc
+            msks_all[0]=mskc_relabeled
             nzset=[imgs[0].shape[0]]
+            frames[0]=n_frame
             #print(f'setting {0}')
             for ipast in range(1,trajl_past+1):
-                img=self.get_image_data(n_frame-trajl_past+ipast)
-                msk=self.get_mask_data(n_frame-trajl_past+ipast)
+                #iframe=n_frame-stride*trajl_past+stride*ipast
+                iframe=n_frame-stride*trajl_past+stride*(ipast-1)
+                if iframe<0:
+                    iframe=0
+                img=self.get_image_data(iframe)
+                msk=self.get_mask_data(iframe)
                 cblock=cblocks[iic,...]
                 if self.ndim==3:
                     imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
                     mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
                     imgc=np.flip(imgc,axis=0);mskc=np.flip(mskc,axis=0);
+                    if projection:
+                        imgc=np.max(imgc,axis=0);mskc=np.max(mskc,axis=0);
+                        imgc=imgc[np.newaxis,...];mskc=mskc[np.newaxis,...];
                 if self.ndim==2:
                     imgc=img[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
                     mskc=msk[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
                 imgs[ipast]=imgc
-                if cell_traj.size>(trajl_past+1-ipast):
-                    icell_global_past=cell_traj[-trajl_past-1+ipast]
+                #if cell_traj.size>(trajl_past+1-ipast):
+                if cell_traj.size>(trajl_past-ipast):
+                    #icell_global_past=cell_traj[-trajl_past-1+ipast]
+                    icell_global_past=cell_traj[-trajl_past-2+ipast]
                     icell_local_past=self.cells_labelidSet[icell_global_past]
                 else:
                     icell_local_past=np.inf
                 msks[ipast]=mskc==icell_local_past
+                msks_all[ipast]=mskc
+                frames[ipast]=iframe
                 #print(f'setting {ipast}')
                 #print(np.unique(msks[ipast]))
                 nzset.append(imgs[ipast].shape[0])
@@ -3011,29 +3118,39 @@ class Trajectory:
                 #print(icells_future)
                 icells_tree=icells_future.copy()
                 icells_future_local=self.cells_labelidSet[icells_future]
-                img=self.get_image_data(n_frame+ifuture)
-                msk=self.get_mask_data(n_frame+ifuture)
+                iframe=n_frame+stride*ifuture
+                if iframe>self.nt-1:
+                    iframe=self.nt-1
+                img=self.get_image_data(iframe)
+                msk=self.get_mask_data(iframe)
                 cblock=cblocks[iic,...]
                 if self.ndim==3:
                     imgc=img[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
                     mskc=msk[cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],cblock[2,0]:cblock[2,1],...]
                     imgc=np.flip(imgc,axis=0);mskc=np.flip(mskc,axis=0);
+                    if projection:
+                        imgc=np.max(imgc,axis=0);mskc=np.max(mskc,axis=0);
+                        imgc=imgc[np.newaxis,...];mskc=mskc[np.newaxis,...];
                 if self.ndim==2:
                     imgc=img[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
                     mskc=msk[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
                 imgs[ifuture+trajl_past]=imgc
-                mskc[np.logical_not(np.isin(mskc,icells_future_local))]=0
-                msks[ifuture+trajl_past]=mskc
+                mskc_cell=mskc.copy()
+                mskc_cell[np.logical_not(np.isin(mskc_cell,icells_future_local))]=0
+                msks[ifuture+trajl_past]=mskc_cell
+                msks_all[ifuture+trajl_past]=mskc
+                frames[ifuture+trajl_past]=iframe
                 nzset.append(imgs[ifuture+trajl_past].shape[0])
                 #print(f'setting {ifuture+trajl_past}')
+            #print(frames)
             nzmax=np.max(nzset)
             if nzmax<3:
                 nz_plots=3
             else:
                 nz_plots=nzmax
-            vertsize=2*nz_plots
+            vertsize=4*nz_plots
             ny_plots=trajl_future+trajl_past+1
-            hsize=3*ny_plots
+            hsize=4*ny_plots
             #fig=plt.figure(figsize=(12,vertsize))
             fig,ax=plt.subplots(nz_plots,ny_plots,figsize=(hsize,vertsize))
             for iz in range(nz_plots):
@@ -3041,8 +3158,8 @@ class Trajectory:
                     ax[iz,iy].axis('off')
             image_order=np.arange(1,trajl_past+1).tolist()+[0]+np.arange(trajl_past+1,trajl_past+trajl_future+1).tolist()
             colors=['darkred']*(trajl_past)+['red']+['darkred']*(trajl_future)
-            alphas=[0.1]*(trajl_past)+[1.]+[.5]*(trajl_future)
-            colors_all=['red']*(trajl_past)+['black']+['blue']*(trajl_future)
+            alphas=[0.4]*(trajl_past)+[1.]+[.4]*(trajl_future)
+            colors_all=['darkred']*(trajl_past)+['blue']+['green']*(trajl_future)
             alphas_all=[1.]*(trajl_past)+[.33]+[1.]*(trajl_future)
             for iy in range(len(image_order)):
                 il=image_order[iy]
@@ -3051,22 +3168,29 @@ class Trajectory:
                 for iz in range(nz):
                     img_rep=imprep.znorm(imgs[il][iz,:,:,rep_channel])
                     img_bf=imprep.znorm(imgs[il][iz,:,:,bf_channel])
-                    img_nuc=imprep.znorm(imgs[il][iz,:,:,nuc_channel])
+                    img_nuc=imgs[il][iz,:,:,nuc_channel]
                     msk_cyto=mskc_relabeled[iz,:,:,msk_channel]==ic
                     msk_all=msks[il][iz,:,:,msk_channel]
+                    msk_allcells=msks_all[il][iz,:,:,msk_channel]
                     ax[iz,iy].imshow(img_bf,cmap=plt.cm.binary,clim=(-3,3))
-                    if np.percentile(img_nuc,99)>1:
-                        cs=ax[iz,iy].contour(img_nuc,cmap=plt.cm.BuPu,levels=np.linspace(1,np.percentile(img_nuc,99),4),alpha=.2)
-                        cs.cmap.set_over('purple')
+                    if show_nuc:
+                        #cs=ax[iz,iy].contour(img_nuc,cmap=plt.cm.BuPu,levels=np.linspace(np.percentile(img_nuc,nuclow),np.percentile(img_nuc,nuchigh),4),alpha=.3)
+                        #cs.cmap.set_over('purple')
+                        ax[iz,iy].imshow(np.ma.masked_where(img_nuc<np.percentile(img_nuc,nuclow),img_nuc),cmap=plt.cm.BuPu,alpha=.3)
                     #if np.percentile(img_rep,99)>1:
                         #cs=ax[iz,il].contour(img_rep,cmap=plt.cm.YlOrBr_r,levels=np.linspace(1,np.percentile(img_rep,99),4),alpha=.2)
                         #cs.cmap.set_over('yellow')
-                    ax[iz,iy].contour(msk_all,levels=np.unique(msk_all),colors=colors_all[iy],alpha=alphas_all[iy],linewidths=.8)
+                    if show_allcells:
+                        ax[iz,iy].contour(msk_allcells,levels=np.unique(msk_all),colors='blue',alpha=.4,linewidths=.8)
+                    if show_linked:
+                        ax[iz,iy].contour(msk_all,levels=np.unique(msk_all),colors=colors_all[iy],alpha=alphas_all[iy],linewidths=1.0)
                     ax[iz,iy].contour(msk_cyto,colors=colors[iy],alpha=alphas[iy])
                     #ax[iz,il].contour(msk_all,levels=np.unique(msk_all),colors='blue')#,alpha=.33)
                     ax[iz,iy].axis('off')
+                    if iz==0:
+                        ax[iz,iy].set_title(f'frame {frames[il]}')
                     if iz==0 and il==0:
-                        ax[iz,iy].set_title('cell '+str(iic)+' of '+str(nc))
+                        ax[iz,iy].set_title(f'{self.figid} frame {n_frame}, {iic}/{nc})')
                 #plt.pause(.5)
                 titlestr='fate validation: '
             imgfile=f'{pathto}/{fate_attr}_cell{iic}.png'
@@ -3293,7 +3417,7 @@ class Trajectory:
                 surfaces=[None]*len(surface_fmask_channels)
                 surface_label0=np.zeros_like(cell_labels_current).astype(bool)
                 for i_surf in range(len(surface_fmask_channels)):
-                    surfaces[i_surf]=self.get_fmask_data(iS,channel=surface_fmask_channels[surface_fmask_channels[i_surf]])
+                    surfaces[i_surf]=self.get_fmask_data(iS,channel=surface_fmask_channels[i_surf])
                     if make_cells_and_surfaces_disjoint:
                         surfaces[i_surf][cell_labels_current>0]=0
                     surface_label0=np.logical_or(surface_label0,np.logical_not(surfaces[i_surf]))
@@ -3472,7 +3596,7 @@ class Trajectory:
                 print('both cell index and frames provided, using frames implied from cell index')
             frames=np.unique(self.cells_frameSet[indcells])
         if cell_states is None:
-            cell_states=np.ones(np.max(indcells)).astype(int)
+            cell_states=np.ones(np.max(indcells)+1).astype(int)
         if surface_states_baseid is None:
             surface_states_baseid=np.max(cell_states)+1
         global_index=[]
@@ -3515,6 +3639,8 @@ class Trajectory:
             nn_pts_states.append(border_dict['nn_pts_state'][indcells_boundary,:,:])
             if secretion_rates is not None:
                 vdists.append(border_dict['vdist'][indcells_boundary])
+        if secretion_rates is None:
+            secretion_rates=0.
         boundary_library={'indcells':indcells,
                         'cell_states':cell_states,
                         'secretion_rates':secretion_rates,
@@ -3533,7 +3659,7 @@ class Trajectory:
         boundary_library['nn_pts_states']=np.vstack(nn_pts_states)
         boundary_library['nn_states']=np.concatenate(nn_states)
         boundary_library['surf_vars']=np.concatenate(surf_vars)
-        if secretion_rates is not None:
+        if np.any(secretion_rates != 0.):
             boundary_library['vdists']=np.concatenate(vdists)
         if save_h5:
             self.boundary_library=boundary_library

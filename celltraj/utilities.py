@@ -117,6 +117,8 @@ def recursively_save_dict_contents_to_group( h5file, path, dic):
         if isinstance(item, list): #c
             try:
                 item = np.array(item)
+                if item.dtype == np.object_:
+                    raise ValueError("Input contains ragged nested sequences or is not a proper multi-dimensional array")
             except Exception as e:
                 print(f'{e} , trying elements one-by-one')
                 for index, element in enumerate(item): #c
