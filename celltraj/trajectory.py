@@ -1459,7 +1459,7 @@ class Trajectory:
         indt0=np.where(self.cells_indimgSet==0)[0]
         linSet[0]=np.ones(indt0.size).astype(int)*-1
         msk0=self.get_mask_data(0)[...,self.mskchannel]
-        msk0=imprep.transform_image(msk0,self.tf_matrix_set[0,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
+        msk0=imprep.transform_image(msk0,self.tf_matrix_set[0,...],inverse_tform=True,pad_dims=self.pad_dims) #changed from inverse_tform=False, 17dec24
         border_dict_prev=spatial.get_border_dict(msk0,scale=border_scale,return_nnindex=False,return_nnvector=False,return_curvature=False)
         ot_tracking_costs=np.ones(self.cells_indSet.size)*np.inf
         for iS in range(1,nimg):
@@ -1467,7 +1467,7 @@ class Trajectory:
             labelids_t1=self.cells_labelidSet[indt1]
             xt1=self.x[indt1,:]
             msk1=self.get_mask_data(iS)[...,self.mskchannel]
-            msk1=imprep.transform_image(msk1,self.tf_matrix_set[iS,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
+            msk1=imprep.transform_image(msk1,self.tf_matrix_set[iS,...],inverse_tform=True,pad_dims=self.pad_dims) #changed from inverse_tform=False, 17dec24
             border_dict=spatial.get_border_dict(msk1,scale=border_scale,return_nnindex=False,return_nnvector=False,return_curvature=False,states=None)
             indt0=np.where(self.cells_indimgSet==iS-1)[0]
             labelids_t0=self.cells_labelidSet[indt0]
@@ -1602,7 +1602,8 @@ class Trajectory:
             msk=self.get_mask_data(im)
             if self.nmaskchannels>0:
                 msk=msk[...,mskchannel]
-            mskT=imprep.transform_image(msk,self.tf_matrix_set[im,...],inverse_tform=False,pad_dims=None) #changed from inverse_tform=True, 9may24
+            mskT=imprep.transform_image(msk,self.tf_matrix_set[im,...],inverse_tform=True,pad_dims=None) #changed from inverse_tform=True, 9may24
+            #changed back, 17dec24
             segmentation[im,...]=mskT
             print('loading and translating mask '+str(im))
         linSet=[None]*nimg
@@ -1771,8 +1772,8 @@ class Trajectory:
             if visual:
                 msk1=self.get_mask_data(iS)[...,self.mskchannel]
                 msk0=self.get_mask_data(iS-1)[...,self.mskchannel]
-                msk1=imprep.transform_image(msk1,self.tf_matrix_set[iS,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
-                msk0=imprep.transform_image(msk0,self.tf_matrix_set[iS-1,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
+                msk1=imprep.transform_image(msk1,self.tf_matrix_set[iS,...],inverse_tform=True,pad_dims=self.pad_dims) #changed from inverse_tform=False, 17dec24
+                msk0=imprep.transform_image(msk0,self.tf_matrix_set[iS-1,...],inverse_tform=True,pad_dims=self.pad_dims) #changed from inverse_tform=False, 17dec24
                 if self.ndim==3:
                     vmsk1=np.max(msk1,axis=0)
                     vmsk0=np.max(msk0,axis=0)
@@ -3098,9 +3099,11 @@ class Trajectory:
                     mskc=msk[np.newaxis,cblock[0,0]:cblock[0,1],cblock[1,0]:cblock[1,1],...]
                 imgs[ipast]=imgc
                 #if cell_traj.size>(trajl_past+1-ipast):
-                if cell_traj.size>(trajl_past-ipast):
+                icelltraj=-stride*trajl_past+stride*(ipast-1)-1
+                if cell_traj.size>-icelltraj:
                     #icell_global_past=cell_traj[-trajl_past-1+ipast]
-                    icell_global_past=cell_traj[-trajl_past-2+ipast]
+                    #icell_global_past=cell_traj[-trajl_past-2+ipast] #updated 12/1/24
+                    icell_global_past=cell_traj[icelltraj] #updated 12/12/24
                     icell_local_past=self.cells_labelidSet[icell_global_past]
                 else:
                     icell_local_past=np.inf
