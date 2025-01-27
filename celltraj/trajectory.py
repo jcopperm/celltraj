@@ -3427,7 +3427,7 @@ class Trajectory:
                 if add_label0_surf:
                     surfaces.append(np.logical_and(cell_labels_current==0,surface_label0))
                 n_surf=len(surfaces)
-                surface_states=np.arange(surface_states_baseid,surface_states_baseid+n_surf).astype(int)
+                surface_states=np.arange(surface_states_baseid,surface_states_baseid+n_surf+1).astype(int) #added +1 23jan25
             else:
                 n_surf=0
                 surface_states=None
