@@ -3418,16 +3418,17 @@ class Trajectory:
         if surfaces is None:
             if surface_fmask_channels is not None:
                 surfaces=[None]*len(surface_fmask_channels)
-                surface_label0=np.zeros_like(cell_labels_current).astype(bool)
+                surface_label0=cell_labels_current==0 #np.zeros_like(cell_labels_current).astype(bool)
                 for i_surf in range(len(surface_fmask_channels)):
                     surfaces[i_surf]=self.get_fmask_data(iS,channel=surface_fmask_channels[i_surf])
                     if make_cells_and_surfaces_disjoint:
                         surfaces[i_surf][cell_labels_current>0]=0
-                    surface_label0=np.logical_or(surface_label0,np.logical_not(surfaces[i_surf]))
+                surface_label0=np.all(np.logical_not(np.array(surfaces)).astype(bool),axis=0)
+                #plt.figure();plt.imshow(np.min(surface_label0,axis=0))
                 if add_label0_surf:
                     surfaces.append(np.logical_and(cell_labels_current==0,surface_label0))
                 n_surf=len(surfaces)
-                surface_states=np.arange(surface_states_baseid,surface_states_baseid+n_surf+1).astype(int) #added +1 23jan25
+                surface_states=np.arange(surface_states_baseid,surface_states_baseid+n_surf).astype(int)
             else:
                 n_surf=0
                 surface_states=None
@@ -3465,6 +3466,8 @@ class Trajectory:
             vdist=spatial.get_secreted_ligand_density(cell_labels_current,scale=vdist_scale,secretion_rate=secretion_rates_labelid,D=None,micron_per_pixel=border_resolution,visual=False)
         else:
             vdist=None
+        print(f'cell states {cell_states_labelid}, surface states {surface_states}')
+        #print(f'{np.unique(cell_labels_current)}')
         border_dict=spatial.get_border_properties(cell_labels_current,cell_states=cell_states_labelid,surfaces=surfaces,surface_states=surface_states,cell_labels_next=cell_labels1,lin_next=lin_next,cell_labels_prev=cell_labels0,lin_prev=lin_prev,vdist=vdist,border_scale=border_scale,order=order)
         global_cellinds=np.ones(border_dict['pts'].shape[0]).astype(int)*-1
         indcells=np.where(np.isin(border_dict['states'],np.unique(cell_states_current)))[0]

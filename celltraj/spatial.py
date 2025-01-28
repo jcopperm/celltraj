@@ -98,6 +98,7 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
     border_dict['index']=border_index
     border_states=states[border_index]
     border_dict['states']=border_states
+    #print(f'available states {states}, assigned states {np.unique(border_states)}')
     if return_nnindex:
         contact_labels=features.get_contact_labels(labels,radius=radius)
         contact_inds=contact_labels[border>0]
@@ -136,6 +137,7 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
             stateset=np.unique(states)
             for istate in stateset:
                 inds_states[istate]=np.where(border_dict['states']==istate)[0]
+                print(f'state {istate} assigned {inds_states[istate].size}')
                 #if inds_states[istate].size>0:
                     #knn_states[istate] = sklearn.neighbors.NearestNeighbors(n_neighbors=1, radius=1.,algorithm='ball_tree').fit(border_pts[inds_states[istate]])
             for i in iset:
@@ -144,6 +146,7 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
                 if indi is not None:
                     for istate in stateset:
                         indistate=np.setdiff1d(inds_states[istate],indi)
+                        print(f'{indi.size} state {istate} {indistate.size} of {inds_states[istate].size}')
                         if indistate.size>0:
                             knn_states = sklearn.neighbors.NearestNeighbors(n_neighbors=1, radius=1.,algorithm='ball_tree').fit(border_pts[indistate])
                             borderij_pts=border_pts[indi]
@@ -1486,6 +1489,7 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
     max_cellid=np.max(labels)
     cell_ids=np.unique(labels)
     cell_ids=cell_ids[cell_ids>0]
+    #print(f'cell_ids {cell_ids}')
     n_moments=sum(2 * l + 1 for l in range(order + 1))
     if cell_states is None:
         cell_states=[1]*max_cellid
@@ -1497,15 +1501,18 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
     else:
         n_surf=len(surfaces)
         surface_ids=(np.arange(n_surf)+max_cellid+1).astype(int)
+        #print(f'surface ids {surface_ids}')
         if surface_states is None:
             surface_states=(np.arange(n_surf)+max_cell_state+1).astype(int)
         else:
             if np.intersect1d(cell_states,surface_states).size>0:
                 print('Conflicting labels between cell states and surface states provided')
-        nn_states=cell_states.copy()
         cell_states=np.append(cell_states,surface_states)
+        nn_states=cell_states.copy()
+        #print(f'cell states {cell_states}')
         surface_overlay=surfaces[0].copy()
         for i_surf in range(n_surf):
+            print(f'surf {i_surf} sum {np.sum(surfaces[i_surf])}')
             overlapping=np.sum(np.logical_and(labels>0,surfaces[i_surf]))/np.sum(labels>0)
             if overlapping>0:
                 print(f'Warning: {overlapping:.2e} fraction overlap between surface {i_surf} and cell labels, cell labels will overlay surface labels')
@@ -1515,6 +1522,9 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
                     print(f'Warning: {overlapping_surf:.2e} fraction overlap between surface {i_surf} and previous surfaces, {i_surf} will overlay')
             surface_overlay=np.logical_or(surface_overlay,surfaces[i_surf])
             labels[surfaces[i_surf]]=surface_ids[i_surf]
+            #plt.figure();plt.imshow(np.max(surfaces[i_surf],axis=0))
+    #print(f'!!! {surface_states}')
+    #print(f'!!!{np.unique(labels)}')
     border_dict=get_border_dict(labels,states=cell_states,nn_states=nn_states,vdist=vdist,radius=radius,scale=border_scale)
     contact_properties=np.ones((max_cellid+1,np.max(cell_states)+1,1+n_moments))*np.nan
     border_properties_list=[None]*(1+n_moments)
