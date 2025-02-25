@@ -1596,10 +1596,16 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
                         for m in range(-l,l+1):
                             dx_next_properties[cellid,i_prop]=Phi.multipole_moments[l,m]
                             i_prop=i_prop+1
-        border_dict['dh_next']=get_surface_gradvariance(border_dict['pts'],border_dx_next)
-        border_dict['border_dx_next']=border_dx_next
-        border_dict['inds_ot_next']=inds_ot_next
-        border_dict['dx_next_properties']=dx_next_properties
+        dh_next=get_surface_gradvariance(border_dict['pts'],border_dx_next)
+    else:
+        dx_next_properties=np.ones((max_cellid+1,1+n_moments))*np.nan
+        border_dx_next=np.ones_like(border_dict['pts'])*np.nan
+        inds_ot_next=np.ones(border_dict['pts'].shape[0]).astype(int)*-1
+        dh_next=np.ones(border_dict['pts'].shape[0])*np.nan
+    border_dict['dh_next']=get_surface_gradvariance(border_dict['pts'],border_dx_next)
+    border_dict['border_dx_next']=border_dx_next
+    border_dict['inds_ot_next']=inds_ot_next
+    border_dict['dx_next_properties']=dx_next_properties
     if cell_labels_prev is not None:
         border_dict_prev=get_border_dict(cell_labels_prev,states=None,scale=border_scale,return_nnindex=False,return_nnvector=False,return_curvature=False)
         dx_prev_properties=np.ones((max_cellid+1,1+n_moments))*np.nan
@@ -1636,10 +1642,16 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
                         for m in range(-l,l+1):
                             dx_prev_properties[cellid,i_prop]=Phi.multipole_moments[l,m]
                             i_prop=i_prop+1
-        border_dict['dh_prev']=get_surface_gradvariance(border_dict['pts'],border_dx_prev)
-        border_dict['border_dx_prev']=border_dx_prev
-        border_dict['inds_ot_prev']=inds_ot_prev
-        border_dict['dx_prev_properties']=dx_prev_properties
+        dh_prev=get_surface_gradvariance(border_dict['pts'],border_dx_prev)
+    else:
+        dx_prev_properties=np.ones((max_cellid+1,1+n_moments))*np.nan
+        border_dx_prev=np.ones_like(border_dict['pts'])*np.nan
+        inds_ot_prev=np.ones(border_dict['pts'].shape[0]).astype(int)*-1
+        dh_prev=np.ones(border_dict['pts'].shape[0])*np.nan
+    border_dict['dh_prev']=dh_prev
+    border_dict['border_dx_prev']=border_dx_prev
+    border_dict['inds_ot_prev']=inds_ot_prev
+    border_dict['dx_prev_properties']=dx_prev_properties
     if return_border_properties_list:
         return border_dict,border_properties_list
     else:

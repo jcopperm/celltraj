@@ -2761,7 +2761,7 @@ class Trajectory:
             ip1=self.get_cell_trajectory(i1,n_hist=1)[-2]
             dx1=self.x[i1,:]-self.x[ip1,:]
         except:
-            dx1=np.ones(2)*np.nan
+            dx1=np.ones(self.ndim)*np.nan
         return dx1
 
     def get_secreted_ligand_density(self,frame,mskchannel=0,scale=2.,npad=None,indz_bm=0,secretion_rate=1.0,D=None,flipz=False,visual=False):
@@ -3385,15 +3385,17 @@ class Trajectory:
             border_scalexy=self.micron_per_pixel/border_resolution
             border_scale=[border_scalexy*self.zscale,border_scalexy,border_scalexy]  
             print(f'scaling border to {border_scale}')
-        if iS<np.max(self.cells_frameSet):
-            indt1=np.where(self.cells_indimgSet==iS+1)[0]
+        indt0=np.where(self.cells_indimgSet==iS-1)[0]
+        indt1=np.where(self.cells_indimgSet==iS+1)[0]
+        if iS<np.max(self.cells_frameSet) and indt1.size!=0:
+            #indt1=np.where(self.cells_indimgSet==iS+1)[0]
             labelids_t1=self.cells_labelidSet[indt1]
             cell_labels1=self.get_mask_data(iS+1)[...,self.mskchannel]
             cell_labels1=imprep.transform_image(cell_labels1,self.tf_matrix_set[iS+1,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
         else:
             cell_labels1=None
-        if iS>np.min(self.cells_frameSet):
-            indt0=np.where(self.cells_indimgSet==iS-1)[0]
+        if iS>np.min(self.cells_frameSet) and indt0.size!=0:
+            #indt0=np.where(self.cells_indimgSet==iS-1)[0]
             labelids_t0=self.cells_labelidSet[indt0]
             cell_labels0=self.get_mask_data(iS-1)[...,self.mskchannel]
             cell_labels0=imprep.transform_image(cell_labels0,self.tf_matrix_set[iS-1,...],inverse_tform=False,pad_dims=self.pad_dims) #changed from inverse_tform=True, 9may24
@@ -3436,7 +3438,7 @@ class Trajectory:
             n_surf=len(surfaces)
             surface_states=np.ones(surface_states_baseid).astype(int)*-1
             surface_states=np.append(surface_states,np.arange(surface_states_baseid,surface_states_baseid+n_surf).astype(int))
-        if iS<np.max(self.cells_frameSet):
+        if iS<np.max(self.cells_frameSet) and indt1.size!=0:
             lin1=self.linSet[iS+1]
             lin_next = [[] for _ in range(max_cellid_current + 1)]
             for ilabel in range(lin1.size):
@@ -3446,7 +3448,7 @@ class Trajectory:
                     lin_next[i_current].append(i_next)
         else:
             lin_next=None
-        if iS>np.min(self.cells_frameSet):
+        if iS>np.min(self.cells_frameSet) and indt0.size!=0:
             lin0=self.linSet[iS]
             lin_prev = [[] for _ in range(max_cellid_current + 1)]
             for ilabel in range(lin0.size):
@@ -3601,6 +3603,9 @@ class Trajectory:
             if frames is not None:
                 print('both cell index and frames provided, using frames implied from cell index')
             frames=np.unique(self.cells_frameSet[indcells])
+        if indcells.size==0:
+            print(f'no cells found')
+            return 1
         if cell_states is None:
             cell_states=np.ones(np.max(indcells)+1).astype(int)
         if surface_states_baseid is None:
@@ -3621,30 +3626,32 @@ class Trajectory:
         for iS in frames:
             print(f'Extracting boundary library from frame {iS}')
             indframe=np.where(self.cells_frameSet==iS)[0]
-            border_dict=self.get_border_properties_dict(iS,cell_states=cell_states,secretion_rates=secretion_rates,surface_fmask_channels=surface_fmask_channels,surface_states_baseid=surface_states_baseid,border_resolution=border_resolution,vdist_scale=vdist_scale,visual=visual)
-            if visual:
-                plt.show()
-            indcells_boundary=np.where(np.isin(border_dict['global_index'],indframe))[0]
-            global_index.append(border_dict['global_index'][indcells_boundary])
-            states.append(border_dict['states'][indcells_boundary])
-            pts.append(border_dict['pts'][indcells_boundary,:])
-            if iS>np.min(self.cells_frameSet):
-                dx_prevs.append(border_dict['border_dx_prev'][indcells_boundary,:])
-                surf_vars.append(border_dict['dh_prev'][indcells_boundary])
-            else:
-                dx_prevs.append(np.ones((indcells_boundary.size,self.ndim))*np.nan)
-                surf_vars.append(np.ones(indcells_boundary.size)*np.nan)
-            if iS<np.max(self.cells_frameSet):
-                dx_nexts.append(border_dict['border_dx_next'][indcells_boundary,:])
-            else:
-                dx_nexts.append(np.ones((indcells_boundary.size,self.ndim))*np.nan)
-            surface_normals.append(border_dict['n'][indcells_boundary,:])
-            curvatures.append(border_dict['c'][indcells_boundary])
-            nn_pts.append(border_dict['nn_pts'][indcells_boundary,:])
-            nn_states.append(border_dict['nn_states'][indcells_boundary])
-            nn_pts_states.append(border_dict['nn_pts_state'][indcells_boundary,:,:])
-            if secretion_rates is not None:
-                vdists.append(border_dict['vdist'][indcells_boundary])
+            print(f'{indframe.size} cells in frame')
+            if indframe.size>0:
+                border_dict=self.get_border_properties_dict(iS,cell_states=cell_states,secretion_rates=secretion_rates,surface_fmask_channels=surface_fmask_channels,surface_states_baseid=surface_states_baseid,border_resolution=border_resolution,vdist_scale=vdist_scale,visual=visual)
+                if visual:
+                    plt.show()
+                indcells_boundary=np.where(np.isin(border_dict['global_index'],indframe))[0]
+                global_index.append(border_dict['global_index'][indcells_boundary])
+                states.append(border_dict['states'][indcells_boundary])
+                pts.append(border_dict['pts'][indcells_boundary,:])
+                if iS>np.min(self.cells_frameSet):
+                    dx_prevs.append(border_dict['border_dx_prev'][indcells_boundary,:])
+                    surf_vars.append(border_dict['dh_prev'][indcells_boundary])
+                else:
+                    dx_prevs.append(np.ones((indcells_boundary.size,self.ndim))*np.nan)
+                    surf_vars.append(np.ones(indcells_boundary.size)*np.nan)
+                if iS<np.max(self.cells_frameSet):
+                    dx_nexts.append(border_dict['border_dx_next'][indcells_boundary,:])
+                else:
+                    dx_nexts.append(np.ones((indcells_boundary.size,self.ndim))*np.nan)
+                surface_normals.append(border_dict['n'][indcells_boundary,:])
+                curvatures.append(border_dict['c'][indcells_boundary])
+                nn_pts.append(border_dict['nn_pts'][indcells_boundary,:])
+                nn_states.append(border_dict['nn_states'][indcells_boundary])
+                nn_pts_states.append(border_dict['nn_pts_state'][indcells_boundary,:,:])
+                if secretion_rates is not None:
+                    vdists.append(border_dict['vdist'][indcells_boundary])
         if secretion_rates is None:
             secretion_rates=0.
         boundary_library={'indcells':indcells,
