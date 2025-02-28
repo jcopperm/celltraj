@@ -3635,6 +3635,11 @@ class Trajectory:
                 global_index.append(border_dict['global_index'][indcells_boundary])
                 states.append(border_dict['states'][indcells_boundary])
                 pts.append(border_dict['pts'][indcells_boundary,:])
+                if not 'border_dx_prev' in border_dict:
+                    border_dict['border_dx_prev']=np.ones_like(border_dict['pts'])*np.nan
+                    border_dict['dh_prev']=np.ones_like(border_dict['states']).astype(float)*np.nan
+                if not 'border_dx_next' in border_dict:
+                    border_dict['border_dx_next']=np.ones_like(border_dict['pts'])*np.nan
                 if iS>np.min(self.cells_frameSet):
                     dx_prevs.append(border_dict['border_dx_prev'][indcells_boundary,:])
                     surf_vars.append(border_dict['dh_prev'][indcells_boundary])
