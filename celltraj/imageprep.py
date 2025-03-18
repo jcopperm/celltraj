@@ -703,10 +703,11 @@ def get_labeled_mask(b_imgr,imgM=None,apply_watershed=False,fill_holes=True,dist
         if b_imgr.ndim==2:
             footprint=np.ones((dist_footprint, dist_footprint))
         if b_imgr.ndim==3:
+            footprint=np.ones((dist_footprint, dist_footprint,dist_footprint))
             if zscale is None:
                 zscale=1.
         d_imgr = ndimage.distance_transform_edt(b_imgr)
-        local_maxi = peak_local_max(d_imgr, indices=False, footprint=footprint, labels=masks_nuc,num_peaks_per_label=2)
+        local_maxi = peak_local_max(d_imgr, footprint=footprint, labels=masks_nuc,num_peaks_per_label=2)
         markers_nuc = ndimage.label(local_maxi)[0]
         masks_nuc = watershed(-d_imgr, markers=markers_nuc, mask=b_imgr)
     return masks_nuc
