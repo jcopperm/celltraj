@@ -1,22 +1,20 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>celltraj.features &mdash; celltraj 0.1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -73,33 +71,33 @@
            <div itemprop="articleBody">
              
   <h1>Source code for celltraj.features</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">numpy.matlib</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">pandas</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">scipy</span>
-<span class="kn">import</span> <span class="nn">pyemma.coordinates</span> <span class="k">as</span> <span class="nn">coor</span>
-<span class="kn">import</span> <span class="nn">imageprep</span> <span class="k">as</span> <span class="nn">imprep</span>
-<span class="kn">import</span> <span class="nn">utilities</span>
-<span class="kn">from</span> <span class="nn">adjustText</span> <span class="kn">import</span> <span class="n">adjust_text</span>
-<span class="kn">import</span> <span class="nn">umap</span>
-<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
-<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">csr_matrix</span>
-<span class="kn">from</span> <span class="nn">scipy.sparse.csgraph</span> <span class="kn">import</span> <span class="n">connected_components</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
-<span class="kn">import</span> <span class="nn">h5py</span>
-<span class="kn">import</span> <span class="nn">skimage.segmentation</span>
-<span class="kn">import</span> <span class="nn">skimage.measure</span>
-<span class="kn">import</span> <span class="nn">mahotas</span>
-<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.matlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyemma.coordinates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">coor</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">imageprep</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imprep</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">utilities</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">adjustText</span><span class="w"> </span><span class="kn">import</span> <span class="n">adjust_text</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">umap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">csr_matrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse.csgraph</span><span class="w"> </span><span class="kn">import</span> <span class="n">connected_components</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skimage.segmentation</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skimage.measure</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mahotas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.decomposition</span><span class="w"> </span><span class="kn">import</span> <span class="n">PCA</span>
 <span class="n">np</span><span class="o">.</span><span class="n">matlib</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">matlib</span>
 
 <div class="viewcode-block" id="featSize">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.featSize">[docs]</a>
-<span class="k">def</span> <span class="nf">featSize</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">featSize</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the size of a region specified by a mask.</span>
 
@@ -134,7 +132,7 @@
 
 <div class="viewcode-block" id="meanIntensity">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.meanIntensity">[docs]</a>
-<span class="k">def</span> <span class="nf">meanIntensity</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">meanIntensity</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the mean intensity of a specified region in an image, based on a given mask.</span>
 
@@ -168,7 +166,7 @@
 
 <div class="viewcode-block" id="totalIntensity">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.totalIntensity">[docs]</a>
-<span class="k">def</span> <span class="nf">totalIntensity</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">totalIntensity</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the total intensity of a specified region within an image, using a mask to define the region.</span>
 
@@ -202,7 +200,7 @@
 
 <div class="viewcode-block" id="featZernike">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.featZernike">[docs]</a>
-<span class="k">def</span> <span class="nf">featZernike</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">featZernike</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the Zernike moments for a specified region within an image, quantifying the region&#39;s shape and texture.</span>
 <span class="sd">    This method uses Zernike polynomials to create a set of features that are invariant to rotation, making them</span>
@@ -263,7 +261,7 @@
 
 <div class="viewcode-block" id="featHaralick">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.featHaralick">[docs]</a>
-<span class="k">def</span> <span class="nf">featHaralick</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">featHaralick</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes Haralick texture features for a specified region within an image, offering a statistical</span>
 <span class="sd">    view of texture based on the image&#39;s gray-level co-occurrence matrix (GLCM).</span>
@@ -333,7 +331,7 @@
 
 <div class="viewcode-block" id="boundaryFFT">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.boundaryFFT">[docs]</a>
-<span class="k">def</span> <span class="nf">boundaryFFT</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">ncomp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nth</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">boundaryFFT</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">ncomp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nth</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the normalized Fast Fourier Transform (FFT) of the boundary of a mask. The boundary is first</span>
 <span class="sd">    represented in polar coordinates (radius as a function of angle), and the FFT is used to capture the</span>
@@ -419,7 +417,7 @@
 
 <div class="viewcode-block" id="featBoundary">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.featBoundary">[docs]</a>
-<span class="k">def</span> <span class="nf">featBoundary</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">featBoundary</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates boundary-based Fourier Transform features for specified regions within an image.</span>
 <span class="sd">    This function applies a Fourier Transform to the boundaries of regions defined by `regionmask`</span>
@@ -479,7 +477,7 @@
 
 <div class="viewcode-block" id="featNucBoundary">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.featNucBoundary">[docs]</a>
-<span class="k">def</span> <span class="nf">featNucBoundary</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">featNucBoundary</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes Fourier Transform features from the boundaries of a specified region within an intensity image. </span>
 <span class="sd">    This function is primarily used to analyze the structural properties of nuclear boundaries in biological </span>
@@ -537,7 +535,7 @@
 
 <div class="viewcode-block" id="get_cc_cs_border">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.get_cc_cs_border">[docs]</a>
-<span class="k">def</span> <span class="nf">get_cc_cs_border</span><span class="p">(</span><span class="n">mskcell</span><span class="p">,</span><span class="n">fmskcell</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cc_cs_border</span><span class="p">(</span><span class="n">mskcell</span><span class="p">,</span><span class="n">fmskcell</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Identifies core-cell (cc) and cell-surrounding (cs) borders within a given cell mask by applying</span>
 <span class="sd">    morphological operations and boundary detection.</span>
@@ -617,7 +615,7 @@
 
 <div class="viewcode-block" id="boundaryCB_FFT">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.boundaryCB_FFT">[docs]</a>
-<span class="k">def</span> <span class="nf">boundaryCB_FFT</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">fmsk</span><span class="p">,</span><span class="n">ncomp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nth</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">boundaryCB_FFT</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">fmsk</span><span class="p">,</span><span class="n">ncomp</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nth</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span><span class="n">bordersize</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Fourier Transform of boundary data for a mask distinguishing between core-cell</span>
 <span class="sd">    and cell-surrounding regions, encoding the shape information in frequency space.</span>
@@ -716,7 +714,7 @@
 
 <div class="viewcode-block" id="featBoundaryCB">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.featBoundaryCB">[docs]</a>
-<span class="k">def</span> <span class="nf">featBoundaryCB</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">featBoundaryCB</span><span class="p">(</span><span class="n">regionmask</span><span class="p">,</span> <span class="n">intensity</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes boundary-based Fourier Transform features for a region mask distinguishing between core-cell</span>
 <span class="sd">    and surrounding areas by using intensity to define active regions. This function applies a binary erosion</span>
@@ -775,7 +773,7 @@
 
 <div class="viewcode-block" id="apply3d">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.apply3d">[docs]</a>
-<span class="k">def</span> <span class="nf">apply3d</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">function2d</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">function2d_args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply3d</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">function2d</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">function2d_args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies a 2D function across each slice of a 3D image stack or directly to a 2D image, allowing for</span>
 <span class="sd">    specific operations like filtering or transformation to be uniformly applied across all spatial slices.</span>
@@ -831,7 +829,7 @@
 
 <div class="viewcode-block" id="get_contact_boundaries">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.get_contact_boundaries">[docs]</a>
-<span class="k">def</span> <span class="nf">get_contact_boundaries</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">boundary_only</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_contact_boundaries</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">boundary_only</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Identifies contact boundaries within labeled regions, highlighting the edges where different labels meet.</span>
 <span class="sd">    This function can apply a dilation operation to expand the regions before comparing them, which helps in</span>
@@ -900,7 +898,7 @@
 
 <div class="viewcode-block" id="get_contact_labels">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.get_contact_labels">[docs]</a>
-<span class="k">def</span> <span class="nf">get_contact_labels</span><span class="p">(</span><span class="n">labels0</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_contact_labels</span><span class="p">(</span><span class="n">labels0</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Identifies and returns labels that are in contact with each label in a segmented image. This function</span>
 <span class="sd">    uses morphological dilation to find neighboring regions and constructs a mask that indicates the labels</span>
@@ -981,7 +979,7 @@
 
 <div class="viewcode-block" id="get_neighbor_feature_map">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.get_neighbor_feature_map">[docs]</a>
-<span class="k">def</span> <span class="nf">get_neighbor_feature_map</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">neighbor_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">contact_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span><span class="o">**</span><span class="n">neighbor_function_args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_neighbor_feature_map</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">neighbor_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">contact_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span><span class="o">**</span><span class="n">neighbor_function_args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Constructs a map where each cell&#39;s pixels are annotated with a feature value that quantifies some aspect of</span>
 <span class="sd">    its relationship with neighboring cells. This is typically used in image analysis to evaluate how cells or</span>
@@ -1041,7 +1039,7 @@
 
 <div class="viewcode-block" id="get_pca_fromdata">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.features.get_pca_fromdata">[docs]</a>
-<span class="k">def</span> <span class="nf">get_pca_fromdata</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">var_cutoff</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pca_fromdata</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">var_cutoff</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A wrapper for sklearn Principal Component Analysis (PCA) on the provided dataset.</span>
 

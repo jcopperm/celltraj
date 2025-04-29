@@ -1,22 +1,20 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>celltraj.spatial &mdash; celltraj 0.1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -73,29 +71,29 @@
            <div itemprop="articleBody">
              
   <h1>Source code for celltraj.spatial</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">trajectory</span>
-<span class="kn">import</span> <span class="nn">imageprep</span> <span class="k">as</span> <span class="nn">imprep</span>
-<span class="kn">import</span> <span class="nn">features</span>
-<span class="kn">import</span> <span class="nn">model</span>
-<span class="kn">import</span> <span class="nn">utilities</span>
-<span class="kn">import</span> <span class="nn">pyemma.coordinates</span> <span class="k">as</span> <span class="nn">coor</span>
-<span class="kn">import</span> <span class="nn">scipy</span>
-<span class="kn">import</span> <span class="nn">skimage</span>
-<span class="kn">from</span> <span class="nn">nanomesh</span> <span class="kn">import</span> <span class="n">Mesher</span>
-<span class="kn">import</span> <span class="nn">fipy</span>
-<span class="kn">import</span> <span class="nn">sklearn</span>
-<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">det</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">dirichlet</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">pyntcloud</span> <span class="kn">import</span> <span class="n">PyntCloud</span>
-<span class="kn">import</span> <span class="nn">ot</span>
-<span class="kn">from</span> <span class="nn">multipoles</span> <span class="kn">import</span> <span class="n">MultipoleExpansion</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">trajectory</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">imageprep</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">imprep</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">features</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">model</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">utilities</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyemma.coordinates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">coor</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skimage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nanomesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mesher</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fipy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sklearn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">det</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">dirichlet</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyntcloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyntCloud</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">multipoles</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultipoleExpansion</span>
 
 <div class="viewcode-block" id="get_border_dict">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_border_dict">[docs]</a>
-<span class="k">def</span> <span class="nf">get_border_dict</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">vdist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">return_nnindex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_nnvector</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_curvature</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nn_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">border_args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_border_dict</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">vdist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">return_nnindex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_nnvector</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_curvature</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nn_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">border_args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the border properties of labeled regions in a segmented image.</span>
 
@@ -175,6 +173,7 @@
     <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">border_index</span>
     <span class="n">border_states</span><span class="o">=</span><span class="n">states</span><span class="p">[</span><span class="n">border_index</span><span class="p">]</span>
     <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">border_states</span>
+    <span class="c1">#print(f&#39;available states {states}, assigned states {np.unique(border_states)}&#39;)</span>
     <span class="k">if</span> <span class="n">return_nnindex</span><span class="p">:</span>
         <span class="n">contact_labels</span><span class="o">=</span><span class="n">features</span><span class="o">.</span><span class="n">get_contact_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">)</span>
         <span class="n">contact_inds</span><span class="o">=</span><span class="n">contact_labels</span><span class="p">[</span><span class="n">border</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
@@ -213,6 +212,7 @@
             <span class="n">stateset</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">istate</span> <span class="ow">in</span> <span class="n">stateset</span><span class="p">:</span>
                 <span class="n">inds_states</span><span class="p">[</span><span class="n">istate</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">istate</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;state </span><span class="si">{</span><span class="n">istate</span><span class="si">}</span><span class="s1"> assigned </span><span class="si">{</span><span class="n">inds_states</span><span class="p">[</span><span class="n">istate</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="c1">#if inds_states[istate].size&gt;0:</span>
                     <span class="c1">#knn_states[istate] = sklearn.neighbors.NearestNeighbors(n_neighbors=1, radius=1.,algorithm=&#39;ball_tree&#39;).fit(border_pts[inds_states[istate]])</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iset</span><span class="p">:</span>
@@ -221,6 +221,7 @@
                 <span class="k">if</span> <span class="n">indi</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">istate</span> <span class="ow">in</span> <span class="n">stateset</span><span class="p">:</span>
                         <span class="n">indistate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span><span class="n">inds_states</span><span class="p">[</span><span class="n">istate</span><span class="p">],</span><span class="n">indi</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">indi</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s1"> state </span><span class="si">{</span><span class="n">istate</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">indistate</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s1"> of </span><span class="si">{</span><span class="n">inds_states</span><span class="p">[</span><span class="n">istate</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">indistate</span><span class="o">.</span><span class="n">size</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
                             <span class="n">knn_states</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">neighbors</span><span class="o">.</span><span class="n">NearestNeighbors</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">algorithm</span><span class="o">=</span><span class="s1">&#39;ball_tree&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">border_pts</span><span class="p">[</span><span class="n">indistate</span><span class="p">])</span>
                             <span class="n">borderij_pts</span><span class="o">=</span><span class="n">border_pts</span><span class="p">[</span><span class="n">indi</span><span class="p">]</span>
@@ -257,7 +258,7 @@
 
 <div class="viewcode-block" id="get_surface_points">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_surface_points">[docs]</a>
-<span class="k">def</span> <span class="nf">get_surface_points</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">return_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">return_curvature</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">knn</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">rscale</span><span class="o">=</span><span class="mf">.1</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_surface_points</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">return_normals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">return_curvature</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">knn</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">rscale</span><span class="o">=</span><span class="mf">.1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the surface points of a labeled mask and optionally calculates normals and curvature.</span>
 
@@ -364,7 +365,7 @@
 
 <div class="viewcode-block" id="get_adhesive_displacement">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_adhesive_displacement">[docs]</a>
-<span class="k">def</span> <span class="nf">get_adhesive_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">surf_force_function</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">active_neighbor_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]),</span><span class="n">active_displacement_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span><span class="n">symmetrize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="o">**</span><span class="n">force_args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_adhesive_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">surf_force_function</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">active_neighbor_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]),</span><span class="n">active_displacement_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span><span class="n">symmetrize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="o">**</span><span class="n">force_args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the adhesive displacement between cell surfaces using a specified surface force function.</span>
 
@@ -471,7 +472,7 @@
 
 <div class="viewcode-block" id="get_surface_displacement">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_surface_displacement">[docs]</a>
-<span class="k">def</span> <span class="nf">get_surface_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">sts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_surface_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">sts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the surface displacement of cells based on their curvature and normal vectors.</span>
 
@@ -541,7 +542,7 @@
 
 <div class="viewcode-block" id="get_surface_gradvariance">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_surface_gradvariance">[docs]</a>
-<span class="k">def</span> <span class="nf">get_surface_gradvariance</span><span class="p">(</span><span class="n">border_pts</span><span class="p">,</span><span class="n">dx_ot</span><span class="p">,</span><span class="n">knn</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">use_eigs</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_surface_gradvariance</span><span class="p">(</span><span class="n">border_pts</span><span class="p">,</span><span class="n">dx_ot</span><span class="p">,</span><span class="n">knn</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">use_eigs</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">rdx_ot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx_ot</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">cloud</span><span class="o">=</span><span class="n">PyntCloud</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">border_pts</span><span class="p">,</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;z&#39;</span><span class="p">]))</span>
     <span class="n">k_neighbors</span> <span class="o">=</span> <span class="n">cloud</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">knn</span><span class="p">)</span>
@@ -559,7 +560,7 @@
 
 <div class="viewcode-block" id="get_surface_displacement_deviation">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_surface_displacement_deviation">[docs]</a>
-<span class="k">def</span> <span class="nf">get_surface_displacement_deviation</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">border_pts_prev</span><span class="p">,</span><span class="n">exclude_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">knn</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">use_eigs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_surface_displacement_deviation</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">border_pts_prev</span><span class="p">,</span><span class="n">exclude_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">knn</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">use_eigs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the surface displacement deviation using optimal transport between current and previous border points.</span>
 
@@ -650,7 +651,7 @@
 
 <div class="viewcode-block" id="get_nuc_displacement">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_nuc_displacement">[docs]</a>
-<span class="k">def</span> <span class="nf">get_nuc_displacement</span><span class="p">(</span><span class="n">border_pts_new</span><span class="p">,</span><span class="n">border_dict</span><span class="p">,</span><span class="n">Rset</span><span class="p">,</span><span class="n">nuc_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span><span class="o">**</span><span class="n">nuc_args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_nuc_displacement</span><span class="p">(</span><span class="n">border_pts_new</span><span class="p">,</span><span class="n">border_dict</span><span class="p">,</span><span class="n">Rset</span><span class="p">,</span><span class="n">nuc_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span><span class="o">**</span><span class="n">nuc_args</span><span class="p">):</span>
     <span class="n">border_pts</span><span class="o">=</span><span class="n">border_pts_new</span>
     <span class="n">border_index</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span>
     <span class="n">border_states</span><span class="o">=</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;states&#39;</span><span class="p">]</span>
@@ -669,7 +670,7 @@
 
 <div class="viewcode-block" id="get_flux_displacement">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_flux_displacement">[docs]</a>
-<span class="k">def</span> <span class="nf">get_flux_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">border_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">flux_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">exclude_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fmeans</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">fsigmas</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">flux_function_args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_flux_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">border_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">flux_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">exclude_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fmeans</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">fsigmas</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">maxd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">flux_function_args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the displacement of border points using flux information.</span>
 
@@ -769,7 +770,7 @@
 
 <div class="viewcode-block" id="get_ot_dx">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_ot_dx">[docs]</a>
-<span class="k">def</span> <span class="nf">get_ot_dx</span><span class="p">(</span><span class="n">pts0</span><span class="p">,</span><span class="n">pts1</span><span class="p">,</span><span class="n">return_dx</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_cost</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ot_dx</span><span class="p">(</span><span class="n">pts0</span><span class="p">,</span><span class="n">pts1</span><span class="p">,</span><span class="n">return_dx</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">return_cost</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the optimal transport (OT) displacement and cost between two sets of points.</span>
 
@@ -848,7 +849,7 @@
 
 <div class="viewcode-block" id="get_ot_displacement">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_ot_displacement">[docs]</a>
-<span class="k">def</span> <span class="nf">get_ot_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">border_dict_prev</span><span class="p">,</span><span class="n">parent_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ot_displacement</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">border_dict_prev</span><span class="p">,</span><span class="n">parent_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the optimal transport (OT) displacement between two sets of boundary points.</span>
 
@@ -926,7 +927,7 @@
 
 <div class="viewcode-block" id="get_labels_fromborderdict">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_labels_fromborderdict">[docs]</a>
-<span class="k">def</span> <span class="nf">get_labels_fromborderdict</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">labels_shape</span><span class="p">,</span><span class="n">active_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_labels_fromborderdict</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">labels_shape</span><span class="p">,</span><span class="n">active_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">connected</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates a label mask from a dictionary of border points and associated states.</span>
 
@@ -1024,7 +1025,7 @@
 
 <div class="viewcode-block" id="get_volconstraint_com">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_volconstraint_com">[docs]</a>
-<span class="k">def</span> <span class="nf">get_volconstraint_com</span><span class="p">(</span><span class="n">border_pts</span><span class="p">,</span><span class="n">target_volume</span><span class="p">,</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span><span class="n">converror</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_volconstraint_com</span><span class="p">(</span><span class="n">border_pts</span><span class="p">,</span><span class="n">target_volume</span><span class="p">,</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span><span class="n">converror</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">dc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adjusts the positions of boundary points to achieve a target volume using a centroid-based method.</span>
 
@@ -1104,7 +1105,7 @@
 
 <div class="viewcode-block" id="constrain_volume">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.constrain_volume">[docs]</a>
-<span class="k">def</span> <span class="nf">constrain_volume</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">target_vols</span><span class="p">,</span><span class="n">exclude_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">volconstraint_args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">constrain_volume</span><span class="p">(</span><span class="n">border_dict</span><span class="p">,</span><span class="n">target_vols</span><span class="p">,</span><span class="n">exclude_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">volconstraint_args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Adjusts the positions of boundary points to achieve target volumes for different regions.</span>
 
@@ -1177,7 +1178,7 @@
 
 <div class="viewcode-block" id="get_yukawa_force">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_yukawa_force">[docs]</a>
-<span class="k">def</span> <span class="nf">get_yukawa_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_yukawa_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Yukawa force for a given set of distances.</span>
 
@@ -1227,7 +1228,7 @@
 
 <div class="viewcode-block" id="get_LJ_force">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_LJ_force">[docs]</a>
-<span class="k">def</span> <span class="nf">get_LJ_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">max_repulsion</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_LJ_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">max_repulsion</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Lennard-Jones (LJ) force for a given set of distances.</span>
 
@@ -1290,7 +1291,7 @@
 
 <div class="viewcode-block" id="get_morse_force">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_morse_force">[docs]</a>
-<span class="k">def</span> <span class="nf">get_morse_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">L</span><span class="o">=</span><span class="mf">4.</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_morse_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">R</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">L</span><span class="o">=</span><span class="mf">4.</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Morse force for a given set of distances.</span>
 
@@ -1341,7 +1342,7 @@
 
 <div class="viewcode-block" id="get_secreted_ligand_density">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_secreted_ligand_density">[docs]</a>
-<span class="k">def</span> <span class="nf">get_secreted_ligand_density</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">npad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">indz_bm</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">secretion_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">micron_per_pixel</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_secreted_ligand_density</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">npad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">indz_bm</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">secretion_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">micron_per_pixel</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the spatial distribution of secreted ligand density in a 3D tissue model.</span>
 
@@ -1472,7 +1473,7 @@
 
 <div class="viewcode-block" id="get_flux_ligdist">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_flux_ligdist">[docs]</a>
-<span class="k">def</span> <span class="nf">get_flux_ligdist</span><span class="p">(</span><span class="n">vdist</span><span class="p">,</span><span class="n">cmean</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">csigma</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_flux_ligdist</span><span class="p">(</span><span class="n">vdist</span><span class="p">,</span><span class="n">cmean</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">csigma</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span><span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the mean and standard deviation of flux values based on ligand distribution.</span>
 
@@ -1523,7 +1524,7 @@
 
 <div class="viewcode-block" id="get_border_properties">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_border_properties">[docs]</a>
-<span class="k">def</span> <span class="nf">get_border_properties</span><span class="p">(</span><span class="n">cell_labels</span><span class="p">,</span><span class="n">surfaces</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">cell_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">cell_labels_next</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">cell_labels_prev</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lin_next</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lin_prev</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">vdist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">border_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">return_border_properties_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_border_properties</span><span class="p">(</span><span class="n">cell_labels</span><span class="p">,</span><span class="n">surfaces</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">cell_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">surface_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">cell_labels_next</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">cell_labels_prev</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lin_next</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lin_prev</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">vdist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">border_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">return_border_properties_list</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate geometric and physical properties of cell borders, with optional tracking between frames </span>
 <span class="sd">    and surface contact details.</span>
@@ -1617,6 +1618,7 @@
     <span class="n">max_cellid</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
     <span class="n">cell_ids</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
     <span class="n">cell_ids</span><span class="o">=</span><span class="n">cell_ids</span><span class="p">[</span><span class="n">cell_ids</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1">#print(f&#39;cell_ids {cell_ids}&#39;)</span>
     <span class="n">n_moments</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">l</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">order</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">cell_states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">cell_states</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">max_cellid</span>
@@ -1628,15 +1630,18 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">n_surf</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">surfaces</span><span class="p">)</span>
         <span class="n">surface_ids</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_surf</span><span class="p">)</span><span class="o">+</span><span class="n">max_cellid</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="c1">#print(f&#39;surface ids {surface_ids}&#39;)</span>
         <span class="k">if</span> <span class="n">surface_states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">surface_states</span><span class="o">=</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_surf</span><span class="p">)</span><span class="o">+</span><span class="n">max_cell_state</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">cell_states</span><span class="p">,</span><span class="n">surface_states</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Conflicting labels between cell states and surface states provided&#39;</span><span class="p">)</span>
-        <span class="n">nn_states</span><span class="o">=</span><span class="n">cell_states</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">cell_states</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell_states</span><span class="p">,</span><span class="n">surface_states</span><span class="p">)</span>
+        <span class="n">nn_states</span><span class="o">=</span><span class="n">cell_states</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1">#print(f&#39;cell states {cell_states}&#39;)</span>
         <span class="n">surface_overlay</span><span class="o">=</span><span class="n">surfaces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i_surf</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_surf</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;surf </span><span class="si">{</span><span class="n">i_surf</span><span class="si">}</span><span class="s1"> sum </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">surfaces</span><span class="p">[</span><span class="n">i_surf</span><span class="p">])</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">overlapping</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">labels</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span><span class="n">surfaces</span><span class="p">[</span><span class="n">i_surf</span><span class="p">]))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">labels</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">overlapping</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: </span><span class="si">{</span><span class="n">overlapping</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1"> fraction overlap between surface </span><span class="si">{</span><span class="n">i_surf</span><span class="si">}</span><span class="s1"> and cell labels, cell labels will overlay surface labels&#39;</span><span class="p">)</span>
@@ -1646,6 +1651,9 @@
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: </span><span class="si">{</span><span class="n">overlapping_surf</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1"> fraction overlap between surface </span><span class="si">{</span><span class="n">i_surf</span><span class="si">}</span><span class="s1"> and previous surfaces, </span><span class="si">{</span><span class="n">i_surf</span><span class="si">}</span><span class="s1"> will overlay&#39;</span><span class="p">)</span>
             <span class="n">surface_overlay</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">surface_overlay</span><span class="p">,</span><span class="n">surfaces</span><span class="p">[</span><span class="n">i_surf</span><span class="p">])</span>
             <span class="n">labels</span><span class="p">[</span><span class="n">surfaces</span><span class="p">[</span><span class="n">i_surf</span><span class="p">]]</span><span class="o">=</span><span class="n">surface_ids</span><span class="p">[</span><span class="n">i_surf</span><span class="p">]</span>
+            <span class="c1">#plt.figure();plt.imshow(np.max(surfaces[i_surf],axis=0))</span>
+    <span class="c1">#print(f&#39;!!! {surface_states}&#39;)</span>
+    <span class="c1">#print(f&#39;!!!{np.unique(labels)}&#39;)</span>
     <span class="n">border_dict</span><span class="o">=</span><span class="n">get_border_dict</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="n">cell_states</span><span class="p">,</span><span class="n">nn_states</span><span class="o">=</span><span class="n">nn_states</span><span class="p">,</span><span class="n">vdist</span><span class="o">=</span><span class="n">vdist</span><span class="p">,</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="n">border_scale</span><span class="p">)</span>
     <span class="n">contact_properties</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">max_cellid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">cell_states</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="n">n_moments</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
     <span class="n">border_properties_list</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">n_moments</span><span class="p">)</span>
@@ -1717,10 +1725,16 @@
                         <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">l</span><span class="p">,</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
                             <span class="n">dx_next_properties</span><span class="p">[</span><span class="n">cellid</span><span class="p">,</span><span class="n">i_prop</span><span class="p">]</span><span class="o">=</span><span class="n">Phi</span><span class="o">.</span><span class="n">multipole_moments</span><span class="p">[</span><span class="n">l</span><span class="p">,</span><span class="n">m</span><span class="p">]</span>
                             <span class="n">i_prop</span><span class="o">=</span><span class="n">i_prop</span><span class="o">+</span><span class="mi">1</span>
-        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;dh_next&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">get_surface_gradvariance</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">],</span><span class="n">border_dx_next</span><span class="p">)</span>
-        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;border_dx_next&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">border_dx_next</span>
-        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;inds_ot_next&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">inds_ot_next</span>
-        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;dx_next_properties&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">dx_next_properties</span>
+        <span class="n">dh_next</span><span class="o">=</span><span class="n">get_surface_gradvariance</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">],</span><span class="n">border_dx_next</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dx_next_properties</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">max_cellid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="n">n_moments</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">border_dx_next</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">inds_ot_next</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">*-</span><span class="mi">1</span>
+        <span class="n">dh_next</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;dh_next&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">get_surface_gradvariance</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">],</span><span class="n">border_dx_next</span><span class="p">)</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;border_dx_next&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">border_dx_next</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;inds_ot_next&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">inds_ot_next</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;dx_next_properties&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">dx_next_properties</span>
     <span class="k">if</span> <span class="n">cell_labels_prev</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">border_dict_prev</span><span class="o">=</span><span class="n">get_border_dict</span><span class="p">(</span><span class="n">cell_labels_prev</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="n">border_scale</span><span class="p">,</span><span class="n">return_nnindex</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">return_nnvector</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">return_curvature</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">dx_prev_properties</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">max_cellid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="n">n_moments</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
@@ -1757,14 +1771,80 @@
                         <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">l</span><span class="p">,</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
                             <span class="n">dx_prev_properties</span><span class="p">[</span><span class="n">cellid</span><span class="p">,</span><span class="n">i_prop</span><span class="p">]</span><span class="o">=</span><span class="n">Phi</span><span class="o">.</span><span class="n">multipole_moments</span><span class="p">[</span><span class="n">l</span><span class="p">,</span><span class="n">m</span><span class="p">]</span>
                             <span class="n">i_prop</span><span class="o">=</span><span class="n">i_prop</span><span class="o">+</span><span class="mi">1</span>
-        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;dh_prev&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">get_surface_gradvariance</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">],</span><span class="n">border_dx_prev</span><span class="p">)</span>
-        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;border_dx_prev&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">border_dx_prev</span>
-        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;inds_ot_prev&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">inds_ot_prev</span>
-        <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;dx_prev_properties&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">dx_prev_properties</span>
+        <span class="n">dh_prev</span><span class="o">=</span><span class="n">get_surface_gradvariance</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">],</span><span class="n">border_dx_prev</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dx_prev_properties</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">max_cellid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="n">n_moments</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">border_dx_prev</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">inds_ot_prev</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">*-</span><span class="mi">1</span>
+        <span class="n">dh_prev</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;pts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;dh_prev&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">dh_prev</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;border_dx_prev&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">border_dx_prev</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;inds_ot_prev&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">inds_ot_prev</span>
+    <span class="n">border_dict</span><span class="p">[</span><span class="s1">&#39;dx_prev_properties&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">dx_prev_properties</span>
     <span class="k">if</span> <span class="n">return_border_properties_list</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">border_dict</span><span class="p">,</span><span class="n">border_properties_list</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">border_dict</span></div>
+
+
+<div class="viewcode-block" id="get_boundary_multipole_moments">
+<a class="viewcode-back" href="../../celltraj.html#celltraj.spatial.get_boundary_multipole_moments">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_boundary_multipole_moments</span><span class="p">(</span><span class="n">border_pts</span><span class="p">,</span><span class="n">border_charge</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">return_moments</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute normalized radial magnitudes of spherical multipole moments for a discrete boundary charge distribution.</span>
+
+<span class="sd">    This function uses the `multipoles` package to perform a multipole expansion of the scalar charges</span>
+<span class="sd">    located at the coordinates `border_pts`. It returns, for each multipole order ℓ from 0 up to `order`,</span>
+<span class="sd">    the magnitude of the vector of raw (ℓ,m) moments, normalized by the number of charges and by (2ℓ+1).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    border_pts : ndarray of shape (N, D)</span>
+<span class="sd">        Coordinates of N boundary points in D dimensions (typically D=2 or 3).</span>
+<span class="sd">    border_charge : ndarray of shape (N,)</span>
+<span class="sd">        Scalar “charge” values assigned to each boundary point.</span>
+<span class="sd">    order : int, optional</span>
+<span class="sd">        Maximum multipole order ℓ to compute (default is 1, computing monopole and dipole).</span>
+<span class="sd">    return_moments : bool, optional</span>
+<span class="sd">        If True, also return the full set of raw multipole moments for each ℓ and m.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    magnitudes : ndarray of shape (order+1,)</span>
+<span class="sd">        For each ℓ = 0..order, the normalized radial magnitude of the multipole moments:</span>
+<span class="sd">        \\[</span>
+<span class="sd">            \\text{magnitude}_\\ell = \\frac{1}{(2\\ell+1)\\,N} \\, \\bigl\\lVert \\, M_{\\ell, m}\\bigr\\rVert_{m=-\\ell..\\ell}</span>
+<span class="sd">        \\]</span>
+<span class="sd">    moments : dict, optional</span>
+<span class="sd">        Only returned if `return_moments=True`. A nested dictionary `moments[ℓ][m]` containing the raw</span>
+<span class="sd">        complex multipole moment for each order ℓ and degree m.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Relies on the `multipoles` package:</span>
+<span class="sd">      https://github.com/maroba/multipoles?tab=readme-ov-file</span>
+<span class="sd">    - Points with non-finite charges are filtered out before expansion.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">indgood</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">border_charge</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">border_charge</span><span class="o">=</span><span class="n">border_charge</span><span class="p">[</span><span class="n">indgood</span><span class="p">]</span>
+    <span class="n">border_pts</span><span class="o">=</span><span class="n">border_pts</span><span class="p">[</span><span class="n">indgood</span><span class="p">,:]</span>
+    <span class="n">charges_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;q&#39;</span><span class="p">:</span> <span class="n">border_charge</span><span class="p">,</span> <span class="s1">&#39;xyz&#39;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">border_pts</span><span class="p">)}</span> <span class="k">for</span> <span class="n">border_charge</span><span class="p">,</span> <span class="n">border_pts</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">border_charge</span><span class="p">,</span> <span class="n">border_pts</span><span class="p">)]</span>
+    <span class="n">charge_dist</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;discrete&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;charges&#39;</span><span class="p">:</span> <span class="n">charges_list</span><span class="p">}</span>
+    <span class="n">Phi</span> <span class="o">=</span> <span class="n">MultipoleExpansion</span><span class="p">(</span><span class="n">charge_dist</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+    <span class="n">magnitudes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">order</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">order</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">lmoments</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">l</span><span class="p">,</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">lmoments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Phi</span><span class="o">.</span><span class="n">multipole_moments</span><span class="p">[</span><span class="n">l</span><span class="p">,</span><span class="n">m</span><span class="p">]</span><span class="o">/</span><span class="n">indgood</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">l</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">magnitudes</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">lmoments</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">magnitudes</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">lmoments</span><span class="p">)</span>
+        <span class="n">magnitudes</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">=</span><span class="n">magnitudes</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_moments</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">magnitudes</span><span class="p">,</span><span class="n">moments</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">magnitudes</span></div>
 
 </pre></div>
 

@@ -1,22 +1,20 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>celltraj.translate &mdash; celltraj 0.1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -73,19 +71,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for celltraj.translate</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">pandas</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">scipy</span>
-<span class="kn">import</span> <span class="nn">pyemma.coordinates</span> <span class="k">as</span> <span class="nn">coor</span>
-<span class="kn">from</span> <span class="nn">adjustText</span> <span class="kn">import</span> <span class="n">adjust_text</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyemma.coordinates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">coor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">adjustText</span><span class="w"> </span><span class="kn">import</span> <span class="n">adjust_text</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 
 <div class="viewcode-block" id="get_predictedFC">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.translate.get_predictedFC">[docs]</a>
-<span class="k">def</span> <span class="nf">get_predictedFC</span><span class="p">(</span><span class="n">state_probs</span><span class="p">,</span><span class="n">statesFC</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_predictedFC</span><span class="p">(</span><span class="n">state_probs</span><span class="p">,</span><span class="n">statesFC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Predict fold changes based on state probabilities and state-specific fold changes.</span>
 
@@ -119,7 +117,7 @@
 
 <div class="viewcode-block" id="get_state_decomposition">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.translate.get_state_decomposition">[docs]</a>
-<span class="k">def</span> <span class="nf">get_state_decomposition</span><span class="p">(</span><span class="n">x_fc</span><span class="p">,</span><span class="n">state_probs</span><span class="p">,</span><span class="n">npermutations</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">inds_tm_training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">gene_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_state_decomposition</span><span class="p">(</span><span class="n">x_fc</span><span class="p">,</span><span class="n">state_probs</span><span class="p">,</span><span class="n">npermutations</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">inds_tm_training</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">visual</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">nchunk</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">gene_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">lb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decompose paired bulk average data (e.g. bulk RNAseq or gene expression measurement) into state-specific contributions using least squares optimization.</span>
 
@@ -228,7 +226,7 @@
 
 <div class="viewcode-block" id="get_null_correlations">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.translate.get_null_correlations">[docs]</a>
-<span class="k">def</span> <span class="nf">get_null_correlations</span><span class="p">(</span><span class="n">x_fc</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">,</span><span class="n">x_fc_predicted</span><span class="p">,</span><span class="n">nrandom</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">tmfSet</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_null_correlations</span><span class="p">(</span><span class="n">x_fc</span><span class="p">,</span><span class="n">x_fc_states</span><span class="p">,</span><span class="n">x_fc_predicted</span><span class="p">,</span><span class="n">nrandom</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">tmfSet</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate null correlations for predicted and real fold changes.</span>
 

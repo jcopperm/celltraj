@@ -3689,3 +3689,180 @@ class Trajectory:
             return boundary_library
         else:
             return boundary_library
+
+    def get_multipole_boundarylibrary_properties(self,indcells=None,cell_states=None,cell_state_labels=None,nn_states=None,nn_state_labels=None,include_dx_prevs=True,include_dx_nexts=True,include_curvatures=True,include_vdists=False,include_shape=True,order=1,save_h5=False,overwrite=False):
+        """
+        Compute spherical multipole‐based features from the pre‐extracted boundary library for each cell.
+
+        This routine treats each cell’s boundary points as a discrete distribution of “charges” (scalar values
+        defined by inverse neighbor distances, curvature, displacements, etc.), and computes the low‐order
+        multipole moments of that distribution. Multipole moments compactly encode spatial patterns around each
+        cell, capturing neighborhood geometry, motility, and shape features in a rotationally invariant basis.
+
+        Parameters
+        ----------
+        self : Trajectory
+            A `Trajectory` instance whose `boundary_library` (from
+            `get_cellboundary_library`) contains per‐point data.
+        indcells : array-like of int, optional
+            List of global cell indices to process. If None, processes all cells in the library.
+        cell_states : array-like of int, optional
+            Subset of cell‐state IDs to include. Default is all states found in the library.
+        cell_state_labels : list of str, optional
+            Text labels for each `cell_states` entry. Defaults to `"cell state {state_id}"`.
+        nn_states : array-like of int, optional
+            Subset of neighbor‐state IDs to include. Defaults to all neighbor states in the library.
+        nn_state_labels : list of str, optional
+            Text labels for each `nn_states` entry. Defaults to `"nn state {state_id}"`.
+        include_dx_prevs : bool, default True
+            Whether to include multipole moments of the previous‐frame normal displacement.
+        include_dx_nexts : bool, default True
+            Whether to include multipole moments of the next‐frame normal displacement.
+        include_curvatures : bool, default True
+            Whether to include multipole moments of the boundary curvature.
+        include_vdists : bool, default False
+            Whether to include multipole moments of secreted ligand density (`vdist`).
+        include_shape : bool, default True
+            Whether to include shape features (e.g., sphere radius) via multipole moments.
+        order : int, default 1
+            Maximum spherical harmonic order ℓ for the multipole expansion.
+        save_h5 : bool, default False
+            If True, store results (`mm_properties` and `mm_property_names`) in this instance’s HDF5 data.
+        overwrite : bool, default False
+            If True and `save_h5` is True, overwrite existing datasets in the HDF5 file.
+
+        Returns
+        -------
+        mm_properties : ndarray, shape (max_cell_id+1, n_features)
+            Rows indexed by cell ID, columns by the multipole‐derived features listed in `property_names`.
+        property_names : list of str
+            Length‐`n_features` list describing each column in `mm_properties`.
+
+        Notes
+        -----
+        - Multipole moments are computed by expanding the scalar “charge” distribution q(r) on the boundary into
+        spherical harmonics up to order `order`, then assembling the radial moments.
+        - The `multipoles` package (Maroba et al.) handles the core expansion:
+        https://github.com/maroba/multipoles
+        - Feature blocks include:
+            * Inverse‐distance charges to each neighbor state
+            * Frame‐to‐frame normal displacements (prev/next)
+            * Local curvature
+            * Ligand density (`vdist`), if requested
+            * Shape deviations and equivalent sphere radius
+
+        References
+        ----------
+        - Maroba, M. _multipoles_ Python package:
+        https://github.com/maroba/multipoles
+        """
+        boundary_library=self.boundary_library.copy()
+        boundary_resolution=boundary_library['border_resolution']
+        if cell_states is None:
+            cell_states=np.unique(boundary_library['cell_states'])
+        cell_states=np.array(cell_states)
+        nstates_cell=cell_states.size
+        if cell_state_labels is None:
+            cell_state_names=[]
+            for istate in cell_states:
+                cell_state_names.append(f'cell state {istate}')
+        else:
+            cell_state_names=[]
+            for istate in cell_states:
+                cell_state_names.append(cell_state_labels[istate])
+        if nn_states is None:
+            nstates_nn=boundary_library['nn_pts_states'].shape[1]
+            nn_states=np.arange(nstates_nn).astype(int)
+        nn_states=np.array(nn_states)
+        if nn_state_labels is None:
+            nn_state_names=[]
+            for istate_nn in nn_states:
+                nn_state_names.append(f'nn state {istate_nn}')
+        else:
+            nn_state_names=[]
+            for istate_nn in nn_states:
+                nn_state_names.append(nn_state_labels[istate_nn])    
+        if indcells is None:
+            indcells=np.unique(boundary_library['global_index'])
+        max_cellid=np.max(indcells)
+        property_names=[]
+        for istate_cell in range(cell_states.size):
+            for istate_nn in range(nn_states.size):
+                for l in range(order+1):
+                    property_names.append(f'l={l} {cell_state_names[istate_cell]} inv dist to {nn_state_names[istate_nn]}')
+            if include_dx_prevs:
+                for l in range(order+1):
+                    property_names.append(f'l={l} {cell_state_names[istate_cell]} dx prevs')
+            if include_dx_nexts:
+                for l in range(order+1):
+                    property_names.append(f'l={l} {cell_state_names[istate_cell]} dx nexts')
+            if include_curvatures:
+                for l in range(order+1):
+                    property_names.append(f'l={l} {cell_state_names[istate_cell]} curvatures')
+            if include_vdists:
+                for l in range(order+1):
+                    property_names.append(f'l={l} {cell_state_names[istate_cell]} vdists')
+            if include_shape:
+                for l in range(order+1):
+                    property_names.append(f'l={l} {cell_state_names[istate_cell]} shapes')
+                property_names.append(f'sphere radius')
+        nprops=len(property_names)
+        mm_properties=np.ones((max_cellid+1,nprops))*np.nan
+        for ic in indcells:
+            print(f'calculating boundary moments for cell {ic}/{max_cellid}')
+            mm_props=[]
+            indc=np.where(boundary_library['global_index']==ic)[0]
+            border_pts=boundary_library['pts'][indc,:]
+            for istate_cell in range(cell_states.size):
+                for istate_nn in nn_states:
+                    border_nn_pts=boundary_library['nn_pts_states'][indc,istate_nn,:]
+                    dists=np.linalg.norm(border_nn_pts-border_pts,axis=1)
+                    border_charge=2.*((1./boundary_resolution)*(1./dists)-.5)
+                    moments=spatial.get_boundary_multipole_moments(border_pts,border_charge,order=order)
+                    mm_props.append(moments)
+                if include_dx_prevs:
+                    border_dx_prevs=boundary_library['dx_prevs'][indc,:]
+                    dxc=np.sum(np.multiply(border_dx_prevs,boundary_library['surface_normals'][indc,:]),axis=1)
+                    moments=spatial.get_boundary_multipole_moments(border_pts,dxc,order=order)
+                    mm_props.append(moments)
+                if include_dx_nexts:
+                    border_dx_nexts=boundary_library['dx_nexts'][indc,:]
+                    dxc=np.sum(np.multiply(-border_dx_nexts,boundary_library['surface_normals'][indc,:]),axis=1)
+                    moments=spatial.get_boundary_multipole_moments(border_pts,dxc,order=order)
+                    mm_props.append(moments)
+                if include_curvatures:
+                    border_charge=boundary_library['curvatures'][indc]
+                    moments=spatial.get_boundary_multipole_moments(border_pts,border_charge,order=order)
+                    mm_props.append(moments)
+                if include_vdists:
+                    border_charge=boundary_library['vdists'][indc,:]
+                    moments=spatial.get_boundary_multipole_moments(border_pts,border_charge,order=order)
+                    mm_props.append(moments)
+                if include_shape:
+                    center=np.nanmean(border_pts,axis=0)
+                    dists_center=np.linalg.norm(border_pts-center,axis=1)
+                    pts=border_pts
+                    #check for 1D
+                    ind_ax1d=np.where((np.min(pts,axis=0)-np.max(pts,axis=0))==0.)[0]
+                    for iax in ind_ax1d:
+                        dg=np.zeros(3)
+                        dg[iax]=.5
+                        pts=np.concatenate((pts-dg,pts+dg),axis=0)
+                    border_pts=pts
+                    try:
+                        hull=scipy.spatial.ConvexHull(points=border_pts)
+                        sphere_radius=((3./(4.*np.pi))*hull.volume)**.3333
+                    except:
+                        sphere_radius=np.nanmean(dists_center)
+                    border_charge=dists_center-sphere_radius
+                    moments=spatial.get_boundary_multipole_moments(border_pts,border_charge,order=order)
+                    moments=np.append(moments,sphere_radius)
+                    mm_props.append(moments)
+            mm_props=np.concatenate(mm_props)
+            mm_properties[ic,:]=mm_props    
+        if save_h5:
+            self.mm_properties=mm_properties
+            self.mm_property_names=property_names
+            attribute_list=['mm_properties','mm_property_names']
+            self.save_to_h5(f'/cell_data_m{self.mskchannel}/',attribute_list,overwrite=overwrite)
+        return mm_properties,property_names

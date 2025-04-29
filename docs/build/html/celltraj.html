@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -5,20 +7,16 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>celltraj package &mdash; celltraj 0.1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=a58bc63e"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -480,7 +478,7 @@ useful for managing memory or computational requirements.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>  <span class="c1"># Example 3D image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">apply3d</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Apply np.mean across axis 0 of each 2D slice</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -1314,7 +1312,7 @@ accommodate the maximum translation offsets to ensure all images fit within the 
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">imgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>  <span class="c1"># Create a list of random images</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tSet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)])</span>  <span class="c1"># Example transformations</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">registered_imgs</span> <span class="o">=</span> <span class="n">expand_registered_images</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span> <span class="n">tSet</span><span class="p">)</span>
@@ -1877,7 +1875,7 @@ Adjusts the transformation matrices to centralize the image after applying trans
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tf_matrix_set</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span>
 <span class="gp">... </span>                          <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">imgdims</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>  <span class="c1"># Y, X dimensions</span>
@@ -2144,7 +2142,7 @@ frequent intensity values, improving the perceptual contrast of the image.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">250</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">stretched_img</span> <span class="o">=</span> <span class="n">histogram_stretch</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">lp</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">hp</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">stretched_img</span><span class="p">)</span>
@@ -2311,7 +2309,7 @@ otherwise False.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">imgr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span>  <span class="c1"># Create a random grayscale image</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">binary_image</span> <span class="o">=</span> <span class="n">local_threshold</span><span class="p">(</span><span class="n">imgr</span><span class="p">,</span> <span class="n">block_size</span><span class="o">=</span><span class="mi">51</span><span class="p">,</span> <span class="n">z_std</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">binary_image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -2471,7 +2469,7 @@ to the original dimensions, the image will be trimmed instead.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">padded_img</span> <span class="o">=</span> <span class="n">pad_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">padded_img</span><span class="p">)</span>
@@ -2590,7 +2588,7 @@ It can handle 2D and 3D transformations, supports padding, and can invert the tr
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tf_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">transformed_img</span> <span class="o">=</span> <span class="n">transform_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">tf_matrix</span><span class="p">)</span>
@@ -2617,7 +2615,7 @@ of the original array.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">normalized_img</span> <span class="o">=</span> <span class="n">znorm</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">normalized_img</span><span class="p">)</span>
@@ -2664,8 +2662,8 @@ those in the largest connected component of the transition graph.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">csr_matrix</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">KMeans</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">csr_matrix</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">clusters</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">P</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.8</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># Random transition matrix</span>
@@ -3316,7 +3314,7 @@ cluster i at time t to cluster j at time t+1.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">KMeans</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">clusters</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
@@ -3357,7 +3355,7 @@ state i at time t to state j at time t+1.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">KMeans</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">clusters</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
@@ -3747,6 +3745,45 @@ calculates optimal transport (OT) vectors to track border movement between frame
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="celltraj.spatial.get_boundary_multipole_moments">
+<span class="sig-prename descclassname"><span class="pre">celltraj.spatial.</span></span><span class="sig-name descname"><span class="pre">get_boundary_multipole_moments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">border_pts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border_charge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_moments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/spatial.html#get_boundary_multipole_moments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.spatial.get_boundary_multipole_moments" title="Link to this definition"></a></dt>
+<dd><p>Compute normalized radial magnitudes of spherical multipole moments for a discrete boundary charge distribution.</p>
+<p>This function uses the <cite>multipoles</cite> package to perform a multipole expansion of the scalar charges
+located at the coordinates <cite>border_pts</cite>. It returns, for each multipole order ℓ from 0 up to <cite>order</cite>,
+the magnitude of the vector of raw (ℓ,m) moments, normalized by the number of charges and by (2ℓ+1).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>border_pts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">shape</span> <span class="pre">(N</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">D)</span></code>) – Coordinates of N boundary points in D dimensions (typically D=2 or 3).</p></li>
+<li><p><strong>border_charge</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">shape</span> <span class="pre">(N,)</span></code>) – Scalar “charge” values assigned to each boundary point.</p></li>
+<li><p><strong>order</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Maximum multipole order ℓ to compute (default is 1, computing monopole and dipole).</p></li>
+<li><p><strong>return_moments</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>optional</em>) – If True, also return the full set of raw multipole moments for each ℓ and m.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul>
+<li><p><strong>magnitudes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">shape</span> <span class="pre">(order+1,)</span></code>) – For each ℓ = 0..order, the normalized radial magnitude of the multipole moments:
+[</p>
+<blockquote>
+<div><p>text{magnitude}_ell = frac{1}{(2ell+1),N} , bigllVert , M_{ell, m}bigrrVert_{m=-ell..ell}</p>
+</div></blockquote>
+<p>]</p>
+</li>
+<li><p><strong>moments</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <em>optional</em>) – Only returned if <cite>return_moments=True</cite>. A nested dictionary <cite>moments[ℓ][m]</cite> containing the raw
+complex multipole moment for each order ℓ and degree m.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Relies on the <cite>multipoles</cite> package:
+<a class="reference external" href="https://github.com/maroba/multipoles?tab=readme-ov-file">https://github.com/maroba/multipoles?tab=readme-ov-file</a></p></li>
+<li><p>Points with non-finite charges are filtered out before expansion.</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py function">
@@ -5586,6 +5623,66 @@ is set to True in the method call.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_multipole_boundarylibrary_properties">
+<span class="sig-name descname"><span class="pre">get_multipole_boundarylibrary_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indcells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_state_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nn_state_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_dx_prevs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_dx_nexts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_curvatures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_vdists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_h5</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_multipole_boundarylibrary_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_multipole_boundarylibrary_properties" title="Link to this definition"></a></dt>
+<dd><p>Compute spherical multipole‐based features from the pre‐extracted boundary library for each cell.</p>
+<p>This routine treats each cell’s boundary points as a discrete distribution of “charges” (scalar values
+defined by inverse neighbor distances, curvature, displacements, etc.), and computes the low‐order
+multipole moments of that distribution. Multipole moments compactly encode spatial patterns around each
+cell, capturing neighborhood geometry, motility, and shape features in a rotationally invariant basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<a class="reference internal" href="#celltraj.trajectory.Trajectory" title="celltraj.trajectory.Trajectory"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trajectory</span></code></a>) – A <cite>Trajectory</cite> instance whose <cite>boundary_library</cite> (from
+<cite>get_cellboundary_library</cite>) contains per‐point data.</p></li>
+<li><p><strong>indcells</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – List of global cell indices to process. If None, processes all cells in the library.</p></li>
+<li><p><strong>cell_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Subset of cell‐state IDs to include. Default is all states found in the library.</p></li>
+<li><p><strong>cell_state_labels</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – Text labels for each <cite>cell_states</cite> entry. Defaults to <cite>“cell state {state_id}”</cite>.</p></li>
+<li><p><strong>nn_states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">array-like</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>optional</em>) – Subset of neighbor‐state IDs to include. Defaults to all neighbor states in the library.</p></li>
+<li><p><strong>nn_state_labels</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <em>optional</em>) – Text labels for each <cite>nn_states</cite> entry. Defaults to <cite>“nn state {state_id}”</cite>.</p></li>
+<li><p><strong>include_dx_prevs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>) – Whether to include multipole moments of the previous‐frame normal displacement.</p></li>
+<li><p><strong>include_dx_nexts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>) – Whether to include multipole moments of the next‐frame normal displacement.</p></li>
+<li><p><strong>include_curvatures</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>) – Whether to include multipole moments of the boundary curvature.</p></li>
+<li><p><strong>include_vdists</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code>) – Whether to include multipole moments of secreted ligand density (<cite>vdist</cite>).</p></li>
+<li><p><strong>include_shape</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code>) – Whether to include shape features (e.g., sphere radius) via multipole moments.</p></li>
+<li><p><strong>order</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <em>default</em> <code class="docutils literal notranslate"><span class="pre">1</span></code>) – Maximum spherical harmonic order ℓ for the multipole expansion.</p></li>
+<li><p><strong>save_h5</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code>) – If True, store results (<cite>mm_properties</cite> and <cite>mm_property_names</cite>) in this instance’s HDF5 data.</p></li>
+<li><p><strong>overwrite</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>, <em>default</em> <code class="xref py py-obj docutils literal notranslate"><span class="pre">False</span></code>) – If True and <cite>save_h5</cite> is True, overwrite existing datasets in the HDF5 file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mm_properties</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">shape</span> <span class="pre">(max_cell_id+1</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">n_features)</span></code>) – Rows indexed by cell ID, columns by the multipole‐derived features listed in <cite>property_names</cite>.</p></li>
+<li><p><strong>property_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Length‐<cite>n_features</cite> list describing each column in <cite>mm_properties</cite>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Multipole moments are computed by expanding the scalar “charge” distribution q(r) on the boundary into</p></li>
+</ul>
+<p>spherical harmonics up to order <cite>order</cite>, then assembling the radial moments.
+- The <cite>multipoles</cite> package (Maroba et al.) handles the core expansion:
+<a class="reference external" href="https://github.com/maroba/multipoles">https://github.com/maroba/multipoles</a>
+- Feature blocks include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Inverse‐distance charges to each neighbor state</p></li>
+<li><p>Frame‐to‐frame normal displacements (prev/next)</p></li>
+<li><p>Local curvature</p></li>
+<li><p>Ligand density (<cite>vdist</cite>), if requested</p></li>
+<li><p>Shape deviations and equivalent sphere radius</p></li>
+</ul>
+</div></blockquote>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>Maroba, M. _multipoles_ Python package:</p></li>
+</ul>
+<p><a class="reference external" href="https://github.com/maroba/multipoles">https://github.com/maroba/multipoles</a></p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="celltraj.trajectory.Trajectory.get_pair_rdf">
 <span class="sig-name descname"><span class="pre">get_pair_rdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_indsA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_indsB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rbins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory.html#Trajectory.get_pair_rdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory.Trajectory.get_pair_rdf" title="Link to this definition"></a></dt>
 <dd><p>Calculates the radial distribution function (RDF) between two sets of cells, identifying the
@@ -6041,7 +6138,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory_legacy.html#Trajectory.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory_legacy.Trajectory.__init__" title="Link to this definition"></a></dt>
 <dd><p>Work-in-progress init function. For now, just start adding attribute definitions in here.
 .. todo:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">Most</span> <span class="n">logic</span> <span class="kn">from</span> <span class="nn">initialize</span><span class="p">()</span> <span class="n">should</span> <span class="n">be</span> <span class="n">moved</span> <span class="ow">in</span> <span class="n">here</span><span class="o">.</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">Most</span> <span class="n">logic</span> <span class="kn">from</span><span class="w"> </span><span class="nn">initialize</span><span class="p">()</span> <span class="n">should</span> <span class="n">be</span> <span class="n">moved</span> <span class="ow">in</span> <span class="n">here</span><span class="o">.</span>
 <span class="o">-</span> <span class="n">Also</span><span class="p">,</span> <span class="n">comment</span> <span class="nb">all</span> <span class="n">of</span> <span class="n">these</span> <span class="n">here</span><span class="o">.</span> <span class="n">Right</span> <span class="n">now</span> <span class="n">most</span> <span class="n">of</span> <span class="n">them</span> <span class="n">have</span> <span class="n">comments</span> <span class="n">throughout</span> <span class="n">the</span> <span class="n">code</span><span class="o">.</span>
 <span class="o">-</span> <span class="n">Reorganize</span> <span class="n">these</span> <span class="n">attributes</span> <span class="n">into</span> <span class="n">some</span> <span class="n">meaningful</span> <span class="n">structure</span>
 </pre></div>
@@ -6579,7 +6676,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory_legacy.html#Trajectory4D.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory_legacy.Trajectory4D.__init__" title="Link to this definition"></a></dt>
 <dd><p>Work-in-progress init function. For now, just start adding attribute definitions in here.
 .. todo:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">Most</span> <span class="n">logic</span> <span class="kn">from</span> <span class="nn">initialize</span><span class="p">()</span> <span class="n">should</span> <span class="n">be</span> <span class="n">moved</span> <span class="ow">in</span> <span class="n">here</span><span class="o">.</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">Most</span> <span class="n">logic</span> <span class="kn">from</span><span class="w"> </span><span class="nn">initialize</span><span class="p">()</span> <span class="n">should</span> <span class="n">be</span> <span class="n">moved</span> <span class="ow">in</span> <span class="n">here</span><span class="o">.</span>
 <span class="o">-</span> <span class="n">Also</span><span class="p">,</span> <span class="n">comment</span> <span class="nb">all</span> <span class="n">of</span> <span class="n">these</span> <span class="n">here</span><span class="o">.</span> <span class="n">Right</span> <span class="n">now</span> <span class="n">most</span> <span class="n">of</span> <span class="n">them</span> <span class="n">have</span> <span class="n">comments</span> <span class="n">throughout</span> <span class="n">the</span> <span class="n">code</span><span class="o">.</span>
 <span class="o">-</span> <span class="n">Reorganize</span> <span class="n">these</span> <span class="n">attributes</span> <span class="n">into</span> <span class="n">some</span> <span class="n">meaningful</span> <span class="n">structure</span>
 </pre></div>
@@ -6606,7 +6703,7 @@ Biorxiv 10.1101/2021.10.07.463498, 2021.</p>
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/celltraj/trajectory_legacy.html#TrajectorySet.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#celltraj.trajectory_legacy.TrajectorySet.__init__" title="Link to this definition"></a></dt>
 <dd><p>Work-in-progress init function. For now, just start adding attribute definitions in here.
 .. todo:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">Most</span> <span class="n">logic</span> <span class="kn">from</span> <span class="nn">initialize</span><span class="p">()</span> <span class="n">should</span> <span class="n">be</span> <span class="n">moved</span> <span class="ow">in</span> <span class="n">here</span><span class="o">.</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="n">Most</span> <span class="n">logic</span> <span class="kn">from</span><span class="w"> </span><span class="nn">initialize</span><span class="p">()</span> <span class="n">should</span> <span class="n">be</span> <span class="n">moved</span> <span class="ow">in</span> <span class="n">here</span><span class="o">.</span>
 <span class="o">-</span> <span class="n">Also</span><span class="p">,</span> <span class="n">comment</span> <span class="nb">all</span> <span class="n">of</span> <span class="n">these</span> <span class="n">here</span><span class="o">.</span> <span class="n">Right</span> <span class="n">now</span> <span class="n">most</span> <span class="n">of</span> <span class="n">them</span> <span class="n">have</span> <span class="n">comments</span> <span class="n">throughout</span> <span class="n">the</span> <span class="n">code</span><span class="o">.</span>
 <span class="o">-</span> <span class="n">Reorganize</span> <span class="n">these</span> <span class="n">attributes</span> <span class="n">into</span> <span class="n">some</span> <span class="n">meaningful</span> <span class="n">structure</span>
 </pre></div>

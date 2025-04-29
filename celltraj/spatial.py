@@ -1656,3 +1656,60 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
         return border_dict,border_properties_list
     else:
         return border_dict
+
+def get_boundary_multipole_moments(border_pts,border_charge,order=1,return_moments=False):
+    """
+    Compute normalized radial magnitudes of spherical multipole moments for a discrete boundary charge distribution.
+
+    This function uses the `multipoles` package to perform a multipole expansion of the scalar charges
+    located at the coordinates `border_pts`. It returns, for each multipole order ℓ from 0 up to `order`,
+    the magnitude of the vector of raw (ℓ,m) moments, normalized by the number of charges and by (2ℓ+1).
+
+    Parameters
+    ----------
+    border_pts : ndarray of shape (N, D)
+        Coordinates of N boundary points in D dimensions (typically D=2 or 3).
+    border_charge : ndarray of shape (N,)
+        Scalar “charge” values assigned to each boundary point.
+    order : int, optional
+        Maximum multipole order ℓ to compute (default is 1, computing monopole and dipole).
+    return_moments : bool, optional
+        If True, also return the full set of raw multipole moments for each ℓ and m.
+
+    Returns
+    -------
+    magnitudes : ndarray of shape (order+1,)
+        For each ℓ = 0..order, the normalized radial magnitude of the multipole moments:
+        \\[
+            \\text{magnitude}_\\ell = \\frac{1}{(2\\ell+1)\\,N} \\, \\bigl\\lVert \\, M_{\\ell, m}\\bigr\\rVert_{m=-\\ell..\\ell}
+        \\]
+    moments : dict, optional
+        Only returned if `return_moments=True`. A nested dictionary `moments[ℓ][m]` containing the raw
+        complex multipole moment for each order ℓ and degree m.
+
+    Notes
+    -----
+    - Relies on the `multipoles` package:
+      https://github.com/maroba/multipoles?tab=readme-ov-file
+    - Points with non-finite charges are filtered out before expansion.
+    """
+    indgood=np.where(np.isfinite(border_charge))[0]
+    border_charge=border_charge[indgood]
+    border_pts=border_pts[indgood,:]
+    charges_list = [{'q': border_charge, 'xyz': tuple(border_pts)} for border_charge, border_pts in zip(border_charge, border_pts)]
+    charge_dist = {'discrete': True, 'charges': charges_list}
+    Phi = MultipoleExpansion(charge_dist, order)
+    magnitudes=np.zeros(order+1)
+    for l in range(order+1):
+        lmoments=[]
+        for m in range(-l,l+1):
+            lmoments.append(Phi.multipole_moments[l,m]/indgood.size)
+        if l==0:
+            magnitudes[l]=np.real(lmoments[0])
+        else:
+            magnitudes[l]=np.linalg.norm(lmoments)
+        magnitudes[l]=magnitudes[l]/(2*l+1)
+    if return_moments:
+        return magnitudes,moments
+    else:
+        return magnitudes

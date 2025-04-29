@@ -1,22 +1,20 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>celltraj.imageprep &mdash; celltraj 0.1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -73,36 +71,36 @@
            <div itemprop="articleBody">
              
   <h1>Source code for celltraj.imageprep</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
-<span class="kn">import</span> <span class="nn">skimage.io</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">color</span><span class="p">,</span> <span class="n">morphology</span>
-<span class="kn">import</span> <span class="nn">skimage.transform</span>
-<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">fourier_shift</span>
-<span class="kn">import</span> <span class="nn">h5py</span>
-<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">transform</span> <span class="k">as</span> <span class="n">tf</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
-<span class="kn">from</span> <span class="nn">skimage.segmentation</span> <span class="kn">import</span> <span class="n">watershed</span>
-<span class="kn">from</span> <span class="nn">skimage.segmentation</span> <span class="kn">import</span> <span class="n">clear_border</span>
-<span class="kn">from</span> <span class="nn">skimage.feature</span> <span class="kn">import</span> <span class="n">peak_local_max</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
-<span class="kn">from</span> <span class="nn">skimage.filters</span> <span class="kn">import</span> <span class="n">threshold_local</span>
-<span class="kn">import</span> <span class="nn">pyemma.coordinates.clustering</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">pystackreg</span> <span class="kn">import</span> <span class="n">StackReg</span>
-<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">transform</span> <span class="k">as</span> <span class="n">tf</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
-<span class="kn">from</span> <span class="nn">skimage.transform</span> <span class="kn">import</span> <span class="n">resize</span><span class="p">,</span><span class="n">rescale</span>
-<span class="kn">import</span> <span class="nn">utilities</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skimage.io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage</span><span class="w"> </span><span class="kn">import</span> <span class="n">color</span><span class="p">,</span> <span class="n">morphology</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skimage.transform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.ndimage</span><span class="w"> </span><span class="kn">import</span> <span class="n">fourier_shift</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform</span> <span class="k">as</span> <span class="n">tf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">minimize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage.segmentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">watershed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage.segmentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">clear_border</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage.feature</span><span class="w"> </span><span class="kn">import</span> <span class="n">peak_local_max</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">threshold_local</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyemma.coordinates.clustering</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pystackreg</span><span class="w"> </span><span class="kn">import</span> <span class="n">StackReg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform</span> <span class="k">as</span> <span class="n">tf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ndimage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage.transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">resize</span><span class="p">,</span><span class="n">rescale</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">utilities</span>
 
 <div class="viewcode-block" id="list_images">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.list_images">[docs]</a>
-<span class="k">def</span> <span class="nf">list_images</span><span class="p">(</span><span class="n">imagespecifier</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_images</span><span class="p">(</span><span class="n">imagespecifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Lists image files in a directory matching a specified pattern by executing a shell command.</span>
 <span class="sd">    This function constructs a command to list files using Unix &#39;ls&#39; based on the given pattern,</span>
@@ -151,7 +149,7 @@
 
 <div class="viewcode-block" id="organize_filelist_fov">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.organize_filelist_fov">[docs]</a>
-<span class="k">def</span> <span class="nf">organize_filelist_fov</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">fov_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fov_len</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">organize_filelist_fov</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">fov_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fov_len</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Organizes a list of image files by sorting them according to the field of view (FOV) identifier</span>
 <span class="sd">    specified within each file name. This function is useful for grouping and sorting files that include</span>
@@ -212,7 +210,7 @@
 
 <div class="viewcode-block" id="organize_filelist_time">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.organize_filelist_time">[docs]</a>
-<span class="k">def</span> <span class="nf">organize_filelist_time</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">time_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">organize_filelist_time</span><span class="p">(</span><span class="n">filelist</span><span class="p">,</span> <span class="n">time_pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Organizes a list of image files by sorting them based on timestamps contained in the filenames.</span>
 <span class="sd">    The expected timestamp format is &quot;??d??h??m&quot; (e.g., &quot;02d11h30m&quot; for 2 days, 11 hours, and 30 minutes).</span>
@@ -268,7 +266,7 @@
 
 <div class="viewcode-block" id="znorm">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.znorm">[docs]</a>
-<span class="k">def</span> <span class="nf">znorm</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">znorm</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Performs variance normalization (Z-normalization) on an input array or image, scaling it by its mean and standard</span>
 <span class="sd">    deviation to achieve a mean of zero and a standard deviation of one. </span>
@@ -309,14 +307,14 @@
 
 <div class="viewcode-block" id="rescale_to_int">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.rescale_to_int">[docs]</a>
-<span class="k">def</span> <span class="nf">rescale_to_int</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">maxint</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rescale_to_int</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">maxint</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">):</span>
     <span class="n">img</span><span class="o">=</span><span class="n">maxint</span><span class="o">*</span><span class="p">((</span><span class="n">img</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">img</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">img</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">img</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">img</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="histogram_stretch">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.histogram_stretch">[docs]</a>
-<span class="k">def</span> <span class="nf">histogram_stretch</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">lp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">hp</span><span class="o">=</span><span class="mi">99</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">histogram_stretch</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">lp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">hp</span><span class="o">=</span><span class="mi">99</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Performs histogram stretching on an input array or image to enhance the contrast by scaling the pixel </span>
 <span class="sd">    intensity values to the specified lower and upper percentile bounds. This method spreads out the most </span>
@@ -364,7 +362,7 @@
 
 <div class="viewcode-block" id="get_images">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_images">[docs]</a>
-<span class="k">def</span> <span class="nf">get_images</span><span class="p">(</span><span class="n">filelist</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_images</span><span class="p">(</span><span class="n">filelist</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads a list of image files and loads them into memory as arrays. This function is useful for batch processing </span>
 <span class="sd">    images for analysis or input into machine learning models.</span>
@@ -408,7 +406,7 @@
 
 <div class="viewcode-block" id="get_tile_order">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_tile_order">[docs]</a>
-<span class="k">def</span> <span class="nf">get_tile_order</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">,</span><span class="n">snake</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tile_order</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">,</span><span class="n">snake</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Constructs an ordering matrix for assembling image tiles, often used to arrange microscope image tiles </span>
 <span class="sd">    into a single large image. This function generates a 2D array where each element represents the </span>
@@ -462,7 +460,7 @@
 
 <div class="viewcode-block" id="get_slide_image">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_slide_image">[docs]</a>
-<span class="k">def</span> <span class="nf">get_slide_image</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">nrows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">image_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">foverlap</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">histnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_slide_image</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">nrows</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">ncols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">image_inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">foverlap</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span><span class="n">histnorm</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Constructs a single composite image from a list of tiled images based on specified row and column </span>
 <span class="sd">    information, overlap, and optional histogram normalization. This function is useful for reconstructing </span>
@@ -542,7 +540,7 @@
 
 <div class="viewcode-block" id="load_ilastik">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.load_ilastik">[docs]</a>
-<span class="k">def</span> <span class="nf">load_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads pixel classification results from an HDF5 file generated by Ilastik. This function reads the dataset</span>
 <span class="sd">    containing pixel predictions and returns it as a numpy array.</span>
@@ -588,7 +586,7 @@
 
 <div class="viewcode-block" id="get_mask_2channel_ilastik">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_mask_2channel_ilastik">[docs]</a>
-<span class="k">def</span> <span class="nf">get_mask_2channel_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">growthcycles</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_mask_2channel_ilastik</span><span class="p">(</span><span class="n">file_ilastik</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">growthcycles</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Processes a pixel classification output from Ilastik to generate a binary mask for a specified foreground </span>
 <span class="sd">    channel. This function includes options to fill holes, apply morphological operations, and threshold the </span>
@@ -646,7 +644,7 @@
 
 <div class="viewcode-block" id="get_masks">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_masks">[docs]</a>
-<span class="k">def</span> <span class="nf">get_masks</span><span class="p">(</span><span class="n">masklist</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">growthcycles</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_masks</span><span class="p">(</span><span class="n">masklist</span><span class="p">,</span><span class="n">fore_channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">holefill_area</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">growthcycles</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">pcut</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Processes a list of Ilastik prediction files to generate binary masks based on specified foreground channels</span>
 <span class="sd">    and other morphological processing parameters. This function is useful for batch processing multiple segmentation</span>
@@ -705,7 +703,7 @@
 
 <div class="viewcode-block" id="local_threshold">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.local_threshold">[docs]</a>
-<span class="k">def</span> <span class="nf">local_threshold</span><span class="p">(</span><span class="n">imgr</span><span class="p">,</span><span class="n">block_size</span><span class="o">=</span><span class="mi">51</span><span class="p">,</span><span class="n">z_std</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">local_threshold</span><span class="p">(</span><span class="n">imgr</span><span class="p">,</span><span class="n">block_size</span><span class="o">=</span><span class="mi">51</span><span class="p">,</span><span class="n">z_std</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies a local thresholding algorithm to an image using adaptive threshold values computed from each pixel&#39;s</span>
 <span class="sd">    local neighborhood, adjusted by a global threshold defined as a multiple of the image&#39;s standard deviation.</span>
@@ -754,7 +752,7 @@
 
 <div class="viewcode-block" id="get_labeled_mask">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_labeled_mask">[docs]</a>
-<span class="k">def</span> <span class="nf">get_labeled_mask</span><span class="p">(</span><span class="n">b_imgr</span><span class="p">,</span><span class="n">imgM</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">apply_watershed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">dist_footprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_labeled_mask</span><span class="p">(</span><span class="n">b_imgr</span><span class="p">,</span><span class="n">imgM</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">apply_watershed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">dist_footprint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">zscale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Processes a binary image to label connected components, optionally applying the watershed algorithm to</span>
 <span class="sd">    separate closely touching objects. This function can also fill holes within binary objects and mask out</span>
@@ -819,10 +817,11 @@
         <span class="k">if</span> <span class="n">b_imgr</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
             <span class="n">footprint</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dist_footprint</span><span class="p">,</span> <span class="n">dist_footprint</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">b_imgr</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+            <span class="n">footprint</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dist_footprint</span><span class="p">,</span> <span class="n">dist_footprint</span><span class="p">,</span><span class="n">dist_footprint</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">zscale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">zscale</span><span class="o">=</span><span class="mf">1.</span>
         <span class="n">d_imgr</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="n">b_imgr</span><span class="p">)</span>
-        <span class="n">local_maxi</span> <span class="o">=</span> <span class="n">peak_local_max</span><span class="p">(</span><span class="n">d_imgr</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">footprint</span><span class="o">=</span><span class="n">footprint</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">masks_nuc</span><span class="p">,</span><span class="n">num_peaks_per_label</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">local_maxi</span> <span class="o">=</span> <span class="n">peak_local_max</span><span class="p">(</span><span class="n">d_imgr</span><span class="p">,</span> <span class="n">footprint</span><span class="o">=</span><span class="n">footprint</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">masks_nuc</span><span class="p">,</span><span class="n">num_peaks_per_label</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">markers_nuc</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">local_maxi</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">masks_nuc</span> <span class="o">=</span> <span class="n">watershed</span><span class="p">(</span><span class="o">-</span><span class="n">d_imgr</span><span class="p">,</span> <span class="n">markers</span><span class="o">=</span><span class="n">markers_nuc</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">b_imgr</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">masks_nuc</span></div>
@@ -830,7 +829,7 @@
 
 <div class="viewcode-block" id="clean_labeled_mask">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.clean_labeled_mask">[docs]</a>
-<span class="k">def</span> <span class="nf">clean_labeled_mask</span><span class="p">(</span><span class="n">masks_nuc</span><span class="p">,</span><span class="n">remove_borders</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">remove_padding</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">edge_buffer</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">minsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">selection</span><span class="o">=</span><span class="s1">&#39;largest&#39;</span><span class="p">,</span><span class="n">test_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">test_cut</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clean_labeled_mask</span><span class="p">(</span><span class="n">masks_nuc</span><span class="p">,</span><span class="n">remove_borders</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">remove_padding</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">edge_buffer</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">minsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">selection</span><span class="o">=</span><span class="s1">&#39;largest&#39;</span><span class="p">,</span><span class="n">test_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">test_cut</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Cleans up a labeled mask by removing small or large objects based on size thresholds, handling image borders,</span>
 <span class="sd">    and optionally filling holes within the objects. This function can also trim padding around the image and </span>
@@ -950,7 +949,7 @@
 
 <div class="viewcode-block" id="get_label_largestcc">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_label_largestcc">[docs]</a>
-<span class="k">def</span> <span class="nf">get_label_largestcc</span><span class="p">(</span><span class="n">label</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_label_largestcc</span><span class="p">(</span><span class="n">label</span><span class="p">,</span><span class="n">fill_holes</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Processes a labeled mask to keep only the largest connected component (CC) for each unique label in the mask,</span>
 <span class="sd">    optionally filling holes within those components. This function is useful for cleaning segmentation results by </span>
@@ -998,7 +997,7 @@
 
 <div class="viewcode-block" id="get_feature_map">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_feature_map">[docs]</a>
-<span class="k">def</span> <span class="nf">get_feature_map</span><span class="p">(</span><span class="n">features</span><span class="p">,</span><span class="n">labels</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_feature_map</span><span class="p">(</span><span class="n">features</span><span class="p">,</span><span class="n">labels</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Maps an array of features to their corresponding labels in a labeled image. Each feature is assigned to the region</span>
 <span class="sd">    of the mask identified by the same label index. This function ensures that each discrete label in the labeled mask</span>
@@ -1052,7 +1051,7 @@
 
 <div class="viewcode-block" id="get_voronoi_masks_fromcenters">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_voronoi_masks_fromcenters">[docs]</a>
-<span class="k">def</span> <span class="nf">get_voronoi_masks_fromcenters</span><span class="p">(</span><span class="n">nuc_centers</span><span class="p">,</span><span class="n">imgM</span><span class="p">,</span><span class="n">selection</span><span class="o">=</span><span class="s1">&#39;closest&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_voronoi_masks_fromcenters</span><span class="p">(</span><span class="n">nuc_centers</span><span class="p">,</span><span class="n">imgM</span><span class="p">,</span><span class="n">selection</span><span class="o">=</span><span class="s1">&#39;closest&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates Voronoi masks from provided nucleus centers within a given image mask. The function assigns each pixel</span>
 <span class="sd">    to the nearest nucleus center, creating distinct regions (Voronoi tessellation). Optionally, the user can choose</span>
@@ -1134,7 +1133,7 @@
 
 <div class="viewcode-block" id="make_odd">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.make_odd">[docs]</a>
-<span class="k">def</span> <span class="nf">make_odd</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_odd</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts a number to the nearest odd integer. If the number is even, it will be increased to the next odd number.</span>
 <span class="sd">    If the number is odd, it will be returned as is.</span>
@@ -1170,7 +1169,7 @@
 
 <div class="viewcode-block" id="get_intensity_centers">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_intensity_centers">[docs]</a>
-<span class="k">def</span> <span class="nf">get_intensity_centers</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">msk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">footprint_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">smooth_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pad_zeros</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_intensity_centers</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">msk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">footprint_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">smooth_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pad_zeros</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Identifies centers of intensity within an image, optionally constrained by a mask. This function is useful for </span>
 <span class="sd">    detecting features like local maxima that represent points of interest within an image, such as cell centers in </span>
@@ -1251,7 +1250,7 @@
 
 <div class="viewcode-block" id="save_for_viewing">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.save_for_viewing">[docs]</a>
-<span class="k">def</span> <span class="nf">save_for_viewing</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">fname</span><span class="p">,</span><span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_for_viewing</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">fname</span><span class="p">,</span><span class="n">metadata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Saves data and optional metadata to a specified file using serialization. The function uses Python&#39;s pickle module</span>
 <span class="sd">    to serialize the data and metadata into a single file. It allows for optional overwriting of existing files.</span>
@@ -1312,7 +1311,7 @@
 
 <div class="viewcode-block" id="load_for_viewing">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.load_for_viewing">[docs]</a>
-<span class="k">def</span> <span class="nf">load_for_viewing</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_for_viewing</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads data and optional metadata from a specified file that was saved using Python&#39;s pickle serialization. </span>
 <span class="sd">    This function is useful for retrieving saved datasets and their associated metadata for further processing or analysis.</span>
@@ -1361,7 +1360,7 @@
 
 <div class="viewcode-block" id="get_voronoi_masks">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_voronoi_masks">[docs]</a>
-<span class="k">def</span> <span class="nf">get_voronoi_masks</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">imgM</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_voronoi_masks</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">imgM</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates Voronoi masks based on the centers of mass of labeled regions within an image. This function is </span>
 <span class="sd">    typically used in image segmentation tasks where each label represents a distinct object or region, and the </span>
@@ -1431,7 +1430,7 @@
 
 <div class="viewcode-block" id="get_cyto_minus_nuc_labels">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_cyto_minus_nuc_labels">[docs]</a>
-<span class="k">def</span> <span class="nf">get_cyto_minus_nuc_labels</span><span class="p">(</span><span class="n">labels_cyto</span><span class="p">,</span><span class="n">labels_nuc</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cyto_minus_nuc_labels</span><span class="p">(</span><span class="n">labels_cyto</span><span class="p">,</span><span class="n">labels_nuc</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates new cytoplasmic labels where nuclear labels are excluded. This function adjusts cytoplasmic</span>
 <span class="sd">    labels to ensure they do not overlap with nuclear labels by dilating nuclear areas and subtracting them</span>
@@ -1489,7 +1488,7 @@
 
 <div class="viewcode-block" id="get_cell_intensities">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_cell_intensities">[docs]</a>
-<span class="k">def</span> <span class="nf">get_cell_intensities</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">labels</span><span class="p">,</span><span class="n">averaging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">is_3D</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cell_intensities</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">labels</span><span class="p">,</span><span class="n">averaging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">is_3D</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the sum or average intensity for each cell in a labeled image or image stack. This function</span>
 <span class="sd">    handles both 2D and 3D images and can operate on multi-channel data, summing or averaging the intensities</span>
@@ -1563,7 +1562,7 @@
 
 <div class="viewcode-block" id="get_registrations">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_registrations">[docs]</a>
-<span class="k">def</span> <span class="nf">get_registrations</span><span class="p">(</span><span class="n">imgs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_registrations</span><span class="p">(</span><span class="n">imgs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply the pystackreg library&#39;s StackReg algorithm to compute translations needed to register a stack of images along the Z-axis. This function assumes the stack is in the form (Z, X, Y) and uses the &#39;previous&#39; image as a reference for registration.</span>
 
@@ -1611,7 +1610,7 @@
 
 <div class="viewcode-block" id="get_tf_matrix_2d">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_tf_matrix_2d">[docs]</a>
-<span class="k">def</span> <span class="nf">get_tf_matrix_2d</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">img</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_tf_matrix_2d</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">img</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
     <span class="n">nx</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">ny</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">centerx</span><span class="o">=</span><span class="n">nx</span><span class="o">/</span><span class="mi">2</span>
@@ -1631,7 +1630,7 @@
 
 <div class="viewcode-block" id="transform_image">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.transform_image">[docs]</a>
-<span class="k">def</span> <span class="nf">transform_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">tf_matrix</span><span class="p">,</span><span class="n">inverse_tform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">pad_dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">ndimage_args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">transform_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">tf_matrix</span><span class="p">,</span><span class="n">inverse_tform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">pad_dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">ndimage_args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies a geometric transformation to an image using a specified transformation matrix.</span>
 <span class="sd">    It can handle 2D and 3D transformations, supports padding, and can invert the transformation.</span>
@@ -1696,7 +1695,7 @@
 
 <div class="viewcode-block" id="pad_image">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.pad_image">[docs]</a>
-<span class="k">def</span> <span class="nf">pad_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="o">*</span><span class="n">maxdims</span><span class="p">,</span><span class="n">padvalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pad_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="o">*</span><span class="n">maxdims</span><span class="p">,</span><span class="n">padvalue</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Pads an image to the specified dimensions using a constant value, with optional padding value specification. </span>
 <span class="sd">    The function ensures the new image has central alignment relative to the original image dimensions.</span>
@@ -1753,7 +1752,7 @@
 
 <div class="viewcode-block" id="get_registration_expansions">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_registration_expansions">[docs]</a>
-<span class="k">def</span> <span class="nf">get_registration_expansions</span><span class="p">(</span><span class="n">tf_matrix_set</span><span class="p">,</span><span class="o">*</span><span class="n">imgdims</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_registration_expansions</span><span class="p">(</span><span class="n">tf_matrix_set</span><span class="p">,</span><span class="o">*</span><span class="n">imgdims</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the new padded dimensions for an image based on the translations found in a set of transformation matrices.</span>
 <span class="sd">    Adjusts the transformation matrices to centralize the image after applying translations.</span>
@@ -1808,7 +1807,7 @@
 
 <div class="viewcode-block" id="expand_registered_images">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.expand_registered_images">[docs]</a>
-<span class="k">def</span> <span class="nf">expand_registered_images</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">tSet</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">expand_registered_images</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span><span class="n">tSet</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies transformations to a stack of images and expands them so that they align according to the provided transformation set.</span>
 <span class="sd">    This function is useful for aligning images based on calculated translations and optionally rotations.</span>
@@ -1867,7 +1866,7 @@
 
 <div class="viewcode-block" id="create_h5">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.create_h5">[docs]</a>
-<span class="k">def</span> <span class="nf">create_h5</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">dic</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_h5</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">dic</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates an HDF5 file and stores data from a dictionary into it under a specified group. The function checks if the file</span>
 <span class="sd">    already exists and handles it based on the &#39;overwrite&#39; parameter.</span>
@@ -1918,7 +1917,7 @@
 
 <div class="viewcode-block" id="save_frame_h5">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.save_frame_h5">[docs]</a>
-<span class="k">def</span> <span class="nf">save_frame_h5</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">img</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">msks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fmsk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">timestamp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_frame_h5</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">img</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">msks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fmsk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">timestamp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Saves data related to a specific frame into an HDF5 file. This function can handle images, masks, foreground masks, and features.</span>
 <span class="sd">    Each type of data is saved into a distinct dataset within the file. Existing data can be overwritten if specified.</span>
@@ -2019,7 +2018,7 @@
 
 <div class="viewcode-block" id="get_cell_centers">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_cell_centers">[docs]</a>
-<span class="k">def</span> <span class="nf">get_cell_centers</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cell_centers</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the centers of mass for labeled regions in an image.</span>
 
@@ -2056,7 +2055,7 @@
 
 <div class="viewcode-block" id="get_nndist_sum">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_nndist_sum">[docs]</a>
-<span class="k">def</span> <span class="nf">get_nndist_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">tshift</span><span class="p">,</span><span class="n">centers1</span><span class="p">,</span><span class="n">centers2</span><span class="p">,</span><span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_nndist_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">tshift</span><span class="p">,</span><span class="n">centers1</span><span class="p">,</span><span class="n">centers2</span><span class="p">,</span><span class="n">rcut</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the sum of the nearest neighbor distances between two sets of points, potentially shifted by a vector, </span>
 <span class="sd">    with an optional distance cutoff to consider only close points.</span>
@@ -2102,7 +2101,7 @@
 
 <div class="viewcode-block" id="get_pair_rdf_fromcenters">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_pair_rdf_fromcenters">[docs]</a>
-<span class="k">def</span> <span class="nf">get_pair_rdf_fromcenters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">centers</span><span class="p">,</span><span class="n">rbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nr</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pair_rdf_fromcenters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">centers</span><span class="p">,</span><span class="n">rbins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">nr</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">rmax</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the radial distribution function (RDF) from a set of center points.</span>
 <span class="sd">    The RDF provides a measure of the density distribution of a set of points as a function of distance.</span>
@@ -2163,7 +2162,7 @@
 
 <div class="viewcode-block" id="dist_to_contact">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.dist_to_contact">[docs]</a>
-<span class="k">def</span> <span class="nf">dist_to_contact</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">r0</span><span class="p">,</span><span class="n">d0</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dist_to_contact</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">r0</span><span class="p">,</span><span class="n">d0</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mi">12</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate a contact potential value based on distance, using a Lennard-Jones-like formula.</span>
 
@@ -2219,7 +2218,7 @@
 
 <div class="viewcode-block" id="get_contactsum_dev">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.get_contactsum_dev">[docs]</a>
-<span class="k">def</span> <span class="nf">get_contactsum_dev</span><span class="p">(</span><span class="n">centers1</span><span class="p">,</span><span class="n">centers2</span><span class="p">,</span><span class="n">img2</span><span class="p">,</span><span class="n">rp1</span><span class="p">,</span><span class="n">nt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">savefile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_contactsum_dev</span><span class="p">(</span><span class="n">centers1</span><span class="p">,</span><span class="n">centers2</span><span class="p">,</span><span class="n">img2</span><span class="p">,</span><span class="n">rp1</span><span class="p">,</span><span class="n">nt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">savefile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate a grid-based sum of contact deviations for center points translated across an image.</span>
 
@@ -2298,7 +2297,7 @@
 
 <div class="viewcode-block" id="crop_image">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.imageprep.crop_image">[docs]</a>
-<span class="k">def</span> <span class="nf">crop_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">tshift</span><span class="p">,</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">crop_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">tshift</span><span class="p">,</span><span class="n">nx</span><span class="p">,</span><span class="n">ny</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Crop and resize an image based on specified translation shifts and dimensions.</span>
 

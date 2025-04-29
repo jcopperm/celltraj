@@ -1,22 +1,20 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>celltraj.model &mdash; celltraj 0.1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -73,23 +71,23 @@
            <div itemprop="articleBody">
              
   <h1>Source code for celltraj.model</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">pandas</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">scipy</span>
-<span class="kn">import</span> <span class="nn">pyemma.coordinates</span> <span class="k">as</span> <span class="nn">coor</span>
-<span class="kn">from</span> <span class="nn">adjustText</span> <span class="kn">import</span> <span class="n">adjust_text</span>
-<span class="kn">import</span> <span class="nn">umap</span>
-<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
-<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">csr_matrix</span>
-<span class="kn">from</span> <span class="nn">scipy.sparse.csgraph</span> <span class="kn">import</span> <span class="n">connected_components</span>
-<span class="kn">import</span> <span class="nn">utilities</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyemma.coordinates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">coor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">adjustText</span><span class="w"> </span><span class="kn">import</span> <span class="n">adjust_text</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">umap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">csr_matrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse.csgraph</span><span class="w"> </span><span class="kn">import</span> <span class="n">connected_components</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">utilities</span>
 
 <div class="viewcode-block" id="get_transition_matrix">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_transition_matrix">[docs]</a>
-<span class="k">def</span> <span class="nf">get_transition_matrix</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">clusters</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_transition_matrix</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">clusters</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the transition matrix from the cluster assignments of two consecutive time points.</span>
 
@@ -146,7 +144,7 @@
 
 <div class="viewcode-block" id="get_transition_matrix_CG">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_transition_matrix_CG">[docs]</a>
-<span class="k">def</span> <span class="nf">get_transition_matrix_CG</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">clusters</span><span class="p">,</span><span class="n">states</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_transition_matrix_CG</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">clusters</span><span class="p">,</span><span class="n">states</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the coarse-grained transition matrix from the cluster assignments of two consecutive</span>
 <span class="sd">    time points, considering predefined states.</span>
@@ -206,7 +204,7 @@
 
 <div class="viewcode-block" id="clean_clusters">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.clean_clusters">[docs]</a>
-<span class="k">def</span> <span class="nf">clean_clusters</span><span class="p">(</span><span class="n">clusters</span><span class="p">,</span><span class="n">P</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clean_clusters</span><span class="p">(</span><span class="n">clusters</span><span class="p">,</span><span class="n">P</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clean clusters by removing isolated clusters based on connectivity in a transition probability matrix.</span>
 
@@ -253,7 +251,7 @@
 
 <div class="viewcode-block" id="get_path_entropy_2point">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_path_entropy_2point">[docs]</a>
-<span class="k">def</span> <span class="nf">get_path_entropy_2point</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">Mt</span><span class="p">,</span><span class="n">clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_path_entropy_2point</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">Mt</span><span class="p">,</span><span class="n">clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the entropy of transitions between states over a single step for a set of trajectories,</span>
 <span class="sd">    using a given transition matrix. The entropy is calculated based on the negative logarithm of</span>
@@ -330,7 +328,7 @@
 
 <div class="viewcode-block" id="get_path_ll_2point">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_path_ll_2point">[docs]</a>
-<span class="k">def</span> <span class="nf">get_path_ll_2point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_path_ll_2point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x0</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the log-likelihood of observing specific transitions between states over one step </span>
 <span class="sd">    for a set of trajectories, using a provided transition matrix. The log-likelihood is computed </span>
@@ -399,7 +397,7 @@
 
 <div class="viewcode-block" id="get_kscore">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_kscore">[docs]</a>
-<span class="k">def</span> <span class="nf">get_kscore</span><span class="p">(</span><span class="n">Mt</span><span class="p">,</span><span class="n">eps</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span> <span class="c1">#,nw=10):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_kscore</span><span class="p">(</span><span class="n">Mt</span><span class="p">,</span><span class="n">eps</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span> <span class="c1">#,nw=10):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the k-score for a given transition matrix. The k-score measures the kinetic separability</span>
 <span class="sd">    of states within the transition matrix, which is derived from the eigenvalues of the matrix. It</span>
@@ -456,7 +454,7 @@
 
 <div class="viewcode-block" id="get_traj_ll_gmean">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_traj_ll_gmean">[docs]</a>
-<span class="k">def</span> <span class="nf">get_traj_ll_gmean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">xt</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_traj_ll_gmean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">xt</span><span class="p">,</span><span class="n">exclude_stays</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">states</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the geometric mean of the log-likelihoods for the transitions of trajectories based on</span>
 <span class="sd">    their assignments to clusters and a transition matrix.</span>
@@ -528,7 +526,7 @@
 
 <div class="viewcode-block" id="get_H_eigs">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_H_eigs">[docs]</a>
-<span class="k">def</span> <span class="nf">get_H_eigs</span><span class="p">(</span><span class="n">Mt</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_H_eigs</span><span class="p">(</span><span class="n">Mt</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the eigenvalues and eigenvectors of the Hermitian matrix formed from a given Markov transition matrix.</span>
 
@@ -570,7 +568,7 @@
 
 <div class="viewcode-block" id="get_motifs">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_motifs">[docs]</a>
-<span class="k">def</span> <span class="nf">get_motifs</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">ncomp</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_motifs</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">ncomp</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extracts and scales the last `ncomp` components of complex eigenvectors from a given set of eigenvectors, optionally weighted by given weights, eigenvalues can be used as weights for a kinetic scaling.</span>
 
@@ -612,7 +610,7 @@
 
 <div class="viewcode-block" id="get_landscape_coords_umap">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_landscape_coords_umap">[docs]</a>
-<span class="k">def</span> <span class="nf">get_landscape_coords_umap</span><span class="p">(</span><span class="n">vkin</span><span class="p">,</span><span class="o">**</span><span class="n">embedding_args</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_landscape_coords_umap</span><span class="p">(</span><span class="n">vkin</span><span class="p">,</span><span class="o">**</span><span class="n">embedding_args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Just a wrapper for UMAP.</span>
 
@@ -647,7 +645,7 @@
 
 <div class="viewcode-block" id="get_avdx_clusters">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_avdx_clusters">[docs]</a>
-<span class="k">def</span> <span class="nf">get_avdx_clusters</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">,</span><span class="n">Mt</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_avdx_clusters</span><span class="p">(</span><span class="n">x_clusters</span><span class="p">,</span><span class="n">Mt</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates the average directional changes between clusters weighted by transition probabilities, based on cluster embeddings and a transition matrix. The result captures the average directional movement expected from one cluster to another.</span>
 
@@ -686,7 +684,7 @@
 
 <div class="viewcode-block" id="get_kineticstates">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_kineticstates">[docs]</a>
-<span class="k">def</span> <span class="nf">get_kineticstates</span><span class="p">(</span><span class="n">vkin</span><span class="p">,</span><span class="n">nstates_final</span><span class="p">,</span><span class="n">nstates_initial</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pcut_final</span><span class="o">=</span><span class="mf">.01</span><span class="p">,</span><span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">max_states</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">return_nstates_initial</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">cluster_ninit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_kineticstates</span><span class="p">(</span><span class="n">vkin</span><span class="p">,</span><span class="n">nstates_final</span><span class="p">,</span><span class="n">nstates_initial</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">pcut_final</span><span class="o">=</span><span class="mf">.01</span><span class="p">,</span><span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">max_states</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">return_nstates_initial</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">cluster_ninit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determines kinetic states from dynamical motifs using an iterative k-means clustering approach, aiming to find a specified number of states with sufficient representation.</span>
 <span class="sd">    This function attempts to find a user-specified number of final kinetic states (`nstates_final`) by iteratively applying k-means clustering and increasing the number of clusters until the desired number of states with a probability above a certain threshold (`pcut_final`) is achieved or the maximum limit of states (`max_states`) is reached. It refines the clustering by merging less probable states into their nearest more probable states.</span>
@@ -773,7 +771,7 @@
 
 <div class="viewcode-block" id="get_committor">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_committor">[docs]</a>
-<span class="k">def</span> <span class="nf">get_committor</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">,</span><span class="n">indTargets</span><span class="p">,</span><span class="n">indSource</span><span class="p">,</span><span class="n">conv</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_committor</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">,</span><span class="n">indTargets</span><span class="p">,</span><span class="n">indSource</span><span class="p">,</span><span class="n">conv</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the committor probabilities for a Markov state model, which represent the probability of reaching a set of target states before returning to any source state.</span>
 
@@ -835,7 +833,7 @@
 
 <div class="viewcode-block" id="get_steady_state_matrixpowers">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_steady_state_matrixpowers">[docs]</a>
-<span class="k">def</span> <span class="nf">get_steady_state_matrixpowers</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">,</span><span class="n">conv</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_steady_state_matrixpowers</span><span class="p">(</span><span class="n">Tmatrix</span><span class="p">,</span><span class="n">conv</span><span class="o">=</span><span class="mf">1.e-3</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the steady-state distribution of a Markov chain by repeatedly multiplying the transition matrix by itself and averaging the rows until convergence.</span>
 
@@ -891,7 +889,7 @@
 <span class="c1">####################################feature tuned kernel DMD a la aristoff########################</span>
 <div class="viewcode-block" id="get_kernel_sigmas">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_kernel_sigmas">[docs]</a>
-<span class="k">def</span> <span class="nf">get_kernel_sigmas</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">vector_sigma</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_kernel_sigmas</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">vector_sigma</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes a vector of bandwidths (sigmas) for each feature in the observation matrix X, </span>
 <span class="sd">    scaled by a Mahalanobis matrix M, which are used to scale observations in a kernel.</span>
@@ -942,7 +940,7 @@
 
 <div class="viewcode-block" id="get_gaussianKernelM">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_gaussianKernelM">[docs]</a>
-<span class="k">def</span> <span class="nf">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">h</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_gaussianKernelM</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">M</span><span class="p">,</span><span class="n">h</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes a Gaussian kernel matrix scaled by a Mahalanobis distance between two observation matrices X and Y.</span>
 <span class="sd">    Each element of the kernel matrix represents the Gaussian kernel between samples from X and Y with scaling</span>
@@ -996,7 +994,7 @@
 
 <div class="viewcode-block" id="get_koopman_eig">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_koopman_eig">[docs]</a>
-<span class="k">def</span> <span class="nf">get_koopman_eig</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">M</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">bta</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">psi_X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">psi_Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_koopman_eig</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">M</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">,</span><span class="n">bta</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">psi_X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">psi_Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Koopman operator and its eigendecomposition, which describes the evolution of </span>
 <span class="sd">    observables in a dynamical system. This method utilizes a kernel-based approach to approximate</span>
@@ -1072,7 +1070,7 @@
 
 <div class="viewcode-block" id="get_koopman_modes">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_koopman_modes">[docs]</a>
-<span class="k">def</span> <span class="nf">get_koopman_modes</span><span class="p">(</span><span class="n">psi_X</span><span class="p">,</span><span class="n">Xi</span><span class="p">,</span><span class="n">W</span><span class="p">,</span><span class="n">X_obs</span><span class="p">,</span><span class="n">bta</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_koopman_modes</span><span class="p">(</span><span class="n">psi_X</span><span class="p">,</span><span class="n">Xi</span><span class="p">,</span><span class="n">W</span><span class="p">,</span><span class="n">X_obs</span><span class="p">,</span><span class="n">bta</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Koopman modes for specified observables using the Koopman operator&#39;s eigendecomposition. </span>
 <span class="sd">    Koopman modes represent the spatial structures associated with the dynamics captured by the Koopman eigenfunctions.</span>
@@ -1124,7 +1122,7 @@
 
 <div class="viewcode-block" id="get_koopman_inference_multiple">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.get_koopman_inference_multiple">[docs]</a>
-<span class="k">def</span> <span class="nf">get_koopman_inference_multiple</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span><span class="n">steps</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">nmodes</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_koopman_inference_multiple</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span><span class="n">steps</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">nmodes</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Predicts future states of observables using the Koopman operator framework over multiple starting indices and time steps.</span>
 
@@ -1185,7 +1183,7 @@
 
 <div class="viewcode-block" id="update_mahalanobis_matrix_grad">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.update_mahalanobis_matrix_grad">[docs]</a>
-<span class="k">def</span> <span class="nf">update_mahalanobis_matrix_grad</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_mahalanobis_matrix_grad</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Update estimation of mahalanobis matrix for kernel tuning</span>
 
 <span class="sd">    Parameters</span>
@@ -1235,7 +1233,7 @@
 
 <div class="viewcode-block" id="update_mahalanobis_matrix_J_old">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.update_mahalanobis_matrix_J_old">[docs]</a>
-<span class="k">def</span> <span class="nf">update_mahalanobis_matrix_J_old</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_mahalanobis_matrix_J_old</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Update estimation of mahalanobis matrix for kernel tuning</span>
 
 <span class="sd">    Parameters</span>
@@ -1293,7 +1291,7 @@
 
 <div class="viewcode-block" id="update_mahalanobis_matrix_J">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.update_mahalanobis_matrix_J">[docs]</a>
-<span class="k">def</span> <span class="nf">update_mahalanobis_matrix_J</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">Xi</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">lam</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span> <span class="c1">#updating per David&#39;s method 30oct23</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_mahalanobis_matrix_J</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">Xi</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">lam</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span> <span class="c1">#updating per David&#39;s method 30oct23</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the Mahalanobis matrix based on Koopman operator analysis, using the eigenfunctions</span>
 <span class="sd">    and eigenvalues derived from the Koopman operator. This update aims to tune the kernel </span>
@@ -1363,7 +1361,7 @@
 
 <div class="viewcode-block" id="update_mahalanobis_matrix_flux">
 <a class="viewcode-back" href="../../celltraj.html#celltraj.model.update_mahalanobis_matrix_flux">[docs]</a>
-<span class="k">def</span> <span class="nf">update_mahalanobis_matrix_flux</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_mahalanobis_matrix_flux</span><span class="p">(</span><span class="n">Mprev</span><span class="p">,</span><span class="n">X</span><span class="p">,</span><span class="n">phi_X</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">Lam</span><span class="p">,</span><span class="n">h</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">.05</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Update estimation of mahalanobis matrix for kernel tuning</span>
 
 <span class="sd">    Parameters</span>
