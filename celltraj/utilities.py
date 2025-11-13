@@ -298,3 +298,85 @@ def get_meshfunc_average(faceValues,faceCenters,bins=10):
     norm1,edges=np.histogramdd(faceCenters,bins=edges)
     vdist1=np.divide(vdist1,norm1+1.)
     return vdist1,edges
+
+def generate_xcoords_violin(violinplot, sample_data):
+    """
+    Generate random x-coordinates within the width of each violin plot at the corresponding y-values.
+
+    Args:
+        violinplot: The matplotlib Violin plot object returned by ax.violinplot().
+        sample_data: List or array of sample data used to create the violin plot.
+    
+    Returns:
+        A list of (x, y) coordinates representing random points within the violin's width.
+    """
+    x_coords = []
+    y_coords = []
+
+    # Extract the collection of paths for each violin
+    for i, body in enumerate(violinplot["bodies"]):
+        # The violin's outline consists of a collection of paths
+        path = body.get_paths()[0]
+        vertices = path.vertices
+        x, y = vertices[:, 0], vertices[:, 1]
+        
+        # For each y-value in the sample data, find the width of the violin
+        y_sample = sample_data[i]
+        for y_val in y_sample:
+            # Find the x-coordinates where the violin intersects the y_val
+            y_diff = np.abs(y - y_val)
+            close_indices = np.where(y_diff == np.min(y_diff))[0]
+            
+            # Ensure we get the leftmost and rightmost bounds at this y-value
+            x_bounds = x[close_indices]
+            x_left = np.min(x_bounds)
+            x_right = np.max(x_bounds)
+            
+            # Generate random x-coordinates within the bounds
+            random_x = np.random.uniform(x_left, x_right, size=1)
+            
+            x_coords.append(random_x[0])
+            y_coords.append(y_val)
+
+    return x_coords
+
+def ternary_coords_from_3d(data_3d):
+  """
+  Converts a (N, 3) numpy array of compositional data into a (N, 2)
+  array of 2D coordinates for a ternary plot.
+
+  The function first normalizes each row of the input array so that the
+  three components sum to 1. It then transforms these normalized values
+  into 2D Cartesian coordinates for plotting within an equilateral triangle.
+
+  Args:
+    data_3d (np.ndarray): A numpy array of shape (N, 3) where each row
+                          contains three values representing compositional data.
+
+  Returns:
+    np.ndarray: A numpy array of shape (N, 2) containing the 2D coordinates
+                suitable for a ternary scatterplot.
+  """
+  # Ensure input is a numpy array and has the correct shape
+  if not isinstance(data_3d, np.ndarray) or data_3d.shape[1] != 3:
+    raise ValueError("Input must be a numpy array of shape (N, 3).")
+
+  # Normalize the data: divide each row by its sum
+  row_sums = data_3d.sum(axis=1, keepdims=True)
+  # Handle the case where a row's sum is zero to avoid division by zero
+  row_sums[row_sums == 0] = 1
+  normalized_data = data_3d / row_sums
+
+  # Extract the three normalized components
+  a = normalized_data[:, 0]
+  b = normalized_data[:, 1]
+  c = normalized_data[:, 2]
+
+  # Transform the normalized data into 2D Cartesian coordinates (U, V)
+  # using a standard formula for a ternary plot with one vertex at the origin.
+  # Assumes vertices are at (0, 0), (1, 0), and (0.5, sqrt(3)/2).
+  U = 0.5 * (2 * b + c)
+  V = (np.sqrt(3) / 2) * c
+
+  # Combine the U and V coordinates into a single (N, 2) array
+  return np.stack([U, V], axis=1)

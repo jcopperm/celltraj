@@ -137,16 +137,16 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
             stateset=np.unique(states)
             for istate in stateset:
                 inds_states[istate]=np.where(border_dict['states']==istate)[0]
-                print(f'state {istate} assigned {inds_states[istate].size}')
+                print(f'\rstate {istate} assigned {inds_states[istate].size}           ',end="")
                 #if inds_states[istate].size>0:
                     #knn_states[istate] = sklearn.neighbors.NearestNeighbors(n_neighbors=1, radius=1.,algorithm='ball_tree').fit(border_pts[inds_states[istate]])
             for i in iset:
-                print(f'getting nn points for cell {i}')
+                print(f'\rgetting nn points for cell {i}                  ',end="")
                 indi=inds_labels[i]
                 if indi is not None:
                     for istate in stateset:
                         indistate=np.setdiff1d(inds_states[istate],indi)
-                        print(f'{indi.size} state {istate} {indistate.size} of {inds_states[istate].size}')
+                        #print(f'\r{indi.size} state {istate} {indistate.size} of {inds_states[istate].size}',end="")
                         if indistate.size>0:
                             knn_states = sklearn.neighbors.NearestNeighbors(n_neighbors=1, radius=1.,algorithm='ball_tree').fit(border_pts[indistate])
                             borderij_pts=border_pts[indi]
@@ -168,7 +168,7 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
         iset=iset[iset>0]
         for i in iset:
             msk=labels==i
-            print(f'label {i}, pixels {np.sum(msk)}')
+            print(f'\rgetting surface normals for label {i}, pixels {np.sum(msk)}          ',end="")
             indi=np.where(border_index==i)[0]
             border_pts_i,n_i,c_i=get_surface_points(msk,return_normals=True,return_curvature=True)
             n[indi]=n_i
@@ -1546,7 +1546,7 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
                     border_charge=np.ones(indcell.size)*-1
                     border_charge[indcell_surf]=1
                     av_surf_fraction=indcell_surf.size/indcell.size
-                    print(f'cell {cellid} state {i_state} contact fraction {av_surf_fraction:.2f}')
+                    print(f'\rcell {cellid} state {i_state} contact fraction {av_surf_fraction:.2f}              ',end="")
                     charges_list = [{'q': q, 'xyz': tuple(border_pts)} for q, border_pts in zip(border_charge, border_pts)]
                     charge_dist = {'discrete': True, 'charges': charges_list}
                     Phi = MultipoleExpansion(charge_dist, order)
@@ -1557,7 +1557,7 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
                             contact_properties[cellid,i_state,i_prop]=Phi.multipole_moments[l,m]
                             i_prop=i_prop+1
                 else:
-                    print(f'cell {cellid} state {i_state} contact fraction {0.0:.2f}')
+                    print(f'\rcell {cellid} state {i_state} contact fraction {0.0:.2f}              ',end="")
     border_dict['contact_properties']=contact_properties
     border_dict['border_properties_list']=border_properties_list
     if cell_labels_next is not None:

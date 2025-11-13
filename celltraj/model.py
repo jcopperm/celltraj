@@ -12,7 +12,7 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components
 import utilities
 
-def get_transition_matrix(x0,x1,clusters):
+def get_transition_matrix(x0,x1,clusters,return_counts=False):
     """
     Calculate the transition matrix from the cluster assignments of two consecutive time points.
 
@@ -58,15 +58,16 @@ def get_transition_matrix(x0,x1,clusters):
     for itt in range(x0.shape[0]):
         Cm[indc0[itt],indc1[itt]]=Cm[indc0[itt],indc1[itt]]+1
     Mt=Cm.copy()
-    sM=np.sum(Mt,1)
-    for iR in range(n_clusters):
-        if sM[iR]>0:
-            Mt[iR,:]=Mt[iR,:]/sM[iR]
-        if sM[iR]==0.0:
-            Mt[iR,iR]=1.0
+    if not return_counts:
+        sM=np.sum(Mt,1)
+        for iR in range(n_clusters):
+            if sM[iR]>0:
+                Mt[iR,:]=Mt[iR,:]/sM[iR]
+            if sM[iR]==0.0:
+                Mt[iR,iR]=1.0
     return Mt
 
-def get_transition_matrix_CG(x0,x1,clusters,states):
+def get_transition_matrix_CG(x0,x1,clusters,states,return_counts=False):
     """
     Calculate the coarse-grained transition matrix from the cluster assignments of two consecutive
     time points, considering predefined states.
@@ -115,12 +116,13 @@ def get_transition_matrix_CG(x0,x1,clusters,states):
     for itt in range(x0.shape[0]):
         Cm[indc0[itt],indc1[itt]]=Cm[indc0[itt],indc1[itt]]+1
     Mt=Cm.copy()
-    sM=np.sum(Mt,1)
-    for iR in range(n_states):
-        if sM[iR]>0:
-            Mt[iR,:]=Mt[iR,:]/sM[iR]
-        if sM[iR]==0.0:
-            Mt[iR,iR]=1.0
+    if not return_counts:
+        sM=np.sum(Mt,1)
+        for iR in range(n_states):
+            if sM[iR]>0:
+                Mt[iR,:]=Mt[iR,:]/sM[iR]
+            if sM[iR]==0.0:
+                Mt[iR,iR]=1.0
     return Mt
 
 def clean_clusters(clusters,P):
