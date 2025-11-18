@@ -3277,7 +3277,7 @@ class Trajectory:
         else:
             return vals_fate,inds_fate,vals_tracks
 
-    def get_border_properties_dict(self,iS,cell_states=None,secretion_rates=None,surfaces=None,surface_fmask_channels=None,surface_states_baseid=1000,add_label0_surf=True,make_cells_and_surfaces_disjoint=True,border_scale=None,border_resolution=None,vdist_scale=0.3,radius=2.0,order=1,visual=False,z_viz=None):
+    def get_border_properties_dict(self,iS,cell_states=None,state_ids=None,secretion_rates=None,surfaces=None,surface_fmask_channels=None,surface_states_baseid=1000,add_label0_surf=True,make_cells_and_surfaces_disjoint=True,border_scale=None,border_resolution=None,vdist_scale=0.3,radius=2.0,order=1,visual=False,z_viz=None):
         """
         Calculate border properties for cells and surfaces at a given frame in a trajectory.
 
@@ -3385,6 +3385,9 @@ class Trajectory:
             border_scalexy=self.micron_per_pixel/border_resolution
             border_scale=[border_scalexy*self.zscale,border_scalexy,border_scalexy]  
             print(f'scaling border to {border_scale}')
+        if state_ids is None:
+            nstates_cell=np.max(cell_states)+1
+            state_ids=(np.arange(nstates_cell+len(surface_fmask_channels)+1)+1).tolist() 
         indt0=np.where(self.cells_indimgSet==iS-1)[0]
         indt1=np.where(self.cells_indimgSet==iS+1)[0]
         if iS<np.max(self.cells_frameSet) and indt1.size!=0:
@@ -3470,16 +3473,17 @@ class Trajectory:
             vdist=None
         print(f'cell states {cell_states_labelid}, surface states {surface_states}')
         #print(f'{np.unique(cell_labels_current)}')
-        border_dict=spatial.get_border_properties(cell_labels_current,cell_states=cell_states_labelid,surfaces=surfaces,surface_states=surface_states,cell_labels_next=cell_labels1,lin_next=lin_next,cell_labels_prev=cell_labels0,lin_prev=lin_prev,vdist=vdist,border_scale=border_scale,order=order)
+        border_dict=spatial.get_border_properties(cell_labels_current,cell_states=cell_states_labelid,state_ids=state_ids,surfaces=surfaces,surface_states=surface_states,cell_labels_next=cell_labels1,lin_next=lin_next,cell_labels_prev=cell_labels0,lin_prev=lin_prev,vdist=vdist,border_scale=border_scale,order=order)
         global_cellinds=np.ones(border_dict['pts'].shape[0]).astype(int)*-1
         indcells=np.where(np.isin(border_dict['states'],np.unique(cell_states_current)))[0]
         cellids_current_post=np.unique(border_dict['index'][indcells])
         cellids_current_post=cellids_current_post[cellids_current_post>0]
         for cellid in cellids_current_post:
             indcell=np.where(border_dict['index']==cellid)[0]
-            ilabel=np.where(labelids_current==cellid)[0][0]
-            iglobal=indt_current[ilabel]
-            global_cellinds[indcell]=iglobal
+            ilabel=np.where(labelids_current==cellid)[0]
+            if ilabel.size>0: #last cell, one too many, couldn't find in array, added 13nov25
+                iglobal=indt_current[ilabel[0]]
+                global_cellinds[indcell]=iglobal
         border_dict['global_index']=global_cellinds
         if visual:
             if self.ndim==3:
@@ -3504,7 +3508,7 @@ class Trajectory:
             plt.axis('off')
         return border_dict
 
-    def get_cellboundary_library(self,frames=None,indcells=None,secretion_rates=None,cell_states=None,surface_fmask_channels=[0],surface_states_baseid=None,border_resolution=1.0,vdist_scale=.3,visual=False,save_h5=False,overwrite=False,**border_property_args):
+    def get_cellboundary_library(self,frames=None,indcells=None,secretion_rates=None,cell_states=None,state_ids=None,state_labels=None,surface_fmask_channels=[0],surface_states_baseid=None,border_resolution=1.0,vdist_scale=.3,visual=False,save_h5=False,overwrite=False,**border_property_args):
         """
         Collect and create a library of boundary properties for cells across specified frames in a trajectory.
 
@@ -3610,6 +3614,13 @@ class Trajectory:
             cell_states=np.ones(np.max(indcells)+1).astype(int)
         if surface_states_baseid is None:
             surface_states_baseid=np.max(cell_states)+1
+        if state_ids is None:
+            nstates_cell=np.max(cell_states)+1
+            state_ids=(np.arange(nstates_cell+len(surface_fmask_channels)+1)+1).tolist()
+        if state_labels is None:
+            state_labels=[]
+            for istate in range((np.max(state_ids))+1):
+                state_labels.append(f'state {istate}')
         global_index=[]
         states=[]
         pts=[]
@@ -3628,7 +3639,7 @@ class Trajectory:
             indframe=np.where(self.cells_frameSet==iS)[0]
             print(f'{indframe.size} cells in frame')
             if indframe.size>0:
-                border_dict=self.get_border_properties_dict(iS,cell_states=cell_states,secretion_rates=secretion_rates,surface_fmask_channels=surface_fmask_channels,surface_states_baseid=surface_states_baseid,border_resolution=border_resolution,vdist_scale=vdist_scale,visual=visual)
+                border_dict=self.get_border_properties_dict(iS,cell_states=cell_states,secretion_rates=secretion_rates,surface_fmask_channels=surface_fmask_channels,state_ids=state_ids,surface_states_baseid=surface_states_baseid,border_resolution=border_resolution,vdist_scale=vdist_scale,visual=visual)
                 if visual:
                     plt.show()
                 indcells_boundary=np.where(np.isin(border_dict['global_index'],indframe))[0]
@@ -3665,7 +3676,9 @@ class Trajectory:
                         'surface_fmask_channels':surface_fmask_channels,
                         'surface_states_baseid':surface_states_baseid,
                         'border_resolution':border_resolution,
-                        'vdist_scale':vdist_scale}
+                        'vdist_scale':vdist_scale,
+                        'state_ids':state_ids,
+                        'state_labels':state_labels}
         boundary_library['global_index']=np.concatenate(global_index)
         boundary_library['states']=np.concatenate(states)
         boundary_library['pts']=np.vstack(pts)
@@ -3763,11 +3776,11 @@ class Trajectory:
         cell_states=np.array(cell_states)
         nstates_cell=cell_states.size
         if cell_state_labels is None:
-            cell_state_names=[]
+            cell_state_names=['nothing']
             for istate in cell_states:
                 cell_state_names.append(f'cell state {istate}')
         else:
-            cell_state_names=[]
+            cell_state_names=['nothing']
             for istate in cell_states:
                 cell_state_names.append(cell_state_labels[istate])
         if nn_states is None:
@@ -3784,6 +3797,8 @@ class Trajectory:
                 nn_state_names.append(nn_state_labels[istate_nn])    
         if indcells is None:
             indcells=np.unique(boundary_library['global_index'])
+        print(f'calculating mm properties for states {cell_states} with names {cell_state_names}')
+        print(f' nn states {nn_states} with names {nn_state_names}')
         max_cellid=np.max(indcells)
         property_names=[]
         for istate_cell in range(cell_states.size):
@@ -3807,13 +3822,16 @@ class Trajectory:
                     property_names.append(f'l={l} {cell_state_names[istate_cell]} shapes')
                 property_names.append(f'sphere radius')
         nprops=len(property_names)
+        print(nprops)
         mm_properties=np.ones((max_cellid+1,nprops))*np.nan
         for ic in indcells:
-            print(f'calculating boundary moments for cell {ic}/{max_cellid}')
+            if ic%10==0:
+                print(f'calculating boundary moments for cell {ic}/{max_cellid}')
             mm_props=[]
             indc=np.where(boundary_library['global_index']==ic)[0]
             border_pts=boundary_library['pts'][indc,:]
             for istate_cell in range(cell_states.size):
+                #print(cell_state_names[cell_states[istate_cell]])
                 for istate_nn in nn_states:
                     border_nn_pts=boundary_library['nn_pts_states'][indc,istate_nn,:]
                     dists=np.linalg.norm(border_nn_pts-border_pts,axis=1)
@@ -3843,7 +3861,10 @@ class Trajectory:
                     dists_center=np.linalg.norm(border_pts-center,axis=1)
                     pts=border_pts
                     #check for 1D
-                    ind_ax1d=np.where((np.min(pts,axis=0)-np.max(pts,axis=0))==0.)[0]
+                    try:
+                        ind_ax1d=np.where((np.min(pts,axis=0)-np.max(pts,axis=0))==0.)[0]
+                    except:
+                        ind_ax1d=np.arange(pts.shape[1]).astype(int)
                     for iax in ind_ax1d:
                         dg=np.zeros(3)
                         dg[iax]=.5

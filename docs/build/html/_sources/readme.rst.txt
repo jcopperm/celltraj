@@ -35,6 +35,7 @@ Tutorials
 ---------
 - `Morphodynamical Trajectory Embedding Tutorial <https://github.com/jcopperm/celltraj/blob/main/tutorials/trajectory_embedding.ipynb>`_
 - `MMIST: Molecular and Morphodynamics-Integrated Single-cell Trajectories Tutorial <https://github.com/jcopperm/celltraj/blob/main/tutorials/mmist.ipynb>`_
+- `SITE: Serial Imaging of Tumor and microEnvironment` <https://github.com/murthyvai/SITE>
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 

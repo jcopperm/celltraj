@@ -17,8 +17,10 @@ import pandas as pd
 from pyntcloud import PyntCloud
 import ot
 from multipoles import MultipoleExpansion
+import pyvista as pv
+from pcdiff import knn_graph, estimate_basis, build_grad_div, laplacian
 
-def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,return_nnvector=True,return_curvature=True,nn_states=None,scale=None,**border_args):
+def get_border_dict(labels,states=None,radius=10,state_ids=None,vdist=None,return_nnindex=True,return_nnvector=True,return_curvature=True,nn_states=None,scale=None,verbose=False,**border_args):
     """
     Computes the border properties of labeled regions in a segmented image.
 
@@ -90,6 +92,12 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
     border_dict['scale']=scale
     if states is None:
         states=np.zeros(np.max(labels+1)).astype(int);states[0]=0;states[1:]=1
+    if state_ids is None:
+        nstates=np.max(states)+1
+    else:
+        nstates1=np.max(state_ids)+1
+        nstates2=np.max(states)+1
+        nstates=np.max([nstates1,nstates2])
     border=skimage.segmentation.find_boundaries(labels,mode='inner')
     ind=np.where(border)
     border_pts=np.array(ind).astype(float).T
@@ -129,19 +137,21 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
         border_dict['nn_pts']=border_nn_pts
         border_dict['nn_inds']=border_nn_inds
         if nn_states is not None:
-            border_nn_pts_state=np.ones((border_pts.shape[0],np.max(states)+1,border_pts.shape[1]))*np.nan
-            border_nn_inds_state=np.ones((border_pts.shape[0],np.max(states)+1)).astype(int)*-1
+            border_nn_pts_state=np.ones((border_pts.shape[0],nstates,border_pts.shape[1]))*np.nan
+            border_nn_inds_state=np.ones((border_pts.shape[0],nstates)).astype(int)*-1
             #knn_states=[None]*(np.max(states)+1)
-            inds_states=[None]*(np.max(states)+1)
+            inds_states=[None]*(nstates)
             iset=np.where(np.isin(states,nn_states))[0]
             stateset=np.unique(states)
             for istate in stateset:
                 inds_states[istate]=np.where(border_dict['states']==istate)[0]
-                print(f'\rstate {istate} assigned {inds_states[istate].size}           ',end="")
+                if verbose:
+                    print(f'\rstate {istate} assigned {inds_states[istate].size}           ',end="")
                 #if inds_states[istate].size>0:
                     #knn_states[istate] = sklearn.neighbors.NearestNeighbors(n_neighbors=1, radius=1.,algorithm='ball_tree').fit(border_pts[inds_states[istate]])
             for i in iset:
-                print(f'\rgetting nn points for cell {i}                  ',end="")
+                if verbose:
+                    print(f'\rgetting nn points for cell {i}                  ',end="")
                 indi=inds_labels[i]
                 if indi is not None:
                     for istate in stateset:
@@ -168,9 +178,14 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
         iset=iset[iset>0]
         for i in iset:
             msk=labels==i
-            print(f'\rgetting surface normals for label {i}, pixels {np.sum(msk)}          ',end="")
+            if verbose:
+                print(f'\rgetting surface normals for label {i}, pixels {np.sum(msk)}          ',end="")
             indi=np.where(border_index==i)[0]
-            border_pts_i,n_i,c_i=get_surface_points(msk,return_normals=True,return_curvature=True)
+            if indi.size>8:
+                border_pts_i,n_i,c_i=get_surface_points(msk,return_normals=True,return_curvature=True)
+            else:
+                n_i=np.zeros((indi.size,border_pts.shape[1]))
+                c_i=np.zeros(indi.size)
             n[indi]=n_i
             c[indi]=c_i
         border_dict['n']=n
@@ -180,7 +195,7 @@ def get_border_dict(labels,states=None,radius=10,vdist=None,return_nnindex=True,
         border_dict['vdist']=vdist_border
     return border_dict
 
-def get_surface_points(msk,return_normals=False,return_curvature=False,knn=20,rscale=.1):
+def get_surface_points(msk,return_normals=False,return_curvature=False,knn=20,rscale=.1,verbose=False):
     """
     Computes the surface points of a labeled mask and optionally calculates normals and curvature.
 
@@ -235,7 +250,8 @@ def get_surface_points(msk,return_normals=False,return_curvature=False,knn=20,rs
     npts=border_pts.shape[0]
     if knn>int(npts/4):
         knn=int(npts/4)
-        print(f'adjusted knn: {knn} npts: {npts}')
+        if verbose:
+            print(f'adjusted knn: {knn} npts: {npts}')
     if return_normals or return_curvature:
         if msk.ndim==3:
             rand_dx=np.array([np.random.normal(loc=0.,scale=rscale,size=npts),np.random.normal(loc=0.,scale=rscale,size=npts),np.random.normal(loc=0.,scale=rscale,size=npts)]).T
@@ -455,19 +471,109 @@ def get_surface_displacement(border_dict,sts=None,c=None,n=None,alpha=1.,maxd=No
         dx=dx*(maxd/maxr)
     return dx
 
-def get_surface_gradvariance(border_pts,dx_ot,knn=12,use_eigs=False):
+def get_surface_gradvariance(border_pts,dx_ot,knn=12,use_eigs=False,use_nonspatial=False):
+    """
+    Estimate local variation (squared gradient / roughness) of a boundary displacement field.
+
+    This function takes a set of boundary points and their displacements (e.g., from
+    optimal transport between two surfaces) and computes a per-point measure of how
+    rapidly the displacement magnitude varies along the surface.
+
+    Three related estimators are supported, selected via `use_eigs` and `use_nonspatial`:
+
+    1. **Eigen-based local variation (`use_eigs=True`)**:
+       Uses the `PyntCloud` eigen-decomposition of the local displacement field
+       within a k-nearest-neighbor (kNN) neighborhood to compute a scalar measure
+       of variation based on the eigenvalues.
+
+    2. **Neighbor variance of displacement magnitude (`use_nonspatial=True`)**:
+       Computes the variance of the displacement magnitudes within each point’s
+       kNN neighborhood, ignoring surface geometry (purely neighborhood-based).
+
+    3. **Graph-based gradient magnitude (default)**:
+       Builds a kNN graph on the boundary points, estimates a local tangent-frame
+       basis, constructs gradient/divergence operators, and computes the squared
+       gradient magnitude of the displacement magnitude field at each point.
+
+    Parameters
+    ----------
+    border_pts : ndarray of shape (N, 3)
+        Coordinates of N boundary points (typically 3D) on a cell or tissue surface.
+    dx_ot : ndarray of shape (N, 3)
+        Displacement vectors associated with each boundary point, e.g. from an
+        optimal transport (OT) match between two consecutive surfaces.
+    knn : int, optional
+        Number of nearest neighbors to use when constructing local neighborhoods
+        on the surface. Used in all modes (eigen-based, nonspatial, and graph-based).
+        Default is 12.
+    use_eigs : bool, optional
+        If True, use the eigen-decomposition–based estimator via `PyntCloud`:
+        the displacement field is projected onto the local eigenvectors, and a
+        scalar variation measure is computed from the eigenvalues. When True,
+        this branch takes precedence over the graph-based default but can be
+        overridden by `use_nonspatial` (see Notes).
+    use_nonspatial : bool, optional
+        If True, compute the variance of the displacement magnitudes within each
+        point’s kNN neighborhood, ignoring the explicit surface geometry and gradient
+        operators. When True, this branch takes precedence over the graph-based default.
+
+    Returns
+    -------
+    dh : ndarray of shape (N,)
+        Scalar variation/roughness measure for each boundary point.
+
+        - If `use_eigs=True`: `dh[i]` is proportional to the sum of local eigenvalues
+          of the displacement field around point i (units depend on displacement scale).
+        - If `use_nonspatial=True`: `dh[i]` is the variance of the displacement magnitude
+          `||dx_ot||` in the kNN neighborhood of point i.
+        - Otherwise: `dh[i]` is the squared gradient magnitude of `||dx_ot||` estimated
+          in a local tangent frame via graph-based operators.
+
+    Notes
+    -----
+    - This function assumes boundary points are sampled densely enough to make kNN-based
+      local approximations meaningful.
+    - The default branch (when both `use_eigs` and `use_nonspatial` are False) relies on
+      helper functions:
+
+        * `knn_graph(pts, knn)` to construct a sparse kNN adjacency.
+        * `estimate_basis(pts, edge_index)` to estimate local tangent bases.
+        * `build_grad_div(border_pts, *basis, edge_index)` to construct gradient and
+          divergence operators.
+
+    - Non-finite displacement magnitudes (`||dx_ot||`) are masked and do not contribute
+      to the final estimates in the graph-based branch.
+    """
     rdx_ot = np.linalg.norm(dx_ot,axis=1)
-    cloud=PyntCloud(pd.DataFrame(data=border_pts,columns=['x','y','z']))
-    k_neighbors = cloud.get_neighbors(k=knn)
     if use_eigs:
+        cloud=PyntCloud(pd.DataFrame(data=border_pts,columns=['x','y','z']))
+        k_neighbors = cloud.get_neighbors(k=knn)
         cloud.points['x']=dx_ot[:,0]
         cloud.points['y']=dx_ot[:,1]
         cloud.points['z']=dx_ot[:,2]
         ev = cloud.add_scalar_field("eigen_decomposition", k_neighbors=k_neighbors)
         w = np.array([cloud.points[ev[0]],cloud.points[ev[1]],cloud.points[ev[2]]]).T
         dh = np.sum(w,axis=1)
-    else:
+    if use_nonspatial:
+        cloud=PyntCloud(pd.DataFrame(data=border_pts,columns=['x','y','z']))
+        k_neighbors = cloud.get_neighbors(k=knn)
         dh=np.var(rdx_ot[k_neighbors],axis=1)
+    else:
+        rdx_ot = np.linalg.norm(dx_ot,axis=1)
+        dh = np.ones_like(rdx_ot)*np.nan
+        indgood=np.where(np.isfinite(rdx_ot))[0]
+        if indgood.size>0:
+            pts=border_pts[indgood,:]
+            f=rdx_ot[indgood]
+            edge_index = knn_graph(pts, knn)
+            # Estimate normals and local frames
+            basis = estimate_basis(pts, edge_index)
+            # Build gradient and divergence operators (Scipy sparse matrices)
+            grad, div = build_grad_div(border_pts, *basis, edge_index)
+            grad_h = grad @ rdx_ot
+            grad_h = grad_h.reshape(border_pts.shape[0],2)
+            dh = np.ones_like(rdx_ot)*np.nan
+            dh[indgood] = (grad_h * grad_h).sum(axis=1)
     return dh
 
 def get_surface_displacement_deviation(border_dict,border_pts_prev,exclude_states=None,n=None,knn=12,use_eigs=False,alpha=1.,maxd=None):
@@ -1395,7 +1501,7 @@ def get_flux_ligdist(vdist,cmean=1.,csigma=.5,center=True):
     fsigmas=np.abs(csigma*np.abs(vdist))
     return fmeans,fsigmas
 
-def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_states=None,cell_labels_next=None,cell_labels_prev=None,lin_next=None,lin_prev=None,vdist=None,border_scale=1.0,radius=2.0,order=1,return_border_properties_list=False):
+def get_border_properties(cell_labels,surfaces=None,cell_states=None,state_ids=None,surface_states=None,cell_labels_next=None,cell_labels_prev=None,lin_next=None,lin_prev=None,vdist=None,border_scale=1.0,radius=2.0,order=1,return_border_properties_list=False,verbose=False):
     """
     Calculate geometric and physical properties of cell borders, with optional tracking between frames 
     and surface contact details.
@@ -1495,7 +1601,10 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
         cell_states=[1]*max_cellid
         cell_states=np.array(cell_states).astype(int)
         cell_states=np.insert(cell_states,0,0)
-    max_cell_state=np.max(cell_states)
+    if state_ids is None:
+        max_cell_state=np.max(cell_states)
+    else:
+        max_cell_state=np.max(np.setdiff1d(state_ids,surface_states))
     if surfaces is None:
         n_surf=0
     else:
@@ -1508,7 +1617,6 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
             if np.intersect1d(cell_states,surface_states).size>0:
                 print('Conflicting labels between cell states and surface states provided')
         cell_states=np.append(cell_states,surface_states)
-        nn_states=cell_states.copy()
         #print(f'cell states {cell_states}')
         surface_overlay=surfaces[0].copy()
         for i_surf in range(n_surf):
@@ -1525,7 +1633,9 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
             #plt.figure();plt.imshow(np.max(surfaces[i_surf],axis=0))
     #print(f'!!! {surface_states}')
     #print(f'!!!{np.unique(labels)}')
-    border_dict=get_border_dict(labels,states=cell_states,nn_states=nn_states,vdist=vdist,radius=radius,scale=border_scale)
+    if state_ids is None:
+        state_ids=np.arange(1,max_cell_state+n_surf+1)
+    border_dict=get_border_dict(labels,states=cell_states,nn_states=state_ids,state_ids=state_ids,vdist=vdist,radius=radius,scale=border_scale)
     contact_properties=np.ones((max_cellid+1,np.max(cell_states)+1,1+n_moments))*np.nan
     border_properties_list=[None]*(1+n_moments)
     border_properties_list[0]='total'
@@ -1546,7 +1656,8 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
                     border_charge=np.ones(indcell.size)*-1
                     border_charge[indcell_surf]=1
                     av_surf_fraction=indcell_surf.size/indcell.size
-                    print(f'\rcell {cellid} state {i_state} contact fraction {av_surf_fraction:.2f}              ',end="")
+                    if verbose:
+                        print(f'\rcell {cellid} state {i_state} contact fraction {av_surf_fraction:.2f}              ',end="")
                     charges_list = [{'q': q, 'xyz': tuple(border_pts)} for q, border_pts in zip(border_charge, border_pts)]
                     charge_dist = {'discrete': True, 'charges': charges_list}
                     Phi = MultipoleExpansion(charge_dist, order)
@@ -1557,7 +1668,8 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
                             contact_properties[cellid,i_state,i_prop]=Phi.multipole_moments[l,m]
                             i_prop=i_prop+1
                 else:
-                    print(f'\rcell {cellid} state {i_state} contact fraction {0.0:.2f}              ',end="")
+                    if verbose:
+                        print(f'\rcell {cellid} state {i_state} contact fraction {0.0:.2f}              ',end="")
     border_dict['contact_properties']=contact_properties
     border_dict['border_properties_list']=border_properties_list
     if cell_labels_next is not None:
@@ -1580,7 +1692,7 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
                 indcell=np.where(border_dict['index']==cellid)[0]
                 border_pts=border_dict['pts'][indcell,:]
                 indcell_next=np.where(np.isin(border_dict_next['index'],lin_next[cellid]))[0]
-                if indcell_next.size>0:
+                if indcell.size>1 and indcell_next.size>1:
                     border_pts_next=border_dict_next['pts'][indcell_next,:]
                     inds_ot,dx_ot=get_ot_dx(border_pts,border_pts_next,return_dx=True,return_cost=False)
                     border_dx_next[indcell,:]=-dx_ot
@@ -1626,7 +1738,7 @@ def get_border_properties(cell_labels,surfaces=None,cell_states=None,surface_sta
                 indcell=np.where(border_dict['index']==cellid)[0]
                 border_pts=border_dict['pts'][indcell,:]
                 indcell_prev=np.where(np.isin(border_dict_prev['index'],lin_prev[cellid]))[0]
-                if indcell_prev.size>0:
+                if indcell.size>1 and indcell_prev.size>1:
                     border_pts_prev=border_dict_prev['pts'][indcell_prev,:]
                     inds_ot,dx_ot=get_ot_dx(border_pts,border_pts_prev,return_dx=True,return_cost=False)
                     border_dx_prev[indcell,:]=-dx_ot
